@@ -110,7 +110,8 @@ function extensionLCCompileVersion pLCCompile
    
    extensionCompile pLCCompile, tTempFile, "", "", "", tFolder, \
          "module.lcm"
-   
+
+	delete file tTempFile
    return __CompiledModuleVersion(tFolder & slash & "module.lcm")
 end extensionLCCompileVersion
 
