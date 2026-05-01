@@ -1058,7 +1058,7 @@ Boolean MCField::mdown(uint2 which)
             if (m_password_toggle && MCU_point_in_rect(_passwordToggleIconRect(), mx, my))
             {
                 m_password_field = !m_password_field;
-                message(MCM_password_toggle_clicked);
+                message_with_valueref_args(MCM_password_toggle_clicked, m_password_field ? MCSTR("true") : MCSTR("false"));
                 layer_redrawrect(getfrect());
                 return True;
             }
