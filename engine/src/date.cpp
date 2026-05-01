@@ -708,12 +708,12 @@ static bool datetime_validate(const MCDateTime& p_datetime)
 
 void MCD_decompose_format(MCExecContext &ctxt, uint4 p_format, uint4& r_length, bool& r_system)
 {
-	if (p_format > CF_SYSTEM)	// = 2000
+	if (p_format > CF_SYSTEM)	// = the system xxx date
 	{
 		r_system = true;
 		r_length = p_format - CF_SYSTEM;
 	}
-	else if (p_format > CF_ENGLISH)	// = 1000
+	else if (p_format > CF_ENGLISH)	// = the working xxx date
 	{
 		r_system = false;
 		r_length = p_format - CF_ENGLISH;
@@ -868,10 +868,12 @@ void MCD_dateformat(MCExecContext &ctxt, Properties p_length, MCStringRef& r_dat
 	int t_length;
 	t_length = p_length;
 
-	if (t_length >= CF_SYSTEM)
+	// the system date
+	if (t_length >= CF_SYSTEM)	// = 2000
 		t_length -= CF_SYSTEM;
 
-	if (t_length >= CF_ENGLISH)
+	// the working date or the English date
+	if (t_length >= CF_ENGLISH)	// = 1000
 	{
 		t_length -= CF_ENGLISH;
 		t_locale = g_basic_locale;
@@ -915,7 +917,7 @@ static bool MCD_decompose_convert_format(MCExecContext &ctxt, int p_from, const 
 		p_from -= CF_ENGLISH;
 	}
 	else
-//		t_use_system = ctxt.GetUseSystemDate() == True;
+		t_use_system = ctxt.GetUseSystemDate() == True;
 
 	r_locale = t_use_system ? MCS_getdatetimelocale() : g_basic_locale;
 
@@ -947,6 +949,7 @@ static bool MCD_decompose_convert_format(MCExecContext &ctxt, int p_from, const 
 			return true;
 			//r_is_date = false;
 
+		case CF_ENGLISH:
 		case CF_DATE:
 		case CF_SHORT_DATE:
 			r_format = MCValueRetain(r_locale -> date_formats[0]);
@@ -1327,27 +1330,30 @@ bool MCD_convert_from_datetime(MCExecContext &ctxt, MCDateTime p_datetime, Conve
 	}
 	else 
 	{
-		// convert dateitems to internet date, dateitems, sql date
-		// no secondary_to
-
+		// long and short don't apply to internet or sql dates
 		switch (p_primary_to)
 		{
-			case CF_INTERNET_DATE:
-			case CF_INTERNET:
+			case CF_SHORT_DATE:
+			case CF_SHORT:
+			case CF_LONG_DATE:
+			case CF_LONG:
+				switch(p_secondary_to)
+				{
+					case CF_INTERNET:
+					case CF_SQL_DATE:
+					case CF_SQL:
+						p_primary_to = p_secondary_to;
+						p_secondary_to = CF_UNDEFINED;
+				}
+				break;
 			case CF_SQL_DATE:
 			case CF_SQL:
-//			case CF_SHORT:
 				p_secondary_to = CF_UNDEFINED;
 		}
 
 		switch (p_secondary_to)
 		{
-			case CF_INTERNET_DATE:
-			case CF_INTERNET:
-			case CF_SQL_DATE:
-			case CF_SQL:
 			case CF_DATEITEMS:
-//			case CF_SHORT:
 				p_secondary_to = CF_UNDEFINED;
 		}
 
