@@ -472,7 +472,7 @@ const static LT convert_table[] =
         {"short", TT_CHUNK, CF_SHORT},
         {"sql", TT_CHUNK, CF_SQL},
         {"system", TT_CHUNK, CF_SYSTEM},
-        {"time", TT_CHUNK, CF_TIME}
+        {"time", TT_CHUNK, CF_TIME},
     };
 
 const static LT encryption_table[] =

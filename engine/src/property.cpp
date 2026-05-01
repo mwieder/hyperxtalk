@@ -571,7 +571,7 @@ Parse_stat MCProperty::parse(MCScriptPoint &sp, Boolean the)
 	}
 
 	if (which == P_SHORT || which == P_LONG || which == P_ABBREVIATE ||
-			which == P_ENGLISH || which == P_INTERNET || which == P_SYSTEM ||
+			which == P_ENGLISH || which == P_INTERNET || which == P_SQL || which == P_SYSTEM ||
 			which == P_WORKING)
 	{
 		uint2 dummy;
@@ -598,6 +598,8 @@ Parse_stat MCProperty::parse(MCScriptPoint &sp, Boolean the)
 		}
 		else if (sp.skip_token(SP_FACTOR, TT_PROPERTY, P_INTERNET) == PS_NORMAL)
 				which = P_INTERNET;
+		else if (sp.skip_token(SP_FACTOR, TT_PROPERTY, P_SQL) == PS_NORMAL)
+				which = P_SQL;
 
 		if (sp.next(type) != PS_NORMAL)
 		{
@@ -649,6 +651,11 @@ Parse_stat MCProperty::parse(MCScriptPoint &sp, Boolean the)
 			case F_DATE_FORMAT:
 				function = (Functions)te->which;
 				if (which == P_INTERNET && function != F_DATE)
+				{
+					MCperror->add(PE_FACTOR_BADPARAM, sp);
+					return PS_ERROR;
+				}
+				if (which == P_SQL && function != F_DATE)
 				{
 					MCperror->add(PE_FACTOR_BADPARAM, sp);
 					return PS_ERROR;

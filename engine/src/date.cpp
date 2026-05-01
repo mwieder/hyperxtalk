@@ -35,7 +35,7 @@ static int1 s_datetime_month_length[] = {31,28,31,30,31,30,31,31,30,31,30,31};
 
 static const char *s_internet_date_format = "!%a, %#d %b %Y %H:%M:%S %z";
 static const char *s_sql_date_format = "!%#Y-%m-%d %H:%M:%S";
-static const char *s_short_sql_date_format = "!%#Y-%m-%#d";
+static const char *s_short_sql_date_format = "!%#Y-%m-%d";
 static const char *s_items_date_format = "!%#Y,%#m,%#d,%#H,%#M,%#S,%#w";
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -65,7 +65,7 @@ static const char *s_items_date_format = "!%#Y,%#m,%#d,%#H,%#M,%#S,%#w";
 // short english - %#m/%#d/%y
 // abbrev english - %a, %b %d, %#Y
 // long english - %A, %B %d, %#Y
-// sql date - %#Y-%#m-%#d %H:%M:%S
+// sql date - %#Y-%m-%d %H:%M:%S
 //
 
 bool MCDateTimeInitialize()
@@ -708,12 +708,12 @@ static bool datetime_validate(const MCDateTime& p_datetime)
 
 void MCD_decompose_format(MCExecContext &ctxt, uint4 p_format, uint4& r_length, bool& r_system)
 {
-	if (p_format > CF_SYSTEM)
+	if (p_format > CF_SYSTEM)	// = 2000
 	{
 		r_system = true;
 		r_length = p_format - CF_SYSTEM;
 	}
-	else if (p_format > CF_ENGLISH)
+	else if (p_format > CF_ENGLISH)	// = 1000
 	{
 		r_system = false;
 		r_length = p_format - CF_ENGLISH;
@@ -735,21 +735,30 @@ void MCD_date(MCExecContext &ctxt, Properties p_format, MCStringRef &r_date)
 	MCD_decompose_format(ctxt, p_format, t_length, t_use_system);
 
 	// default to short date length
-	if (t_length != P_SHORT && t_length != P_ABBREVIATE && t_length != P_LONG && t_length != P_INTERNET && t_length != P_SQL)
-		t_length = P_SHORT;
+//	if (t_length != P_SHORT && t_length != P_ABBREVIATE && t_length != P_LONG && t_length != P_INTERNET && t_length != P_SQL)
+	switch(t_length)
+	{
+		case P_ABBREVIATE:
+		case P_LONG:
+		case P_INTERNET:
+		case P_SQL:
+			break;
+		default:
+			t_length = P_SHORT;
+	}
 
 	// set the locale for the date: default to basic
 	const MCDateTimeLocale *t_locale;
-	if (t_use_system && t_length != P_INTERNET)
+	if (t_use_system && t_length != P_INTERNET && t_length != P_SQL)
 		t_locale = MCS_getdatetimelocale();
 	else
 		t_locale = g_basic_locale;
 
 	// now get the date format
 	MCStringRef t_date_format;
-	if (t_length == P_INTERNET)
+	if (P_INTERNET == t_length)
 		t_date_format = MCSTR(s_internet_date_format);
-	else if (t_length == P_SQL)
+	else if (P_SQL == t_length)
 		t_date_format = MCSTR(s_sql_date_format);
 	else
 		t_date_format = t_locale -> date_formats[t_length - P_SHORT];
@@ -889,11 +898,11 @@ void MCD_dateformat(MCExecContext &ctxt, Properties p_length, MCStringRef& r_dat
 	r_dateformat = t_format;
 }
 
-// This function returns true if the format is a time.
+// This function returns true if the format is a time, false if a date.
 //
 static bool MCD_decompose_convert_format(MCExecContext &ctxt, int p_from, const MCDateTimeLocale*& r_locale, MCStringRef &r_format)
 {
-	bool t_use_system;
+	bool t_use_system = false;
 
 	if (p_from >= CF_SYSTEM)		// = 2000
 	{
@@ -906,7 +915,7 @@ static bool MCD_decompose_convert_format(MCExecContext &ctxt, int p_from, const 
 		p_from -= CF_ENGLISH;
 	}
 	else
-		t_use_system = ctxt.GetUseSystemDate() == True;
+//		t_use_system = ctxt.GetUseSystemDate() == True;
 
 	r_locale = t_use_system ? MCS_getdatetimelocale() : g_basic_locale;
 
@@ -958,7 +967,6 @@ static bool MCD_decompose_convert_format(MCExecContext &ctxt, int p_from, const 
 			assert(false);
 			break;
 	}
-
 	return false;
 }
 
@@ -1322,10 +1330,27 @@ bool MCD_convert_from_datetime(MCExecContext &ctxt, MCDateTime p_datetime, Conve
 		// convert dateitems to internet date, dateitems, sql date
 		// no secondary_to
 
-//		if (p_primary_to == CF_INTERNET_DATE || p_secondary_to == CF_DATEITEMS || p_primary_to == CF_SQL_DATE)
-		if (p_primary_to == CF_INTERNET_DATE || p_secondary_to == CF_DATEITEMS)
+		switch (p_primary_to)
+		{
+			case CF_INTERNET_DATE:
+			case CF_INTERNET:
+			case CF_SQL_DATE:
+			case CF_SQL:
+//			case CF_SHORT:
 				p_secondary_to = CF_UNDEFINED;
-        
+		}
+
+		switch (p_secondary_to)
+		{
+			case CF_INTERNET_DATE:
+			case CF_INTERNET:
+			case CF_SQL_DATE:
+			case CF_SQL:
+			case CF_DATEITEMS:
+//			case CF_SHORT:
+				p_secondary_to = CF_UNDEFINED;
+		}
+
 		t_success = MCS_datetimetolocal(p_datetime);
         
 		if (!t_success)
@@ -1341,7 +1366,7 @@ bool MCD_convert_from_datetime(MCExecContext &ctxt, MCDateTime p_datetime, Conve
 
 		if (CF_UNDEFINED != p_secondary_to)
 		{
-            MCAutoStringRef t_secondary_format;
+			MCAutoStringRef t_secondary_format;
 			MCStringRef t_buffer_secondary;
 			MCD_decompose_convert_format(ctxt, p_secondary_to, t_locale, &t_secondary_format);
 			datetime_format(t_locale, *t_secondary_format, p_datetime, t_buffer_secondary);
