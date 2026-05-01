@@ -2412,7 +2412,6 @@ on loadImages
 end loadImages
 
 on revUpdatePalette
-   refreshProjectView
    ## Do nothing
 end revUpdatePalette
 

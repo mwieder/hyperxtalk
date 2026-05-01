@@ -252,10 +252,7 @@ on revInternal__openStack
    
    revInternal__Log "Leave", "revInternal__openStack"
    revInternal__Log "End"
- 
-  -- Add "usr/local" and new HomeBrew path (shell install path on AppleSilicon) - Paul McClernan
-  put $PATH &":/usr/local/bin:/opt/homebrew" into $PATH
-
+   
    -- Now the home stack has loaded, we can allow interrupts..
    set the allowInterrupts to true
 end revInternal__openStack

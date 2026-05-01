@@ -1343,27 +1343,6 @@ on revIDEInitialiseIDELibrary
    
    ## Regenerate dictionary data
    revInternal__LoadLibrary "revDatabaseLibrary"
-
-   -- Seed api.sqlite into the user doc-cache before any code opens the
-   -- database.  ideDocsInitialize caches the SQLite connection the first
-   -- time it runs; if the DB is opened as an empty stub that cached
-   -- connection is used for the entire session and ideDocsEnsureDatabase
-   -- inside revidedocumentationlibrary never gets another chance to copy
-   -- the real file.  Do the copy here — unconditionally before anything
-   -- else touches the database — so the connection is always seeded from
-   -- the 6 MB shipped database.
-   revIDEEnsureAPIDatabase
-
-   -- home.livecodescript only calls revIDEGenerateDistributedDocs when
-   -- NOT installed (dev builds).  On installed builds we must trigger it
-   -- here so that api.sqlite is written to the user doc-cache before
-   -- revIDERegenerateBuiltDictionaryData tries to read from it.
-   -- revIDEGenerateDistributedDocs is a no-op when docs/ is absent or
-   -- the cache is already up-to-date, so this is safe to call every launch.
-   if revEnvironmentIsInstalled() then
-      revIDEGenerateDistributedDocs
-   end if
-
    revIDERegenerateBuiltDictionaryData
    
    ## Initialise property library
@@ -1372,52 +1351,6 @@ on revIDEInitialiseIDELibrary
    ideSubscribe "ideExtensionsChanged"
    ideSubscribe "ideDesktopChanged"
 end revIDEInitialiseIDELibrary
-
--- Copy the shipped api.sqlite from the app bundle into the user doc-cache
--- before anything opens the SQLite connection.  Once revDocsOpenAPIDatabase
--- is called the first time, the connection is cached for the entire session
--- and ideDocsEnsureDatabase inside revidedocumentationlibrary never runs
--- again.  This handler runs unconditionally early in IDE startup so the
--- first open always finds the real 6 MB database, not an empty stub.
-on revIDEEnsureAPIDatabase
-   local tSource, tDest, tCacheDir, tStamp
-   set the itemdelimiter to "/"
-
-   -- Source: shipped database inside the app bundle (or source repo in dev).
-   put item 1 to -3 of the filename of stack "home" & \
-         "/Documentation/html_viewer/resources/data/api/api.sqlite" into tSource
-   if there is not a file tSource then exit revIDEEnsureAPIDatabase
-
-   -- Destination: user-writable doc-cache.
-   put revEnvironmentUserDocsPath() & "/IDE" into tCacheDir
-   revIDEEnsurePath tCacheDir
-   put tCacheDir & "/api.sqlite" into tDest
-   put tCacheDir & "/api.sqlite.version" into tStamp
-
-   -- Skip if we already seeded this version's database.
-   -- The stamp file records the engine version string written after a
-   -- successful copy; a fresh install or version upgrade will have no
-   -- matching stamp so the copy always runs at least once per version.
-   if there is a file tDest then
-      if there is a file tStamp then
-         if url ("file:" & tStamp) is the version then
-            exit revIDEEnsureAPIDatabase
-         end if
-      end if
-   end if
-
-   -- Use the OS copy command — more reliable than binfile: URL for large
-   -- binary files and avoids any in-memory string truncation issues.
-   if the platform is "macosx" or the platform is "linux" then
-      get shell("cp -f " & quote & tSource & quote & " " & quote & tDest & quote)
-   else
-      -- Windows: write via the binfile URL mechanism.
-      put url ("binfile:" & tSource) into url ("binfile:" & tDest)
-   end if
-
-   -- Write the version stamp so subsequent launches skip the copy.
-   put the version into url ("file:" & tStamp)
-end revIDEEnsureAPIDatabase
 
 on ideExtensionsChanged
    revIDERegenerateBuiltDictionaryData
@@ -4218,19 +4151,10 @@ function revIDESpecialFolderPath pKey, pParam
          if pParam is not empty then
             put "_" & pParam after pKey
          end if
-         if revEnvironmentIsInstalled() then
-            -- On installed builds the install directory is read-only on
-            -- Windows (Program Files).  revIDEGenerateDistributedAPI writes
-            -- *.js files here, and revIDEGetBaseDocsData / revIDERegenerateBuiltAPIs
-            -- reads them back.  If both point to the install dir the writes fail
-            -- silently and the reads return stale data.  Redirect to the
-            -- user-writable documentation cache so writes succeed and reads
-            -- immediately see the fresh content.
-            put revIDESpecialFolderPath("documentation cache") & "/" & tolower(pKey) into tPath
-         else
-            put item 1 to -3 of the filename of stack "home" & "/Documentation/html_viewer/resources/data/" & tolower(pKey) into tPath
+         put item 1 to -3 of the filename of stack "home" & "/Documentation/html_viewer/resources/data/" & tolower(pKey) into tPath
+         if not revEnvironmentIsInstalled() then
+            revIDEEnsurePath tPath
          end if
-         revIDEEnsurePath tPath
          return tPath
          break
       case "examples"
@@ -7244,7 +7168,7 @@ function revIDEAcceptedTypes pType
       case "media"
          return revIDEAcceptedTypes("audio") & comma & revIDEAcceptedTypes("video")
       case "stack"
-         return "hyperxtalk,hyperxtalkscript,livecode,rev,lc,livecodescript,mc,oxtstack,oxtstackscript"
+         return "hyperxtalk,hyperxtalkscript,livecode,rev,lc,livecodescript,mc"
       case "text"
          return "txt"
       case "graph"
@@ -7504,7 +7428,7 @@ private function __answerGetTypeString pType
    local tTagString
    switch pType
       case "stack"
-         put revIDELocalise("xTalk Stacks") into tTagString
+         put revIDELocalise("LiveCode Stacks") into tTagString
          break
       case "image"
          put revIDELocalise("Images") into tTagString
@@ -8978,31 +8902,13 @@ on revIDEToggleToolbar pWhich
 end revIDEToggleToolbar
 
 on revIDEToggleShowIDEStacksInLists
-   global gREVShowStacks
-
-   -- Toggle the preference directly rather than routing through the
-   -- revPreferencesGUI button.  The old approach sent "revToggleShowStacks"
-   -- to a button in revPreferencesGUI, which only works if that stack is
-   -- already loaded.  On first use each session the stack isn't open, so
-   -- its preOpenStack init resets the button hilite before revToggleShowStacks
-   -- can read it, causing the toggle to be a no-op and requiring multiple
-   -- clicks before the state became consistent.
-   local tNewValue
-   put not revIDEGetPreference("cShowRevolutionStacks") into tNewValue
-   put tNewValue into gREVShowStacks
-
-   -- Persist and notify all subscribers (project browser, message box, etc.)
-   revIDESetPreference "cShowRevolutionStacks", tNewValue
-
-   -- If the Preferences dialog is open, keep its checkbox in sync
-   if the mode of stack "revPreferencesGUI" is not 0 then
-      set the hilite of button "show revolution stacks" of card "general" of stack "revPreferencesGUI" to tNewValue
-   end if
-
+   global gREvShowStacks
    lock screen
+   set the hilite of button "show revolution stacks" of card "general" of stack "revPreferencesGUI" to not gREVShowStacks
+   
    local tOpenStacks
    put the openStacks into tOpenStacks
-
+   
    local tFrontStack
    put empty into tFrontStack
    repeat for each line tStack in tOpenStacks
@@ -9018,8 +8924,9 @@ on revIDEToggleShowIDEStacksInLists
          put true into tBringToFront
       end if
    end if
+   send "revToggleShowStacks" to button "show revolution stacks" of card "general" of stack "revPreferencesGUI"
    unlock screen
-
+   
    if tBringToFront then
       lock messages
       switch the mode of stack tFrontStack
@@ -9031,7 +8938,7 @@ on revIDEToggleShowIDEStacksInLists
             modeless tFrontStack
             break
       end switch
-      unlock messages
+      unlock messages 
    end if
 end revIDEToggleShowIDEStacksInLists
 
@@ -10009,9 +9916,10 @@ constant kMoveBufferSize = 20
 # OK-2009-10-07 : This command does "go pMoveSpecifier" with a buffering effect to prevent it
 # getting carried out more frequently than every kMoveBufferSize milliseconds
 on revIDEGoCard pMoveSpecifier
-   if (the milliseconds - sMoveBuffers[pMoveSpecifier]) < kMoveBufferSize then
+   if the milliseconds - sMoveBuffers[pMoveSpecifier] < kMoveBufferSize then
       exit revIDEGoCard
    end if
+   
    set the defaultStack to the topStack
    local tCommand
    put "go " & pMoveSpecifier into tCommand
@@ -11122,32 +11030,60 @@ on revIDERegenerateBuiltGuides
    revIDESetUTF8FileContents tDocsCache & slash & "built_guide.js", tData
 end revIDERegenerateBuiltGuides
 
-constant kAPIs = "xTalk Script,livecode_script|xTalk Builder,livecode_builder|xTalk IDE,livecode_ide"
+constant kAPIs = "LiveCode Script,livecode_script|LiveCode Builder,livecode_builder|LiveCode IDE,livecode_ide"
 on revIDERegenerateBuiltAPIs
+   -- Ensure revDocsParser is loaded before dispatching to it.
+   -- In dev mode, revIDEGenerateDistributedDocs loads the parser before calling
+   -- revIDERegenerateBuiltDictionaryData.  In installed mode that path is skipped,
+   -- so we must load the parser here ourselves or the dispatch throws
+   -- EE_DISPATCH_BADTARGET and aborts the entire revidelibrary load.
+   if there is no stack "revDocsParser" then
+      local tParserPath
+      if revEnvironmentIsInstalled() then
+         put revIDESpecialFolderPath("Toolset") & "/libraries/revdocsparser.livecodescript" into tParserPath
+      else
+         put revEnvironmentRepositoryPath() & slash & "ide-support" & slash & "revdocsparser.livecodescript" into tParserPath
+      end if
+      if there is a file tParserPath then
+         start using stack tParserPath
+      end if
+   end if
    local tData, tAPIData
+   -- Save/restore lineDelimiter so callers are not affected.
+   local tSavedLineDelimiter
+   put the lineDelimiter into tSavedLineDelimiter
    set the lineDelimiter to "|"
    repeat for each line tAPI in kAPIs
+      -- Extract name/type with comma itemdelimiter before any revIDESpecialFolderPath
+      -- call can clobber it with "/".
+      local tAPIName, tAPIType
+      set the itemdelimiter to ","
+      put item 1 of tAPI into tAPIName
+      put item 2 of tAPI into tAPIType
       -- For now, the IDE API is BFS only
-      if item 2 of tAPI is "livecode_ide" and revEnvironmentIsInstalled() then
+      if tAPIType is "livecode_ide" and revEnvironmentIsInstalled() then
          next repeat
       end if
-      
-      put revIDEGetDocsAPIData(item 2 of tAPI) into tAPIData
-      dispatch function "revDocsCreateAPIJSON" to stack "revDocsParser" \
-            with item 1 of tAPI, item 2 of tAPI, "", tAPIData
-      if tData is empty then
-         put the result into tData
-      else
-         put comma & the result after tData
+
+      put revIDEGetDocsAPIData(tAPIType) into tAPIData
+      if there is a stack "revDocsParser" then
+         dispatch function "revDocsCreateAPIJSON" to stack "revDocsParser" \
+               with tAPIName, tAPIType, "", tAPIData
+         if tData is empty then
+            put the result into tData
+         else
+            put comma & the result after tData
+         end if
       end if
    end repeat
-   
+   set the lineDelimiter to tSavedLineDelimiter
+
    local tDictionaryData
    put "var dictionary_data =" & return & "{" & return & \
          tab & quote & "docs" & quote & ":[" & \
          tData & return & tab & "]" & return & "}" \
          into tDictionaryData
-   
+
    local tDocsCache
    put revIDESpecialFolderPath("documentation cache") into tDocsCache
    revIDESetUTF8FileContents tDocsCache & slash & "built_api.js", tDictionaryData
@@ -11159,12 +11095,13 @@ on revIDERegenerateBuiltDictionaryData
 end revIDERegenerateBuiltDictionaryData
 
 on revIDEGenerateDistributedDocs
-   -- On dev builds load revdocsparser from the repo; on installed builds it is
-   -- already in memory (copied to Toolset/libraries by the installer and scanned
-   -- by revInternal__StackFiles at startup), so using the repo path (which is
-   -- empty when installed) would throw an error and abort the entire function.
+   -- Load revdocsparser so its handlers are in the message hierarchy.
+   -- Dev builds use the repo ide-support path.  Installed builds use the
+   -- Toolset/libraries path where the installer places revdocsparser.livecodescript;
+   -- the repo path is empty when installed, so using it throws EE_START_BADTARGET
+   -- and aborts the entire library load.
    if revEnvironmentIsInstalled() then
-      start using stack (revIDESpecialFolderPath("IDE") & "/ide-support/revdocsparser.livecodescript")
+      start using stack (revIDESpecialFolderPath("Toolset") & "/libraries/revdocsparser.livecodescript")
    else
       start using stack (revEnvironmentRepositoryPath() & slash & "ide-support" & slash & "revdocsparser.livecodescript")
    end if
@@ -11218,49 +11155,15 @@ private on revIDEGenerateDistributedGuide
 end revIDEGenerateDistributedGuide
 
 private command revIDEGenerateDistributedAPI
-   local tRepoPath, tDocsFolder, tDistributed
-
-   -- On installed builds we write to the user-writable doc cache rather than
-   -- the read-only install folder.  On dev builds we write directly to the
-   -- distributed (repo) location, matching the original behaviour.
-   put not revEnvironmentIsInstalled() into tDistributed
-
-   if revEnvironmentIsInstalled() then
-      -- docs/ is shipped alongside the app by the installer.
-      -- Use revIDESpecialFolderPath("IDE") rather than dissecting the filename
-      -- directly; the latter requires itemdel="/" which is not guaranteed here.
-      put revIDESpecialFolderPath("IDE") & "/docs" into tDocsFolder
-   else
-      put revEnvironmentRepositoryPath() into tRepoPath
-      put tRepoPath & slash & "docs" into tDocsFolder
-   end if
-
+   local tRepoPath
+   put revEnvironmentRepositoryPath() into tRepoPath
+   
+   local tDocsFolder
+   put tRepoPath & slash & "docs" into tDocsFolder
    if there is not a folder tDocsFolder then
-      -- No source docs available; nothing to build.
-      exit revIDEGenerateDistributedAPI
+      answer "No dictionary data found at" && tDocsFolder
    end if
-
-   -- On installed builds, force-rebuild into the user doc cache whenever the
-   -- engine version stored in api_version.txt doesn't match the running engine
-   -- version.  This fires on every new install (version string changes) while
-   -- avoiding a full rebuild on every subsequent launch of the same version.
-   -- Timestamp comparisons are unreliable here because script.js written during
-   -- the first doc-build ends up newer than the installed .lcdoc files, so the
-   -- old staleness check never triggered after the first run.
-   local tForceBuild
-   if revEnvironmentIsInstalled() then
-      local tVersionStampFile, tStoredVersion
-      put revIDESpecialFolderPath("documentation cache") & slash & "api_version.txt" into tVersionStampFile
-      if there is a file tVersionStampFile then
-         put url ("file:" & tVersionStampFile) into tStoredVersion
-         put (trim(tStoredVersion) is not the version) into tForceBuild
-      else
-         put true into tForceBuild
-      end if
-   else
-      put false into tForceBuild
-   end if
-
+   
    # Check to see if we need to regenerate the script dictionary
    local tNeedUpdate, tInputs, tError, tOutput
    put the effective filename of stack "revDocsParser" into tInputs[0]
@@ -11268,12 +11171,8 @@ private command revIDEGenerateDistributedAPI
    put tDocsFolder & slash & "glossary" into tInputs[2]
    put revIDESpecialFolderPath("api", "livecode_script") & slash & "script.js" into tOutput
    
-   if tForceBuild then
-      put true into tNeedUpdate
-   else
-      put revIDEIsFilesetStale(tInputs, tOutput, true, tError) into tNeedUpdate
-   end if
-
+   put revIDEIsFilesetStale(tInputs, tOutput, true, tError) into tNeedUpdate
+   
    # Regenerate dictionary if necessary
    if tNeedUpdate then
       local tScriptA
@@ -11283,9 +11182,9 @@ private command revIDEGenerateDistributedAPI
       put "dictionary" into tScriptA["type"]
       # Parse the dictionary files into a structured array
       put revDocsParseDictionaryToLibraryArray(tDocsFolder) into tScriptA["doc"]
-
+      
       # Update the database
-      ideDocsUpdateDatabase "livecode_script", tScriptA, tDistributed
+      ideDocsUpdateDatabase "livecode_script", tScriptA, true
       
       local tJSON
       put revDocsFormatLibraryDocArrayAsJSON(tScriptA) into tJSON
@@ -11308,12 +11207,8 @@ private command revIDEGenerateDistributedAPI
       add 1 to tCount
    end repeat
    
-   if tForceBuild then
-      put true into tNeedUpdate
-   else
-      put revIDEIsFilesetStale(tInputs, tOutput, false, tError) into tNeedUpdate
-   end if
-
+   put revIDEIsFilesetStale(tInputs, tOutput, false, tError) into tNeedUpdate
+   
    # Regenerate dictionary if necessary
    if tNeedUpdate then
       local tModularA, tModularCount, tBlocksA, tParsedA
@@ -11347,7 +11242,7 @@ private command revIDEGenerateDistributedAPI
       put "dictionary" into tBuilderA["type"]
       
       # Update the database
-      ideDocsUpdateDatabase "livecode_builder", tBuilderA, tDistributed
+      ideDocsUpdateDatabase "livecode_builder", tBuilderA, true
       
       put revDocsFormatLibraryDocArrayAsJSON(tBuilderA) into tJSON
       revIDESetUTF8FileContents revIDESpecialFolderPath("api", "livecode_builder") & slash & "builder.js", \
@@ -11361,34 +11256,22 @@ private command revIDEGenerateDistributedAPI
    local tDatagridDoc, tFolder
    put revIDESpecialFolderPath("Documentation") &"/dictionary" into tFolder
    put tFolder & slash & "datagrid.lcdoc" into tInputs[1]
-   if tForceBuild then
-      put true into tNeedUpdate
-   else
-      put revIDEIsFilesetStale(tInputs, tOutput, false, tError) into tNeedUpdate
-   end if
-   # Regenerate if necessary
+   put revIDEIsFilesetStale(tInputs, tOutput, false, tError) into tNeedUpdate
+   # Regenerate if necessary   
    if tNeedUpdate then
       local tLibA
       put revDocsParseDocFileToLibraryArray(tFolder & slash & "datagrid.lcdoc", "DataGrid", "LiveCode") into tLibA
 
       # Update the database
-      ideDocsUpdateDatabase "livecode_script", tLibA, tDistributed
+      ideDocsUpdateDatabase "livecode_script", tLibA, true
       put revDocsFormatLibraryDocArrayAsJSON(tLibA) into tJSON
       revIDESetUTF8FileContents revIDESpecialFolderPath("api", "livecode_script") & slash & "dg.js", \
             tJSON
    end if
    
    local tIDELibsFolder, tIdeSupportFolder
-   if revEnvironmentIsInstalled() then
-      -- On installed builds use the paths relative to the app.
-      -- Use revIDESpecialFolderPath("IDE") / revIDESpecialFolderPath("Toolset")
-      -- rather than dissecting the filename directly (requires itemdel="/").
-      put revIDESpecialFolderPath("IDE") & "/ide-support" into tIdeSupportFolder
-      put revIDESpecialFolderPath("Toolset") & "/libraries" into tIDELibsFolder
-   else
-      put tRepoPath & "/ide-support" into tIdeSupportFolder
-      put tRepoPath & "/ide/Toolset/libraries" into tIDELibsFolder
-   end if
+   put tRepoPath & "/ide-support" into tIdeSupportFolder
+   put tRepoPath & "/ide/Toolset/libraries" into tIDELibsFolder
    
    # Check to see if we need to regenerate the ide dictionary
    put empty into tInputs
@@ -11397,11 +11280,7 @@ private command revIDEGenerateDistributedAPI
    put tIDELibsFolder into tInputs[2]
    put revIDESpecialFolderPath("api", "livecode_ide") & slash & "ide.js" into tOutput
    
-   if tForceBuild then
-      put true into tNeedUpdate
-   else
-      put revIDEIsFilesetStale(tInputs, tOutput, true, tError) into tNeedUpdate
-   end if
+   put revIDEIsFilesetStale(tInputs, tOutput, true, tError) into tNeedUpdate
    # Regenerate dictionary if necessary
    if tNeedUpdate then
       local tIDELibs, tIDEA, tIDECount, tIDEParsedA
@@ -11440,7 +11319,7 @@ private command revIDEGenerateDistributedAPI
       put "dictionary" into tIDELibraryA["type"]
       
       # Update the database
-      ideDocsUpdateDatabase "livecode_ide", tIDELibraryA, tDistributed
+      ideDocsUpdateDatabase "livecode_ide", tIDELibraryA, true
       
       put revDocsFormatLibraryDocArrayAsJSON(tIDELibraryA) into tJSON
       revIDESetUTF8FileContents revIDESpecialFolderPath("api", "livecode_ide") & slash & "ide.js", \
@@ -11462,26 +11341,16 @@ private command revIDEGenerateDistributedAPI
       put revIDESpecialFolderPath("api", "livecode_script") & slash & toLower(item 1 to -2 of tFile) & ".js" into tOutput
       put the effective filename of stack "revDocsParser" into tInputs[0]
       put tExtractedDocsFolder & slash & tFile into tInputs[1]
-      if tForceBuild then
-         put true into tNeedUpdate
-      else
-         put revIDEIsFilesetStale(tInputs, tOutput, false, tError) into tNeedUpdate
-      end if
+      put revIDEIsFilesetStale(tInputs, tOutput, false, tError) into tNeedUpdate
       # Regenerate if necessary
       if tNeedUpdate then
          put revDocsParseDocFileToLibraryArray(tExtractedDocsFolder & slash & tFile, item -2 of tFile, "LiveCode") into tLibA
          # Update the database
-         ideDocsUpdateDatabase "livecode_script", tLibA, tDistributed
+         ideDocsUpdateDatabase "livecode_script", tLibA, true
          put revDocsFormatLibraryDocArrayAsJSON(tLibA) into tJSON
          revIDESetUTF8FileContents tOutput, tJSON
       end if
    end repeat
-
-   -- Stamp the cache with the current engine version so that subsequent
-   -- launches of the same version skip the rebuild entirely.
-   if revEnvironmentIsInstalled() then
-      put the version into url ("file:" & tVersionStampFile)
-   end if
 end revIDEGenerateDistributedAPI
 
 on revIDEEnsureDictionaryUrl pWhich
