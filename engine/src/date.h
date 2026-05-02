@@ -182,6 +182,7 @@ struct MCDateTimeLocale
 	}
 };
 
+/*
 typedef uint4 MCDateTimeFormat;
 enum
 {
@@ -204,6 +205,7 @@ enum
 	DATETIME_FORMAT_SHORT_SYSTEM_TIME,
 	DATETIME_FORMAT_LONG_SYSTEM_TIME
 };
+*/
 
 extern bool MCDateTimeInitialize();
 extern bool MCDateTimeFinalize();

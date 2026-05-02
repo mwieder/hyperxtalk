@@ -107,6 +107,7 @@ enum Convert_form {
     CF_ABBREVIATED,
     CF_LONG,
     CF_INTERNET,
+	CF_SQL,
     CF_SECONDS,
     CF_DATEITEMS,
     CF_TIME,
@@ -118,6 +119,7 @@ enum Convert_form {
     CF_ABBREV_DATE,
     CF_LONG_DATE,
     CF_INTERNET_DATE,
+	CF_SQL_DATE,
     CF_ENGLISH = 1000,
     CF_SYSTEM = 2000
 };
@@ -909,6 +911,7 @@ enum Properties {
     P_ABBREVIATE,
     P_LONG,
     P_INTERNET,
+	P_SQL,
     P_EFFECTIVE,
     P_ENGLISH,
     P_SYSTEM,

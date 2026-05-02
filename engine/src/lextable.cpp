@@ -474,8 +474,9 @@ const static LT convert_table[] =
         {"seconds", TT_CHUNK, CF_SECONDS},
         {"secs", TT_CHUNK, CF_SECONDS},
         {"short", TT_CHUNK, CF_SHORT},
+        {"sql", TT_CHUNK, CF_SQL},
         {"system", TT_CHUNK, CF_SYSTEM},
-        {"time", TT_CHUNK, CF_TIME}
+        {"time", TT_CHUNK, CF_TIME},
     };
 
 const static LT encryption_table[] =
@@ -1675,6 +1676,7 @@ const LT factor_table[] =
 		{"spacebelow", TT_PROPERTY, P_SPACE_BELOW},
         {"specialfolderpath", TT_FUNCTION, F_SPECIAL_FOLDER_PATH},
         {"spray", TT_PROPERTY, P_SPRAY},
+        {"sql", TT_PROPERTY, P_SQL},
         {"sqrt", TT_FUNCTION, F_SQRT},
         {"sslcertificates",TT_PROPERTY,P_SSL_CERTIFICATES},
         {"stack", TT_CHUNK, CT_STACK},

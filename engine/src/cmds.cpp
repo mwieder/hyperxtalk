@@ -197,7 +197,8 @@ Parse_stat MCConvert::parsedtformat(MCScriptPoint &sp, Convert_form &firstform,
 		case CF_SHORT:
 		case CF_LONG:
 		case CF_INTERNET:
-			if (firstform == CF_UNDEFINED)
+		case CF_SQL:
+			if (CF_UNDEFINED == firstform)
 				firstform = (Convert_form)te->which;
 			else
 				secondform = (Convert_form)te->which;
@@ -208,12 +209,12 @@ Parse_stat MCConvert::parsedtformat(MCScriptPoint &sp, Convert_form &firstform,
 			break;
 		case CF_DATE:
 		case CF_TIME:
-			if (firstform == CF_UNDEFINED)
+			if (CF_UNDEFINED == firstform)
 				firstform = (Convert_form)(te->which + 1 + localeform);
 			else
 				if (firstform > CF_INTERNET)
 				{
-					if (secondform == CF_UNDEFINED)
+					if (CF_UNDEFINED == secondform)
 						secondform = (Convert_form)(te->which + 1 + localeform);
 					else
 					{

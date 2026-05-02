@@ -571,7 +571,7 @@ Parse_stat MCProperty::parse(MCScriptPoint &sp, Boolean the)
 	}
 
 	if (which == P_SHORT || which == P_LONG || which == P_ABBREVIATE ||
-			which == P_ENGLISH || which == P_INTERNET || which == P_SYSTEM ||
+			which == P_ENGLISH || which == P_INTERNET || which == P_SQL || which == P_SYSTEM ||
 			which == P_WORKING)
 	{
 		uint2 dummy;
@@ -579,25 +579,28 @@ Parse_stat MCProperty::parse(MCScriptPoint &sp, Boolean the)
 		        || sp.skip_token(SP_FACTOR, TT_PROPERTY, P_SYSTEM) == PS_NORMAL)
 		{
 			dummy = which;
-			dummy += CF_SYSTEM;
+			dummy += CF_SYSTEM;	// = 2000
 			which = (Properties)dummy;
 		}
 		else if (which == P_ENGLISH
 					|| sp.skip_token(SP_FACTOR, TT_PROPERTY, P_ENGLISH) == PS_NORMAL)
 		{
 			dummy = which;
-			dummy += CF_ENGLISH;
+			dummy += CF_ENGLISH;	// = 1000
 			which = (Properties)dummy;
 		}
 		else if (which == P_WORKING
 					|| sp . skip_token(SP_FACTOR, TT_PROPERTY, P_WORKING) == PS_NORMAL)
 		{
 			dummy = which;
-			dummy += 1000;
+//			dummy += 1000;
+			dummy += CF_ENGLISH;	// = 1000
 			which = (Properties)dummy;
 		}
 		else if (sp.skip_token(SP_FACTOR, TT_PROPERTY, P_INTERNET) == PS_NORMAL)
 				which = P_INTERNET;
+		else if (sp.skip_token(SP_FACTOR, TT_PROPERTY, P_SQL) == PS_NORMAL)
+				which = P_SQL;
 
 		if (sp.next(type) != PS_NORMAL)
 		{
@@ -648,10 +651,13 @@ Parse_stat MCProperty::parse(MCScriptPoint &sp, Boolean the)
 			case F_WEEK_DAY_NAMES:
 			case F_DATE_FORMAT:
 				function = (Functions)te->which;
-				if (which == P_INTERNET && function != F_DATE)
+				if (function != F_DATE)
 				{
-					MCperror->add(PE_FACTOR_BADPARAM, sp);
-					return PS_ERROR;
+					if (which == P_INTERNET || which == P_SQL)
+					{
+						MCperror->add(PE_FACTOR_BADPARAM, sp);
+						return PS_ERROR;
+					}
 				}
 				return PS_NORMAL;
 			case F_SCREEN_RECT:
