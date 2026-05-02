@@ -1,3 +1,62 @@
+# Specific files #
+##################
+engine/private/
+engine/src/hashedstrings.cpp
+engine/src/encodederrors.cpp
+engine/src/startupstack.cpp
+engine/src/linuxstubs.cpp
+engine/src/quicktimestubs.mac.cpp
+engine/include/revbuild.h
+lcidlc/src/EncodedSupport.c
+lcidlc/src/EncodedJavaSupport.c
+*/derived_src/*
+IMarketBillingService.java
+crypt.cpp
+crypt.h
+deploysecurity_encrypted.cpp
+encryptedobjectstream.cpp
+encryptedobjectstream.h
+encryptedstack.cpp
+encryptedstack.h
+stacksecurity_encrypted.cpp
+util/perfect/perfect.linux-*
+**/extensions/*/*/*.xml
+**/extensions/*/*/*.lci
+**/extensions/*/*/*.lcm
+**/extensions/*/*/*.lce
+**/extensions/*/*/api.lcdoc
+*/src/.lci/*
+
+# Compiled source and intermediates #
+###################
+*.i
+*.ii
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+*.a
+*.pyc
+*.d
+*.stamp
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+*.bz2
+*.tgz
+
 # Logs and databases #
 ######################
 *.log
@@ -51,6 +110,10 @@ mac-bin
 build-*/
 docs/
 *.gn
+
+# SDKs          #
+#################
+sdks/
 
 # Ignore prebuilts #
 ###################
