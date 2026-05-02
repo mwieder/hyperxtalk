@@ -9589,44 +9589,12 @@ on revIDEToggleToolbar pWhich
 end revIDEToggleToolbar
 
 on revIDEToggleShowIDEStacksInLists
-   global gREvShowStacks
-   lock screen
-   set the hilite of button "show revolution stacks" of card "general" of stack "revPreferencesGUI" to not gREVShowStacks
-   
-   local tOpenStacks
-   put the openStacks into tOpenStacks
-   
-   local tFrontStack
-   put empty into tFrontStack
-   repeat for each line tStack in tOpenStacks
-      if tStack is not "revMenubar" and the mode of stack tStack is among the items of "1,2,3" then
-         put tStack into tFrontStack
-         exit repeat
-      end if
-   end repeat
-   if tFrontStack is not empty then
-      set the wholeMatches to true
-      local tBringToFront
-      if lineOffset(tFrontStack, tOpenStacks) < lineOffset("revApplicationOverview", tOpenStacks) then
-         put true into tBringToFront
-      end if
-   end if
-   send "revToggleShowStacks" to button "show revolution stacks" of card "general" of stack "revPreferencesGUI"
-   unlock screen
-   
-   if tBringToFront then
-      lock messages
-      switch the mode of stack tFrontStack
-         case 1
-         case 2
-            toplevel tFrontStack
-            break
-         case 3
-            modeless tFrontStack
-            break
-      end switch
-      unlock messages 
-   end if
+   global gREVShowStacks
+   -- Toggle the global and persist the preference directly, without loading
+   -- revPreferencesGUI. revIDESetPreference fires idePreferenceChanged:cShowRevolutionStacks
+   -- which the Project Browser is already subscribed to, so it rebuilds immediately.
+   put not revIDEGetPreference("cShowRevolutionStacks") into gREVShowStacks
+   revIDESetPreference "cShowRevolutionStacks", gREVShowStacks
 end revIDEToggleShowIDEStacksInLists
 
 on revIDETogglePalette pPaletteName
