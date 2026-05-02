@@ -108,7 +108,7 @@ build/
 *-bin/
 mac-bin
 build-*/
-docs/
+#docs/
 *.gn
 
 # SDKs          #
