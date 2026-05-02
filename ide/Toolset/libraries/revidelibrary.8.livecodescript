@@ -8223,6 +8223,9 @@ on revIDEProjectSerializeStack pStackName, pMediaFolder, @rObj
       put tCardNode into rObj["cards"][i]
    end repeat
 
+   -- Custom properties
+   revIDEProjectSerializeCustomProps "stack" && quote & pStackName & quote, rObj
+
    -- Substacks
    local tSubstacks
    put the substacks of stack pStackName into tSubstacks
@@ -8254,6 +8257,9 @@ on revIDEProjectSerializeCard pCardIDNum, pStackName, pMediaFolder, @rObj
    put the dontSearch of card id pCardIDNum of stack pStackName into rObj["dontSearch"]
    put the backgroundColor of card id pCardIDNum of stack pStackName into rObj["backgroundColor"]
    put the foregroundColor of card id pCardIDNum of stack pStackName into rObj["foregroundColor"]
+
+   -- Custom properties
+   revIDEProjectSerializeCustomProps "card id" && pCardIDNum && "of stack" && quote & pStackName & quote, rObj
 
    local tControlCount
    put the number of controls of card id pCardIDNum of stack pStackName into tControlCount
@@ -8318,6 +8324,9 @@ on revIDEProjectSerializeControl pControlID, pMediaFolder, @rObj
       end if
    end if
 
+   -- Custom properties
+   revIDEProjectSerializeCustomProps pControlID, rObj
+
    -- Group: recurse into direct child controls only
    if tType is "group" then
       local tChildCount, k, tChildIndex
@@ -8335,6 +8344,42 @@ on revIDEProjectSerializeControl pControlID, pMediaFolder, @rObj
       end repeat
    end if
 end revIDEProjectSerializeControl
+
+-- Serializes custom properties (default set + named sets) from any object into rObj.
+-- pObjRef must be a valid object expression (long id or equivalent).
+on revIDEProjectSerializeCustomProps pObjRef, @rObj
+   -- Default custom property set
+   local tDefaultProps
+   put the customProperties of pObjRef into tDefaultProps
+   if tDefaultProps is an array then
+      put tDefaultProps into rObj["customProperties"]
+   end if
+   -- Named custom property sets
+   local tSetNames, tSetName
+   put the customPropertySets of pObjRef into tSetNames
+   repeat for each line tSetName in tSetNames
+      if tSetName is empty then next repeat
+      local tSetProps
+      put the customProperties[tSetName] of pObjRef into tSetProps
+      if tSetProps is an array then
+         put tSetProps into rObj["customPropertySets"][tSetName]
+      end if
+   end repeat
+end revIDEProjectSerializeCustomProps
+
+-- Restores custom properties (default set + named sets) from a serialized node
+-- onto any object. pObjRef must be a valid, already-created object expression.
+on revIDEProjectReconstructCustomProps pNode, pObjRef
+   if pNode["customProperties"] is an array then
+      set the customProperties of pObjRef to pNode["customProperties"]
+   end if
+   if pNode["customPropertySets"] is an array then
+      local tSetName
+      repeat for each key tSetName in pNode["customPropertySets"]
+         set the customProperties[tSetName] of pObjRef to pNode["customPropertySets"][tSetName]
+      end repeat
+   end if
+end revIDEProjectReconstructCustomProps
 
 -- Recursively converts every leaf value in an array to a plain string,
 -- so that livecode.lang.boolean and livecode.lang.data typed values do not
@@ -8480,6 +8525,8 @@ on revIDEProjectReconstructStack pStackNode, pFolderPath, pParentStackName, @pDe
          end if
       end repeat
    end if
+   -- Custom properties
+   revIDEProjectReconstructCustomProps pStackNode, "stack" && quote & tNewStackName & quote
    set the script of stack tNewStackName to pStackNode["script"]
    unlock messages
    unlock screen
@@ -8517,6 +8564,8 @@ on revIDEProjectReconstructCard pCardNode, pStackName, pCardID, pFolderPath, @pD
          revIDEProjectReconstructControl tControlNode, pStackName, pCardID, empty, pFolderPath, pDeferredBehaviors
       end repeat
    end if
+   -- Custom properties
+   revIDEProjectReconstructCustomProps pCardNode, tCardRef
    set the script of tCardRef to pCardNode["script"]
 end revIDEProjectReconstructCard
 
@@ -8642,6 +8691,8 @@ on revIDEProjectReconstructControl pControlNode, pStackName, pCardID, pGroupID, 
       end if
    end if
 
+   -- Custom properties
+   revIDEProjectReconstructCustomProps pControlNode, tStackRef
    -- Script last to avoid side-effects during reconstruction
    set the script of tStackRef to pControlNode["script"]
 end revIDEProjectReconstructControl
