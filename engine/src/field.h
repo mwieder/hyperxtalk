@@ -238,10 +238,19 @@ private:
 	MCScrollbar *vscrollbar;
 	MCScrollbar *hscrollbar;
 	MCStringRef label;
+    MCStringRef m_hint_text;
     MCTextDirection text_direction;
     MCInterfaceFieldCursorMovement cursor_movement;
     MCInterfaceKeyboardType keyboard_type : 4;
     MCInterfaceReturnKeyType return_key_type : 4;
+
+    bool m_password_field : 1;
+    // When true, renders a show/hide eye icon in the field's right margin.
+    // Clicking the icon toggles m_password_field and sends passwordToggleClicked.
+    bool m_password_toggle : 1;
+    // When true, renders a clear (×) icon in the right margin whenever the field
+    // has content.  Clicking the icon clears the field and sends cancelButtonClicked.
+    bool m_cancel_button : 1;
 
     // MM-2014-08-11: [[ Bug 13149 ]] Used to flag if a recompute is required during the next draw.
     bool m_recompute : 1;
@@ -700,6 +709,21 @@ public:
 	void SetUnicodeFormattedText(MCExecContext& ctxt, uint32_t part, MCDataRef p_string);
 	void GetLabel(MCExecContext& ctxt, MCStringRef& r_string);
 	void SetLabel(MCExecContext& ctxt, MCStringRef p_string);
+	void GetPasswordField(MCExecContext& ctxt, bool& r_setting);
+	void SetPasswordField(MCExecContext& ctxt, bool setting);
+	void GetPasswordToggle(MCExecContext& ctxt, bool& r_setting);
+	void SetPasswordToggle(MCExecContext& ctxt, bool setting);
+	void GetCancelButton(MCExecContext& ctxt, bool& r_setting);
+	void SetCancelButton(MCExecContext& ctxt, bool setting);
+	void GetHintText(MCExecContext& ctxt, MCStringRef& r_string);
+	void SetHintText(MCExecContext& ctxt, MCStringRef p_string);
+
+    // Returns the bounding rect of the password-toggle eye icon in card coords.
+    // Used for both drawing (fieldf.cpp) and hit-testing (mdown).
+    MCRectangle _passwordToggleIconRect() const;
+    // Returns the bounding rect of the cancel-button × icon in card coords.
+    // Positioned to the left of the eye icon when both are enabled.
+    MCRectangle _cancelButtonIconRect() const;
 	void GetToggleHilite(MCExecContext& ctxt, bool& r_setting);
 	void SetToggleHilite(MCExecContext& ctxt, bool setting);
 	void GetThreeDHilite(MCExecContext& ctxt, bool& r_setting);

@@ -157,12 +157,7 @@
     <Filter Include="libraries">
       <UniqueIdentifier>{91746794-0D1F-C637-2673-8F987201349D}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\macosusernotifications">
-      <UniqueIdentifier>{6B1C1B1C-93A2-F94B-752D-BF20FB9D788B}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\macosusernotifications\_excluded_files">
-      <UniqueIdentifier>{158E591E-B6EA-0C85-8F5A-18EAFA09B4CE}</UniqueIdentifier>
-    </Filter>
+
     <Filter Include="widgets">
       <UniqueIdentifier>{D8325E6E-3EF1-B77B-73F4-48DF6191CD82}</UniqueIdentifier>
     </Filter>
@@ -381,9 +376,7 @@
     <None Include="..\..\..\extensions\libraries\macostoolbar\macostoolbar.lcb">
       <Filter>libraries\macostoolbar\_excluded_files</Filter>
     </None>
-    <None Include="..\..\..\extensions\libraries\macosusernotifications\macosusernotifications.lcb">
-      <Filter>libraries\macosusernotifications\_excluded_files</Filter>
-    </None>
+
     <None Include="..\..\..\extensions\widgets\macbutton\macbutton.lcb">
       <Filter>widgets\macbutton\_excluded_files</Filter>
     </None>

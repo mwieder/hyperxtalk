@@ -1,10 +1,11 @@
-# Compiling LiveCode to JavaScript for HTML5
-
-![LiveCode Community Logo](http://livecode.com/wp-content/uploads/2015/02/livecode-logo.png)
+---
+group: advanced
+---
+# Compiling to JavaScript for HTML5
 
 Copyright © 2015 LiveCode Ltd., Edinburgh, UK
 
-**Warning**: Emscripten (HTML5) platform support for LiveCode is experimental and not recommended for production use.
+**Warning**: Emscripten (HTML5) platform support is experimental and not recommended for production use.
 
 ## Dependencies
 
@@ -35,27 +36,27 @@ Before building for Emscripten, source the Emscripten SDK script that sets up th
 
     source /opt/emsdk_portable/emsdk_env.sh
 
-## Configuring LiveCode
+## Configuring
 
-To configure LiveCode, run:
+To configure, run:
 
     make config-emscripten
 
 This will generate make control files in the `build-emscripten` directory.  You can also run `config.sh` directly.
 
-## Compiling LiveCode
+## Compiling
 
-To compile LiveCode, run:
+To compile, run:
 
     make compile-emscripten
 
 This will generate outputs in the `emscripten-bin` directory.
 
-## Running LiveCode
+## Running
 
 **Note**: See also the "HTML5 Deployment" guide, available in the in-IDE dictionary.
 
-Use the desktop build of the LiveCode IDE to run the standalone builder and create an "HTML5" standalone.
+Use the desktop build of the IDE to run the standalone builder and create an "HTML5" standalone.
 
 Once you've created a standalone, you can open the HTML file in a web browser to try out the engine.
 

@@ -368,6 +368,9 @@ package-mac:
 	@[ -d "$(MAC_BIN)/packaged_extensions" ] && \
 	    cp -R "$(MAC_BIN)/packaged_extensions/." \
 	      "$(TOOLS_DIR)/Extensions/" || true
+	@# Remove the old macostoolbar LCB extension now that its functionality
+	@# is built into the engine as a native MCToolbar object.
+	@rm -rf "$(TOOLS_DIR)/Extensions/com.hyperxtalk.macostoolbar"
 	@# ----------------------------------------------------------------
 	@# Support: licence and about text
 	@# ----------------------------------------------------------------
@@ -433,6 +436,12 @@ package-mac-bin:
 	@mkdir -p "$(MACBIN_TOOLS)/Externals/Database Drivers"
 	@mkdir -p "$(MACBIN_TOOLS)/Documentation"
 	@[ -d "ide/Documentation" ] && cp -R "ide/Documentation/." "$(MACBIN_TOOLS)/Documentation/" || true
+	@# docs/dictionary and docs/glossary are required by revIDEGenerateDistributedAPI
+	@# on installed builds to rebuild script.js into the user documentation cache.
+	@# Without them the function exits early and the in-app HTML doc viewer shows nothing.
+	@mkdir -p "$(MACBIN_TOOLS)/docs"
+	@[ -d "docs/dictionary" ] && cp -R "docs/dictionary" "$(MACBIN_TOOLS)/docs/" || true
+	@[ -d "docs/glossary"  ] && cp -R "docs/glossary"  "$(MACBIN_TOOLS)/docs/" || true
 	@mkdir -p "$(MACBIN_RT_ARM64)/Support"
 	@mkdir -p "$(MACBIN_RT_ARM64)/Externals/Database Drivers"
 	@mkdir -p "$(MACBIN_TOOLS)/Extensions"
@@ -593,6 +602,9 @@ package-mac-bin:
 	@[ -d "$(MACBIN_BIN)/packaged_extensions" ] && \
 	    cp -R "$(MACBIN_BIN)/packaged_extensions/." \
 	      "$(MACBIN_TOOLS)/Extensions/" || true
+	@# Remove the old macostoolbar LCB extension now that its functionality
+	@# is built into the engine as a native MCToolbar object.
+	@rm -rf "$(MACBIN_TOOLS)/Extensions/com.hyperxtalk.macostoolbar"
 	@# ----------------------------------------------------------------
 	@# Support: licence and about text
 	@# ----------------------------------------------------------------
@@ -602,11 +614,6 @@ package-mac-bin:
 	    cp "ide/about.txt" "$(MACBIN_SUPPORT)/" || true
 	@[ -f "ide/Open Source Licenses.txt" ] && \
 	    cp "ide/Open Source Licenses.txt" "$(MACBIN_SUPPORT)/" || true
-	@# ----------------------------------------------------------------
-	@# Documentation: Dictionary and help files
-	@# ----------------------------------------------------------------
-	@[ -d "ide/Documentation" ] && \
-	    cp -R "ide/Documentation" "$(MACBIN_TOOLS)/Documentation" || true
 	@# ----------------------------------------------------------------
 	@# Quick Look extension: build and embed
 	@# ----------------------------------------------------------------

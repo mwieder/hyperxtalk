@@ -1,0 +1,56 @@
+﻿script "workerTest"
+
+-- Test stack for the workers feature.
+-- Open this stack, then call testWorkers from the message box or a button.
+--
+-- The round-trip is:
+--   Main stack  ‚îÄ‚îÄdispatch‚îÄ‚îÄ‚ñ∫  mathWorker (worker stack)
+--   mathWorker  ‚îÄ‚îÄdispatch‚îÄ‚îÄ‚ñ∫  workerTest (back via 'to caller')
+
+local sWorkerScriptPath
+
+on openStack
+   -- Resolve the worker script relative to this file.
+   set the itemdelimiter to "/"
+   put item 1 to -2 of the filename of me into sWorkerScriptPath
+   put sWorkerScriptPath & "/mathWorker.hyperxtalkscript" into sWorkerScriptPath
+end openStack
+
+-- -----------------------------------------------------------------------
+-- Entry point: call this from the message box or wire it to a button.
+-- -----------------------------------------------------------------------
+on testWorkers
+   --   -- Create the worker. If it already exists the engine sets the result
+   --   -- to an error; we just ignore that here for simplicity.
+   if (there is not a worker "mathWorker") then
+      create worker "mathWorker" from sWorkerScriptPath
+   end if 
+   
+   -- Test 1: compute squares of 1..8
+   dispatch "computeSquares" to worker "mathWorker" with 8
+   
+   -- Test 2: reverse a sentence
+   dispatch "reverseWords" to worker "mathWorker" with "the quick brown fox"
+end testWorkers
+
+-- -----------------------------------------------------------------------
+-- Callbacks ‚Äî dispatched back here by the worker via 'to caller'
+-- -----------------------------------------------------------------------
+on onComputeSquaresResult pResults
+   answer "Squares (1‚Äì8):" & return & pResults
+end onComputeSquaresResult
+
+on onReverseWordsResult pResult
+   answer "Reversed:" && pResult
+end onReverseWordsResult
+
+-- -----------------------------------------------------------------------
+-- Cleanup
+-- -----------------------------------------------------------------------
+on closeStack
+   answer 1
+   if (there is a worker "mathWorker") then
+      answer 2
+      destroy worker "mathWorker"
+   end if
+end closeStack

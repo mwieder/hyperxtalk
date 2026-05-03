@@ -66,6 +66,7 @@
 						'include_dirs':
 						[
 							'../thirdparty/headers/linux/include/cairo',
+							'<!@(pkg-config --cflags-only-I dbus-1 2>/dev/null | sed "s/-I//g")',
 						],
 
 						'defines':
@@ -272,6 +273,7 @@
 								'-ldl',
 								'-lpthread',
 								'-lcups',
+								'-ldbus-1',
 							],
 						},
 					],

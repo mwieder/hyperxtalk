@@ -52,6 +52,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 
 #include "license.h"
 #include "socket.h"
+#include "mcworker.h"
 
 #include "exec.h"
 
@@ -420,9 +421,10 @@ MCDispatchCmd::~MCDispatchCmd(void)
 		params = params -> getnext();
 		delete t_param;
 	}
-	
+
 	delete target;
 	delete message;
+    delete worker_name;
 }
 
 // Syntax is:
@@ -445,14 +447,34 @@ Parse_stat MCDispatchCmd::parse(MCScriptPoint& sp)
 	}
 	
 	// MW-2008-12-04: Added 'to <target>' form to the syntax
+	// Extended: 'to worker <name>' dispatches to a named worker.
 	if (sp.skip_token(SP_FACTOR, TT_TO) == PS_NORMAL)
 	{
-		target = new (nothrow) MCChunk(False);
-		if (target -> parse(sp, False) != PS_NORMAL)
-		{
-			MCperror->add(PE_DISPATCH_BADTARGET, sp);
-			return PS_ERROR;
-		}
+        if (sp.skip_token(SP_FACTOR, TT_CHUNK, CT_WORKER) == PS_NORMAL)
+        {
+            // 'dispatch <msg> to worker <name> [with <params>]'
+            to_worker = true;
+            if (sp.parseexp(False, True, &worker_name) != PS_NORMAL)
+            {
+                MCperror->add(PE_DISPATCH_BADWORKERNAME, sp);
+                return PS_ERROR;
+            }
+        }
+        else if (sp.skip_token(SP_FACTOR, TT_CHUNK, CT_CALLER) == PS_NORMAL)
+        {
+            // 'dispatch <msg> to caller [with <params>]'
+            // Targets the stack that dispatched into the current worker.
+            to_caller = true;
+        }
+        else
+        {
+            target = new (nothrow) MCChunk(False);
+            if (target -> parse(sp, False) != PS_NORMAL)
+            {
+                MCperror->add(PE_DISPATCH_BADTARGET, sp);
+                return PS_ERROR;
+            }
+        }
 	}
 	
 	if (sp . skip_token(SP_REPEAT, TT_UNDEFINED, RF_WITH) == PS_NORMAL)
@@ -480,7 +502,24 @@ void MCDispatchCmd::exec_ctxt(MCExecContext &ctxt)
     MCNewAutoNameRef t_message;
     if (!ctxt . EvalExprAsNameRef(message, EE_DISPATCH_BADMESSAGEEXP, &t_message))
         return;
-	
+
+    // Worker dispatch path: 'dispatch <msg> to worker <name> [with <params>]'
+    if (to_worker)
+    {
+        MCAutoStringRef t_worker_name;
+        if (!ctxt.EvalExprAsStringRef(worker_name, EE_DISPATCH_BADMESSAGEEXP, &t_worker_name))
+            return;
+        MCWorkerExecDispatch(ctxt, *t_worker_name, *t_message, is_function, params);
+        return;
+    }
+
+    // Caller dispatch path: 'dispatch <msg> to caller [with <params>]'
+    if (to_caller)
+    {
+        MCWorkerExecDispatchToCaller(ctxt, *t_message, is_function, params);
+        return;
+    }
+
 	// Evaluate the target object (if we parsed a 'target' chunk).
 	MCObjectPtr t_target;
 	MCObjectPtr *t_target_ptr;

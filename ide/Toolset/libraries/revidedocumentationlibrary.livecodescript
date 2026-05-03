@@ -13,22 +13,8 @@ end extensionFinalize
 
 private on ideDocsEnsureDatabase pLocation
    if there is not a file (pLocation & slash & "api.sqlite") then
-      -- Only copy the distributed api.sqlite if it actually exists and is
-      -- non-empty.  On installed Windows builds there is no pre-built
-      -- api.sqlite in the distributed folder (it is gitignored and generated
-      -- at runtime).  Writing empty data here would produce a corrupt SQLite
-      -- file that makes revDocsOpenAPIDatabase fail and aborts the entire doc
-      -- update.  When the source is absent we leave the cache location alone
-      -- so that revDocsOpenAPIDatabase creates a fresh database itself.
-      local tSource
-      put revIDESpecialFolderPath("API") & slash & "api.sqlite" into tSource
-      if there is a file tSource then
-         local tSourceData
-         put url ("binfile:" & tSource) into tSourceData
-         if tSourceData is not empty then
-            put tSourceData into url ("binfile:" & pLocation & slash & "api.sqlite")
-         end if
-      end if
+      put url ("binfile:" & revIDESpecialFolderPath("API") & slash & "api.sqlite") into \
+            url ("binfile:" & pLocation & slash & "api.sqlite")
    end if
 end ideDocsEnsureDatabase
 
@@ -46,10 +32,6 @@ command ideDocsInitialize pDistributed
    else
       put "cache" into tKey
       put revIDESpecialFolderPath("documentation cache") into tLocation
-      -- Ensure the versioned cache directory exists before trying to open or
-      -- create api.sqlite inside it (SQLite cannot create the file when its
-      -- parent folder is absent).
-      revIDEEnsurePath tLocation
       ideDocsEnsureDatabase tLocation
    end if
    put sConnectionsA[tKey] into tConnection

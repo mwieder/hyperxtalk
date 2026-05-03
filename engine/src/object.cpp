@@ -54,6 +54,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "styledtext.h"
 #include "flst.h"
 #include "widget.h"
+#include "toolbar.h"
 #include "eps.h"
 #include "graphic.h"
 
@@ -5448,6 +5449,11 @@ bool MCObjectVisitor::OnStyledText(MCStyledText *p_styled_text)
 bool MCObjectVisitor::OnWidget(MCWidget *p_widget)
 {
 	return OnControl(p_widget);
+}
+
+bool MCObjectVisitor::OnToolbar(MCToolbar *p_toolbar)
+{
+    return OnControl(p_toolbar);
 }
 
 bool MCObjectVisitor::OnParagraph(MCParagraph *p_paragraph)

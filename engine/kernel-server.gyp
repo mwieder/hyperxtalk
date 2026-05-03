@@ -98,6 +98,11 @@
 							'../thirdparty/libcairo/libcairo.gyp:libcairo',
 						],
 
+						'include_dirs':
+						[
+							'<!@(pkg-config --cflags-only-I dbus-1 2>/dev/null | sed "s/-I//g")',
+						],
+
 						'defines':
                         [
 	                        'PANGO_ENABLE_BACKEND',
@@ -150,6 +155,7 @@
 							[
 								'-ldl',
 								'-lpthread',
+								'-ldbus-1',
 								'-Wl,-Bstatic',
 								'-lstdc++',
 								'-Wl,-Bdynamic',

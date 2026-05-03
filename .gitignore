@@ -60,6 +60,11 @@ prebuilt/share
 prebuilt/build
 prebuilt/fetched
 
+# Windows build artefacts
+*.idb
+*.pdb
+ide/Runtime/Windows/x86-64/Standalone
+
 # Local secrets — never commit
 .env.local
 *.p12

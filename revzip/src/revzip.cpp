@@ -70,22 +70,10 @@ const char* kErrFileAccessNotPermitted = "ziperr,file access not permitted";
 const char* kErrNoCurrentOperation = "ziperr,no current operation";
 
 /* -----------------------------------------------------------------------
- * zip_stat_index_compat: ABI bridge between old and new libzip.
+ * zip_stat_index_compat: thin wrapper around zip_stat_index.
  *
- * On Windows, revzip.cpp is compiled against the NEW zip.h (2021) but links
- * against a pre-built libzip.lib built from the OLD API.  The OLD and NEW
- * zip_stat structs have completely different layouts:
- *
- * OLD (x64 Windows, off_t=4, time_t=8, ptr=8):
- *   offset  0: const char *name       (8)
- *   offset  8: int index              (4)
- *   offset 12: unsigned int crc       (4)
- *   offset 16: time_t mtime           (8)
- *   offset 24: int32 size             (4)  [off_t = 4 on Windows]
- *   offset 28: int32 comp_size        (4)
- *   offset 32: uint16 comp_method     (2)
- *   offset 34: uint16 bitflags        (2)
- *   total: 36 bytes
+ * All platforms now build libzip 1.x from source, so the zip_stat_t layout
+ * is the NEW layout on every platform:
  *
  * NEW zip_stat_t:
  *   offset  0: zip_uint64_t valid     (8)
@@ -100,63 +88,19 @@ const char* kErrNoCurrentOperation = "ziperr,no current operation";
  *   offset 56: zip_uint32_t flags     (4)
  *   total: 60 bytes
  *
- * On macOS/Linux we build libzip 1.11.4 from source, which produces the NEW
- * layout directly (struct zip_stat is unchanged since the 1.x series), so
- * zip_stat_index fills a real zip_stat_t correctly and no offset remapping
- * is needed. The raw-buffer trick is only needed on Windows where the
- * prebuilt libzip still uses the OLD layout.
+ * The old Windows prebuilt path (36-byte struct with offset remapping) has
+ * been removed because Windows now also builds libzip from source via
+ * build-win-x86_64/livecode/thirdparty/libzip/libzip.vcxproj.  Using the
+ * old offset remapping with the new struct caused field reads at completely
+ * wrong offsets, leading to SIGSEGV when the corrupted name/size values
+ * were dereferenced.
  * ----------------------------------------------------------------------- */
 static int zip_stat_index_compat(struct zip *za, zip_int64_t index,
                                   zip_flags_t flags, zip_stat_t *new_stat)
 {
-#if defined(_MACOSX) || defined(_LINUX) || \
-    defined(TARGET_SUBPLATFORM_IPHONE) || defined(TARGET_SUBPLATFORM_ANDROID)
-    /* Native libzip built from source — zip_stat_t layout matches zip.h */
+    /* libzip built from source on all platforms — zip_stat_t layout matches zip.h */
     memset(new_stat, 0, sizeof(*new_stat));
     return zip_stat_index(za, (zip_uint64_t)index, flags, new_stat);
-#else
-    unsigned char buf[64];
-    memset(buf, 0, sizeof(buf));
-
-    /* Pass buf as zip_stat_t* – old Windows libzip fills it with OLD layout */
-    int result = zip_stat_index(za, (zip_uint64_t)index, flags,
-                                (zip_stat_t *)(void *)buf);
-    if (result == 0)
-    {
-        memset(new_stat, 0, sizeof(*new_stat));
-        /* Read fields at their OLD offsets */
-        memcpy(&new_stat->name,        buf +  0, sizeof(new_stat->name));
-        {
-            int idx;
-            memcpy(&idx, buf + 8, 4);
-            new_stat->index = (zip_uint64_t)(unsigned int)idx;
-        }
-        {
-            unsigned int crc;
-            memcpy(&crc, buf + 12, 4);
-            new_stat->crc = crc;
-        }
-        memcpy(&new_stat->mtime, buf + 16, sizeof(new_stat->mtime));
-        {
-            unsigned int sz, csz;
-            memcpy(&sz,  buf + 24, 4);
-            memcpy(&csz, buf + 28, 4);
-            new_stat->size      = (zip_uint64_t)sz;
-            new_stat->comp_size = (zip_uint64_t)csz;
-        }
-        {
-            unsigned short cm;
-            memcpy(&cm, buf + 32, 2);
-            new_stat->comp_method = cm;
-        }
-        new_stat->encryption_method = 0;
-        new_stat->flags = 0;
-        new_stat->valid = ZIP_STAT_NAME | ZIP_STAT_INDEX | ZIP_STAT_SIZE |
-                          ZIP_STAT_COMP_SIZE | ZIP_STAT_MTIME | ZIP_STAT_CRC |
-                          ZIP_STAT_COMP_METHOD;
-    }
-    return result;
-#endif
 }
 
 static bool wrongNumberOfArguments(unsigned int pNumArguments, unsigned int pNumber)

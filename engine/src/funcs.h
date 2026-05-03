@@ -1229,6 +1229,13 @@ class MCPlatform : public MCConstantFunctionCtxt<MCNameRef, MCEngineEvalPlatform
 public:
 };
 
+// notificationPermission() — returns "granted", "denied", or "unknown"
+void MCNotificationEvalPermission(MCExecContext& ctxt, MCStringRef& r_result);
+class MCNotificationPermissionFunc : public MCConstantFunctionCtxt<MCStringRef, MCNotificationEvalPermission>
+{
+public:
+};
+
 
 // JS-2013-06-19: [[ StatsFunctions ]] Definition of populationStdDev
 class MCPopulationStdDev : public MCParamFunctionCtxt<MCMathEvalPopulationStdDev, EE_POP_STDDEV_BADSOURCE, PE_POP_STDDEV_BADPARAM>

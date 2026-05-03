@@ -1,6 +1,7 @@
-# Compiling LiveCode for Mac OS X and iOS
-
-![LiveCode Community Logo](http://livecode.com/wp-content/uploads/2015/02/livecode-logo.png)
+---
+group: advanced
+---
+# Compiling for Mac OS X and iOS
 
 Copyright © 2015-2016 LiveCode Ltd., Edinburgh, UK
 
@@ -8,17 +9,16 @@ Copyright © 2015-2016 LiveCode Ltd., Edinburgh, UK
 
 ### Required dependencies
 
-You must install Xcode.  This will allow you to build LiveCode for:
+You must install Xcode.  This will allow you to build for:
 
 * iPhone OS
 * iPhoneSimulator
 
-You will not be able to compile the OS X desktop version of LiveCode
-unless you install some older OS X SDKs; see the next section for details.
+You will not be able to compile the OS X desktop version of unless you install some older OS X SDKs; see the next section for details.
 
 ### Optional dependencies
 
-By default, LiveCode is compiled for a large number of versions of iPhoneSimulator, and requires quite a lot of Apple SDKs to be installed.
+By default, OXT is compiled for a large number of versions of iPhoneSimulator, and requires quite a lot of Apple SDKs to be installed.
 
 Create a directory on your hard disk (say, `/Applications/Xcode-Dev/`).
 
@@ -43,9 +43,9 @@ Make `/Applications/Xcode-Dev/Xcode.app` a symlink to the latest version of Xcod
 ```
 Where `Xcode_V_V_V.app` is the latest version of Xcode that you have installed on your machine.
 
-Before proceeding to the next step, make sure to run Xcode at least once and get to the starting screen. Not doing this might break your Xcode installation and result in an error complaining that it ***could not find the default platform*** 
+Before proceeding to the next step, make sure to run Xcode at least once and get to the starting screen. Not doing this might break your Xcode installation and result in an error complaining that it ***could not find the default platform***
 
-After checking out the LiveCode git repository, you need to run a tool to finalize the Xcode setup and to make sure all of the necessary SDKs are installed.  If LiveCode is checked out to `~/git/livecode`, run:
+After checking out the OXT git repository, you need to run a tool to finalize the Xcode setup and to make sure all of the necessary SDKs are installed.  If OXT is checked out to `~/git/livecode`, run:
 ```
     cd /Applications/Xcode-Dev/
     sh ~/git/livecode/tools/setup_xcode_sdks.sh
@@ -56,7 +56,7 @@ save disk space), you can run:
 ```
     sh ~/git/livecode/tools/setup_xcode_sdks.sh --cache
 ```
-## Configuring LiveCode
+## Configuring
 
 ### Build environment
 
@@ -86,7 +86,7 @@ To provide detailed configuration options, you can use the `config.sh` script.  
 
     ./config.sh --help
 
-## Compiling LiveCode
+## Compiling
 
 You can open the generated project files in Xcode and compile from there using the normal Xcode build procedure.
 

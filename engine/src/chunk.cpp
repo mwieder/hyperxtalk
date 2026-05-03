@@ -469,6 +469,7 @@ Parse_stat MCChunk::parse(MCScriptPoint &sp, Boolean doingthe)
 					case CT_COLOR_PALETTE:
 					case CT_MAGNIFY:
                     case CT_WIDGET:
+                    case CT_TOOLBAR:
 						object = curref;
 						break;
 

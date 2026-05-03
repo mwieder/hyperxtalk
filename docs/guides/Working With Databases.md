@@ -1,25 +1,24 @@
 ---
 group: intermediate
 ---
-
 # Working With Databases
 
 ## Introduction
 
-With the LiveCode Database library, your application can communicate
+With the Database library, your application can communicate
 with external SQL databases. You can get data from single-user and multi-user
 databases, update data in them, get information about the database
-structure, and display data from the database in your stack. For a 
-discussion of when it is appropriate to use an external database with 
-LiveCode, see the topic When to Use a Database in the *LiveCode Script* 
+structure, and display data from the database in your stack. For a
+discussion of when it is appropriate to use an external database,
+see the topic When to Use a Database in the *Script*
 guide.
 
 This guide discusses how to install necessary software to communicate
-with databases, and how to use the Database library to communicate 
-between LiveCode and a database.
+with databases, and how to use the Database library to communicate
+between the engine and a database.
 
 This topic does not include discussion of how to set up and create a SQL
-database, which is beyond the scope of the LiveCode documentation.
+database, which is beyond the scope of the documentation.
 
 To fully understand this topic, you should know how to write short
 scripts and should understand the basic concepts of SQL databases (rows
@@ -27,7 +26,7 @@ and columns, database cursors, and SQL queries).
 
 A few terms used in this topic, such as "field" and "cursor", are part
 of the standard terminology for working with databases, but have a
-different meaning in the context of LiveCode development. When going
+different meaning in the context of development. When going
 back and forth between database work and more general application
 development, be sure you understand which meaning is applicable in the
 context you're currently working in. When referring to database-specific
@@ -40,8 +39,8 @@ the product documentation for definitions of any term you are unsure of.
 A database is an external resource that holds information, structured in
 a special form for quick access and retrieval. Databases can be:
 
-- any size from small to extremely large 
-- located on the same system as the application or on a remote server 
+- any size from small to extremely large
+- located on the same system as the application or on a remote server
 - accessible by one user at a time or by many users at once
 
 ### SQL Databases
@@ -52,14 +51,14 @@ queries (statements in the SQL language) to specify the part of the
 database you want to work with, to get data, or to make changes to the
 database.
 
-LiveCode's database access is fully-featured. You can send any SQL
+The database access is fully-featured. You can send any SQL
 statement to a database. You can open multiple databases (or multiple
 connections to the same database), maintain multiple record sets
 (database cursors) per connection, and send and receive binary data as
-well as text. You can do all this using the commands and functions in 
+well as text. You can do all this using the commands and functions in
 the *Database library*.
 
-To see a list of LiveCode terms in the Database library, open the
+To see a list of terms in the Database library, open the
 *Dictionary*, and type "*database*" into the search filter field.
 
 ### The Basics of Database Structure
@@ -85,7 +84,7 @@ customer name, shipping address, and so on.
 > fact, but lacks some of the features of an external database, such as
 > the ability to perform SQL queries and the ability to perform robustly
 > when accessed by more than one user.
-> 
+>
 
 You can also think of the set of customer records as a grid (like a
 spreadsheet). Each row is a record, and each column is a field, so each
@@ -94,8 +93,8 @@ particular customer. Here's an example:
 
 | ID| Customer Name | Address | Country |
 |--------|-------------------|---------------|-------------|
-| 123    | Jane Jones        | 234 E. Street | U.K.        | 
-| 836    | Acme Corporation  | PO Box 23788  | USA         | 
+| 123    | Jane Jones        | 234 E. Street | U.K.        |
+| 836    | Acme Corporation  | PO Box 23788  | USA         |
 | 823    | CanCo, Inc.       | 1 CanCo Blvd. | Japan       |
 
 Figure 59 – Example Database Grid
@@ -146,21 +145,21 @@ record set to work with more than one set of records at a time.
 
 ### Choosing a Database
 
-LiveCode directly supports the following database implementations:
+The engine directly supports the following database implementations:
 
-- MySQL 
-- SQLite 
+- MySQL
+- SQLite
 - PostgreSQL
 
-LiveCode also supports connecting to a database via ODBC. You can use
+The engine also supports connecting to a database via ODBC. You can use
 ODBC to use Access, FileMaker, MS SQL Server and many other database
 implementations. See below for more information about ODBC.
 
-LiveCode's database commands and functions use the same syntax
+The database commands and functions use the same syntax
 regardless of what type of database you are connecting to. You don't
 need to learn a separate database language for each type. Instead, when
 you first open a database with the **revOpenDatabase** function, you
-specify the type as one of the parameters so LiveCode knows what type of
+specify the type as one of the parameters so the engine knows what type of
 database it's dealing with. The Database library handles the details of
 each type behind the scenes for you.
 
@@ -187,8 +186,8 @@ access any type of compatible database in a standard way.
 To communicate with a database, you usually have to add code that uses
 the database's own proprietary protocols. Without ODBC, in order to
 create a program that can communicate with--for example--FileMaker,
-Access, and Oracle databases, LiveCode would have to include code for
-three different database protocols. With ODBC, LiveCode can communicate
+Access, and Oracle databases, xTalk would have to include code for
+three different database protocols. With ODBC, the engine can communicate
 with any of these database types using the same code.
 
 **ODBC Managers**
@@ -197,17 +196,17 @@ To work with databases through ODBC, you need two pieces of software: an
 ODBC manager, plus a database driver for the specific database type
 you're using.
 
-Windows and OS X include ODBC software with the operating system. For 
-Linux systems, you can download an ODBC manager and a set of drivers 
-(see the section below titled "Software for Database Access" for more 
+Windows and OS X include ODBC software with the operating system. For
+Linux systems, you can download an ODBC manager and a set of drivers
+(see the section below titled "Software for Database Access" for more
 information).
 
 ### Performance for Direct Access Versus ODBC Access
 
 Typically, accessing a database via ODBC takes more configuration and is
-slower than accessing the database directly. For this reason, LiveCode
-provides the ability to access MySQL, PostgreSQL databases directly 
-without going through the ODBC protocol. This ability will be valuable 
+slower than accessing the database directly. For this reason, the engine
+provides the ability to access MySQL, PostgreSQL databases directly
+without going through the ODBC protocol. This ability will be valuable
 for anyone doing complex or extensive professional database work.
 
 The syntax of the functions in the Database library is identical for all
@@ -216,42 +215,41 @@ advantage of the increased efficiency of direct access.
 
 ## Software for Database Access
 
-To provide connectivity to databases, LiveCode works with database
+To provide connectivity to databases, the engine works with database
 drivers--software that translates application requests into the protocol
 required by a specific database.
 
 ### Finding Database Drivers
 
-Database drivers for certain database types are included in the LiveCode
-distribution. (The list of included database types depends on the
+Database drivers for certain database types are included in the distribution.
+(The list of included database types depends on the
 platform.) The sections below list which database drivers are included
 with which platforms.
 
-If you have installed LiveCode, you have all the software needed to use
-the included database types. For other database types, you will need to
-obtain the appropriate database drivers before you can work with those
-databases.
+You have all the software needed to use the included database types.
+For other database types, you will need to obtain the appropriate database
+drivers before you can work with those databases.
 
 > **Important:** This section includes links to third-party web sites
 > and contains information about third-party software. This information
-> is provided for your convenience, but LiveCode is not responsible for
+> is provided for your convenience, but xTalk is not responsible for
 > the software packages and sites referenced. Runtime regrets that it
 > cannot provide any support for installation and configuration of any
 > databasae.
 
 ### MySQL
 
-MySQL database drivers are included as part of the LiveCode installation
+MySQL database drivers are included as part of the installation process
 on Linux, Mac OS X, and Windows systems.
 
 ### PostgreSQL
 
-A PostgreSQL database driver is included as part of the LiveCode
-installation on Linux, Mac OS X and Windows systems.
+A PostgreSQL database driver is included as part of the installation process
+on Linux, Mac OS X and Windows systems.
 
 ### SQLite
 
-Drivers for accessing this database are included with LiveCode. No
+Drivers for accessing this database are included. No
 additional installation is necessary.
 
 ### ODBC managers and database drivers
@@ -263,19 +261,19 @@ an ODBC manager utility.
 
 **ODBC on Windows systems**
 
-Windows systems include the MDAC (Microsoft Data Access Components) 
-package as part of the standard system installation. To configure ODBC 
+Windows systems include the MDAC (Microsoft Data Access Components)
+package as part of the standard system installation. To configure ODBC
 on Windows systems, use the ODBC Data Sources control panel.
 
 **ODBC on Mac OS X systems**
 
-OS X includes iODBC software as part of the standard system 
-installation. To configure ODBC on OS X systems, use the ODBC 
+OS X includes iODBC software as part of the standard system
+installation. To configure ODBC on OS X systems, use the ODBC
 Administrator application in the Utilities folder.
 
 **ODBC on Linux systems**
 
-LiveCode supports iODBC and UnixODBC on Linux systems. You can download
+The engine supports iODBC and UnixODBC on Linux systems. You can download
 the iODBC software from the iODBC web site at *http://www.iodbc.org/*.
 You can download the unixODBC software from the unixODBC web site at
 *http://www.unixodbc.org*.

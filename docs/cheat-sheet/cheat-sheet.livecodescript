@@ -10,7 +10,7 @@ end startup
 private function getCommandLineInfo
    local tArg, tArgs, tInArgs
    put false into tInArgs
-   
+
    repeat for each element tArg in the commandArguments
       if tInArgs then
          put tArg into tArgs[1 + the number of elements in tArgs]
@@ -20,13 +20,13 @@ private function getCommandLineInfo
          end if
       end if
    end repeat
-   
+
    return tArgs
 end getCommandLineInfo
 
-constant kLanguageArgs = "livecode,livecode_builder,python,javascript"
-constant kSourceLanguages = "livecode_builder,python,javascript"
-constant kTargetLanguages = "livecode,livecode_builder"
+constant kLanguageArgs = "XTalkScript,extension_builder,python,javascript"
+constant kSourceLanguages = "extension_builder,python,javascript"
+constant kTargetLanguages = "XTalkScript,extension_builder"
 private function ProcessArgs pArgs
    local tArgs
    repeat with x = 1  to the number of elements in pArgs
@@ -71,22 +71,22 @@ command CreateCheatSheetMain
       write sArray & return to stderr
       quit 1
    end if
-   
+
    local tArgs
    put getCommandLineInfo() into tArgs
-   
+
    local tProcessedArgs
    put ProcessArgs(tArgs) into tProcessedArgs
    if tProcessedArgs is not an array then
       write tProcessedArgs & return to stderr
       quit 1
    end if
-   
+
    if tProcessedArgs["folder"] is empty then
       write "must specify output folder" & return to stderr
       quit 1
    end if
-   
+
    if tArgs["language"] is empty and tArgs["from"] is empty then
       CreateAllCheatSheets tArgs["folder"], tArgs["markdown"]
    else if tArgs["language"] is not empty then
@@ -138,7 +138,7 @@ command CreateAllCheatSheets pOutputFolder, pMarkdown
          CreateCheatSheetFrom tFrom, tTo, pOutputFolder, pMarkdown
       end repeat
    end repeat
-   
+
    -- Then do single cheat sheets for lcs or lcb
    repeat for each item tItem in kTargetLanguages
       CreateCheatSheet tItem, pOutputFolder, pMarkdown
@@ -150,10 +150,10 @@ Create a cheat sheet for the given language
 
 Parameters:
 pLanguage (enum):
-- "livecode": Create a cheat sheet for LiveCode
-- "livecode_builder": Create a cheat sheet for LiveCode
-- "python": Create a cheat sheet for Python to LiveCode transition
-- "javascript": Create a cheat sheet for JavaScript to LiveCode transition
+- "XTalkScript": Create a cheat sheet for XTalkScript
+- "extension_builder": Create a cheat sheet for XTalkScript
+- "python": Create a cheat sheet for Python to XTalkScript transition
+- "javascript": Create a cheat sheet for JavaScript to XTalkScript transition
 
 pOutputFolder: The location to create the cheat sheet
 
@@ -193,7 +193,7 @@ private command CreatePDF pNumCards, pOutputFile
    local tPDFPath
    ## Path to the pdf file we want to create
    put pOutputFile into tPDFPath
-   
+
    open printing to pdf tPDFPath
    if the result is "Cancel" then
       ## The user has cancelled printing
@@ -206,7 +206,7 @@ private command CreatePDF pNumCards, pOutputFile
             print break
          end if
       end repeat
-      
+
    end if
    close printing
 end CreatePDF
@@ -228,7 +228,7 @@ command BuildCheatSheet pFromLanguage, pToLanguage, pOutputFolder
       put merge("[[tFromDisplayName]] - [[tToDisplayName]] Cheat Sheet") into tTitle
       put merge("cheat-sheet-[[pFromLanguage]]-[[pToLanguage]].pdf") into tFilename
    end if
-   
+
    local tTitleHeight, tTitleGroup
    create group "Title" in this card of sTargetStack
    put it into tTitleGroup
@@ -241,10 +241,10 @@ command BuildCheatSheet pFromLanguage, pToLanguage, pOutputFolder
    set the textSize of it to kTitleTextSize
    set the height of it to the formattedHeight of it
    put the height of it into tTitleHeight
-   
+
    local tNumCards
    if pToLanguage is empty then
-      BuildCheatSheetForLiveCode pFromLanguage, tTitleHeight
+      BuildCheatSheetForXTalkScript pFromLanguage, tTitleHeight
    else
       BuildCheatSheetForLanguage pFromLanguage, pToLanguage, tTitleHeight
    end if
@@ -265,16 +265,16 @@ command BuildCheatSheetMarkdown pFromLanguage, pToLanguage, pOutputFolder
       put merge("[[tFromDisplayName]] - [[tToDisplayName]] Cheat Sheet") into tTitle
       put merge("[[tFromDisplayName]] - [[tToDisplayName]] Cheat Sheet.md") into tFilename
    end if
-   
+
    local tMarkdown
    put "#" && tTitle & return into tMarkdown
-   
+
    if pToLanguage is empty then
-      put BuildCheatSheetMarkdownForLiveCode(pFromLanguage) after tMarkdown
+      put BuildCheatSheetMarkdownForXTalkScript(pFromLanguage) after tMarkdown
    else
       put BuildCheatSheetMarkdownForLanguage(pFromLanguage, pToLanguage) after tMarkdown
    end if
-   
+
    put textEncode(tMarkdown, "utf-8") into url("binfile:" & pOutputFolder & slash & tFilename)
 end BuildCheatSheetMarkdown
 
@@ -284,9 +284,9 @@ private function LanguageToKey pLanguage
          return "py"
       case "javascript"
          return "js"
-      case "livecode"
+      case "XTalkScript"
          return "lc"
-      case "livecode_builder"
+      case "extension_builder"
          return "lcb"
    end switch
 end LanguageToKey
@@ -297,10 +297,10 @@ private function LanguageToHighlightJS pLanguage
          return "python"
       case "javascript"
          return "javascript"
-      case "livecode"
-         return "livecode"
-      case "livecode_builder"
-         return "livecodebuilder"
+      case "XTalkScript"
+         return "XTalkScript"
+      case "extension_builder"
+         return "extension_builder"
    end switch
 end LanguageToHighlightJS
 
@@ -310,10 +310,10 @@ private function LanguageToDisplayName pLanguage
          return "Python"
       case "javascript"
          return "JavaScript"
-      case "livecode"
-         return "LiveCode"
-      case "livecode_builder"
-         return "LiveCode Builder"
+      case "XTalkScript"
+         return "XTalkScript"
+      case "extension_builder"
+         return "Extension Builder"
    end switch
 end LanguageToDisplayName
 
@@ -322,7 +322,7 @@ command BuildCheatSheetForLanguage pFromLanguage, pToLanguage, pTitleBottom
    local tCurCard, tTop, tToFit
    put 1 into tCurCard
    put pTitleBottom into tTop
-   
+
    repeat for each key tKey in sArray["content"]
       BuildRowForLanguage sArray["content"][tKey], pFromLanguage, pToLanguage
    end repeat
@@ -360,20 +360,20 @@ command BuildRowForLanguage pContent, pFromLanguage, pToLanguage
    local tFromCodeText, tToCodeText
    put pContent[LanguageToKey(pFromLanguage)] into tFromCodeText
    put pContent[LanguageToKey(pToLanguage)] into tToCodeText
-   
+
    -- Skip the row if no equivalent section
    if tFromCodeText is empty or tToCodeText is empty then
       exit BuildRowForLanguage
    end if
-   
+
    local tColWidth, tWidth
    put the width of sTargetStack into tWidth
    put (tWidth - (kNumCols + 1)*kMargin) / kNumCols into tColWidth
-   
+
    local tGroup, tTitle, tFromCode, tToCode, tText
    create group pContent["title"]
    put it into tGroup
-   
+
    create field "title" in tGroup
    put it into tTitle
    set the width of tTitle to tWidth
@@ -381,14 +381,14 @@ command BuildRowForLanguage pContent, pFromLanguage, pToLanguage
    set the textSize of tTitle to kSectionTitleTextSize
    set the textStyle of tTitle to "underline"
    set the textAlign of tTitle to "center"
-   
+
    create field "text" in tGroup
    put it into tText
    set the width of tText to tWidth
    set the text of tText to pContent["text"]
    set the textSize of tText to kTextSize
    set the textAlign of tText to "left"
-   
+
    if pContent["text"] is empty then
       set the height of tText to 0
       set the bottom of tText to the bottom of tTitle
@@ -397,29 +397,29 @@ command BuildRowForLanguage pContent, pFromLanguage, pToLanguage
       set the height of tText to the formattedHeight of tText
       set the top of tText to the bottom of tTitle + kTitlePadding
    end if
-   
+
    create field "from" in tGroup
    put it into tFromCode
    set the width of tFromCode to tColWidth
    set the text of tFromCode to tFromCodeText
    set the textSize of tFromCode to kCodeTextSize
    set the left of tFromCode to kMargin
-   if pFromLanguage is "livecode" then
-      _internal script colorize char 1 to the number \ 
+   if pFromLanguage is "XTalkScript" then
+      _internal script colorize char 1 to the number \
             of chars in tFromCodeText of tFromCode
    end if
    set the height of tFromCode to the formattedHeight of tFromCode
    set the top of tFromCode to the bottom of tText + kPadding
-   
+
    create field "to" in tGroup
    put it into tToCode
    set the width of tToCode to tColWidth
    set the text of tToCode to tToCodeText
    set the textSize of tToCode to kCodeTextSize
    set the left of tToCode to kMargin*2 + tColWidth
-   
-   if pToLanguage is "livecode" then
-      _internal script colorize char 1 to the number \ 
+
+   if pToLanguage is "XTalkScript" then
+      _internal script colorize char 1 to the number \
             of chars in tToCodeText of tToCode
    end if
    set the height of tToCode to the formattedHeight of tToCode
@@ -436,19 +436,19 @@ function BuildRowMarkdownForLanguage pContent, pFromLanguage, pToLanguage
    local tFromCodeText, tToCodeText
    put pContent[LanguageToKey(pFromLanguage)] into tFromCodeText
    put pContent[LanguageToKey(pToLanguage)] into tToCodeText
-   
+
    -- Skip the row if no equivalent section
    if tFromCodeText is empty or tToCodeText is empty then
       return empty
    end if
-   
+
    local tMarkdown
    put "##" && pContent["title"] & return into tMarkdown
-   
+
    if pContent["text"] is not empty then
       put pContent["text"] & return & return after tMarkdown
    end if
-   
+
    put "<table>" after tMarkdown
    put "<tr><td>" && LanguageToDisplayName(pFromLanguage) && "</td><td>" && \
          LanguageToDisplayName(pToLanguage) && "</td></tr>" & return after tMarkdown
@@ -479,7 +479,7 @@ function RowHeight pGroupName
       put max(the height of field "from" of group pGroupName, \
             the height of field "to" of group pGroupName) into tCodeHeight
    end if
-   
+
    local tTextHeight
    if there is a field "text" of group pGroupName then
       if the visible of field "text" of group pGroupName then
@@ -487,7 +487,7 @@ function RowHeight pGroupName
                kPadding into tTextHeight
       end if
    end if
-   
+
    return the height of field "title" of group pGroupName + \
          tTextHeight + tCodeHeight + kPadding + kTitlePadding
 end RowHeight
@@ -503,29 +503,29 @@ command PositionRowsForLanguage pTitleBottom, @xContentBottom, pContent, @xToFit
          delete line (lineoffset(tLine, xToFit)) of xToFit
          next repeat
       end if
-      
+
       local tRowHeight
       put RowHeight(tCurGroup) into tRowHeight
       if tRowHeight + xContentBottom > the height of sTargetStack then
          next repeat
       end if
-      
+
       set the top of group tCurGroup to xContentBottom
       set the left of group tCurGroup to 0
       add tRowHeight to xContentBottom
       delete line (lineoffset(tLine, xToFit)) of xToFit
       put true into tPositioned
    end repeat
-   
+
    if tPositioned then
       exit PositionRowsForLanguage
    end if
-   
+
    // If we get here we need a new card
    repeat for each line tLine in xToFit
       delete group pContent[tLine]["title"]
    end repeat
-   create card 
+   create card
    add 1 to xCurCard
    put pTitleBottom into xContentBottom
    repeat for each line tLine in xToFit
@@ -533,16 +533,16 @@ command PositionRowsForLanguage pTitleBottom, @xContentBottom, pContent, @xToFit
    end repeat
 end PositionRowsForLanguage
 
-command BuildCheatSheetForLiveCode pLanguage, pTitleHeight
+command BuildCheatSheetForXTalkScript pLanguage, pTitleHeight
    local tCurCard, tColNum, tTop, tToFit
    put 1 into tCurCard
    put the keys of sArray["content"] into tToFit
    sort tToFit ascending numeric
-   
+
    local tColWidth, tWidth
    put the width of sTargetStack into tWidth
    put (tWidth - (kNumCols + 1)*kMargin) / kNumCols into tColWidth
-   
+
    repeat for each key tKey in sArray["content"]
       BuildGroupForTarget pLanguage, sArray["content"][tKey], tColWidth
    end repeat
@@ -567,9 +567,9 @@ command BuildCheatSheetForLiveCode pLanguage, pTitleHeight
       end repeat
    end repeat
    return tCurCard
-end BuildCheatSheetForLiveCode
+end BuildCheatSheetForXTalkScript
 
-function BuildCheatSheetMarkdownForLiveCode pLanguage
+function BuildCheatSheetMarkdownForXTalkScript pLanguage
    local tMarkdown
    repeat for each element tContent in sArray["content"]
       local tRowMarkdown
@@ -581,24 +581,24 @@ function BuildCheatSheetMarkdownForLiveCode pLanguage
       put tRowMarkdown & return after tMarkdown
    end repeat
    return tMarkdown
-end BuildCheatSheetMarkdownForLiveCode
+end BuildCheatSheetMarkdownForXTalkScript
 
 function BuildGroupMarkdownForTarget pContent, pLanguage
    local tCodeText
    put pContent[LanguageToKey(pLanguage)] into tCodeText
-   
+
    -- Skip the row if no equivalent section
    if tCodeText is empty then
       return empty
    end if
-   
+
    local tMarkdown
    put "##" && pContent["title"] & return into tMarkdown
-   
+
    if pContent["text"] is not empty then
       put pContent["text"] & return after tMarkdown
    end if
-   
+
    put "```" & return after tMarkdown
    put tCodeText & return after tMarkdown
    put "```" & return after tMarkdown
@@ -608,16 +608,16 @@ end BuildGroupMarkdownForTarget
 command BuildGroupForTarget pLanguage, pContent, pWidth
    local tCodeText
    put pContent[LanguageToKey(pLanguage)] into tCodeText
-   
+
    -- Skip the section if empty
    if tCodeText is empty then
       exit BuildGroupForTarget
    end if
-   
+
    local tGroup, tTitle, tCode, tText
    create group pContent["title"] in this card of sTargetStack
    put it into tGroup
-   
+
    create field "title" in tGroup
    put it into tTitle
    set the width of tTitle to pWidth
@@ -625,14 +625,14 @@ command BuildGroupForTarget pLanguage, pContent, pWidth
    set the textSize of tTitle to kSectionTitleTextSize
    set the textStyle of tTitle to "underline"
    set the textAlign of tTitle to "center"
-   
+
    create field "text" in tGroup
    put it into tText
    set the width of tText to pWidth
    set the text of tText to pContent["text"]
    set the textSize of tText to kTextSize
    set the textAlign of tText to "left"
-   
+
    if pContent["text"] is empty then
       set the height of tText to 0
       set the bottom of tText to the bottom of tTitle
@@ -641,16 +641,16 @@ command BuildGroupForTarget pLanguage, pContent, pWidth
       set the height of tText to the formattedHeight of tText
       set the top of tText to the bottom of tTitle + kTitlePadding
    end if
-   
+
    create field "code" in tGroup
    put it into tCode
    set the width of tCode to pWidth
    set the text of tCode to tCodeText
    set the textSize of tCode to kCodeTextSize
-   
-   if pLanguage is "livecode" then
-      _internal script colorize char 1 to the number \ 
-            of chars in pContent[LanguageToKey("livecode")] of tCode
+
+   if pLanguage is "XTalkScript" then
+      _internal script colorize char 1 to the number \
+            of chars in pContent[LanguageToKey("XTalkScript")] of tCode
    end if
    set the height of tCode to the formattedHeight of tCode
    set the loc of tCode to the loc of tTitle
@@ -660,7 +660,7 @@ end BuildGroupForTarget
 command PositionRowsInColumn @xCol, pColWidth, pTitleBottom, @xContentBottom, pContent, @xToFit
    local tLastBottom, tLeft
    put xCol*kMargin + (xCol - 1)*pColWidth into tLeft
-   
+
    local tCurGroup, tLines, tPositioned
    put false into tPositioned
    put xToFit into tLines
@@ -670,24 +670,24 @@ command PositionRowsInColumn @xCol, pColWidth, pTitleBottom, @xContentBottom, pC
          delete line (lineoffset(tLine, xToFit)) of xToFit
          next repeat
       end if
-      
+
       local tRowHeight
       put RowHeight(tCurGroup) into tRowHeight
       if tRowHeight + xContentBottom > the height of sTargetStack then
          next repeat
       end if
-      
+
       set the top of group tCurGroup to xContentBottom
       set the left of group tCurGroup to tLeft
       add tRowHeight to xContentBottom
       delete line (lineoffset(tLine, xToFit)) of xToFit
       put true into tPositioned
    end repeat
-   
+
    if tPositioned then
       exit PositionRowsInColumn
    end if
-   
+
    // If we get here we need a new column
    add 1 to xCol
    put pTitleBottom into xContentBottom
@@ -698,10 +698,10 @@ function CheatSheetArray
    put the effective filename of me into tPath
    set the itemdelimiter to slash
    put "cheat-sheet.yml" into item -1 of tPath
-   
+
    local tYAML
    put textDecode(url("binfile:" & tPath), "utf8") into tYAML
-   
+
    YAMLToArray tYAML
    if the result is not empty then
       return the result
@@ -723,23 +723,23 @@ command YAMLToArray pYaml
    local tReferences
    local tMultiLineMode
    put kMultiLineModeNone into tMultiLineMode
-   
+
    local tMultiLine
    repeat for each line tLine in pYaml
       -- ignore directives
       if tLine begins with "%" then
          next repeat
       end if
-      
+
       if tLine begins with "---" then
          put true into tInDocument
          next repeat
       end if
-      
+
       if not tInDocument then
          next repeat
       end if
-      
+
       if tLine begins with "..." then
          if tMultiLineMode is not kMultiLineModeNone then
             __ClearQuotes tMultiLine
@@ -749,10 +749,10 @@ command YAMLToArray pYaml
          put false into tInDocument
          next repeat
       end if
-      
+
       local tPathElement, tListItem
       put __PathElement(tLine, tListItem, tPathLists) into tPathElement
-      
+
       -- remain in multiline until indent is lower
       if tMultiLineMode is not kMultiLineModeNone then
          if tPathElement < the number of elements of tPath + 1 and tLine is not empty then
@@ -766,7 +766,7 @@ command YAMLToArray pYaml
                   put "    " before tLine
                end repeat
             end if
-            
+
             -- empty lines and indented lines are literal even in folded mode
             if tMultiLineMode is kMultiLineModeLiteral then
                if tMultiLine is not empty then
@@ -790,7 +790,7 @@ command YAMLToArray pYaml
                   put tLine after tMultiLine
                end if
             end if
-            
+
             next repeat
          end if
       else
@@ -798,12 +798,12 @@ command YAMLToArray pYaml
          split tLine by "#"
          put tLine[1] into tLine
       end if
-      
+
       -- empty lines
       if tLine is empty then
          next repeat
       end if
-      
+
       local tElements
       put the number of elements of tPath into tElements
       if tPathLists[tPathElement] and \
@@ -824,19 +824,19 @@ command YAMLToArray pYaml
          else if tPathElement > tElements + 1 then
             return "invalid YAML" for error
          end if
-         
+
          put tListItem into tPathLists[tPathElement]
          if tListItem then
             put 1 into tPath[tPathElement]
             add 1 to tPathElement
          end if
       end if
-      
+
       -- handle line with just list marker
       if the number of words of tLine is 0 then
          next repeat
       end if
-      
+
       -- map
       if tLine contains ":" then
          set the itemDelimiter to ":"
@@ -844,17 +844,17 @@ command YAMLToArray pYaml
          put item 1 of tLine into tKey
          delete item 1 of tLine
          __ClearQuotes tKey
-         
+
          if tKey is empty then
             return "invalid YAML" for error
          end if
-         
+
          put false into tPathLists[tPathElement]
          put tKey into tPath[tPathElement]
-         
+
          -- clean whitespace
          put word 1 to -1 of tLine into tLine
-         
+
          if tLine is not empty then
             -- referenced element
             local tRef
@@ -865,22 +865,22 @@ command YAMLToArray pYaml
             else
                put empty into tRef
             end if
-            
+
             -- check for referenced element
             if word 1 of tLine is among the keys of tReferences then
                put tArray[tReferences[word 1 of tLine]] into tLine
             end if
-            
+
             -- store referenced element
             if tRef is not empty then
                put tPath into tReferences[tRef]
             end if
-            
+
             -- ignore explicit typing
             if tLine begins with "!" then
                delete word 1 of tLine
             end if
-            
+
             if tLine is "|" then
                put kMultiLineModeLiteral into tMultiLineMode
                put empty into tMultiLine
@@ -892,17 +892,17 @@ command YAMLToArray pYaml
                put tLine into tArray[tPath]
             end if
          end if
-         
+
       else
          put word 1 to -1 of tLine into tArray[tPath]
       end if
    end repeat
-   
+
    if tMultiLineMode is not kMultiLineModeNone then
       __ClearQuotes tMultiLine
       put tMultiLine into tArray[tPath]
    end if
-   
+
    return tArray for value
 end YAMLToArray
 
@@ -916,13 +916,13 @@ end __ClearQuotes
 
 private function __PathElement @xLine, @rListItem, pPathLists
    local tPathElement = 1
-   
+
    if xLine begins with "- " then
       put true into rListItem
       delete char 1 to 2 of xLine
       return tPathElement
    end if
-   
+
    put false into rListItem
    repeat
       if xLine begins with "    " then

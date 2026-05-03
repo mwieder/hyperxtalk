@@ -1,0 +1,135 @@
+#!/bin/bash
+# Build an AppImage for HyperXTalk from a completed Linux build.
+#
+# Usage:  ./packaging/linux/build-appimage.sh [BUILD_DIR] [BUILDTYPE]
+#
+# BUILD_DIR  defaults to build-linux-x86_64/livecode
+# BUILDTYPE  defaults to Debug
+#
+# Requires: appimagetool (downloaded automatically if not on PATH)
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+BUILD_DIR="${1:-$REPO_ROOT/build-linux-x86_64/livecode}"
+BUILDTYPE="${2:-Debug}"
+OUT_DIR="$BUILD_DIR/out/$BUILDTYPE"
+
+if [ ! -x "$OUT_DIR/HyperXTalk" ]; then
+    echo "ERROR: $OUT_DIR/HyperXTalk not found — build first." >&2
+    exit 1
+fi
+
+# Read version from the version file (format: KEY = VALUE)
+VERSION="$(grep '^BUILD_SHORT_VERSION' "$REPO_ROOT/version" | sed 's/.*= *//')"
+VERSION="${VERSION:-0.0.0}"
+
+APPDIR="$BUILD_DIR/HyperXTalk.AppDir"
+rm -rf "$APPDIR"
+mkdir -p "$APPDIR/usr/bin" \
+         "$APPDIR/usr/share/applications" \
+         "$APPDIR/usr/share/icons/hicolor/48x48/apps"
+
+# The HyperXTalk engine resolves its tools path relative to its own binary
+# location.  It then looks for Toolset/home.livecodescript (the IDE entry
+# point), plus Resources/, Externals/, Documentation/, etc.  We lay out the
+# AppDir so that usr/bin/ contains the engine *and* all the IDE content it
+# expects to find as siblings.
+
+APPBIN="$APPDIR/usr/bin"
+IDE_DIR="$REPO_ROOT/ide"
+
+# --- Main binary ---
+cp "$OUT_DIR/HyperXTalk" "$APPBIN/"
+strip --strip-debug "$APPBIN/HyperXTalk" 2>/dev/null || true
+
+# --- IDE content (Toolset, Resources, Documentation, Plugins, etc.) ---
+for subdir in Toolset Resources Documentation Plugins Externals; do
+    if [ -d "$IDE_DIR/$subdir" ]; then
+        cp -a "$IDE_DIR/$subdir" "$APPBIN/"
+    fi
+done
+
+# --- Externals (.so plugins from the build) ---
+for so in "$OUT_DIR"/*.so; do
+    [ -f "$so" ] || continue
+    name="$(basename "$so")"
+    case "$name" in server-*) continue ;; esac
+    cp "$so" "$APPBIN/"
+    strip --strip-debug "$APPBIN/$name" 2>/dev/null || true
+done
+
+# --- Externals subdirectory from build (CEF etc) ---
+if [ -d "$OUT_DIR/Externals" ]; then
+    cp -a "$OUT_DIR/Externals/"* "$APPBIN/Externals/" 2>/dev/null || true
+fi
+
+# --- Packaged extensions ---
+if [ -d "$OUT_DIR/packaged_extensions" ]; then
+    mkdir -p "$APPBIN/packaged_extensions"
+    cp -a "$OUT_DIR/packaged_extensions/"* "$APPBIN/packaged_extensions/" 2>/dev/null || true
+fi
+
+# --- LCI modules ---
+if [ -d "$OUT_DIR/modules" ]; then
+    mkdir -p "$APPBIN/modules"
+    cp -a "$OUT_DIR/modules/"* "$APPBIN/modules/" 2>/dev/null || true
+fi
+
+# --- Desktop file ---
+cat > "$APPDIR/usr/share/applications/HyperXTalk.desktop" <<'DESKTOP'
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=HyperXTalk
+Comment=IDE for creating cross-platform applications
+Icon=hyperxtalk
+Exec=HyperXTalk %U
+Categories=Development;IDE;
+StartupWMClass=hyperxtalk
+DESKTOP
+
+# Symlink desktop file to AppDir root (required by AppImage)
+cp "$APPDIR/usr/share/applications/HyperXTalk.desktop" "$APPDIR/HyperXTalk.desktop"
+
+# --- Icon ---
+cp "$REPO_ROOT/Installer/application.png" \
+   "$APPDIR/usr/share/icons/hicolor/48x48/apps/hyperxtalk.png"
+# AppImage also needs an icon at the root
+cp "$REPO_ROOT/Installer/application.png" "$APPDIR/hyperxtalk.png"
+
+# --- AppRun ---
+cat > "$APPDIR/AppRun" <<'APPRUN'
+#!/bin/bash
+HERE="$(dirname "$(readlink -f "$0")")"
+export LD_LIBRARY_PATH="$HERE/usr/bin${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+exec "$HERE/usr/bin/HyperXTalk" "$@"
+APPRUN
+chmod +x "$APPDIR/AppRun"
+
+# --- Obtain appimagetool ---
+ARCH="$(uname -m)"
+APPIMAGETOOL=""
+
+if command -v appimagetool >/dev/null 2>&1; then
+    APPIMAGETOOL="appimagetool"
+else
+    TOOL_PATH="$BUILD_DIR/appimagetool"
+    if [ ! -x "$TOOL_PATH" ]; then
+        echo "Downloading appimagetool..."
+        curl -fsSL -o "$TOOL_PATH" \
+            "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-${ARCH}.AppImage"
+        chmod +x "$TOOL_PATH"
+    fi
+    APPIMAGETOOL="$TOOL_PATH"
+fi
+
+# --- Build AppImage ---
+OUTPUT="$BUILD_DIR/HyperXTalk-${VERSION}-${ARCH}.AppImage"
+ARCH="$ARCH" "$APPIMAGETOOL" "$APPDIR" "$OUTPUT"
+
+echo ""
+echo "AppImage created: $OUTPUT"
+echo "Size: $(du -h "$OUTPUT" | cut -f1)"

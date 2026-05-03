@@ -29,6 +29,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "answer.h"
 #include "ask.h"
 #include "internal.h"
+#include "notification.h"
 
 #include "mode.h"
 
@@ -59,6 +60,10 @@ MCStatement *MCN_new_statement(int2 which)
 		return new MCCall;
 	case S_CANCEL:
 		return new MCCancel;
+	case S_CANCEL_ALL_NOTIFICATIONS:
+		return new MCCancelAllNotifications;
+	case S_CANCEL_NOTIFICATION:
+		return new MCCancelNotification;
 	case S_CHOOSE:
 		return new MCChoose;
 	case S_CLICK:
@@ -230,6 +235,8 @@ MCStatement *MCN_new_statement(int2 which)
 		return new MCReply;
 	case S_REQUEST:
 		return new MCRequest;
+	case S_REQUEST_NOTIFICATION_PERMISSION:
+		return new MCRequestNotificationPermission;
 	case S_REQUIRE:
 		return new MCInclude(true);
 	case S_RESET:
@@ -261,6 +268,8 @@ MCStatement *MCN_new_statement(int2 which)
 		return new MCSheet;
 	case S_SHOW:
 		return new MCShow;
+	case S_SHOW_NOTIFICATION:
+		return new MCShowNotification;
 	case S_SORT:
 		return new MCSort;
 	case S_SPLIT:
@@ -676,6 +685,8 @@ MCExpression *MCN_new_function(int2 which)
 		return new MCParams;
 	case F_PARAM_COUNT:
 		return new MCParamCount;
+	case F_NOTIFICATION_PERMISSION:
+		return new MCNotificationPermissionFunc;
 	case F_PENDING_MESSAGES:
 		return new MCPendingMessages;
 	case F_PLATFORM:

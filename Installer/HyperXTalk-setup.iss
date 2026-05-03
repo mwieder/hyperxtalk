@@ -10,7 +10,7 @@
 ; ============================================================
 
 #define MyAppName      "HyperXTalk"
-#define MyAppVersion   "0.9.10"
+#define MyAppVersion   "0.9.11"
 #define MyAppPublisher "HyperXTalk.com"
 #define MyAppURL       "https://HyperXTalk.com"
 #define MyAppExeName   "HyperXTalk.exe"
@@ -113,9 +113,9 @@ Source: "{#SourceDir}\icuuc58.dll";  DestDir: "{app}\Runtime\Windows\x86-64"; Fl
 Source: "{#SourceDir}\libcrypto-3-x64.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\libssl-3-x64.dll";    DestDir: "{app}"; Flags: ignoreversion
 
-; WebView2 — needed in the engine folder so the builder can copy it into standalones
-Source: "{#SourceDir}\WebView2Loader.dll"; DestDir: "{app}";                       Flags: ignoreversion
-Source: "{#SourceDir}\WebView2Loader.dll"; DestDir: "{app}\Runtime\Windows\x86-64"; Flags: ignoreversion
+; WebView2 — no WebView2Loader.dll needed; the static loader (WebView2LoaderStatic.lib)
+; is compiled into HyperXTalk.exe and standalone-community.exe, so the DLL is not
+; required at runtime.
 
 ; Support DLLs — revpdfprinter and revsecurity sit in {app} root (not Externals).
 ; The standalone builder (revCopyExternals) copies them from the Support subfolder of
@@ -253,24 +253,6 @@ Source: "..\ide\Documentation\*"; \
     DestDir: "{app}\Documentation"; \
     Flags: ignoreversion recursesubdirs createallsubdirs
 
-; ---- Source documentation (.lcdoc files) ----
-; These are shipped alongside the app so that the runtime documentation builder
-; (revIDEGenerateDistributedAPI) can regenerate api.sqlite into the user doc
-; cache on first launch of an installed build, exactly as it does on macOS dev.
-;
-; IMPORTANT: the "touch" flag gives every installed .lcdoc file the current
-; install timestamp rather than preserving its original source/git timestamp.
-; Without "touch", Inno Setup preserves the source file's modification time,
-; which may pre-date the api.sqlite / *.js files written by a previous install's
-; first-launch doc-build, causing the staleness check to report "not stale" and
-; silently skip the rebuild even when the .lcdoc content has changed.
-; With "touch", reinstalling always produces .lcdoc timestamps newer than any
-; previously cached *.js files, so the per-API staleness checks reliably trigger
-; a fresh doc-build on the next launch.
-Source: "..\docs\*"; \
-    DestDir: "{app}\docs"; \
-    Flags: ignoreversion recursesubdirs createallsubdirs touch
-
 ; ---- IDE support libraries (deploy, revliburl, etc.) ----
 Source: "..\ide-support\*"; \
     DestDir: "{app}\ide-support"; \
@@ -302,9 +284,15 @@ Name: "{userdocs}\{#MyAppName}\Stacks"
 
 ; ============================================================
 [Icons]
-Name: "{group}\{#MyAppName}";                    Filename: "{app}\{#MyAppExeName}"
+; AppUserModelID must match SetCurrentProcessExplicitAppUserModelID in dskw32main.cpp
+; so that Windows can deliver toast notifications and list the app in notification settings.
+Name: "{group}\{#MyAppName}"; \
+    Filename: "{app}\{#MyAppExeName}"; \
+    AppUserModelID: "HyperXTalk.Engine"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
-Name: "{autodesktop}\{#MyAppName}";              Filename: "{app}\{#MyAppExeName}"; \
+Name: "{autodesktop}\{#MyAppName}"; \
+    Filename: "{app}\{#MyAppExeName}"; \
+    AppUserModelID: "HyperXTalk.Engine"; \
     Tasks: desktopicon
 
 ; ============================================================

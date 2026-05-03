@@ -3141,6 +3141,10 @@ MCControl* MCInterfaceExecCreateControlGetObject(MCExecContext& ctxt, int p_type
 		return MCtemplateeps;
 	case CT_FIELD:
 		return MCtemplatefield;
+#ifndef _SERVER
+	case CT_TOOLBAR:
+		return MCtemplatetoolbar;
+#endif
 	default:
 		return NULL;
 	}

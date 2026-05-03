@@ -85,6 +85,8 @@ enum Object_type {
 	OT_BLOCK_EXT,
     // MW-2014-12-16: [[ Widgets ]] The widget object tag.
     OT_WIDGET,
+    // [[ Toolbar ]] The toolbar object tag.
+    OT_TOOLBAR,
 };
 
 #define IO_WRITTEN    (1UL << 0)

@@ -4,12 +4,12 @@ Name: If
 
 Type: control structure
 
-Syntax: 
-if <IfCondition> then 
-	<IfStatementList> 
-[else if <ElseCondition> then 
-	<ElseIfStatementList>] 
-[else 
+Syntax:
+if <IfCondition> then
+	<IfStatementList>
+[else if <ElseCondition> then
+	<ElseIfStatementList>]
+[else
 	<ElseStatementList>]
 end if
 
@@ -20,7 +20,7 @@ IfCondition(bool): An expression which evaluates to a boolean.
 IfStatementList: A set of statements.
 ElseCondition(bool): An expression which evaluates to a boolean.
 ElseIfStatementList: A set of statements.
-ElseStatementList: A set of statements. 
+ElseStatementList: A set of statements.
 
 Description:
 Use the if control structure to execute a statement (or list of statements) only under certain circumstances. If <IfCondition> evaluates to true, the statements in <IfStatementList> are executed. For each condition <ElseCondition> such that none of the previous conditions evaluates to true, the condition is evaluated and the corresponding statements in <ElseIfStatementList> are executed. If none of the conditions evaluate to true, the statements in <ElseStatementList> are executed.
@@ -29,7 +29,7 @@ Name: RepeatForEach
 
 Type: control structure
 
-Syntax: 
+Syntax:
 repeat for each <Iterator> in <Container>
 	<StatementList>
 end repeat
@@ -39,19 +39,19 @@ Summary: Executes a list of statements until the <Iterator> is exhausted.
 Parameters:
 Iterator: Any iterator expression.
 Container: The container over which to iterate.
-StatementList: A set of statements. 
+StatementList: A set of statements.
 
 Example:
 	variable tElement
 	variable tNumbers as list
 	put the empty list into tNumbers
-	
+
 	repeat for each element tElement in ["a", 1, 2, 3, "b", "c", 4]
 		if tElement is a number then
 			push tElement onto tNumbers
 		end if
 	end repeat
-	
+
 	// tNumbers contains [1, 2, 3, 4]
 
 Description:
@@ -64,7 +64,7 @@ Name: RepeatForever
 
 Type: control structure
 
-Syntax: 
+Syntax:
 repeat forever
 	<StatementList>
 end repeat
@@ -72,7 +72,7 @@ end repeat
 Summary: Executes a list of statements continually.
 
 Parameters:
-StatementList: A set of statements. 
+StatementList: A set of statements.
 
 Example:
 	variable tCount as number
@@ -85,7 +85,7 @@ Example:
 		end if
 		add 1 to tCount
 	end repeat
-	
+
 	// tCount is 8
 
 Description:
@@ -95,7 +95,7 @@ Name: RepeatTimes
 
 Type: control structure
 
-Syntax: 
+Syntax:
 repeat <Count> times
 	<StatementList>
 end repeat
@@ -104,28 +104,28 @@ Summary: Executes a list of statements a given number of times.
 
 Parameters:
 Count(integer): An expression which evaluates to an integer.
-StatementList: A set of statements. 
+StatementList: A set of statements.
 
 Example:
 public handler TwoToThePower(in pOperand as integer) as number
 
 	if pOperand is 0 then
 		return 1
-	end if	
+	end if
 
 	variable tCount as number
 	put the abs of pOperand into tCount
-	
+
 	variable tResult as number
 	put 1 into tResult
 	repeat tCount times
 		multiply tResult by 2
 	end repeat
-		
-	if pOperand < 0 then 
+
+	if pOperand < 0 then
 		return 1 / tResult
 	end if
-	
+
 	return tResult
 end handler
 
@@ -136,7 +136,7 @@ Name: RepeatWhile
 
 Type: control structure
 
-Syntax: 
+Syntax:
 repeat while <Condition>
 	<StatementList>
 end repeat
@@ -145,7 +145,7 @@ Summary: Executes a list of statements while a condition continues to be true.
 
 Parameters:
 Condition(bool): An expression which evaluates to a boolean.
-StatementList: A set of statements. 
+StatementList: A set of statements.
 
 Description:
 Use the repeat while <Condition> structure to execute a set of statements repeatedly, while the <Condition> continues to evaluate to true.
@@ -154,7 +154,7 @@ Name: RepeatUntil
 
 Type: control structure
 
-Syntax: 
+Syntax:
 repeat until <Condition>
 	<StatementList>
 end repeat
@@ -163,7 +163,7 @@ Summary: Executes a list of statements until a condition becomes true.
 
 Parameters:
 Condition(bool): An expression which evaluates to a boolean.
-StatementList: A set of statements. 
+StatementList: A set of statements.
 
 Description:
 Use the repeat until <Condition> structure to execute a set of statements repeatedly, until the <Condition> evaluates to true.
@@ -172,37 +172,37 @@ Name: RepeatWith
 
 Type: control structure
 
-Syntax: 
+Syntax:
 repeat with <Counter> from <Start> ( up | down ) to <Finish> [ by <Step> ]
 	<StatementList>
 end repeat
 
-Summary: Executes a list of statements 
+Summary: Executes a list of statements
 
 Parameters:
 Counter: A numeric variable.
 Start(number): The initial value of <Counter>
 Finish(number): The boundary value of <Counter>
 Step(number): The value by which to increase or decrease the <Counter>
-StatementList: A set of statements. 
+StatementList: A set of statements.
 
 Example:
 	public handler Factorial(in pOperand as integer) as number
 		if pOperand < 1 then
 			return 0
 		end if
-		
+
 		variable tTotal as number
 		put 1 into tTotal
-		
+
 		variable tCounter as integer
-		repeat with tCounter from 1 up to pOperand 
+		repeat with tCounter from 1 up to pOperand
 			multiply tTotal by tCounter
 		end repeat
-		
+
 		return tCounter
 	end handler
-	
+
 Description:
 Use the repeat with <Counter> structure to execute a set of statements until the value of <Counter> reaches or crosses (depending on iteration direction) the value of <Finish>. The counter is increased (or decreased) by <Step> on each iteration of the loop.
 
@@ -214,17 +214,17 @@ Example:
 	variable tList as list
 	variable tElement
 	put [1, 2, 3, "a", 4, "b", 5] into tList
-	
+
 	variable tSum as number
 	put 0 into tSum
 	repeat for each element tElement in tList
 		if tElement is not a number then
 			next repeat
 		end if
-		
+
 		add tElement to tSum
 	end repeat
-	
+
 Description:
 Use <NextRepeat|next repeat> to skip to the next iteration of a repeat loop. This is particularly useful when operations are only to be performed on iterands which satisfy certain criteria.
 
@@ -234,11 +234,11 @@ Summary: Exit a repeat loop.
 Syntax: exit repeat
 Example:
 	public handler ListUpToSentinel(in pList as list, in pSentinel as string) as list
-	
+
 		variable tElement
 		variable tNewList as list
 		put the empty list into tNewList
-		
+
 		repeat for each element tElement in pList
 			if tElement is a string and tElement is pSentinel then
 				exit repeat
@@ -278,13 +278,13 @@ Example:
 	if tVar is not defined then
 		throw tVar && "is not a number
 	end if
-	
+
 Description:
 The throw statement causes an error to be raised. This causes execution to terminate, and the error is passed back to environment.
 
 The Error expression must be an expression that evaluates to a string.
 
-Note: There is currently no try / catch mechanism in LiveCode Builder, so throwing an error will cause the error to be raised in LiveCode Script in the appropriate context.
+Note: There is currently no try / catch mechanism in Extension Builder, so throwing an error will cause the error to be raised in xTalk Script in the appropriate context.
 
 Name: PutInto
 Type: statement
@@ -327,7 +327,7 @@ References: TheResult(expression)
 
 Name: TheResult
 Type: expression
-Summary: The result of the previous statement. 
+Summary: The result of the previous statement.
 Syntax: the result
 Example:
 	resolve script object "this stack"
@@ -344,4 +344,3 @@ Example:
 Description:
 Use <TheResult|the result> to obtain the return value of the previous (executed) non-control structure statement.
 >*Note:* Result expressions are not assignable.
-

@@ -338,6 +338,10 @@ gdk_pixbuf libgdk_pixbuf-2.0.so.0
 	gdk_pixbuf_new: (integer, integer, integer, integer, integer) -> (pointer)
 	gdk_pixbuf_get_byte_length: (pointer) -> (integer)
 	gdk_pixbuf_new_from_data: (pointer, integer, integer, integer, integer, integer, pointer, pointer) -> (pointer)
+	gdk_pixbuf_loader_new_with_type: (pointer, pointer) -> (pointer)
+	gdk_pixbuf_loader_write: (pointer, pointer, integer, pointer) -> (integer)
+	gdk_pixbuf_loader_close: (pointer, pointer) -> (integer)
+	gdk_pixbuf_loader_get_pixbuf: (pointer) -> (pointer)
 
 cairo libcairo.so.2
 	cairo_set_operator: (pointer, integer) -> ()
@@ -443,6 +447,25 @@ gtk libgtk-x11-2.0.so.0
 	gtk_tooltips_force_window: (pointer) -> ()
 
 	gtk_container_add: (pointer, pointer) -> ()
+	gtk_container_remove: (pointer, pointer) -> ()
+	gtk_box_pack_start: (pointer, pointer, integer, integer, integer) -> ()
+	gtk_box_reorder_child: (pointer, pointer, integer) -> ()
+	gtk_image_new_from_pixbuf: (pointer) -> (pointer)
+	gtk_image_new_from_icon_name: (pointer, integer) -> (pointer)
+	gtk_toolbar_new: () -> (pointer)
+	gtk_toolbar_set_style: (pointer, integer) -> ()
+	gtk_toolbar_insert: (pointer, pointer, integer) -> ()
+	gtk_tool_button_new: (pointer, pointer) -> (pointer)
+	gtk_tool_button_set_label: (pointer, pointer) -> ()
+	gtk_tool_button_set_icon_widget: (pointer, pointer) -> ()
+	gtk_tool_item_set_expand: (pointer, integer) -> ()
+	gtk_separator_tool_item_new: () -> (pointer)
+	gtk_separator_tool_item_set_draw: (pointer, integer) -> ()
+	gtk_separator_tool_item_get_type: () -> (integer)
+	gtk_box_get_type: () -> (integer)
+	gtk_toolbar_get_type: () -> (integer)
+	gtk_tool_button_get_type: () -> (integer)
+	gtk_tool_item_get_type: () -> (integer)
 	#gtk_container_forall: (pointer, pointer, pointer) -> ()
 	
 	gtk_widget_destroy: (pointer) -> ()
@@ -624,6 +647,8 @@ gobject libgobject-2.0.so.0
 	g_object_get_valist: (pointer, pointer, pointer) -> ()
 	g_object_add_weak_pointer: (pointer, pointer) -> ()
 	g_object_set_data: (pointer, pointer, pointer) -> ()
+	g_object_set_data_full: (pointer, pointer, pointer, pointer) -> ()
+	g_object_get_data: (pointer, pointer) -> (pointer)
 
 	g_param_spec_boolean: (pointer, pointer, pointer, integer, integer) -> (pointer)
 
@@ -643,6 +668,7 @@ glib libglib-2.0.so.0
 	g_main_context_dispatch: (pointer) -> ()
 	g_main_context_find_source_by_id: (pointer, integer) -> (pointer)
 	g_source_destroy: (pointer) -> ()
+	g_error_free: (pointer) -> ()
 
 esd libesd.so.0
 	esd_close: (integer) -> (integer)

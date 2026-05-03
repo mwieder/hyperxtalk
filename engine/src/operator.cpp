@@ -34,6 +34,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 
 #include "globals.h"
 #include "exec.h"
+#include "mcworker.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -913,6 +914,11 @@ void MCThere::eval_ctxt(MCExecContext &ctxt, MCExecValue &r_value)
 				MCFilesEvalThereIsAFile(ctxt, *t_string, t_result);
 			else
 				MCFilesEvalThereIsNotAFile(ctxt, *t_string, t_result);
+			break;
+		case TM_WORKER:
+			t_result = (MCWorkerFind(*t_string) != nullptr);
+			if (form == IT_NOT)
+				t_result = !t_result;
 			break;
         // AL-2014-10-02: [[ Bug 13579 ]] Default behavior is to check if there is a folder.
         // In particular, this is the codepath for 'there is a url' for some reason.

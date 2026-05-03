@@ -156,6 +156,7 @@ const char * const MCfieldstring = "field";
 const char * const MCcolorstring = "colorPalette";
 const char * const MCmagnifierstring = "magnifier";
 const char * const MCwidgetstring = "widget";
+const char * const MCtoolbarstring = "toolbar";
 
 const char * const MCnotfoundstring = "not found";
 const char * const MCplatformstring = PLATFORM_STRING;
@@ -459,6 +460,11 @@ MCNameRef MCM_open_control;
 MCNameRef MCM_open_field;
 MCNameRef MCM_open_stack;
 MCNameRef MCM_option_key_down;
+MCNameRef MCM_cancel_button_clicked;
+MCNameRef MCM_notification_clicked;
+MCNameRef MCM_notification_permission_denied;
+MCNameRef MCM_notification_permission_granted;
+MCNameRef MCM_password_toggle_clicked;
 MCNameRef MCM_paste_key;
 MCNameRef MCM_play_paused;
 MCNameRef MCM_play_rate_changed;
@@ -509,6 +515,7 @@ MCNameRef MCM_start_up;
 MCNameRef MCM_suspend;
 MCNameRef MCM_suspend_stack;
 MCNameRef MCM_tab_key;
+MCNameRef MCM_toolbar_item_clicked;
 MCNameRef MCM_text_changed;
 MCNameRef MCM_trace;
 MCNameRef MCM_trace_break;
@@ -793,6 +800,7 @@ const struct { const char *cstring; MCNameRef *name_var; } kInitialNames[] =
 	{ "arrowKey", &MCM_arrow_key },
 	{ "assertError", &MCM_assert_error },
 	{ "backspaceKey", &MCM_backspace_key },
+	{ "cancelButtonClicked", &MCM_cancel_button_clicked },
 	{ "closeBackground", &MCM_close_background },
 	{ "closeCard", &MCM_close_card },
 	{ "closeControl", &MCM_close_control },
@@ -891,6 +899,9 @@ const struct { const char *cstring; MCNameRef *name_var; } kInitialNames[] =
 	{ "newStack", &MCM_new_stack },
 	{ "newTool", &MCM_new_tool },
 	{ "nodeChanged", &MCM_node_changed },
+	{ "notificationClicked", &MCM_notification_clicked },
+	{ "notificationPermissionDenied", &MCM_notification_permission_denied },
+	{ "notificationPermissionGranted", &MCM_notification_permission_granted },
 	{ "objectSelectionEnded", &MCM_object_selection_ended },
 	{ "objectSelectionStarted", &MCM_object_selection_started },
 	{ "openBackground", &MCM_open_background },
@@ -899,6 +910,7 @@ const struct { const char *cstring; MCNameRef *name_var; } kInitialNames[] =
 	{ "openField", &MCM_open_field },
 	{ "openStack", &MCM_open_stack },
 	{ "optionKeyDown", &MCM_option_key_down },
+	{ "passwordToggleClicked", &MCM_password_toggle_clicked },
 	{ "pasteKey", &MCM_paste_key },
 	{ "playPaused", &MCM_play_paused },
     { "playRateChanged", &MCM_play_rate_changed },
@@ -950,6 +962,7 @@ const struct { const char *cstring; MCNameRef *name_var; } kInitialNames[] =
 	{ "suspendStack", &MCM_suspend_stack },
 	{ "tabKey", &MCM_tab_key },
 	{ "textChanged", &MCM_text_changed },
+	{ "toolbarItemClicked", &MCM_toolbar_item_clicked },
 	{ "trace", &MCM_trace },
 	{ "traceBreak", &MCM_trace_break },
 	{ "traceDone", &MCM_trace_done },

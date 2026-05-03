@@ -594,25 +594,10 @@ private command revStandaloneCopyInclusions pStack, pStackFileList, pStackSource
    end if
    revCopyExternals pTarget, pStackSourceFile, pEngineSourceFile, pStandalonePath
    
-   // HXT: Replaced CEF with WebView2.
-   // revBrowser and the browser widget now use the system WebView2 runtime
-   // via WebView2Loader.dll instead of the bundled CEF binaries.
-   // When the browser is included in the standalone, copy WebView2Loader.dll
-   // from the engine folder alongside the output executable (Windows only).
-   local tRevBrowser, tLibBrowser
-   put "Browser (CEF)" is among the lines of sStandaloneSettingsA["scriptLibraries"] into tRevBrowser
-   put "com.livecode.widget.browser" is among the lines of sStandaloneSettingsA["extensions"] into tLibBrowser
-   if (tRevBrowser or tLibBrowser) and pTarget begins with "Windows" then
-      local tEngineFolder, tWebView2Dll, tOutFolder
-      set the itemDelimiter to slash
-      put item 1 to -2 of pEngineSourceFile into tEngineFolder
-      put tEngineFolder & slash & "WebView2Loader.dll" into tWebView2Dll
-      put item 1 to -2 of pStandalonePath into tOutFolder
-      revSBCopyFileToFolder tWebView2Dll, tOutFolder, "revStandaloneProgressCallback", the long id of me
-      if the result is not empty then
-         revStandaloneAddWarning "Windows, WebView2 failed to copy:" && quote & tWebView2Dll & quote
-      end if
-   end if
+   // HXT: WebView2 uses the static loader (WebView2LoaderStatic.lib compiled into
+   // standalone-community.exe), so no WebView2Loader.dll needs to be copied.
+   // Browser standalones use the system Edge WebView2 runtime directly — no
+   // bundled DLL required.
 
    // HXT: Copy ICU runtime DLLs for Windows standalones.
    // The engine links against ICU (International Components for Unicode) and

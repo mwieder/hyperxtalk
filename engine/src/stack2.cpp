@@ -2134,19 +2134,10 @@ Exec_stat MCStack::openrect(const MCRectangle &rel, Window_mode wm, MCStack *par
 	// IM-2014-01-16: [[ StackScale ]] Ensure view has the current stack rect
 	// If we have a window then set the viewport after opening to cover lockscreen
     bool t_had_window = window != NULL;
-#if defined(_MAC_DESKTOP)
-    { FILE *f=fopen("/tmp/livecode-arm64-startup.log","a"); if(f){fprintf(f,"openrect: had_window=%d mode=%d\n",(int)t_had_window,(int)wm);fclose(f);} }
-#endif
 	if (!t_had_window)
     {
         view_setstackviewport(rect);
-#if defined(_MAC_DESKTOP)
-        { FILE *f=fopen("/tmp/livecode-arm64-startup.log","a"); if(f){fprintf(f,"openrect: calling createwindow\n");fclose(f);} }
-#endif
 		createwindow();
-#if defined(_MAC_DESKTOP)
-        { FILE *f=fopen("/tmp/livecode-arm64-startup.log","a"); if(f){fprintf(f,"openrect: createwindow done\n");fclose(f);} }
-#endif
     }
 
 	if (substacks != NULL)
@@ -2521,20 +2512,11 @@ Exec_stat MCStack::openrect(const MCRectangle &rel, Window_mode wm, MCStack *par
 	bool t_restore_props;
 	
     Exec_stat t_stat = ES_NORMAL;
-#if defined(_MAC_DESKTOP)
-    { FILE *f=fopen("/tmp/livecode-arm64-startup.log","a"); if(f){fprintf(f,"openrect: opened=%d F_VISIBLE=%d\n",(int)opened,(int)!!(flags&F_VISIBLE));fclose(f);} }
-#endif
 	if (opened && flags & F_VISIBLE)
 	{
 		// MW-2011-08-19: [[ Redraw ]] Set the update region to everything.
 		dirtyall();
-#if defined(_MAC_DESKTOP)
-        { FILE *f=fopen("/tmp/livecode-arm64-startup.log","a"); if(f){fprintf(f,"openrect: calling openwindow visible\n");fclose(f);} }
-#endif
 		openwindow(mode >= WM_PULLDOWN);
-#if defined(_MAC_DESKTOP)
-        { FILE *f=fopen("/tmp/livecode-arm64-startup.log","a"); if(f){fprintf(f,"openrect: openwindow done, sending openStack\n");fclose(f);} }
-#endif
 		state |= CS_ISOPENING;
 		if (state & CS_BEEN_MOVED)
 			setgeom();
@@ -2550,9 +2532,6 @@ Exec_stat MCStack::openrect(const MCRectangle &rel, Window_mode wm, MCStack *par
 		}
 
 		// MW-2008-10-31: [[ ParentScripts ]] Send openControl appropriately
-#if defined(_MAC_DESKTOP)
-        { FILE *f=fopen("/tmp/livecode-arm64-startup.log","a"); if(f){fprintf(f,"openrect: sending MCM_open_stack\n");fclose(f);} }
-#endif
 		if (curcard->message(MCM_open_stack) == ES_ERROR
 		        || curcard != startcard
 				|| curcard -> openbackgrounds(false, NULL) == ES_ERROR
@@ -2564,15 +2543,9 @@ Exec_stat MCStack::openrect(const MCRectangle &rel, Window_mode wm, MCStack *par
 			if (curcard == startcard)
 			{
 				state &= ~CS_NO_FOCUS;
-#if defined(_MAC_DESKTOP)
-                { FILE *f=fopen("/tmp/livecode-arm64-startup.log","a"); if(f){fprintf(f,"openrect: returning ES_ERROR after openStack fail\n");fclose(f);} }
-#endif
 				return ES_ERROR;
 			}
 
-#if defined(_MAC_DESKTOP)
-        { FILE *f=fopen("/tmp/livecode-arm64-startup.log","a"); if(f){fprintf(f,"openrect: messages done, state=%d\n",(int)t_stat);fclose(f);} }
-#endif
 		state &= ~CS_NO_FOCUS;
 		int2 x, y;
 		MCscreen->querymouse(x, y);

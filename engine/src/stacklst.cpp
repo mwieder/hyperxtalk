@@ -34,6 +34,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "redraw.h"
 
 #include "globals.h"
+#include "mode.h"
 #include "exec.h"
 
 MCStacknode::~MCStacknode()
@@ -126,7 +127,29 @@ void MCStacklist::destroy()
 
 Boolean MCStacklist::isempty()
 {
-	return stacks == NULL;
+    if (stacks == NULL)
+        return True;
+    // HXT: Script-only stacks (workers, IDE tool palettes, etc.) have no real
+    // window and are never closed by the user. Treat a list that contains only
+    // script-only stacks as empty so the engine quit-detection in dskmain.cpp
+    // still fires when the last visible window is closed.
+    //
+    // Exception: in development/IDE mode the entire toolset consists of
+    // script-only library stacks loaded from .livecodescript files. We must
+    // NOT treat that as "empty" or the engine will auto-quit whenever no
+    // project window is open. MCModeHasHomeStack() returns true only in
+    // development mode; in standalone/player/server it returns false.
+    if (MCModeHasHomeStack())
+        return False;
+    MCStacknode *tptr = stacks;
+    do
+    {
+        if (!tptr->getstack()->isscriptonly())
+            return False;
+        tptr = tptr->next();
+    }
+    while (tptr != stacks);
+    return True;
 }
 
 static int stack_real_mode(MCStack *p_stack)

@@ -362,6 +362,7 @@ static const PropList fieldprops[] =
         {"hilitePattern", P_HILITE_PATTERN},
         {"hScroll", P_HSCROLL},
         {"hScrollbar", P_HSCROLLBAR},
+        {"hintText", P_HINT_TEXT},
         {"htmlText", P_HTML_TEXT},
         {"id", P_ID},
         {"ink", P_INK},
@@ -378,6 +379,9 @@ static const PropList fieldprops[] =
         {"noncontiguousHilites", P_NONCONTIGUOUS_HILITES},
         {"outerGlow", P_BITMAP_EFFECT_OUTER_GLOW},
         {"opaque", P_OPAQUE},
+        {"cancelButton", P_CANCEL_BUTTON},
+        {"passwordField", P_PASSWORD_FIELD},
+        {"passwordToggle", P_PASSWORD_TOGGLE},
         {"rect", P_RECTANGLE},
         {"scrollbarWidth", P_SCROLLBAR_WIDTH},
         {"shadow", P_SHADOW},
@@ -737,6 +741,24 @@ static const PropList audioclipprops[] =
         {"id", P_ID},
         {"name", P_NAME},
         {"playLoudness", P_PLAY_LOUDNESS},
+    };
+
+static const PropList toolbarprops[] =
+    {
+        {"displayMode",      P_TOOLBAR_DISPLAY_MODE},
+        {"id",               P_ID},
+        {"itemEnabled",      P_TOOLBAR_ITEM_ENABLED},
+        {"itemIcon",         P_TOOLBAR_ITEM_ICON},
+        {"itemLabel",        P_TOOLBAR_ITEM_LABEL},
+        {"itemNames",        P_TOOLBAR_ITEM_NAMES},
+        {"itemStyle",        P_TOOLBAR_ITEM_STYLE},
+        {"itemTooltip",      P_TOOLBAR_ITEM_TOOLTIP},
+        {"layer",            P_LAYER},
+        {"lockLoc",          P_LOCK_LOCATION},
+        {"name",             P_SHORT_NAME},
+        {"rect",             P_RECTANGLE},
+        {"toolbarVisible",   P_TOOLBAR_VISIBLE},
+        {"visible",          P_VISIBLE}
     };
 
 static const PropList videoclipprops[] =
@@ -3358,6 +3380,10 @@ void MCObject::DoGetProperties(MCExecContext& ctxt, uint32_t part, bool p_effect
 		table = videoclipprops;
 		tablesize = ELEMENTS(videoclipprops);
 		break;
+    case CT_TOOLBAR:
+        table = toolbarprops;
+        tablesize = ELEMENTS(toolbarprops);
+        break;
     case CT_WIDGET:
 		table = NULL;
 		tablesize = 0;

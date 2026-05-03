@@ -11,6 +11,9 @@ on:
         options:
           - Release
           - Debug
+  push:
+    tags:
+      - 'v*'
 
 jobs:
 
@@ -41,7 +44,7 @@ jobs:
       - name: Build prebuilt third-party libraries
         run: make prebuilt-mac
         env:
-          BUILDTYPE: ${{ github.event.inputs.build_type }}
+          BUILDTYPE: ${{ inputs.build_type || 'Release' }}
 
       - name: Configure (GYP → Xcode projects)
         run: make config-mac
@@ -49,19 +52,17 @@ jobs:
       - name: Compile
         run: make compile-mac CODESIGN_IDENTITY="-"
         env:
-          BUILDTYPE: ${{ github.event.inputs.build_type }}
+          BUILDTYPE: ${{ inputs.build_type || 'Release' }}
 
       - name: Package (mac-bin)
         run: make package-mac-bin CODESIGN_IDENTITY="-"
         env:
-          BUILDTYPE: ${{ github.event.inputs.build_type }}
+          BUILDTYPE: ${{ inputs.build_type || 'Release' }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: HyperXTalk-macOS-ARM64-${{ github.event.inputs.build_type }}
-          # Upload the whole mac-bin folder — contains HyperXTalk.app plus
-          # all externals, support files, and standalone engine.
+          name: HyperXTalk-macOS-ARM64-${{ inputs.build_type || 'Release' }}
           path: mac-bin/
           retention-days: 30
 
@@ -82,12 +83,13 @@ jobs:
           sudo apt-get install -y \
             build-essential python3 python3-pip pkg-config \
             libssl-dev libcurl4-openssl-dev \
-            libgtk2.0-dev libglib2.0-dev \
+            libgtk-3-dev libglib2.0-dev \
             libpng-dev libjpeg-dev libfreetype6-dev libfontconfig1-dev \
             libx11-dev libxext-dev libxrender-dev \
-            libxinerama-dev libxrandr-dev libxcb1-dev \
+            libxinerama-dev libxrandr-dev libxcb1-dev libxv-dev libdbus-1-dev libcups2-dev \
             libgif-dev libpcre3-dev zlib1g-dev \
-            default-jdk
+            default-jdk \
+            fuse libfuse2
 
       - name: Configure (GYP → Makefiles)
         run: ./config.sh --platform linux-x86_64
@@ -95,14 +97,29 @@ jobs:
       - name: Compile
         run: make compile-linux-x86_64
         env:
-          BUILDTYPE: ${{ github.event.inputs.build_type }}
+          BUILDTYPE: ${{ inputs.build_type || 'Release' }}
 
-      - name: Upload artifact
+      - name: Build AppImage
+        run: |
+          chmod +x packaging/linux/build-appimage.sh
+          ./packaging/linux/build-appimage.sh \
+            build-linux-x86_64/livecode \
+            "${{ inputs.build_type || 'Release' }}"
+
+      - name: Upload AppImage artifact
         uses: actions/upload-artifact@v4
         with:
-          name: HyperXTalk-Linux-x86_64-${{ github.event.inputs.build_type }}
+          name: HyperXTalk-Linux-x86_64-AppImage
+          path: build-linux-x86_64/livecode/HyperXTalk-*.AppImage
+          retention-days: 30
+
+      - name: Upload raw build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: HyperXTalk-Linux-x86_64-${{ inputs.build_type || 'Release' }}
           path: linux-x86_64-bin/
           retention-days: 30
+          if-no-files-found: ignore
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Windows x86_64
@@ -191,79 +208,47 @@ jobs:
           $msbuildDir = Split-Path $msbuild -Parent
           echo $msbuildDir >> $env:GITHUB_PATH
 
-<<<<<<< HEAD
-      - name: Install ATL for v142 toolset (needed by kernel for w32-ds-player.cpp)
+      - name: Inject ATL include path via MSBuild props (needed by kernel for w32-ds-player.cpp)
         shell: pwsh
         run: |
-          # kernel.vcxproj uses PlatformToolset=v142.  MSBuild v142 resolves ATL
-          # headers from its own toolset directory (MSVC 14.29.x), NOT from the
-          # v143 directory (14.44.x).  We must therefore check specifically for the
-          # v142 ATL headers and install them if absent; setting INCLUDE to the v143
-          # path is not sufficient.
-          $msvcRoot = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC"
-          $v142Atl = Get-ChildItem -Path $msvcRoot -Filter "atlbase.h" -Recurse `
-                     -ErrorAction SilentlyContinue |
-                     Where-Object { $_.FullName -match "14\.29\." } |
-                     Select-Object -First 1
-          if ($v142Atl) {
-            Write-Host "v142 ATL already present: $($v142Atl.FullName)"
-          } else {
-            Write-Host "v142 ATL not found — installing Microsoft.VisualStudio.Component.VC.v142.ATL ..."
-            $vswhere   = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-            $vsPath    = & $vswhere -latest -products * -property installationPath
-            $installer = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vs_installer.exe"
-            $proc = Start-Process -FilePath $installer `
-                      -ArgumentList "modify","--installPath",$vsPath, `
-                        "--add","Microsoft.VisualStudio.Component.VC.v142.ATL", `
-                        "--quiet","--norestart","--noUpdateInstaller" `
-                      -Wait -PassThru
-            if ($proc.ExitCode -ne 0) {
-              Write-Error "VS installer exited with code $($proc.ExitCode)"
-              exit 1
-            }
-            $v142Atl = Get-ChildItem -Path $msvcRoot -Filter "atlbase.h" -Recurse `
-                       -ErrorAction SilentlyContinue |
-                       Where-Object { $_.FullName -match "14\.29\." } |
-                       Select-Object -First 1
-            if (-not $v142Atl) {
-              Write-Error "v142 atlbase.h still not found after install"
-              exit 1
-            }
-            Write-Host "v142 ATL installed: $($v142Atl.FullName)"
-=======
-      - name: Locate or install ATL headers (needed by kernel for w32-ds-player.cpp)
-        shell: pwsh
-        run: |
-          # kernel.vcxproj (v142 toolset) compiles w32-ds-player.cpp which includes
-          # atlbase.h.  ATL for the v142 toolset may not be present on the runner by
-          # default, so we search first and install if necessary.
+          # kernel.vcxproj (v142 toolset) compiles w32-ds-player.cpp which needs
+          # atlbase.h.  The v142 ATL component is not present on this runner, but
+          # the v143 ATL headers (already installed) are compatible for compilation
+          # purposes.  Rather than fighting the VS installer, we create a small
+          # .props file that prepends the ATL include directory to
+          # AdditionalIncludeDirectories for every project, then point
+          # ForceImportBeforeCppTargets at it so MSBuild picks it up automatically.
           $atl = Get-ChildItem -Path "C:\Program Files\Microsoft Visual Studio" `
                  -Filter "atlbase.h" -Recurse -ErrorAction SilentlyContinue |
                  Select-Object -First 1
-          if ($atl) {
-            Write-Host "ATL found at: $($atl.FullName)"
-            $atlDir = $atl.DirectoryName
-            echo "INCLUDE=$env:INCLUDE;$atlDir" >> $env:GITHUB_ENV
-          } else {
-            Write-Host "atlbase.h not found — installing Microsoft.VisualStudio.Component.VC.v142.ATL ..."
-            $vswhere  = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-            $vsPath   = & $vswhere -latest -products * -property installationPath
-            $installer = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vs_installer.exe"
-            & $installer modify --installPath $vsPath `
-                --add Microsoft.VisualStudio.Component.VC.v142.ATL `
-                --quiet --norestart --noUpdateInstaller
-            $atl = Get-ChildItem -Path "C:\Program Files\Microsoft Visual Studio" `
-                   -Filter "atlbase.h" -Recurse -ErrorAction SilentlyContinue |
-                   Select-Object -First 1
-            if (-not $atl) {
-              Write-Error "atlbase.h still not found after install attempt"
-              exit 1
-            }
-            $atlDir = $atl.DirectoryName
-            Write-Host "ATL installed at: $($atl.FullName)"
-            echo "INCLUDE=$env:INCLUDE;$atlDir" >> $env:GITHUB_ENV
->>>>>>> refs/remotes/origin/main
+          if (-not $atl) {
+            Write-Error "atlbase.h not found anywhere under VS installation"
+            exit 1
           }
+          $atlDir = $atl.DirectoryName
+          Write-Host "ATL headers found at: $atlDir"
+          # Also locate atls.lib for the linker (same atlmfc tree, lib\x64 subdir)
+          $atlLib = Join-Path (Split-Path $atlDir -Parent) "lib\x64"
+          Write-Host "ATL lib dir: $atlLib"
+          $propsPath = "${{ github.workspace }}\atl-include.props"
+          Set-Content -Path $propsPath -Value @"
+          <?xml version="1.0" encoding="utf-8"?>
+          <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+            <ItemDefinitionGroup>
+              <ClCompile>
+                <AdditionalIncludeDirectories>$atlDir;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+              </ClCompile>
+              <Link>
+                <AdditionalLibraryDirectories>$atlLib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+              </Link>
+              <Lib>
+                <AdditionalLibraryDirectories>$atlLib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+              </Lib>
+            </ItemDefinitionGroup>
+          </Project>
+          "@
+          Write-Host "Props file written to: $propsPath"
+          echo "ForceImportBeforeCppTargets=$propsPath" >> $env:GITHUB_ENV
 
       - name: Build thirdparty libraries
         shell: cmd
@@ -286,7 +271,47 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: HyperXTalk-Windows-x86_64-${{ github.event.inputs.build_type }}
+          name: HyperXTalk-Windows-x86_64-${{ inputs.build_type || 'Release' }}
           # Release output: HyperXTalk.exe, standalone-community.exe, externals, DB drivers
           path: build-win-x86_64\livecode\Release\
           retention-days: 30
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Create GitHub Release (only on v* tags)
+  # ─────────────────────────────────────────────────────────────────────────────
+  release:
+    name: Create Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [build-macos, build-linux, build-windows]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+
+      - name: Package artifacts for release
+        run: |
+          cd artifacts
+          # Zip the macOS build
+          if [ -d "HyperXTalk-macOS-ARM64-Release" ]; then
+            (cd HyperXTalk-macOS-ARM64-Release && zip -r ../HyperXTalk-macOS-ARM64.zip .)
+          fi
+          # The AppImage is already a single file
+          cp HyperXTalk-Linux-x86_64-AppImage/*.AppImage . 2>/dev/null || true
+          # Zip the Windows build
+          if [ -d "HyperXTalk-Windows-x86_64-Release" ]; then
+            (cd HyperXTalk-Windows-x86_64-Release && zip -r ../HyperXTalk-Windows-x86_64.zip .)
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            artifacts/HyperXTalk-macOS-ARM64.zip
+            artifacts/HyperXTalk-*.AppImage
+            artifacts/HyperXTalk-Windows-x86_64.zip

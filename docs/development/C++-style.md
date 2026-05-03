@@ -1,13 +1,17 @@
-# C++ Coding Guidelines for LiveCode
+---
+group: reference
+---
+
+# C++ Coding Guidelines
 
 This file describes some key C++ coding style guidelines for
-contribution to the LiveCode source code.  In the past, C++ was used
+contribution to the source code.  In the past, C++ was used
 as an improved version of C, and didn't use the whole of the
 language's feature set.  Since the introduction of C++11 support to
-the LiveCode build toolchain, some more advanced features of C++ are
-recommended to be used when developing LiveCode.
+the build toolchain, some more advanced features of C++ are
+recommended to be used when developing.
 
-See also [C++ Feature Usage Guidelines for LiveCode](C++-features.md).
+See also [C++ Feature Usage Guidelines](C++-features.md).
 
 ## Naming things
 
@@ -259,7 +263,7 @@ See also [C++ Feature Usage Guidelines for LiveCode](C++-features.md).
 
         double t_area = 2*acos(0.0)*t_radius*t_radius;
 
-* When using preprocessor macros, ensure that the `#define`d identifier 
+* When using preprocessor macros, ensure that the `#define`d identifier
   has a value.
 
   Good:

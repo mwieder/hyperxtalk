@@ -46,6 +46,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "redraw.h"
 #include "objectstream.h"
 #include "widget.h"
+#include "toolbar.h"
 #include "dispatch.h"
 
 #include "mctheme.h"
@@ -2850,6 +2851,20 @@ IO_stat MCGroup::load(IO_handle stream, uint32_t version)
             neweps->appendto(controls);
         }
         break;
+#ifndef MODE_SERVER
+        case OT_TOOLBAR:
+        {
+            MCToolbar *newtoolbar = new (nothrow) MCToolbar;
+            newtoolbar->setparent(this);
+            if ((stat = newtoolbar->load(stream, version)) != IO_NORMAL)
+            {
+                delete newtoolbar;
+                return checkloadstat(stat);
+            }
+            newtoolbar->appendto(controls);
+        }
+        break;
+#endif
 		case OT_MAGNIFY:
 			{
 				MCMagnify *newmag = new (nothrow) MCMagnify;

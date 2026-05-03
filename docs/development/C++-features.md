@@ -1,12 +1,16 @@
-# C++ Feature Guidelines for LiveCode
+---
+group: reference
+---
+
+# C++ Feature Guidelines
 
 This file documents the usage of C++ language and library features within the
-LiveCode engine and ancillary projects (externals, etc). It covers technical
+engine and ancillary projects (externals, etc). It covers technical
 aspects rather than matters that are purely of coding style (for that, see
 CONTRIBUTING.md instead).
 
-The LiveCode codebase dates back to the early 1990s as MetaCard and was
-originally written in C. Over its lifetime, it supported a large number of Unix 
+The codebase dates back to the early 1990s as MetaCard and was
+originally written in C. Over its lifetime, it supported a large number of Unix
 and Unix-like operating systems (e.g. SunOS, IRIX, AIX) as well as Windows (both
 16-bit Windows 3.1 as well as 32-bit Windows 95+) and "classic" (pre-OSX) MacOS
 in addition to the currently supported platforms (modern versions of Windows,
@@ -16,19 +20,19 @@ adoption of C++ language features (as well as library facilities) has been very
 conservative in order to compile and run on the numerous supported platforms.
 
 The following is a list of major C++ language features (by C++ standard
-revision) and whether they are permitted in the LiveCode codebase or not. If a
+revision) and whether they are permitted in the codebase or not. If a
 feature is prohibited, a rationale is provided in order that the reason for
 avoiding the feature is understood. The subsequent section details which
-compilers LiveCode is built with and which C++ language features those
+compilers it is built with and which C++ language features those
 compilers provide.
 
 ## Core language features
 
 ### C++98 and C++03
 
-C++98 is the first standard governing the C++ language and C++03 is a set of 
+C++98 is the first standard governing the C++ language and C++03 is a set of
 minor revisions to correct defects in the original standard. All of the
-compilers used in the LiveCode build process support these standards. Despite
+compilers used in the build process support these standards. Despite
 this, some features from these revisions are prohibited but for reasons other
 than compiler support.
 
@@ -41,12 +45,11 @@ also be avoided.
 
 #### Exceptions: PARTIALLY PROHIBITED
 
-The only exception that should normally be thrown or caught within
-LiveCode source code is `std::bad_alloc` for memory allocation
-failures.
+The only exception that should normally be thrown or caught within source code
+is `std::bad_alloc` for memory allocation failures.
 
-Catch exceptions thrown by third party C++ libraries used by LiveCode
-and translate them to LiveCode's internal error handling mechanisms.
+Catch exceptions thrown by third party C++ libraries used by and translate
+them to the internal error handling mechanisms.
 
 **Rationale:**
 
@@ -107,7 +110,7 @@ Other uses of RTTI are currently prohibited.
 >
 > Many parts of the STL pull in symbols that are provided in a system library
 > rather than being inlined in templates. This introduces a large, complex C++
-> ABI dependency which would vastly complicate the LiveCode build and testing
+> ABI dependency which would vastly complicate the build and testing
 > process.
 >
 > Additionally, the performance characteristics of the various STL containers
@@ -120,7 +123,7 @@ C++ standard. It introduced a large number of new features, both as part of the
 core language and in the standard library.
 
 The limitations in this section generally stem from compiler support issues:
-only those features implemented by all compilers used in the LiveCode build
+only those features implemented by all compilers used in the build
 process may be used outside platform-specific code. (Use within platform-
 specific code of a feature supported by all compilers for that platform is
 permissible but requires careful consideration before use).
@@ -337,7 +340,7 @@ template <class T>
 using Foo = Bar<T, Quux, 42>;
 ````
 introduces the template `Foo<x>` as an alias for `Bar<x, Quux, 42>`. This can
-also be used in place of a normal typedef (i.e without the template): 
+also be used in place of a normal typedef (i.e without the template):
 `using uint = unsigned int;`
 
 **Requires:**
@@ -483,7 +486,7 @@ as part of its initialisation:
 class Foo
 {
     Bar* m_barptr;
-    
+
     Foo() : Foo(nullptr) {}
     Foo(Bar* ptr) : m_barptr(ptr) {}
     Foo(const Foo& foo) : Foo(foo.m_barptr) {}
@@ -624,7 +627,7 @@ struct Pod11
 {
 	int 	m_foo;
 	void* 	m_bar;
-	
+
 	Pod11() :
 	  m_foo(0), m_bar(nullptr) {}
 };
@@ -721,16 +724,16 @@ namespace Foo
     {
         template <class> class Quux;
     }
-    
+
     // Error: cannot specialise template outside its original namespace
     using namespace Bar1;
     template <> class Quux<int>;
-    
+
     inline namespace Baz
     {
         template <class> class Wibble;
     }
-    
+
     // Okay: Wibble can be specialised inside Foo as namespace Baz is inline
     template <> class Wibble<int>;
 }
@@ -747,7 +750,7 @@ namespace Foo
         // Visible as and mangled as Foo::Bar_v1::Quux
         class Quux;
     }
-    
+
     inline namespace Bar_v2
     {
         // Visible as Foo::Quux but mangled as Foo::Bar_v2::Quux
@@ -785,7 +788,7 @@ union Quux
     Foo foo;
     Bar bar;
     int baz;
-    
+
     ~Quux()
     {
         // Should this call foo.~Foo(), bar.~Bar() or do nothing?
@@ -811,7 +814,7 @@ void Foo()
 {
     class Wibble {};
     Wibble wobble;
-    
+
     // Invalid in C++98, fine in C++11
     frob<Wibble>(wobble);
 }
@@ -949,9 +952,9 @@ class Foo
 
 **Note:**
 > There is not currently a prefix defined for `thread_local` variables in the
-> LiveCode engine coding style. Neither `s_` nor `g_` should be used as the
+> engine coding style. Neither `s_` nor `g_` should be used as the
 > prefix as it obscures the semantics of the variable. When compiler support is
-> available (and a decision to permit their use is made), a prefix will be 
+> available (and a decision to permit their use is made), a prefix will be
 > defined.
 
 **Rationale:**
@@ -1022,7 +1025,7 @@ versions.
 >
 > The `<csetjmp>`, `<ctime>`, `<csignal>` and `<cstdlib>` headers require run-
 > time support. Because signals and use of some features in `<cstdlib>` are
-> necessary for correct behaviour of the LiveCode engine and/or interfacing with
+> necessary for correct behaviour of the engine and/or interfacing with
 > external code.
 
 ### Diagnostics library
@@ -1061,9 +1064,9 @@ versions.
 **Rationale:**
 > Only (currently) used in the STL for container classes.
 >
-> There's no reason that scoped allocator types couldn't be used in the LiveCode
+> There's no reason that scoped allocator types couldn't be used in the
 > engine except that they use the allocator-as-a-type model, which does not
-> match the memory allocation patterns used within the LiveCode engine.
+> match the memory allocation patterns used within the engine.
 
 #### Type indexes (`<typeindex>`): PROHIBITED
 
@@ -1195,9 +1198,9 @@ All prohibited headers in this section are due to run-time support requirements.
 
 ## Appendix: supported compiler versions
 
-The LiveCode project supports a number of different operating operating systems
-and therefore a wide range of compilers. The set of compilers used by the
-LiveCode build servers are currently:
+The project supports a number of different operating operating systems
+and therefore a wide range of compilers. The set of compilers used by the build
+servers are currently:
 
 - Windows: MSVC 2010
 - Linux: GCC 4.7
@@ -1205,7 +1208,7 @@ LiveCode build servers are currently:
 - OSX: Clang (version is kept up-to-date with latest non-Beta Xcode release)
 - Android: Clang 3.5
 
-Generally speaking, newer versions of compilers can be used to build LiveCode
+Generally speaking, newer versions of compilers can be used to build
 but older versions cannot (as they do not implement the set of required C++
 features used by the engine).
 
@@ -1224,6 +1227,6 @@ example, include `stdbool.h` and use the `bool` typedef instead of the raw
 
 **Note:**
 > One particular "gotcha" is that the MSVC C compiler does not support C++-style
-> variable declarations: all variables must be declared at the beginning of a 
+> variable declarations: all variables must be declared at the beginning of a
 > block before any other statements. It also does not support declaration of
 > variables inside the condition of a `for` loop.

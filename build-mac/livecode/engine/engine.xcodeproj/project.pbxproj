@@ -102,6 +102,10 @@
 		03A3C2B3AEEB998C83E5D129 /* libicuio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 30DBA9DA1D200DDDD99D4892 /* libicuio.a */; };
 		03AB8AD91D972980C48ABCBC /* libpcre (host).a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F318EDA2A9A17DC2B045642 /* libpcre (host).a */; };
 		03E99974E89F17C88EBE693C /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1D042857F01B945E7A531FC /* Carbon.framework */; };
+		FF88AA99BB00CC11DD22EE77 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE77FF88AA99BB00CC11DD22 /* UserNotifications.framework */; };
+		AA00BB11CC22DD33EE44FF55 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE77FF88AA99BB00CC11DD22 /* UserNotifications.framework */; };
+		BB11CC22DD33EE44FF55AA00 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE77FF88AA99BB00CC11DD22 /* UserNotifications.framework */; };
+		CC22DD33EE44FF55AA00BB11 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE77FF88AA99BB00CC11DD22 /* UserNotifications.framework */; };
 		049E9144C0D0C0FE1469D96E /* libskia_opt_arm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 72C05C8B63AA37C8ED22E2AA /* libskia_opt_arm.a */; };
 		050095CF5C9E4EFF0A85B97D /* libicutu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49F491936D472AE302E7924D /* libicutu.a */; };
 		056ADBE26782BBB34BB155B4 /* libScript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 69D08846995F47A4316C7842 /* libScript.a */; };
@@ -2445,6 +2449,7 @@
 		C3A6C181A1AB2B6376AEA190 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		C7D1958D107DCF096DF1C9E4 /* libbrowser.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libbrowser.xcodeproj; path = "../build-mac/livecode/libbrowser/libbrowser.xcodeproj"; sourceTree = SOURCE_ROOT; };
 		C9085221E561C3041C597767 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		EE77FF88AA99BB00CC11DD22 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		C9395DE81FF5B7C6F006FEF9 /* libffi.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libffi.a; path = ../prebuilt/lib/mac/libffi.a; sourceTree = "<group>"; };
 		C9CADD162F7015E12AF4A812 /* thirdparty.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; name = thirdparty.gypi; path = ../config/thirdparty.gypi; sourceTree = "<group>"; };
 		CC44BDB13ECEE5596F184C94 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
@@ -2520,6 +2525,7 @@
 				D9E0C5317F003F4431205EA0 /* CoreGraphics.framework in Frameworks */,
 				EE656CB83921587FA25E756B /* CoreText.framework in Frameworks */,
 				FE5C590A48559CFCA5DA0C1B /* Foundation.framework in Frameworks */,
+				AA00BB11CC22DD33EE44FF55 /* UserNotifications.framework in Frameworks */,
 				43E5435D2B9AE63A1CD16353 /* libicui18n.a in Frameworks */,
 				03A3C2B3AEEB998C83E5D129 /* libicuio.a in Frameworks */,
 				857F6E00406ED442504D1170 /* libicutu.a in Frameworks */,
@@ -2619,6 +2625,7 @@
 				5603DC2D8E5D41DF613C5696 /* CoreText.framework in Frameworks */,
 				B6A4543371C8F0A9434E62D2 /* CoreFoundation.framework in Frameworks */,
 				9C700A22C2B0C2B253B4CC4B /* Foundation.framework in Frameworks */,
+				BB11CC22DD33EE44FF55AA00 /* UserNotifications.framework in Frameworks */,
 				6DF95A11002408319280A41C /* libicui18n.a in Frameworks */,
 				91DF7A2D0C61D94C8839100C /* libicuio.a in Frameworks */,
 				49713254DBDC67BE1026DFA2 /* libicutu.a in Frameworks */,
@@ -2674,6 +2681,7 @@
 				1670EE83FDBABFCCD91DC785 /* CoreGraphics.framework in Frameworks */,
 				E762E2574E0D0332754032C8 /* CoreText.framework in Frameworks */,
 				4E75B3A627E581DBCCC20CC9 /* Foundation.framework in Frameworks */,
+				CC22DD33EE44FF55AA00BB11 /* UserNotifications.framework in Frameworks */,
 				1527BC53E24F9B34C1DD814C /* libicui18n.a in Frameworks */,
 				2AF9FBFFFA6E3435F88B9AA9 /* libicuio.a in Frameworks */,
 				050095CF5C9E4EFF0A85B97D /* libicutu.a in Frameworks */,
@@ -2728,6 +2736,7 @@
 				1CD1BF9143F7B9E840751E06 /* CoreGraphics.framework in Frameworks */,
 				CAAA90C35C96FE8224A603C4 /* CoreText.framework in Frameworks */,
 				8D20E9A26185A71A9C452E98 /* Foundation.framework in Frameworks */,
+					FF88AA99BB00CC11DD22EE77 /* UserNotifications.framework in Frameworks */,
 				71552E2C83F5EE8DBF218392 /* libicui18n.a in Frameworks */,
 				F9E3DC67A0D3DE7E37C2E2F5 /* libicuio.a in Frameworks */,
 				4D0BB281E8A17B1806923555 /* libicutu.a in Frameworks */,

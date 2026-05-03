@@ -36,6 +36,9 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "image.h"
 #include "magnify.h"
 #include "field.h"
+#ifndef _SERVER
+#include "toolbar.h"
+#endif
 #include "tooltip.h"
 
 #include "foundation-locale.h"
@@ -219,6 +222,9 @@ extern MCScrollbar *MCtemplatescrollbar;
 extern MCPlayer *MCtemplateplayer;
 extern MCImage *MCtemplateimage;
 extern MCField *MCtemplatefield;
+#ifndef _SERVER
+extern MCToolbar *MCtemplatetoolbar;
+#endif
 
 extern MCImageHandle MCmagimage;
 extern MCMagnifyHandle MCmagnifier;

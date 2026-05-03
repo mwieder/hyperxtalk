@@ -311,6 +311,63 @@ static void filter_to_spec(const wchar_t *p_filter, uint4 p_filter_count, COMDLG
 
 typedef HRESULT (WINAPI *SHCreateItemFromParsingNamePtr)(PCWSTR pszPath, IBindCtx *pbc, REFIID riid, void **ppv);
 
+////////////////////////////////////////////////////////////////////////////////
+// Last-used folder persistence
+//
+// The last folder chosen in any Open/Save dialog is stored in the registry at:
+//   HKCU\Software\HyperXTalk\FileDialog  →  LastFolder  (REG_SZ)
+//
+// This is used as the initial directory when the caller does not supply one,
+// so that repeated dialogs reopen where the user last navigated.  When no
+// registry entry exists the dialog falls back to the user's Documents folder.
+
+static bool read_last_dialog_folder(MCStringRef *r_folder)
+{
+    HKEY t_key;
+    if (RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\HyperXTalk\\FileDialog",
+                      0, KEY_READ, &t_key) != ERROR_SUCCESS)
+        return false;
+
+    bool t_ok = false;
+    DWORD t_type = 0, t_size = 0;
+    if (RegQueryValueExW(t_key, L"LastFolder", NULL, &t_type,
+                         NULL, &t_size) == ERROR_SUCCESS
+        && t_type == REG_SZ && t_size > sizeof(WCHAR))
+    {
+        DWORD t_wlen = t_size / sizeof(WCHAR);
+        MCAutoArray<WCHAR> t_buf;
+        if (t_buf.New(t_wlen))
+        {
+            if (RegQueryValueExW(t_key, L"LastFolder", NULL, &t_type,
+                                 (LPBYTE)t_buf.Ptr(), &t_size) == ERROR_SUCCESS)
+                t_ok = MCStringCreateWithWString(t_buf.Ptr(), *r_folder);
+        }
+    }
+
+    RegCloseKey(t_key);
+    return t_ok;
+}
+
+static void write_last_dialog_folder(MCStringRef p_folder)
+{
+    if (p_folder == nil || MCStringIsEmpty(p_folder))
+        return;
+
+    HKEY t_key;
+    if (RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\HyperXTalk\\FileDialog",
+                        0, NULL, 0, KEY_WRITE, NULL, &t_key, NULL) != ERROR_SUCCESS)
+        return;
+
+    MCAutoStringRefAsWString t_wstr;
+    if (t_wstr.Lock(p_folder))
+    {
+        DWORD t_byte_size = (MCStringGetLength(p_folder) + 1) * sizeof(WCHAR);
+        RegSetValueExW(t_key, L"LastFolder", 0, REG_SZ,
+                       reinterpret_cast<const BYTE *>(*t_wstr), t_byte_size);
+    }
+    RegCloseKey(t_key);
+}
+
 // In the case of a save dialog <p_initial> is one of:
 //     <folder>/<file>
 //     <folder>[/]
@@ -404,18 +461,26 @@ static int MCA_do_file_dialog(MCStringRef p_title, MCStringRef p_prompt, MCStrin
 	}
 
     // If no usable initial folder was found (p_initial was empty, nil, or
-    // pointed at a non-existent path), default to the user's Documents folder.
-    // Leaving it unset causes Windows to use the process working directory,
-    // which is typically the application install folder — never appropriate for
-    // user files.
+    // pointed at a non-existent path):
+    //   1. Use the last folder chosen in a previous dialog (persisted in the
+    //      registry), so repeated open/save dialogs reopen where the user left off.
+    //   2. Fall back to the user's Documents folder when no history exists yet.
     if (*t_initial_native_folder == nil)
     {
-        wchar_t t_docs_path[MAX_PATH];
-        if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, t_docs_path)))
+        MCStringRef t_last_folder = nil;
+        if (read_last_dialog_folder(&t_last_folder))
         {
-            MCStringRef t_docs_str;
-            if (MCStringCreateWithWString(t_docs_path, t_docs_str))
-                t_initial_native_folder = t_docs_str;
+            t_initial_native_folder = t_last_folder; // takes ownership (refcount already 1)
+        }
+        else
+        {
+            wchar_t t_docs_path[MAX_PATH];
+            if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, t_docs_path)))
+            {
+                MCStringRef t_docs_str;
+                if (MCStringCreateWithWString(t_docs_path, t_docs_str))
+                    t_initial_native_folder = t_docs_str;
+            }
         }
     }
 
@@ -705,6 +770,61 @@ static int MCA_do_file_dialog(MCStringRef p_title, MCStringRef p_prompt, MCStrin
 
 	if (t_succeeded)
 	{
+		// Persist the chosen folder so the next dialog opens to the same location.
+		// For multi-select t_value is newline-delimited; we only need the first path.
+		if (*t_value != nil && !MCStringIsEmpty(*t_value))
+		{
+			MCStringRef t_first_path = *t_value;
+			MCAutoStringRef t_first_path_copy;
+			uindex_t t_nl;
+			if (MCStringFirstIndexOfChar(*t_value, '\n', 0,
+			                            kMCStringOptionCompareExact, t_nl))
+			{
+				/* UNCHECKED */ MCStringCopySubstring(*t_value,
+				                    MCRangeMake(0, t_nl), &t_first_path_copy);
+				t_first_path = *t_first_path_copy;
+			}
+
+			MCStringRef t_folder_to_save = nil;
+			if (p_options & MCA_OPTION_FOLDER_DIALOG)
+			{
+				// The chosen value is already a folder.
+				/* UNCHECKED */ MCStringCopy(t_first_path, t_folder_to_save);
+			}
+			else
+			{
+				// Strip the filename component to obtain the directory.
+				uindex_t t_fwd = UINDEX_MAX, t_back = UINDEX_MAX;
+				bool t_has_fwd  = MCStringLastIndexOfChar(t_first_path, '/',
+				                      UINDEX_MAX, kMCStringOptionCompareExact, t_fwd);
+				bool t_has_back = MCStringLastIndexOfChar(t_first_path, '\\',
+				                      UINDEX_MAX, kMCStringOptionCompareExact, t_back);
+				uindex_t t_slash = UINDEX_MAX;
+				if (t_has_fwd && t_has_back)
+					t_slash = t_fwd > t_back ? t_fwd : t_back;
+				else if (t_has_fwd)
+					t_slash = t_fwd;
+				else if (t_has_back)
+					t_slash = t_back;
+
+				if (t_slash != UINDEX_MAX && t_slash > 0)
+					/* UNCHECKED */ MCStringCopySubstring(t_first_path,
+					                    MCRangeMake(0, t_slash), t_folder_to_save);
+			}
+
+			if (t_folder_to_save != nil)
+			{
+				// t_folder_to_save is in engine format (forward slashes).
+				// Convert to native Windows format before persisting, since
+				// t_initial_native_folder is always native and is passed
+				// directly to SHCreateItemFromParsingName / lpstrInitialDir.
+				MCAutoStringRef t_native_folder;
+				if (MCS_pathtonative(t_folder_to_save, &t_native_folder))
+					write_last_dialog_folder(*t_native_folder);
+				MCValueRelease(t_folder_to_save);
+			}
+		}
+
 		if (p_options & MCA_OPTION_RETURN_FILTER)
 		{
 			// The filter string has the following format:

@@ -71,6 +71,7 @@ MCParagraph::MCParagraph()
 {
 	parent = NULL;
 	/* UNCHECKED */ MCStringCreateMutable(0, &m_text);
+	m_password_display = nil;
 	blocks = NULL;
     segments = NULL;
 	lines = NULL;
@@ -93,7 +94,7 @@ MCParagraph::MCParagraph(const MCParagraph &pref) : MCDLlist(pref)
 {
 	parent = pref.parent;
 	/* UNCHECKED */ MCStringMutableCopy(*pref.m_text, &m_text);
-	
+	m_password_display = nil;
 	blocks = NULL;
 	if (pref.blocks != NULL)
 	{

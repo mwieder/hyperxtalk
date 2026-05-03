@@ -12,11 +12,24 @@ ARCHIVE_DESTINATION="cairo-${libcairo_VERSION}"
 FILE_DIRECTORY="../../thirdparty/${THIS}/src"
 INCLUDE_DIRECTORY="../../thirdparty/${THIS}/src"
 
+if [ "${PLATFORM}" == "mac" ] ; then
+	CAIRO_HAS_QUARTZ_FONT=1
+	CAIRO_HAS_QUARTZ_IMAGE_SURFACE=1
+	CAIRO_HAS_QUARTZ_SURFACE=1
+elif [ "${PLATFORM}" == "linux" ] ; then
+	CAIRO_HAS_FT_FONT=1
+	CAIRO_HAS_FC_FONT=1
+elif [ "${PLATFORM}" == "android" ] ; then
+	CAIRO_HAS_FT_FONT=1
+	CAIRO_HAS_FC_FONT=1
+fi
+
 fetchBinary
 untarBinary
 buildSrcLibrary
 # copy config.h
 cp -u ${BUILDDIR}/${ARCHIVE_DESTINATION}/build/*.h ${INCLUDE_DIRECTORY}
-# copy cairo-features.h
-cp -u ${BUILDDIR}/${ARCHIVE_DESTINATION}/build/src/*.h ${INCLUDE_DIRECTORY}
+# cairo-features.h is maintained in-tree with platform-conditional defines;
+# don't overwrite it with the meson-generated single-platform version.
+#cp -u ${BUILDDIR}/${ARCHIVE_DESTINATION}/build/src/*.h ${INCLUDE_DIRECTORY}
 

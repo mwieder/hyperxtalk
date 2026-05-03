@@ -1,13 +1,13 @@
-# This YAML is used to generate cheat sheets for either the LiveCode 
-# language, or for transitioning between an alternative scripting 
-# language and LiveCode.
+# This YAML is used to generate cheat sheets for either the XTalkScript
+# language, or for transitioning between an alternative scripting
+# language and XTalkScript.
 # Each element of the content array must have a title element, which is
 # used for the relevant section, and an lc element which contains the
-# relevant LiveCode script. Each element containing both lc and another
+# relevant xTalk script. Each element containing both lc and another
 # language (currently either py for Python or js for Javascript) will
 # place the code side by side in the generated cheat sheet PDF, under
 # the heading given in the title.
-# If there is a text element, this text will precede the code for the 
+# If there is a text element, this text will precede the code for the
 # section.
 content:
   - title: "Comments"
@@ -23,7 +23,7 @@ content:
       -- these
       // are
       /* commented
-         out */         
+         out */
     py: |
       # this is commented out
     js: |
@@ -62,8 +62,8 @@ content:
       put "str" into tVar
       put 1 into tVar
 
-      variable tArr as Array 
-      put "val" into tArr["key"] 
+      variable tArr as Array
+      put "val" into tArr["key"]
     py: |
 
       var = "str"
@@ -399,7 +399,7 @@ content:
       sort items of tList descending numeric
          -> tList is "5,4,3,2,1"
 
-      local tData 
+      local tData
       put "6,1:8,3:2,2" into tData
       set the lineDelimiter to ":"
       sort lines of tData ascending numeric by item 2 of each

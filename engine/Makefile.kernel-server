@@ -25,7 +25,7 @@ SOURCES=\
 	ipng.cpp \
 	iquantization.cpp iquantize_new.cpp irle.cpp iutil.cpp \
 	itransform.cpp keywords.cpp line.cpp literal.cpp magnify.cpp mcerror.cpp \
-	mcio.cpp mcstring.cpp mctheme.cpp newobj.cpp \
+	mcio.cpp mcstring.cpp mctheme.cpp mcworker.cpp newobj.cpp \
 	object.cpp objptr.cpp operator.cpp paragraf.cpp param.cpp \
 	property.cpp pickle.cpp \
 	regex.cpp \

@@ -76,7 +76,7 @@
       <ExceptionHandling>false</ExceptionHandling>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_DEBUG;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;CAIRO_WIN32_STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <WarningLevel>Level3</WarningLevel>
@@ -100,7 +100,7 @@
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\revpdfprinter\src;..\..\..\engine\include;..\..\..\libcore\include;..\..\..\libexternal\include;..\..\..\thirdparty\libcairo\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;CAIRO_WIN32_STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -114,7 +114,7 @@
       <ExceptionHandling>false</ExceptionHandling>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_DEBUG;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;CAIRO_WIN32_STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <WarningLevel>Level3</WarningLevel>
@@ -138,7 +138,7 @@
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\revpdfprinter\src;..\..\..\engine\include;..\..\..\libcore\include;..\..\..\libexternal\include;..\..\..\thirdparty\libcairo\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;CAIRO_WIN32_STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Fast|Win32'">
@@ -151,7 +151,7 @@
       <ExceptionHandling>false</ExceptionHandling>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_RELEASE;NDEBUG;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_RELEASE;NDEBUG;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;CAIRO_WIN32_STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <WarningLevel>Level3</WarningLevel>
@@ -176,7 +176,7 @@
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\revpdfprinter\src;..\..\..\engine\include;..\..\..\libcore\include;..\..\..\libexternal\include;..\..\..\thirdparty\libcairo\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;CAIRO_WIN32_STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Fast|x64'">
@@ -189,7 +189,7 @@
       <ExceptionHandling>false</ExceptionHandling>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_RELEASE;NDEBUG;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_RELEASE;NDEBUG;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;CAIRO_WIN32_STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <WarningLevel>Level3</WarningLevel>
@@ -214,7 +214,7 @@
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\revpdfprinter\src;..\..\..\engine\include;..\..\..\libcore\include;..\..\..\libexternal\include;..\..\..\thirdparty\libcairo\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;CAIRO_WIN32_STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -227,7 +227,7 @@
       <ExceptionHandling>false</ExceptionHandling>
       <Optimization>Full</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_RELEASE;NDEBUG;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_RELEASE;NDEBUG;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;CAIRO_WIN32_STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <WarningLevel>Level3</WarningLevel>
@@ -252,7 +252,7 @@
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\revpdfprinter\src;..\..\..\engine\include;..\..\..\libcore\include;..\..\..\libexternal\include;..\..\..\thirdparty\libcairo\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;CAIRO_WIN32_STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -265,7 +265,7 @@
       <ExceptionHandling>false</ExceptionHandling>
       <Optimization>Full</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PreprocessorDefinitions>_RELEASE;NDEBUG;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_RELEASE;NDEBUG;_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;CAIRO_WIN32_STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <WarningLevel>Level3</WarningLevel>
@@ -290,7 +290,7 @@
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>..\..\..\revpdfprinter\src;..\..\..\engine\include;..\..\..\libcore\include;..\..\..\libexternal\include;..\..\..\thirdparty\libcairo\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;CAIRO_WIN32_STATIC_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>

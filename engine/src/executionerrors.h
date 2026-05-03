@@ -430,7 +430,7 @@ enum Exec_errors
 	
 	// {EE-0134} create: stack is locked (cantModify)
 	EE_CREATE_LOCKED,
-	
+
 	// {EE-0135} crop: error in image expression
 	EE_CROP_NOIMAGE,
 	
@@ -2056,7 +2056,7 @@ enum Exec_errors
 	
 	// {EE-0676} dispatch: bad target
 	EE_DISPATCH_BADTARGET,
-	
+
 	// {EE-0677} queryRegistry: bad destination
 	EE_QUERYREGISTRY_BADDEST,
 	
@@ -2778,8 +2778,17 @@ enum Exec_errors
     EE_BAD_PERMISSION_NAME,
     
     // {EE-0910} Property: value is not a data
-    EE_PROPERTY_NOTADATA
-    
+    EE_PROPERTY_NOTADATA,
+
+    // {EE-0911} showNotification: bad title expression
+    EE_SHOWNOTIFICATION_BADTITLE,
+    // {EE-0912} showNotification: bad body expression
+    EE_SHOWNOTIFICATION_BADBODY,
+    // {EE-0913} showNotification: bad tag expression
+    EE_SHOWNOTIFICATION_BADTAG,
+    // {EE-0914} cancelNotification: bad tag expression
+    EE_CANCELNOTIFICATION_BADTAG
+
 };
 
 extern const char *MCexecutionerrors;

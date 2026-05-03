@@ -2840,6 +2840,7 @@ extern MCExecEnumTypeInfo *kMCInterfaceTextDirectionTypeInfo;
 extern MCExecCustomTypeInfo *kMCInterfaceFieldTabAlignmentsTypeInfo;
 extern MCExecEnumTypeInfo* kMCInterfaceKeyboardTypeTypeInfo;
 extern MCExecEnumTypeInfo* kMCInterfaceReturnKeyTypeTypeInfo;
+extern MCExecEnumTypeInfo *kMCInterfaceToolbarDisplayModeTypeInfo;
 
 ///////////
 

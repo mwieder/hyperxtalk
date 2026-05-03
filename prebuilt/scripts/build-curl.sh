@@ -12,7 +12,7 @@ CURL_CONFIG="--disable-debug \
             --enable-shared=no \
             --disable-sspi --disable-crypto-auth --disable-cookies \
 			--without-libpsl \
-            --without-gnutls --without-polarssl --without-nss --without-libssh2 --without-librtmp --without-libidn"
+            --without-gnutls --without-polarssl --without-nss --without-libssh2 --without-librtmp --without-libidn --without-nghttp2"
 
 # Grab the source for the library
 CURL_ROOT="https://curl.haxx.se/download/curl-"

@@ -433,6 +433,7 @@
     <ClInclude Include="..\..\..\engine\src\mcsemaphore.h"/>
     <ClInclude Include="..\..\..\engine\src\mcssl.h"/>
     <ClInclude Include="..\..\..\engine\src\mcstring.h"/>
+    <ClInclude Include="..\..\..\engine\src\mcworker.h"/>
     <ClInclude Include="..\..\..\engine\src\mctristate.h"/>
     <ClInclude Include="..\..\..\engine\src\mcutility.h"/>
     <ClInclude Include="..\..\..\engine\src\md5.h"/>
@@ -522,6 +523,7 @@
     <ClInclude Include="..\..\..\engine\src\lnx-clipboard.h"/>
     <ClInclude Include="..\..\..\engine\src\raw-clipboard.h"/>
     <ClInclude Include="..\..\..\engine\src\w32-clipboard.h"/>
+    <ClInclude Include="..\..\..\engine\src\notification.h"/>
     <ClInclude Include="..\..\..\engine\src\mixin-refcounted.h"/>
     <ClInclude Include="..\..\..\engine\src\native-layer.h"/>
     <ClInclude Include="..\..\..\engine\src\desktop-dc.h"/>
@@ -630,6 +632,7 @@
     <ClCompile Include="..\..\..\engine\src\mcio.cpp"/>
     <ClCompile Include="..\..\..\engine\src\mcssl.cpp"/>
     <ClCompile Include="..\..\..\engine\src\mcstring.cpp"/>
+    <ClCompile Include="..\..\..\engine\src\mcworker.cpp"/>
     <ClCompile Include="..\..\..\engine\src\mcutility.cpp"/>
     <ClCompile Include="..\..\..\engine\src\md5.cpp"/>
     <ClCompile Include="..\..\..\engine\src\notify.cpp"/>
@@ -722,6 +725,8 @@
     <ClCompile Include="..\..\..\engine\src\tooltip.cpp"/>
     <ClCompile Include="..\..\..\engine\src\undolst.cpp"/>
     <ClCompile Include="..\..\..\engine\src\vclip.cpp"/>
+    <ClCompile Include="..\..\..\engine\src\toolbar.cpp"/>
+    <ClCompile Include="..\..\..\engine\src\exec-interface-toolbar.cpp"/>
     <ClCompile Include="..\..\..\engine\src\widget.cpp"/>
     <ClCompile Include="..\..\..\engine\src\widget-events.cpp"/>
     <ClCompile Include="..\..\..\engine\src\widget-ref.cpp"/>
@@ -785,6 +790,8 @@
     <ClCompile Include="..\..\..\engine\src\clipboard.cpp"/>
     <ClCompile Include="..\..\..\engine\src\raw-clipboard.cpp"/>
     <ClCompile Include="..\..\..\engine\src\w32-clipboard.cpp"/>
+    <ClCompile Include="..\..\..\engine\src\notification.cpp"/>
+    <ClCompile Include="..\..\..\engine\src\w32-notification.cpp"/>
     <ClCompile Include="..\..\..\engine\src\native-layer.cpp"/>
     <ClCompile Include="..\..\..\engine\src\dskmain.cpp"/>
     <ClCompile Include="..\..\..\engine\src\dskw32main.cpp"/>
@@ -816,6 +823,7 @@
     <ClCompile Include="..\..\..\engine\src\w32text.cpp"/>
     <ClCompile Include="..\..\..\engine\src\w32textlayout.cpp"/>
     <ClCompile Include="..\..\..\engine\src\w32theme.cpp"/>
+    <ClCompile Include="..\..\..\engine\src\w32-toolbar.cpp"/>
     <ClCompile Include="..\..\..\engine\src\w32-core-compat.cpp"/>
     <ClCompile Include="..\..\..\engine\src\module-canvas.cpp"/>
     <ClCompile Include="..\..\..\engine\src\module-engine.cpp"/>

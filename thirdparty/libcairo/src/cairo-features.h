@@ -19,11 +19,16 @@
 
 #define CAIRO_HAS_PS_SURFACE 1
 
+#if defined(__APPLE__)
 #define CAIRO_HAS_QUARTZ_FONT 1
-
 #define CAIRO_HAS_QUARTZ_IMAGE_SURFACE 1
-
 #define CAIRO_HAS_QUARTZ_SURFACE 1
+#endif
+
+#if defined(__linux__) || defined(__ANDROID__)
+#define CAIRO_HAS_FT_FONT 1
+#define CAIRO_HAS_FC_FONT 1
+#endif
 
 #define CAIRO_HAS_RECORDING_SURFACE 1
 

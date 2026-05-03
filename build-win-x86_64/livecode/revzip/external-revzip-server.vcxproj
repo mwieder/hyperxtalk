@@ -286,7 +286,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\revzip\src\revzip.cpp"/>
-    <ClCompile Include="..\..\..\revzip\src\revzip_newapi_shim.c"/>
+    <!-- revzip_newapi_shim.c wraps old libzip internal API (zip_get_attributes etc.)
+         that no longer exists in the libzip built from source (libzip.vcxproj).
+         The new libzip already exports all the new API symbols directly, so the
+         shim is not needed and causes duplicate-symbol / unresolved-external errors. -->
+    <ClCompile Include="..\..\..\revzip\src\revzip_newapi_shim.c">
+      <ExcludedFromBuild>true</ExcludedFromBuild>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\libexternal\libExternal.vcxproj">

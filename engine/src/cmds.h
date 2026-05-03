@@ -486,6 +486,9 @@ class MCCreate : public MCStatement
     bool alias: 1;
     // MW-2014-09-30: [[ ScriptOnlyStack ]] For 'create script only stack ...' form.
     bool script_only_stack : 1;
+    // Workers: 'create worker <name> [from <scriptfile>]'
+    MCExpression *worker_file;
+    bool worker : 1;
 public:
 	MCCreate()
 	{
@@ -499,6 +502,8 @@ public:
 		visible = True;
         // MW-2014-09-30: [[ ScriptOnlyStack ]] Initial value.
         script_only_stack = False;
+        worker_file = NULL;
+        worker = False;
 	}
 	virtual ~MCCreate();
 	virtual Parse_stat parse(MCScriptPoint &);
@@ -549,6 +554,8 @@ class MCDelete : public MCStatement
 	Boolean url;
 	MCVarref *var;
 	bool session;
+	MCExpression *worker_name;
+	bool worker;
 public:
 	MCDelete()
 	{
@@ -557,6 +564,8 @@ public:
 		directory = url = False;
 		var = NULL;
 		session = false;
+		worker_name = NULL;
+		worker = false;
 	}
 	virtual ~MCDelete();
 	virtual Parse_stat parse(MCScriptPoint &);
@@ -952,6 +961,49 @@ public:
 	virtual void exec_ctxt(MCExecContext &);
 };
 
+// ---------------------------------------------------------------------------
+// Notification commands
+
+class MCRequestNotificationPermission : public MCStatement
+{
+public:
+    virtual ~MCRequestNotificationPermission();
+    virtual Parse_stat parse(MCScriptPoint &);
+    virtual void exec_ctxt(MCExecContext &);
+};
+
+class MCShowNotification : public MCStatement
+{
+    MCExpression *m_title;
+    MCExpression *m_body;
+    MCExpression *m_tag;
+public:
+    MCShowNotification() : m_title(nil), m_body(nil), m_tag(nil) {}
+    virtual ~MCShowNotification();
+    virtual Parse_stat parse(MCScriptPoint &);
+    virtual void exec_ctxt(MCExecContext &);
+};
+
+class MCCancelNotification : public MCStatement
+{
+    MCExpression *m_tag;
+public:
+    MCCancelNotification() : m_tag(nil) {}
+    virtual ~MCCancelNotification();
+    virtual Parse_stat parse(MCScriptPoint &);
+    virtual void exec_ctxt(MCExecContext &);
+};
+
+class MCCancelAllNotifications : public MCStatement
+{
+public:
+    virtual ~MCCancelAllNotifications();
+    virtual Parse_stat parse(MCScriptPoint &);
+    virtual void exec_ctxt(MCExecContext &);
+};
+
+// ---------------------------------------------------------------------------
+
 class MCClickCmd : public MCStatement
 {
 	MCExpression *button;
@@ -992,17 +1044,25 @@ public:
 
 // MW-2008-11-05: [[ Dispatch Command ]] The statement class for the 'dispatch' command.
 //   'dispatch' [ command | function ] <message> [ 'to' <target> ] [ 'with' <arguments> ]
+//   Extended: 'dispatch' <message> 'to' 'worker' <name> [ 'with' <arguments> ]
+//   Extended: 'dispatch' <message> 'to' 'caller' [ 'with' <arguments> ]
 class MCDispatchCmd: public MCStatement
 {
 	MCExpression *message;
 	MCChunk *target;
 	MCParameter *params;
+    // Worker dispatch: 'dispatch <msg> to worker <name> [with <params>]'
+    MCExpression *worker_name;
     struct
     {
         /* The container count is the number of containers needed to execute
          * the command. It is calculated after parsing the node. */
         unsigned container_count : 16;
         bool is_function : 1;
+        bool to_worker : 1;
+        // Caller dispatch: 'dispatch <msg> to caller [with <params>]'
+        // Resolves to the stack that dispatched into the current worker.
+        bool to_caller : 1;
     };
 
 public:
@@ -1011,11 +1071,14 @@ public:
 		message = NULL;
 		target = NULL;
 		params = NULL;
+        worker_name = NULL;
 		is_function = false;
         container_count = 0;
+        to_worker = false;
+        to_caller = false;
 	}
 	~MCDispatchCmd(void);
-	
+
 	virtual Parse_stat parse(MCScriptPoint& sp);
     virtual void exec_ctxt(MCExecContext &ctxt);
 };

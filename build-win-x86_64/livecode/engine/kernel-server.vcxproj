@@ -457,6 +457,7 @@
     <ClInclude Include="..\..\..\engine\src\lnx-clipboard.h"/>
     <ClInclude Include="..\..\..\engine\src\raw-clipboard.h"/>
     <ClInclude Include="..\..\..\engine\src\w32-clipboard.h"/>
+    <ClInclude Include="..\..\..\engine\src\notification.h"/>
     <ClInclude Include="..\..\..\engine\src\mixin-refcounted.h"/>
     <ClInclude Include="..\..\..\engine\src\native-layer.h"/>
     <ClInclude Include="..\..\..\engine\src\srvcgi.h"/>
@@ -689,6 +690,8 @@
     <ClCompile Include="..\..\..\engine\src\clipboard.cpp"/>
     <ClCompile Include="..\..\..\engine\src\raw-clipboard.cpp"/>
     <ClCompile Include="..\..\..\engine\src\w32-clipboard.cpp"/>
+    <ClCompile Include="..\..\..\engine\src\notification.cpp"/>
+    <ClCompile Include="..\..\..\engine\src\w32-notification.cpp"/>
     <ClCompile Include="..\..\..\engine\src\native-layer.cpp"/>
     <ClCompile Include="..\..\..\engine\src\mode_server.cpp"/>
     <ClCompile Include="..\..\..\engine\src\srvcgi.cpp"/>

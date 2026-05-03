@@ -153,6 +153,8 @@ struct MCObjectRef
 	uint4 part;
 };
 
+class MCToolbar;
+
 struct MCObjectVisitor
 {
 	virtual ~MCObjectVisitor(void);
@@ -176,6 +178,7 @@ struct MCObjectVisitor
 	virtual bool OnBlock(MCBlock *p_block);
 	virtual bool OnStyledText(MCStyledText *p_styled_text);
     virtual bool OnWidget(MCWidget *p_widget);
+    virtual bool OnToolbar(MCToolbar *p_toolbar);
 };
 
 #define OBJECT_EXTRA_ARRAYPROPS		(1U << 0)

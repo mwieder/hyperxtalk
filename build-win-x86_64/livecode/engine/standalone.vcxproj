@@ -121,8 +121,8 @@
       <AdditionalOptions>/MACHINE:x64 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
     <Link>
-      <AdditionalDependencies>comdlg32.lib;crypt32.lib;gdi32.lib;iphlpapi.lib;imm32.lib;mscms.lib;msimg32.lib;psapi.lib;ole32.lib;rpcrt4.lib;shell32.lib;shlwapi.lib;strmiids.lib;user32.lib;usp10.lib;version.lib;winmm.lib;winspool.lib;ws2_32.lib;oleaut32.lib;sicuin.lib;sicutu.lib;sicuuc.lib;sicudt.lib;advapi32.lib;libz.lib;libgif.lib;libpng.lib;libjpeg.lib;libskia.lib;libskia_opt_none.lib;libskia_opt_arm.lib;libskia_opt_sse2.lib;libskia_opt_sse3.lib;libskia_opt_sse41.lib;libskia_opt_sse42.lib;libskia_opt_avx.lib;libskia_opt_hsw.lib;libffi.lib;libpcre.lib;libssl.lib;libcrypto.lib;WebView2Loader.dll.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration)\lib;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\lib;..\..\..\prebuilt\unpacked\Thirdparty\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\lib;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\lib;$(MSBuildThisFileDirectory)..\..\..\packages\Microsoft.Web.WebView2.1.0.3912.50\build\native\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>comdlg32.lib;crypt32.lib;gdi32.lib;iphlpapi.lib;imm32.lib;mscms.lib;msimg32.lib;psapi.lib;ole32.lib;rpcrt4.lib;shell32.lib;shlwapi.lib;strmiids.lib;user32.lib;usp10.lib;version.lib;winmm.lib;winspool.lib;ws2_32.lib;oleaut32.lib;sicuin.lib;sicutu.lib;sicuuc.lib;sicudt.lib;advapi32.lib;libz.lib;libgif.lib;libpng.lib;libjpeg.lib;libskia.lib;libskia_opt_none.lib;libskia_opt_arm.lib;libskia_opt_sse2.lib;libskia_opt_sse3.lib;libskia_opt_sse41.lib;libskia_opt_sse42.lib;libskia_opt_avx.lib;libskia_opt_hsw.lib;libffi.lib;libpcre.lib;libssl.lib;libcrypto.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration)\lib;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\lib;..\..\..\prebuilt\unpacked\Thirdparty\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\lib;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>/MACHINE:x64 /ALTERNATENAME:SSL_get_peer_certificate=SSL_get1_peer_certificate /ALTERNATENAME:EVP_CIPHER_key_length=EVP_CIPHER_get_key_length /ALTERNATENAME:EVP_CIPHER_CTX_block_size=EVP_CIPHER_CTX_get_block_size /ALTERNATENAME:EVP_CIPHER_CTX_key_length=EVP_CIPHER_CTX_get_key_length %(AdditionalOptions)</AdditionalOptions>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -265,8 +265,8 @@
       <AdditionalOptions>/MACHINE:x64 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
     <Link>
-      <AdditionalDependencies>comdlg32.lib;crypt32.lib;gdi32.lib;iphlpapi.lib;imm32.lib;mscms.lib;msimg32.lib;psapi.lib;ole32.lib;rpcrt4.lib;shell32.lib;shlwapi.lib;strmiids.lib;user32.lib;usp10.lib;version.lib;winmm.lib;winspool.lib;ws2_32.lib;oleaut32.lib;sicuin.lib;sicutu.lib;sicuuc.lib;sicudt.lib;advapi32.lib;libz.lib;libgif.lib;libpng.lib;libjpeg.lib;libskia.lib;libskia_opt_none.lib;libskia_opt_arm.lib;libskia_opt_sse2.lib;libskia_opt_sse3.lib;libskia_opt_sse41.lib;libskia_opt_sse42.lib;libskia_opt_avx.lib;libskia_opt_hsw.lib;libffi.lib;libpcre.lib;libssl.lib;libcrypto.lib;WebView2Loader.dll.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration)\lib;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\lib;..\..\..\prebuilt\unpacked\Thirdparty\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\lib;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\lib;$(MSBuildThisFileDirectory)..\..\..\packages\Microsoft.Web.WebView2.1.0.3912.50\build\native\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>comdlg32.lib;crypt32.lib;gdi32.lib;iphlpapi.lib;imm32.lib;mscms.lib;msimg32.lib;psapi.lib;ole32.lib;rpcrt4.lib;shell32.lib;shlwapi.lib;strmiids.lib;user32.lib;usp10.lib;version.lib;winmm.lib;winspool.lib;ws2_32.lib;oleaut32.lib;sicuin.lib;sicutu.lib;sicuuc.lib;sicudt.lib;advapi32.lib;libz.lib;libgif.lib;libpng.lib;libjpeg.lib;libskia.lib;libskia_opt_none.lib;libskia_opt_arm.lib;libskia_opt_sse2.lib;libskia_opt_sse3.lib;libskia_opt_sse41.lib;libskia_opt_sse42.lib;libskia_opt_avx.lib;libskia_opt_hsw.lib;libffi.lib;libpcre.lib;libssl.lib;libcrypto.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Configuration)\lib;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\lib;..\..\..\prebuilt\unpacked\Thirdparty\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\lib;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>/MACHINE:x64 %(AdditionalOptions)</AdditionalOptions>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -287,6 +287,7 @@
   <ItemGroup>
     <ClCompile Include="$(obj)\..\shared_intermediate\engine_lcb_modules.cpp"/>
     <ClCompile Include="..\..\..\engine\src\dummy.cpp"/>
+    <ClCompile Include="..\..\..\engine\src\libbrowser_stubs.cpp"/>
     <ClCompile Include="..\..\..\engine\src\openssl3_static_stubs.cpp"/>
   </ItemGroup>
   <ItemGroup>
@@ -395,10 +396,6 @@
     </ProjectReference>
     <ProjectReference Include="..\libscript\stdscript.vcxproj">
       <Project>{67AC3638-B90C-777B-9A8F-2A595075E86B}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\libbrowser\libbrowser.vcxproj">
-      <Project>{1C6790C4-D026-3A36-83A4-F3643401EEA1}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
     <ProjectReference Include="..\thirdparty\libopenssl3\libopenssl3.vcxproj">

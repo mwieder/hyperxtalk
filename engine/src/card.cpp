@@ -56,6 +56,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "vclip.h"
 #include "redraw.h"
 #include "widget.h"
+#include "toolbar.h"
 #include "graphics_util.h"
 
 #include "globals.h"
@@ -3236,6 +3237,11 @@ IO_stat MCCard::loadobjects(IO_handle stream, uint32_t version)
             case OT_WIDGET:
                 t_control = new (nothrow) MCWidget;
                 break;
+#ifndef MODE_SERVER
+            case OT_TOOLBAR:
+                t_control = new (nothrow) MCToolbar;
+                break;
+#endif
 			case OT_MAGNIFY:
 				t_control = new (nothrow) MCMagnify;
 			break;

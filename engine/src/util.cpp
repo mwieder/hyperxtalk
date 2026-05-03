@@ -1161,6 +1161,7 @@ static const char * const * const nametable[] =
 	&MCmagnifierstring,		/* CT_MAGNIFY */
 	&MCcolorstring,			/* CT_COLOR_PALETTE */
 	&MCwidgetstring,		/* CT_WIDGET */
+	&MCtoolbarstring,		/* CT_TOOLBAR */
 	&MCfieldstring			/* CT_FIELD */
 };
 

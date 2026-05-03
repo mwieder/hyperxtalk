@@ -1498,6 +1498,10 @@ LRESULT CALLBACK MCWindowProc(HWND hwnd, UINT msg, WPARAM wParam,
 						MCdispatcher->wreshape(dw);
 				curinfo->handled = True;
 			}
+			// Keep the toolbar full-width and correctly positioned below the
+			// menu bar after any window resize.
+			extern void MCWin32ToolbarHandleParentResize(HWND);
+			MCWin32ToolbarHandleParentResize(hwnd);
 		}
 		break;
 	case WM_MOVE:
@@ -1756,6 +1760,22 @@ LRESULT CALLBACK MCWindowProc(HWND hwnd, UINT msg, WPARAM wParam,
 			}
 		}
 	break;
+	case WM_COMMAND:
+	{
+		// Route toolbar button clicks to the MCToolbarWin32Backend.
+		// When a toolbar button is clicked, comctl32 sends WM_COMMAND to the
+		// parent window synchronously (via SendMessage) with:
+		//   LOWORD(wParam) = button command ID
+		//   HIWORD(wParam) = 0 (BN_CLICKED / control notification)
+		//   lParam         = toolbar HWND (non-zero for control notifications)
+		if (lParam != 0 && HIWORD(wParam) == 0)
+		{
+			extern void MCWin32ToolbarHandleParentCommand(HWND, HWND, WPARAM);
+			MCWin32ToolbarHandleParentCommand(hwnd, (HWND)lParam, wParam);
+		}
+	}
+	break;
+
 	default:
 		return IsWindowUnicode(hwnd) ? DefWindowProcW(hwnd, msg, wParam, lParam) : DefWindowProcA(hwnd, msg, wParam, lParam);
 	}

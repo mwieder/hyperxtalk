@@ -8772,6 +8772,9 @@
     <ClInclude Include="..\..\..\engine\src\mcstring.h">
       <Filter>..\..\..\engine\src</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\engine\src\mcworker.h">
+      <Filter>..\..\..\engine\src</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\engine\src\mctristate.h">
       <Filter>..\..\..\engine\src</Filter>
     </ClInclude>
@@ -8857,6 +8860,9 @@
       <Filter>..\..\..\engine\src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\engine\src\mcstring.cpp">
+      <Filter>..\..\..\engine\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\engine\src\mcworker.cpp">
       <Filter>..\..\..\engine\src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\engine\src\mcutility.cpp">
@@ -9528,6 +9534,9 @@
     <ClInclude Include="..\..\..\engine\src\w32-clipboard.h">
       <Filter>..\..\..\engine\src</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\engine\src\notification.h">
+      <Filter>..\..\..\engine\src</Filter>
+    </ClInclude>
     <ClCompile Include="..\..\..\engine\src\clipboard.cpp">
       <Filter>..\..\..\engine\src</Filter>
     </ClCompile>
@@ -9535,6 +9544,12 @@
       <Filter>..\..\..\engine\src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\engine\src\w32-clipboard.cpp">
+      <Filter>..\..\..\engine\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\engine\src\notification.cpp">
+      <Filter>..\..\..\engine\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\engine\src\w32-notification.cpp">
       <Filter>..\..\..\engine\src</Filter>
     </ClCompile>
     <ClInclude Include="..\..\..\engine\src\mixin-refcounted.h">

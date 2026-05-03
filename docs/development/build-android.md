@@ -1,6 +1,7 @@
-# Compiling LiveCode for Android
-
-![LiveCode Community Logo](http://livecode.com/wp-content/uploads/2015/02/livecode-logo.png)
+---
+group: advanced
+---
+# Compiling for Android
 
 Copyright © 2015-2017 LiveCode Ltd., Edinburgh, UK
 
@@ -10,11 +11,11 @@ Copyright © 2015-2017 LiveCode Ltd., Edinburgh, UK
 
 We recommend performing Android builds on a Linux system.  It is also possible to build for Android on Mac OS X.
 
-The main non-standard dependency needed for building LiveCode is a Java Development Kit (JDK).  At least JDK 7 is required.
+The main non-standard dependency needed for building is a Java Development Kit (JDK).  At least JDK 7 is required.
 
 ### Installing the Android SDK and NDK
 
-LiveCode requires both the Android Software Development Kit (SDK) and Native Development Kit (NDK).  You can download both from the [Android Developers site](https://developer.android.com/sdk/index.html).
+Both the Android Software Development Kit (SDK) and Native Development Kit (NDK) are required.  You can download both from the [Android Developers site](https://developer.android.com/sdk/index.html).
 
 Extract both the NDK and SDK to a suitable directory, e.g. `~/android/toolchain`.  For example, for the following values of `<host>`
 
@@ -68,7 +69,7 @@ ln -s android-ndk-r15 android-ndk
 ln -s android-sdk-<host> android-sdk
 ````
 
-## Configuring LiveCode
+## Configuring
 
 ### Build environment
 
@@ -108,7 +109,7 @@ To provide detailed configuration options, you can use the `config.sh` script.  
 
     ./config.sh --help
 
-## Compiling LiveCode
+## Compiling
 
 Normally, it'll be enough just to use the top-level makefile:
 
@@ -120,9 +121,9 @@ Otherwise, you'll need to build a target in the gyp-generated makefiles:
 
 ## Standard build environment
 
-**Note:** The following information is provided for reference purposes.  It should be possible to build LiveCode for Android on any modern Linux desktop distribution or recent version of Mac OS.
+**Note:** The following information is provided for reference purposes.  It should be possible to build for Android on any modern Linux desktop distribution or recent version of Mac OS.
 
-The Linux build environment used for compiling LiveCode for Android is based on Debian Jessie x86-64, with the following additional packages installed:
+The Linux build environment used for compiling for Android is based on Debian Jessie x86-64, with the following additional packages installed:
 
 * git
 * bzip2

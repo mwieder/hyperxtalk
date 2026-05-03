@@ -6,8 +6,8 @@ group: intermediate
 
 ## Introduction
 
-LiveCode has first-class text and data processing capabilities.
-LiveCode’s unique chunk expressions – the ability to refer to text using
+The engine has first-class text and data processing capabilities.
+xTalk languages have chunk expressions – the ability to refer to text using
 English-like statements like "word 3 to 5 of myVariable", combined with
 other powerful features which include regular expressions, XML
 processing, associative arrays, data encoding and decoding functions and
@@ -21,7 +21,7 @@ the product documentation contains additional code examples.
 ## Using Chunk Expressions
 
 Chunk expressions are the primary method of working with text in
-LiveCode. A chunk is an English-like way of describing an exact portion
+xTalk(s). A chunk is an English-like way of describing an exact portion
 of text. You can use chunks both to retrieve a portion of text, and to
 edit text. This topic defines the types of chunks you can address and
 describes the syntax for specifying them.
@@ -116,7 +116,7 @@ processing. These are:
 - byte
 
 A **token** is a string of characters delimited by certain punctuation
-marks. The **token** chunk is useful in parsing LiveCode statements, and
+marks. The **token** chunk is useful in parsing statements, and
 is generally used only for analyzing scripts.
 
 The **sentence** and **trueWord** chunk expressions facilitate the
@@ -140,7 +140,7 @@ The **byte** chunk is an 8-bit unit and should be used when processing
 binary data.
 
 For more information on the above chunk types, please consult the
-LiveCode Dictionary.
+Dictionary.
 
 ### Specifying a Chunk
 
@@ -217,9 +217,9 @@ desired result by using parentheses to change the order of evaluation:
 
 	put item 2 of (segment 3 of "a,b,c i,j,k x,y,z") -- good
 
-In the example above, LiveCode gets the third segment first, then gets
+In the example above, the engine gets the third segment first, then gets
 the second item in that segment. By adding parentheses around (segment 3
-of "a,b,c i,j,k x,y,z"), you force LiveCode to evaluate that part of the
+of "a,b,c i,j,k x,y,z"), you force the engine to evaluate that part of the
 chunk expression first. The value of the expression in parentheses is
 "x,y,z", and item 2 of "x,y,z" is "y".
 
@@ -278,9 +278,9 @@ The start and end of the range must be specified as the same chunk type,
 and the beginning of the range must occur *earlier* in the value than
 the end. The following are not valid chunk expressions:
 
-	char 3 to 1 of myValue -- won't work 
+	char 3 to 1 of myValue -- won't work
 	-- end cannot be greater than start
-	
+
 	char -1 to -4 of myValue -- won't work
 	-- 4th from last comes before last
 
@@ -304,7 +304,7 @@ single chunk of a larger chunk type:
 
 ## Comparing and Searching
 
-LiveCode provides a number of ways of comparing and searching text. For
+xTalk provides a number of ways of comparing and searching text. For
 most types of searching and comparing, you will find chunk expressions
 easy and convenient. However, if you have complex searching needs, you
 may prefer to use Regular Expressions, covered in the next section.
@@ -327,13 +327,13 @@ data is within a specified chunk of another container.
 
 ### Case Sensitivity
 
-Comparisons in LiveCode are case insensitive by default (except for
+Comparisons in xTalk are case insensitive by default (except for
 Regular Expressions, which have their own syntax for specifying whether
 or not a match should be case sensitive). To make a comparison case
 sensitive, set the **caseSensitive** property to true. For more details,
-see the *caseSensitive* property in the *LiveCode Dictionary*.
+see the *caseSensitive* property in the *Dictionary*.
 
-### Checking if text is True, False, a Number, an Integer, a Point, 
+### Checking if text is True, False, a Number, an Integer, a Point,
 ### a Rectangle, a Date or a Color
 
 Use the **is a** operator for checking whether the user has entered data
@@ -342,13 +342,13 @@ handler. The **is an** operator is equivalent to the **is a** operator.
 
 A value **is a**:
 - **boolean** if it is either true or false
-- **integer** if it consists of digits (with an optional leading minus 
+- **integer** if it consists of digits (with an optional leading minus
 sign)
-- **number** if it consists of digits, optional leading minus sign, 
+- **number** if it consists of digits, optional leading minus sign,
 optional decimal point, and optional "E" or "e" (scientific notation)
 - **point** if it consists of two numbers separated by a comma
 - **rect** if it consists of four numbers separated by commas
-- **date** if it is in one of the formats produced by the date or time 
+- **date** if it is in one of the formats produced by the date or time
 functions
 - **color** if it is a valid color reference
 
@@ -375,7 +375,7 @@ operator. When one is true, the other is false.
 The **keyDown** message will only be passed if the key the user pressed
 is a number. If you trap a **keyDown** message and don’t pass it, the
 key will not be entered into the field. For more details, see the
-**keyDown** message in the *LiveCode Dictionary*.
+**keyDown** message in the *Dictionary*.
 
 ### Check if a segment, Item or Line Matches Exactly
 
@@ -416,9 +416,9 @@ To preserve styling when replacing one string with another in a field, use the `
         replace "foo" with "bar" in field "myStyledField" preserving styles
         -- replaces instances of "foo" with "bar" in the given field,
         --   "bar" will retain the styling of instances of "foo"
-        
-For more details, see the *replace command* and the *replace in field command* in the 
-*LiveCode Dictionary*.
+
+For more details, see the *replace command* and the *replace in field command* in the
+*Dictionary*.
 
 ### Retrieving the Position of a Matching Chunk
 
@@ -438,22 +438,22 @@ the **wholeMatches** property to true.
 A chunk expression describes the location of a piece of text in a longer
 string.
 
-Chunk expressions can describe **characters**, **items**, **tokens**, 
+Chunk expressions can describe **characters**, **items**, **tokens**,
 **trueWords**, **segments**, **lines**, **sentences** and **paragraphs**
 of text.
 
 To count backward from the end of a string, use negative numbers. For
-example, 
+example,
 
 	segment -2  -- indicates the second-to-last segment
 
 You can combine chunk expressions to specify one chunk that is contained
-in another chunk, as in 
+in another chunk, as in
 
 	segment 2 of line 3 of myVariable
 
 For a range of chunks, specify the start and end points of the range, as
-in 
+in
 	line 2 to 5 of myVariable
 
 To check if a chunk is within another, use the **is in** operator. To
@@ -461,7 +461,7 @@ check if a chunk **is a** specified type of data, use the **is a**
 operator. To check if a chunk starts or ends with another uses the
 **begins with** or ends with operators.
 
-To check if a chunk is contained exactly within a string use the 
+To check if a chunk is contained exactly within a string use the
 **is among** operator. To get an index specifying where a chunk can be
 found in a container, use the **\<chunk\>Offset** functions described
 above. To match only a complete chunk within a string, set the
@@ -474,11 +474,11 @@ within a string. Use regular expressions when one of the search or
 comparison chunk expressions does not do what you need (see the section
 on *Comparing and Searching* above).
 
-LiveCode supports searching for a pattern, replacing a pattern, or
+xTalk supports searching for a pattern, replacing a pattern, or
 filtering the lines in a container depending on whether or not each line
 contains the pattern. Regular expressions use PERL compatible or "PCRE"
 syntax. Figure 52, below, shows the supported syntax. For more details
-on the supported syntax, see the 
+on the supported syntax, see the
 [PCRE manual](<http://www.pcre.org/man.txt>)
 
 ### Searching using a Regular Expression
@@ -500,8 +500,8 @@ existing variables, separated by commas.
 	matchText("Goodbye","^Good") -- also returns true
 	matchText(phoneNumber,"([0-9]+)-([0-9]+-[0-9]+)",areaCode,phone)
 
-For more details on this function see the *matchText* function in the 
-*LiveCode Dictionary*.
+For more details on this function see the *matchText* function in the
+*Dictionary*.
 
 If you need to retrieve the positions of the matched substrings in the
 optional *foundTextVarsList*, use the *matchChunk* function instead of
@@ -524,8 +524,8 @@ The *replacementString* is any expression that evaluates to a string.
 	replaceText("malformed","mal","well")--returns "wellformed"
 	replaceText(field "Stats",return,comma)-- makes comma-delimited
 
-For more details, see the *replaceText* function in the 
-*LiveCode Dictionary*.
+For more details, see the *replaceText* function in the
+*Dictionary*.
 
 | Regex | Rule | Example |
 |-------------------------|----------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------|
@@ -559,12 +559,12 @@ The *wildcardExpression* is a pattern used to match certain lines.
 	filter myVariable with "A?2"
 	filter me without "\*[a-zA-Z]\*"
 
-For more details, including the format of wildcard expressions, see the 
-*filter command* in the *LiveCode Dictionary*.
+For more details, including the format of wildcard expressions, see the
+*filter command* in the *Dictionary*.
 
 ## International Text Support
 
-All LiveCode's text processing capabilities extend seamlessly to
+All of xTalk's text processing capabilities extend seamlessly to
 international text. This includes the ability to render and edit Unicode
 text and convert between various encoding types.
 
@@ -579,7 +579,7 @@ containing examples of some common encodings.
 | Encoding | Representation | Description |
 |------------------|-----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **ASCII**        | Single byte – English | ASCII is a 7-bit encoding, using one byte per character. It includes the full Roman alphabet, Arabic numerals, Western punctuation and control characters. See <http://en.wikipedia.org/wiki/ASCII> for more information.                                                                                                                                                                                                                         |
-| **ISO8859**      | Single byte           | ISO8859 is a collection of 10 encodings. They are all 8-bit, using one byte per character. Each shares the first 128 ASCII characters. The upper 80 characters change depending on the language to be displayed. For example ISO8859-1 is used in Western Europe, whereas ISO8859-5 is used for Cyrillic. **NB:** LiveCode only supports ISO8859-1. You should use Unicode to represent other languages, converting if necessary (see below).     |
+| **ISO8859**      | Single byte           | ISO8859 is a collection of 10 encodings. They are all 8-bit, using one byte per character. Each shares the first 128 ASCII characters. The upper 80 characters change depending on the language to be displayed. For example ISO8859-1 is used in Western Europe, whereas ISO8859-5 is used for Cyrillic. **NB:** the engine only supports ISO8859-1. You should use Unicode to represent other languages, converting if necessary (see below).     |
 | **Windows-1252** | Single byte – English | This is a superset of ISO8859-1 which uses the remaining 48 characters not used in the ISO character set to display characters on Windows systems. For example curly quotes are contained within this range.                                                                                                                                                                                                                                      |
 | **MacRoman**     | Single byte – English | MacRoman is a superset of ASCII. The first 128 characters are the same. The upper 128 characters are entirely rearranged and bear no relation to either Windows-1252 or ISO8859-1. However while many of the symbols are in different positions many are equivalent so it is possible to convert between the two.                                                                                                                                 |
 | **UTF-16**       | Double byte – Any     | UTF-16 typically uses two bytes per code point (character) to display text in all the world’s languages (see *Introduction to Unicode*, below). UTF-16 will take more memory per character than a single-byte encoding and so is less efficient for displaying English.                                                                                                                                                                           |
@@ -626,11 +626,11 @@ than 256 different characters in use in all the writing systems of the
 world, especially when East Asian ideographic languages are considered.
 But, in the pre-internet days, this was not a big problem.
 
-LiveCode, as a product first created before the rise of the internet,
+xTalks, as products first created before the rise of the internet,
 also adopted the 8-bit character sets of the platforms it ran on (which
 also meant that each platform used a different character set: MacRoman
 on Apple devices, CP1252 on Windows and ISO-8859-1 on Linux and
-Solaris). LiveCode terms these character encodings "native" encodings.
+Solaris). xTalk terms these character encodings "native" encodings.
 
 In order to overcome the limitations of 8-bit character sets, the
 Unicode Consortium was formed. This group aims to assign a unique
@@ -644,14 +644,14 @@ characters and there are a number of schemes for doing so. Some of these
 schemes can be quite complex, requiring a varying number of bytes for
 each character, depending on its codepoint.
 
-LiveCode previously added support for the UTF-16 encoding for text
+The engine previously added support for the UTF-16 encoding for text
 stored in fields but this could be cumbersome to manipulate as the
 variable-length aspects of it were not handled transparently and it
 could only be used in limited contexts. Unicode could not be used in
 control names, directly in scripts or in many other places where it
 might be useful.
 
-From LiveCode 7.0, the LiveCode engine has been able to handle Unicode
+From version 7.0, the engine has been able to handle Unicode
 text transparently throughout. The standard text manipulation operations
 work on Unicode text without any additional effort on your part; Unicode
 text can now be used to name controls, stacks and other objects; menus
@@ -664,12 +664,12 @@ Creating stacks that support Unicode is no more difficult than creating
 any other stack but there are a few things that should be borne in mind
 when developing with Unicode. The most important of these is the
 difference between text and binary data - in previous versions of
-LiveCode, these could be used interchangeably; doing this with Unicode
+xTalks, these could be used interchangeably; doing this with Unicode
 may not work as you expect (but it will continue to work for non-
 Unicode text).
 
 When text is treated as binary data (i.e when it is written to a file,
-process, socket or other object outside of the LiveCode engine) it will
+process, socket or other object outside of the engine) it will
 lose its Unicode-ness: it will automatically be converted into the
 platform's 8-bit native character set and any Unicode characters that
 cannot be correctly represented will be converted into question mark '?'
@@ -684,28 +684,28 @@ encoding).
 
 Unfortunately, the correct text encoding depends on the other programs
 that will be processing your data and cannot be automatically detected
-by the LiveCode engine. If in doubt, UTF-8 is often a good choice as it
+by the engine. If in doubt, UTF-8 is often a good choice as it
 is widely supported by a number of text processing tools and is
 sometimes considered to be the "default" Unicode encoding.
 
 ### Things to look out for
 
-- When dealing with binary data, you should use the byte chunk 
-expression rather than char - char is intended for use with textual data 
+- When dealing with binary data, you should use the byte chunk
+expression rather than char - char is intended for use with textual data
 and represents a single graphical character rather than an 8-bit unit.
-- Try to avoid hard-coding assumptions based on your native language - 
-the formatting of numbers or the correct direction for text layout, for 
-example. LiveCode provides utilities to assist you with this.
-- Regardless of visual direction, text in LiveCode is always in logical 
-order - word 1 is always the first word; it does not depend on whether 
+- Try to avoid hard-coding assumptions based on your native language -
+the formatting of numbers or the correct direction for text layout, for
+example. xTalk provides utilities to assist you with this.
+- Regardless of visual direction, text in xTalk is always in logical
+order - word 1 is always the first word; it does not depend on whether
 it appears at the left or the right.
-- Even English text can contain Unicode characters - curly quotation 
+- Even English text can contain Unicode characters - curly quotation
 marks, long and short dashes, accents on loanwords, currency symbols...
 
 ## Using Arrays
 
 For an introduction to arrays, see the section on *Array Variables* in
-the chapter *Coding in LiveCode*.
+the chapter *Coding*.
 
 ### When to Use Arrays
 
@@ -730,7 +730,7 @@ independently. This makes it possible to copy a sub-array to another
 array, get the keys of a sub-array, or pass a sub-array as a parameter
 in a function call.
 
-LiveCode includes various functions for converting information to and
+xTalk includes various functions for converting information to and
 from arrays, and for performing operations on the contents of arrays.
 
 These characteristics make arrays useful for a number of data processing
@@ -741,7 +741,7 @@ possible to implement such a word count by iterating through each word
 and checking if it is present in a list of words, then adding a comma
 followed by a count to that list of words. Such a method is cumbersome
 to implement and as the list of words gets longer the routine will slow
-down because LiveCode has to search the list from the start with each
+down because xTalk has to search the list from the start with each
 new word. Conversely, implementation with an array is simple. Because
 each element in an array can be named using a text string, we can create
 an element for each word and add to the element’s contents. Not only is
@@ -776,23 +776,23 @@ the code much shorter but it is also an order of magnitude faster.
 
 Figure 53 – Results of running word count script
 
-### Array Functions in LiveCode
+### Array Functions
 
-The following is a list of all the syntax in LiveCode that works with
+The following is a list of all the syntax in xTalk that works with
 arrays. For a full description of each one, see the corresponding entry
-in the LiveCode Dictionary.
+in the Dictionary.
 
 Each of these functions can be used on subarrays within an array.
 Instead of referring to the array variable, refer to x[x]
 
-- **add** adds a value to every element in an array where the element is 
+- **add** adds a value to every element in an array where the element is
 a number
-- **combine** converts an array into text, placing delimiters you 
+- **combine** converts an array into text, placing delimiters you
 specify between the elements
--**customProperties** returns an array of the custom properties of an 
+-**customProperties** returns an array of the custom properties of an
 object
 - **delete variable** remove an element from an array
-- **divide** divides each element in an array where the element is a 
+- **divide** divides each element in an array where the element is a
 number. For example:
 
 	divide tArray by 3
@@ -803,51 +803,51 @@ number. For example:
 | B = 2 | 0.666667 |                                         
 | C = 3 | 1 |                                         
 | D = 4 | 1.333333 |                                           
-| E = 5 | 1.666667 | 
+| E = 5 | 1.666667 |
 
-Figure 54 – Results of running the divide command on an array 
+Figure 54 – Results of running the divide command on an array
 
-- **element** keyword is used in a repeat loop to loop through every 
+- **element** keyword is used in a repeat loop to loop through every
 element in an array
-- **extents** finds the minimum and maximum row and column numbers of an 
+- **extents** finds the minimum and maximum row and column numbers of an
 array whose keys are integers
-- **intersect** compares arrays, removing elements from one array if 
+- **intersect** compares arrays, removing elements from one array if
 they have no corresponding element in the other
 - **keys** returns a list of all the elements within an array
-- **matrixMultiply** performs a matrix multiplication on two arrays 
+- **matrixMultiply** performs a matrix multiplication on two arrays
 whose elements are numbers and whose keys are sequential numbers
-- **multiply** multiplies a value in every element in an array where the 
+- **multiply** multiplies a value in every element in an array where the
 element is a number
 - **properties** returns an array of the properties of an object
 - **split** convert text to an array using delimiters that you define
-- **sum** - returns the sum total of all the elements in an array where 
+- **sum** - returns the sum total of all the elements in an array where
 the element is a number
-- **transpose** swaps the order of the keys in each element in an array 
+- **transpose** swaps the order of the keys in each element in an array
 whose elements are numbers and whose keys are sequential numbers
 - **union** combines two arrays, eliminating duplicate elements
 
 ## Encoding and Decoding
 
-LiveCode includes a number of built-in functions for encoding and 
+xTalk includes a number of built-in functions for encoding and
 decoding data in a variety of popular formats.
 
 ### Styled Text
 
-LiveCode supports encoding and decoding styled text as HTML and RTF.
+xTalk supports encoding and decoding styled text as HTML and RTF.
 This feature is useful when you want to adjust text styles
 programmatically, or import or export text with style information.
 
 > **Important:** At present HTML conversion support only extends to the
-> styles that the LiveCode field object is capable of rendering.
+> styles that the field object is capable of rendering.
 
 To convert the contents of a field to HTML compatible tags, use the
 **HTMLText** property. This property is documented in detail in the
-LiveCode Dictionary. You can also set this property to display styled
+Dictionary. You can also set this property to display styled
 text in a field.
 
 > **Tip:** You can get and set the HTMLText property of a chunk within a
 > field, allowing you to view or change text attributes on a section of
-> the text. 
+> the text.
 
 For example, to set the text style of line 2 of a field to bold:
 
@@ -858,7 +858,7 @@ For example, to set the text style of line 2 of a field to bold:
 		set the htmltext of line 2 of field "sample text" to tText`
 	end mouseUp
 
-While this is not as simple as directly applying the style to the text 
+While this is not as simple as directly applying the style to the text
 using:
 
 	set the textStyle of line 2 of field "sample" to "bold"
@@ -888,8 +888,7 @@ functions. The **URLEncode** function will make text safe to use with a
 URL – for example it will replace *space* with *+*. These functions are
 particularly useful if you are posting data to a web form using the
 **POST** command, using the **launch URL** command or sending email
-using the **revMail** function. For more information see the *LiveCode
-Dictionary*.
+using the **revMail** function. For more information see the *Dictionary*.
 
 | **Text:**                    | **URL Encoded result:**              |
 |------------------------------|--------------------------------------|                              
@@ -901,13 +900,13 @@ Figure 55 – Results of encoding a URL
 To encode and decode data in Base64 (e.g. to create an email
 attachment), use the **base64Encode** and **base64Decode** functions.
 These functions are useful anywhere you want to convert binary data to
-text data and back. For more information see the *LiveCode Dictionary*.
+text data and back. For more information see the *Dictionary*.
 
 ### Binary Data – Arbitrary Types
 
 Use the **binaryEncode** and **binaryDecode** functions to encode or
 decode binary data. These functions are documented in detail in the
-*LiveCode Dictionary*.
+*Dictionary*.
 
 ### Character to Number conversion
 
@@ -917,7 +916,7 @@ To convert a character to and from its corresponding ASCII value use the
 	put charToNum("a") -- results in 97
 
 To convert Unicode characters, set the **useUnicode** local property to
-true. For more information see the section on 
+true. For more information see the section on
 *International Text Support*, above.
 
 ### Data Compression
@@ -939,7 +938,7 @@ the original.
 ### Encryption
 
 To encrypt or decrypt data use the **encrypt** and **decrypt** commands.
-These commands are documented in the LiveCode Dictionary.
+These commands are documented in the Dictionary.
 
 ### Generating a Checksum
 
@@ -977,11 +976,11 @@ exchanging structured data between different applications and across the
 Internet. It consists of text documents organized into a tree structure.
 It can generally be understood by both human and machine.
 
-LiveCode includes comprehensive support for XML through its built-in XML
+xTalk includes comprehensive support for XML through its built-in XML
 library. Additionally, standards exist to support exchange of XML over a
 network connection (or "web services") – most notably through the
-XML-RPC and SOAP protocols. LiveCode includes a library for using
-XML-RPC and there are examples of using LiveCode to build SOAP
+XML-RPC and SOAP protocols. xTalk includes a library for using
+XML-RPC and there are examples of using xTalk to build SOAP
 applications available.
 
 ### The XML Tree Structure
@@ -1032,27 +1031,27 @@ requirement. However in many cases a binary format or database will be
 more appropriate. You should give consideration to the method you intend
 to use as early as possible in the design of your application.
 
-### Methods for Handling XML in LiveCode
+### Methods for Handling XML
 
-LiveCode includes a comprehensive XML library for working with XML
+xTalk includes a comprehensive XML library for working with XML
 documents. Using the XML library has the advantage that we include
 syntax and functions for performing the common operations on XML that
 you may need. However the disadvantage is that at present the library is
-implemented as an external command (included built-in to the LiveCode
-distribution) and thus does not benefit from native LiveCode-engine
+implemented as an external command (included built-in to the xTalk
+distribution) and thus does not benefit from native xTalk-engine
 syntax. If you have simple XML processing requirements you may prefer to
-use LiveCode’s built in chunk expression support to do the parsing,
+use xTalk’s built in chunk expression support to do the parsing,
 matching or construction of XML. For more information see the section on
 *Using Chunk Expressions*. However if you are working with complex XML
 then the library includes a comprehensive suite of features.
 
-In addition to the XML library, LiveCode has a built-in script-based
+In addition to the XML library, xTalk has a built-in script-based
 library for working with XML-RPC.
 
 > **Tip:** To see a list of commands for working with XML-RPC, filter
-> the LiveCode Dictionary with the term XMLRPC.
+> the Dictionary with the term XMLRPC.
 
-A lesson demonstrating using the LiveCode XML library is available
+A lesson demonstrating using the XML library is available
 [here](http://lessons.runrev.com/m/4071/l/7011-how-to-read-in-data-from-
 an-xml-file)
 
@@ -1107,7 +1106,7 @@ Now that you have created your XML tree in memory (above) and stored the
 tree ID you can use the functions in this section to retrieve
 information from within the tree.
 
-> **Important:** Any text you fetch using the LiveCode XML library will
+> **Important:** Any text you fetch using the XML library will
 > be in the encoding specified in the root node of the XML tree.
 
 > **Note:** All the examples in this section assume that we have loaded
@@ -1305,7 +1304,7 @@ This results in *tRectsList* containing:
 
 **Retrieving the Contents of a Node**
 
-To retrieve the contents of a specified node, use 
+To retrieve the contents of a specified node, use
 **revXMLNodeContents**.
 
 	revXMLNodeContents(treeID, node)
@@ -1449,12 +1448,12 @@ This results in the file the *user specifies* containing:
 
 To check the syntax of an XML file conforms to a DTD use
 **revXMLValidateDTD**. For more information on this function, see the
-*LiveCode Dictionary*.
+*Dictionary*.
 
 **Listing all XML Trees in Memory**
 
 To generate a list of all XML trees in memory, use **revXMLTrees**. For
-more information on this function, see the *LiveCode Dictionary*.
+more information on this function, see the *Dictionary*.
 
 **Removing an XML Tree from Memory**
 
@@ -1462,7 +1461,7 @@ To remove an XML tree from memory, use **revXMLDeleteTree**. To remove
 all XML trees from memory, use **revXMLDeleteAllTrees**. Both functions
 take a single parameter – the ID of the tree to be deleted. You should
 delete a tree when you have stopped using it. For more information on
-these functions, see the *LiveCode Dictionary*.
+these functions, see the *Dictionary*.
 
 Once an XML tree has been removed from memory, there is no way to get it
 back. Use the revXMLText function to retrieve the contents of the entire
@@ -1605,7 +1604,7 @@ The *DTDText* is the text of the DTD to add.
 
 Sorting data is a common and fundamental operation. Sorting allows you
 to display data in a user-friendly fashion or code a number of
-algorithms. LiveCode's intuitive sort features give you the power and
+algorithms. xTalk's intuitive sort features give you the power and
 flexibility to perform any kind of sorting you may require.
 
 ### The Sort Container Command: Overview
@@ -1683,7 +1682,7 @@ line or item's contents. For example:
 ### The Sort Container Command: Stable Sorts – Sorting on Multiple Keys
 
 To sort a list by multiple criteria you can sort multiple times. This is
-because LiveCode uses a stable sort, meaning that if two items have the
+because xTalk uses a stable sort, meaning that if two items have the
 same sort key their relative order in the output will not change. To
 perform a stable sort, start with the least significant or important
 criteria and work up to the most important or significant. For example:
@@ -1693,12 +1692,12 @@ criteria and work up to the most important or significant. For example:
 
 | **Original list:** | **Result:** |
 |--------------------|-------------|                    
-| Oliver,1.54        | Elanor,5.67 |                            
-| Elanor,5.67        | Elanor,6.3  |                             
+| Oliver,1.54        | Seth,5.67 	 |                            
+| Seth,5.67   	     | Elanor,6.3  |                             
 | Marcus,8.99        | Marcus,8.99 |                            
 | Elanor,6.34        | Oliver,1.54 |                             
 | Oliver,8.99        | Oliver,8.99 |                             
-| Tim,3.44           | Tim,3.44    |       
+| Paul,3.44          | Paul,3.44   |       
 
 Figure 58 – Results of sorting multiple items
 
@@ -1713,7 +1712,7 @@ Figure 58 – Results of sorting multiple items
 
 This formats each individual line similar to the following:
 
-	Oliver 00001.54 
+	Oliver 00001.54
 	Elanor 00005.67
 
 These lines now sort the required way as if the first field (the name)
@@ -1755,7 +1754,7 @@ To sort cards by the numeric value in a ZIP Code:
 > calculation, you can create a custom function:
 
 	sort cards by myFunction() -- uses function below
-	
+
 	function myFunction
 		put the number of buttons of this card into tValue
 		-- perform any calculation on tValue here

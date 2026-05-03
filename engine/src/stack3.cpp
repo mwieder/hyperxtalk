@@ -55,6 +55,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "font.h"
 #include "variable.h"
 #include "widget.h"
+#include "toolbar.h"
 
 #include "globals.h"
 #include "mctheme.h"
@@ -461,6 +462,20 @@ IO_stat MCStack::load_stack(IO_handle stream, uint32_t version)
                 newwidget->appendto(controls);
             }
             break;
+#ifndef MODE_SERVER
+        case OT_TOOLBAR:
+            {
+                MCToolbar *newtoolbar = new (nothrow) MCToolbar;
+                newtoolbar->setparent(this);
+                if ((stat = newtoolbar->load(stream, version)) != IO_NORMAL)
+                {
+                    delete newtoolbar;
+                    return checkloadstat(stat);
+                }
+                newtoolbar->appendto(controls);
+            }
+            break;
+#endif
 		case OT_MAGNIFY:
 			{
 				MCMagnify *newmag = new (nothrow) MCMagnify;

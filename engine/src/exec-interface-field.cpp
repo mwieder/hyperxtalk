@@ -955,6 +955,51 @@ void MCField::SetLabel(MCExecContext& ctxt, MCStringRef p_string)
 	MCValueAssign(label, p_string);
 }
 
+void MCField::GetPasswordField(MCExecContext& ctxt, bool& r_setting)
+{
+	r_setting = m_password_field;
+}
+
+void MCField::SetPasswordField(MCExecContext& ctxt, bool p_setting)
+{
+	m_password_field = p_setting;
+	Redraw();
+}
+
+void MCField::GetPasswordToggle(MCExecContext& ctxt, bool& r_setting)
+{
+    r_setting = m_password_toggle;
+}
+
+void MCField::SetPasswordToggle(MCExecContext& ctxt, bool p_setting)
+{
+    m_password_toggle = p_setting;
+    Redraw();
+}
+
+void MCField::GetCancelButton(MCExecContext& ctxt, bool& r_setting)
+{
+    r_setting = m_cancel_button;
+}
+
+void MCField::SetCancelButton(MCExecContext& ctxt, bool p_setting)
+{
+    m_cancel_button = p_setting;
+    Redraw();
+}
+
+void MCField::GetHintText(MCExecContext& ctxt, MCStringRef& r_string)
+{
+	r_string = MCValueRetain(m_hint_text);
+}
+
+void MCField::SetHintText(MCExecContext& ctxt, MCStringRef p_string)
+{
+	MCValueAssign(m_hint_text, p_string);
+	// Redraw the field so the hint text appears/disappears immediately
+	Redraw();
+}
+
 void MCField::GetToggleHilite(MCExecContext& ctxt, bool& r_setting)
 {
 	r_setting = getflag(F_TOGGLE_HILITE);

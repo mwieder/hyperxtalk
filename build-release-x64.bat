@@ -23,6 +23,8 @@ set VCXPROJ_SECURITY_COMMUNITY=build-win-x86_64\livecode\engine\security-communi
 set VCXPROJ_LIBXML=build-win-x86_64\livecode\thirdparty\libxml\libxml.vcxproj
 set VCXPROJ_LIBXSLT=build-win-x86_64\livecode\thirdparty\libxslt\libxslt.vcxproj
 set VCXPROJ_REVXML=build-win-x86_64\livecode\revxml\external-revxml.vcxproj
+set VCXPROJ_REVXML_SERVER=build-win-x86_64\livecode\revxml\external-revxml-server.vcxproj
+set VCXPROJ_REVZIP_SERVER=build-win-x86_64\livecode\revzip\external-revzip-server.vcxproj
 set VCXPROJ_REVBROWSER=build-win-x86_64\livecode\revbrowser\external-revbrowser.vcxproj
 set VCXPROJ_REVDB=build-win-x86_64\livecode\revdb\external-revdb.vcxproj
 set VCXPROJ_REVSECURITY=build-win-x86_64\livecode\thirdparty\libopenssl\revsecurity.vcxproj
@@ -413,6 +415,7 @@ echo Lib bootstrap OK.
 :: Also mirror ICU and OpenSSL prebuilt lib dirs (same stub issue as Thirdparty)
 set "ICU_DBG=%~dp0prebuilt\unpacked\icu\x86_64-win32-v142_static_Debug\lib"
 set "ICU_REL=%~dp0prebuilt\unpacked\icu\x86_64-win32-v142_static_Release\lib"
+set "ICU_REL_BIN=%~dp0prebuilt\unpacked\icu\x86_64-win32-v142_static_Release\bin"
 set "SSL_DBG=%~dp0prebuilt\unpacked\openssl3\x86_64-win32-v142_static_Debug\lib"
 set "SSL_REL=%~dp0prebuilt\unpacked\openssl3\x86_64-win32-v142_static_Release\lib"
 if not exist "%ICU_REL%"  mkdir "%ICU_REL%"
@@ -421,24 +424,31 @@ for %%F in ("%ICU_DBG%\*.lib")  do ( copy /Y "%%F" "%ICU_REL%\%%~nxF"  > nul )
 for %%F in ("%SSL_DBG%\*.lib")  do ( copy /Y "%%F" "%SSL_REL%\%%~nxF"  > nul )
 echo ICU + OpenSSL prebuilt lib bootstrap OK.
 
-:: WebView2 import lib — only in the Debug|x64 AdditionalLibraryDirectories of
-:: development.vcxproj; copy it into Release\lib so the Release linker finds it.
-set "WV2_LIB=%~dp0packages\Microsoft.Web.WebView2.1.0.3912.50\build\native\x64\WebView2Loader.dll.lib"
-set "WV2_DLL=%~dp0packages\Microsoft.Web.WebView2.1.0.3912.50\build\native\x64\WebView2Loader.dll"
+:: WebView2 static loader lib — copy into Release\lib so the Release linker finds
+:: it.  We use WebView2LoaderStatic.lib (not WebView2Loader.dll.lib) so that
+:: neither the IDE nor compiled standalones carry a hard load-time DLL dependency.
+:: WebView2Loader.dll is therefore NOT needed in the output directory.
+set "WV2_LIB=%~dp0packages\Microsoft.Web.WebView2.1.0.3912.50\build\native\x64\WebView2LoaderStatic.lib"
 if exist "%WV2_LIB%" (
-    copy /Y "%WV2_LIB%" "%RELEASE_LIB_DIR%\WebView2Loader.dll.lib" > nul
-    if exist "%WV2_DLL%" copy /Y "%WV2_DLL%" "%OUTDIR%\WebView2Loader.dll" > nul
+    copy /Y "%WV2_LIB%" "%RELEASE_LIB_DIR%\WebView2LoaderStatic.lib" > nul
     echo WebView2 bootstrap OK.
 ) else (
-    echo WARNING: WebView2Loader.dll.lib not found at %WV2_LIB%
+    echo WARNING: WebView2LoaderStatic.lib not found at %WV2_LIB%
 )
 
-echo Bootstrapping lc-compile.exe + ICU DLLs from Debug output ...
+echo Bootstrapping lc-compile.exe + ICU DLLs ...
 copy /Y "%LC_COMPILE_DBG%"          "%LC_COMPILE_REL%"            > nul
-copy /Y "%DBG_DIR%\icudt58.dll"     "%OUTDIR%\icudt58.dll"        > nul 2>nul
-copy /Y "%DBG_DIR%\icuin58.dll"     "%OUTDIR%\icuin58.dll"        > nul 2>nul
-copy /Y "%DBG_DIR%\icutu58.dll"     "%OUTDIR%\icutu58.dll"        > nul 2>nul
-copy /Y "%DBG_DIR%\icuuc58.dll"     "%OUTDIR%\icuuc58.dll"        > nul 2>nul
+:: ICU DLLs are not produced by the Debug engine build; copy directly from the
+:: prebuilt unpacked directory so server-community.exe can find them at runtime.
+copy /Y "%ICU_REL_BIN%\icudt58.dll" "%OUTDIR%\icudt58.dll"        > nul 2>nul
+copy /Y "%ICU_REL_BIN%\icuin58.dll" "%OUTDIR%\icuin58.dll"        > nul 2>nul
+copy /Y "%ICU_REL_BIN%\icutu58.dll" "%OUTDIR%\icutu58.dll"        > nul 2>nul
+copy /Y "%ICU_REL_BIN%\icuuc58.dll" "%OUTDIR%\icuuc58.dll"        > nul 2>nul
+if not exist "%OUTDIR%\icuuc58.dll" (
+    echo ERROR: ICU DLLs not found in prebuilt directory: %ICU_REL_BIN%
+    echo        These DLLs are required by server-community.exe for lcs-extensions packaging.
+    exit /b 1
+)
 copy /Y "%DBG_DIR%\libcrypto-3-x64.dll" "%OUTDIR%\libcrypto-3-x64.dll" > nul 2>nul
 copy /Y "%DBG_DIR%\libssl-3-x64.dll"    "%OUTDIR%\libssl-3-x64.dll"    > nul 2>nul
 :: libmysql.dll — runtime DLL required by dbmysql.dll (libmysql.lib is an import lib).
@@ -460,15 +470,9 @@ if not exist "%OUTDIR%\server-community.exe" (
     exit /b 1
 )
 echo server-community.exe bootstrap OK.
-:: extension-utils.livecodescript calls __EnsureExternal "revzip" and "revxml",
-:: which resolve to server-revzip.dll / server-revxml.dll in specialFolderPath("engine")
-:: (i.e. the directory containing server-community.exe = Release\).
-:: Bootstrap them from Debug alongside server-community.exe.
-copy /Y "%DBG_DIR%\server-revzip.dll" "%OUTDIR%\server-revzip.dll" > nul 2>nul
-copy /Y "%DBG_DIR%\server-revxml.dll" "%OUTDIR%\server-revxml.dll" > nul 2>nul
-if not exist "%OUTDIR%\server-revzip.dll" echo WARNING: server-revzip.dll not found in Debug output. Extension packaging may fail.
-if not exist "%OUTDIR%\server-revxml.dll" echo WARNING: server-revxml.dll not found in Debug output. Extension packaging may fail.
-echo server-revzip.dll + server-revxml.dll bootstrap OK.
+:: server-revzip.dll and server-revxml.dll are built in Release later in this
+:: script (after Release libxml2/libxslt/libzip are ready) and land directly
+:: in %OUTDIR% -- no bootstrap copy needed here.
 
 :: ----------------------------------------------------------
 :: Bootstrap startupstack.cpp into the Release shared_intermediate.
@@ -569,6 +573,42 @@ if %ERRORLEVEL% NEQ 0 ( echo libxslt build failed. See %LOGFILE% & exit /b 1 )
 echo libxslt OK.
 
 echo.
+:: ----------------------------------------------------------
+:: Build server-revxml.dll and server-revzip.dll (Release).
+:: These must be built AFTER Release libxml2/libxslt/libzip are ready
+:: and BEFORE the lcs-extensions step which loads them via server-community.exe.
+:: They land directly in Release\ (matching server-community.exe's location)
+:: so the bootstrap copy at the top of this script can be retired.
+:: Using Release configuration avoids CRT mismatch crashes when
+:: server-community.exe (Release) loads these DLLs via __EnsureExternal.
+:: ----------------------------------------------------------
+echo Building server-revxml.dll (Release -- required by lcs-extensions) ...
+echo Building server-revxml.dll ... >> "%LOGFILE%"
+set "SRVXML_LOG=%~dp0build-server-revxml.log"
+"%MSBUILD%" %VCXPROJ_REVXML_SERVER% /p:Configuration=Release /p:Platform=x64 /p:BuildProjectReferences=false "/p:SolutionDir=%~dp0build-win-x86_64\livecode\\" /v:minimal /nologo > "%SRVXML_LOG%" 2>&1
+set SRVXML_ERR=%ERRORLEVEL%
+type "%SRVXML_LOG%"
+type "%SRVXML_LOG%" >> "%LOGFILE%"
+if %SRVXML_ERR% NEQ 0 (
+    echo WARNING: server-revxml.dll Release build failed. Extension packaging may fail.
+) else (
+    echo server-revxml.dll OK.
+)
+
+echo Building server-revzip.dll (Release -- required by lcs-extensions) ...
+echo Building server-revzip.dll ... >> "%LOGFILE%"
+set "SRVZIP_LOG=%~dp0build-server-revzip.log"
+"%MSBUILD%" %VCXPROJ_REVZIP_SERVER% /p:Configuration=Release /p:Platform=x64 /p:BuildProjectReferences=false "/p:SolutionDir=%~dp0build-win-x86_64\livecode\\" /v:minimal /nologo > "%SRVZIP_LOG%" 2>&1
+set SRVZIP_ERR=%ERRORLEVEL%
+type "%SRVZIP_LOG%"
+type "%SRVZIP_LOG%" >> "%LOGFILE%"
+if %SRVZIP_ERR% NEQ 0 (
+    echo WARNING: server-revzip.dll Release build failed. Extension packaging may fail.
+) else (
+    echo server-revzip.dll OK.
+)
+
+echo.
 echo Building engine (Release) ...
 
 set "EXE=%OUTDIR%\HyperXTalk.exe"
@@ -604,20 +644,27 @@ echo Building standalone-community.exe (Release) ...
 echo Building standalone-community.exe ... >> "%LOGFILE%"
 set "STANDALONE_LOG=%~dp0build-standalone-release.log"
 set "STANDALONE_EXE=%OUTDIR%\standalone-community.exe"
-"%MSBUILD%" %VCXPROJ_STANDALONE% /p:Configuration=Release /p:Platform=x64 /p:BuildProjectReferences=false /v:minimal /nologo > "%STANDALONE_LOG%" 2>&1
+"%MSBUILD%" %VCXPROJ_STANDALONE% /t:Rebuild /p:Configuration=Release /p:Platform=x64 /p:BuildProjectReferences=false /v:minimal /nologo > "%STANDALONE_LOG%" 2>&1
 set STANDALONE_ERR=%ERRORLEVEL%
 type "%STANDALONE_LOG%"
 type "%STANDALONE_LOG%" >> "%LOGFILE%"
 if %STANDALONE_ERR% NEQ 0 goto standalone_failed_rel
+if not exist "%STANDALONE_EXE%" goto standalone_failed_rel
 echo standalone-community.exe OK.
+:: Keep the development-mode Runtime template in sync with the freshly linked binary.
+:: The IDE (run directly from Release\, not installed) reads the standalone template from
+:: ide\Runtime\Windows\x86-64\Standalone.  Without this copy, that file stays stale and
+:: any compiled standalone inherits the old binary's DLL import table.
+copy /Y "%STANDALONE_EXE%" "%~dp0ide\Runtime\Windows\x86-64\Standalone" > nul
+echo Runtime\Standalone template updated.
 goto standalone_done_rel
 :standalone_failed_rel
 set "STANDALONE_ERRORS=%~dp0build-standalone-errors-release.log"
 findstr /v /r "LNK4099\|LNK4075" "%STANDALONE_LOG%" > "%STANDALONE_ERRORS%"
-echo STANDALONE BUILD FAILED. Filtered errors:
+echo STANDALONE BUILD FAILED. Errors:
 type "%STANDALONE_ERRORS%"
-if not exist "%STANDALONE_EXE%" ( echo ERROR: standalone-community.exe missing. & exit /b 1 )
-echo WARNING: Using existing standalone-community.exe from a previous build.
+echo ERROR: standalone-community.exe missing or build failed.
+exit /b 1
 :standalone_done_rel
 
 echo.
@@ -638,13 +685,20 @@ echo.
 :: Release difference is optimisation only — ABI is identical.
 :: ----------------------------------------------------------
 echo Building revbrowser (Release) ...
-"%MSBUILD%" %VCXPROJ_REVBROWSER% /p:Configuration=Release /p:Platform=x64 "/p:OutDir=%OUTDIR%\\" /p:BuildProjectReferences=false /v:minimal /nologo >> "%LOGFILE%" 2>&1
-if %ERRORLEVEL% NEQ 0 goto revbrowser_fallback
+set "REVBROWSER_REL_LOG=%~dp0build-revbrowser-release.log"
+"%MSBUILD%" %VCXPROJ_REVBROWSER% /p:Configuration=Release /p:Platform=x64 "/p:OutDir=%OUTDIR%\\" /p:BuildProjectReferences=false /v:minimal /nologo > "%REVBROWSER_REL_LOG%" 2>&1
+set REVBROWSER_REL_ERR=%ERRORLEVEL%
+type "%REVBROWSER_REL_LOG%"
+type "%REVBROWSER_REL_LOG%" >> "%LOGFILE%"
+if %REVBROWSER_REL_ERR% NEQ 0 goto revbrowser_fallback
 if not exist "%OUTDIR%\revbrowser.dll" goto revbrowser_fallback
 echo revbrowser Release OK.
 goto revbrowser_done
 :revbrowser_fallback
-if not exist "%DBG_DIR%\revbrowser.dll" ( echo ERROR: revbrowser.dll missing from both Release build and Debug output. & exit /b 1 )
+if not exist "%DBG_DIR%\revbrowser.dll" (
+    echo WARNING: revbrowser.dll not available ^(CEF removed^) -- skipping.
+    goto revbrowser_done
+)
 copy /Y "%DBG_DIR%\revbrowser.dll" "%OUTDIR%\revbrowser.dll" > nul
 echo revbrowser: using Debug bootstrap.
 :revbrowser_done
@@ -763,49 +817,4 @@ if not exist "%LC_COMPILE%" (
 :: can resolve the 'use com.livecode.library.widgetutils' import.
 :: The .lcm bytecode is configuration-independent, so we bootstrap
 :: both from the Debug output / source tree.
-:: ----------------------------------------------------------
-if not exist "%BROWSER_PKG%" mkdir "%BROWSER_PKG%"
-copy /Y "extensions\widgets\browser\manifest.xml" "%BROWSER_PKG%\manifest.xml" > nul
-echo Browser widget package dir OK.
-
-set "WU_SRC=%~dp0extensions\modules\widget-utils"
-set "WU_PKG=%OUTDIR%\packaged_extensions\com.livecode.library.widgetutils"
-set "WU_LCI_SRC=%DBG_DIR%\modules\lci\com.livecode.library.widgetutils.lci"
-if not exist "%WU_PKG%" mkdir "%WU_PKG%"
-copy /Y "%WU_SRC%\module.lcm"  "%WU_PKG%\module.lcm"  > nul
-copy /Y "%WU_SRC%\manifest.xml" "%WU_PKG%\manifest.xml" > nul
-if exist "%WU_LCI_SRC%" (
-    copy /Y "%WU_LCI_SRC%" "%LCI_DIR%\com.livecode.library.widgetutils.lci" > nul
-) else (
-    echo ERROR: com.livecode.library.widgetutils.lci not found in Debug lci dir.
-    echo        Run the Debug build first to produce it.
-    exit /b 1
-)
-echo widgetutils bootstrap OK.
-
-if exist "%BROWSER_PKG%\module.lcm" del /F /Q "%BROWSER_PKG%\module.lcm"
-
-set "LCOMPILE_LOG=%~dp0build-browser-widget-release.log"
-"%LC_COMPILE%" --modulepath "%BROWSER_PKG%" --modulepath "%LCI_DIR%" --manifest "%BROWSER_PKG%\manifest.xml" --output "%BROWSER_PKG%\module.lcm" "%BROWSER_LCB%" > "%LCOMPILE_LOG%" 2>&1
-set LC_ERR=%ERRORLEVEL%
-type "%LCOMPILE_LOG%"
-type "%LCOMPILE_LOG%" >> "%LOGFILE%"
-if %LC_ERR% NEQ 0 ( echo BROWSER WIDGET BUILD FAILED. See %LCOMPILE_LOG% & exit /b 1 )
-echo Browser widget OK.
-
-echo.
-echo Building lcs-extensions (script libraries) (Release) ...
-echo Building lcs-extensions ... >> "%LOGFILE%"
-set "LCS_LOG=%~dp0build-lcs-extensions-release.log"
-"%MSBUILD%" %VCXPROJ_LCS_EXTENSIONS% /p:Configuration=Release /p:Platform=x64 /p:BuildProjectReferences=false "/p:SolutionDir=%~dp0build-win-x86_64\livecode\\" /v:minimal /nologo > "%LCS_LOG%" 2>&1
-set LCS_ERR=%ERRORLEVEL%
-type "%LCS_LOG%"
-type "%LCS_LOG%" >> "%LOGFILE%"
-if %LCS_ERR% NEQ 0 ( echo LCS-EXTENSIONS BUILD FAILED. See %LCS_LOG% & exit /b 1 )
-echo lcs-extensions OK.
-
-echo.
-echo ============================================================
-echo Release build complete.
-echo Output: %OUTDIR%
-echo ============================================================
+:: ---------------------------------------------------

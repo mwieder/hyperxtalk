@@ -1,18 +1,19 @@
-# Compiling LiveCode for Linux
-
-![LiveCode Community Logo](http://livecode.com/wp-content/uploads/2015/02/livecode-logo.png)
+---
+group: advanced
+---
+# Compiling for Linux
 
 Copyright © 2015 LiveCode Ltd., Edinburgh, UK
 
 ## Dependencies
 
-LiveCode has several dependencies that are needed in order to build it on Linux.  In general, it is enough to install the tools and libraries that would be typically used to compile a GNOME application written in C++.
+There are several dependencies that are needed in order to build it on Linux.  In general, it is enough to install the tools and libraries that would be typically used to compile a GNOME application written in C++.
 
 Obviously, the exact packages required vary depending on which Linux distribution you use, and how recent it is.  For examples of the packages you may need, please see the "Standard build environments" section later in this document.
 
 ## Build environment
 
-The LiveCode build obeys all of the standard make environment variables, including:
+The build obeys all of the standard make environment variables, including:
 
 * `CC`: C compiler command
 * `CXX`: C++ compiler command
@@ -21,9 +22,9 @@ There are some additional environment variables that it understands:
 
 * `CXX_STD`: which version of the C++ standard to use (`c++11` is recommended)
 
-## Configuring LiveCode
+## Configuring
 
-To configure LiveCode, simply run:
+To configure, simply run:
 
     make config-linux
 
@@ -33,7 +34,7 @@ To provide detailed configuration options, you can use the `config.sh` script.  
 
     ./config.sh --help
 
-## Compiling LiveCode
+## Compiling
 
 Usually, you can just run:
 
@@ -45,10 +46,9 @@ However, if you wish to compile something more specific than "everything", you'l
 
 ## Standard build environments
 
-**Note:** The following information is provided for reference purposes.  It should be possible to build and run LiveCode on any modern Linux desktop distribution.
+**Note:** The following information is provided for reference purposes.  It should be possible to build and run on any modern Linux desktop distribution.
 
-The x86-64 and x86 Linux build environments used for compiling
-LiveCode are based on Debian Wheezy.
+The x86-64 and x86 Linux build environments used for compiling are based on Debian Wheezy.
 
 The following additional packages should be installed before building:
 
@@ -76,11 +76,11 @@ The following additional packages should be installed before building:
 * zip
 
 
-Use 
+Use
 
     sudo apt-get install build-essential automake libtool gawk git curl flex &&
     sudo apt-get install bison libx11-dev libxext-dev libxrender-dev libxft-dev &&
-    sudo apt-get install libxinerama-dev libxv-dev libxcursor-dev libfreetype6-dev && 
+    sudo apt-get install libxinerama-dev libxv-dev libxcursor-dev libfreetype6-dev &&
     sudo apt-get install libpopt-dev libesd0-dev liblcms2-dev pkg-config libgtk2.0-dev zip
 
 or equivalent in order to assure all the necessary dependencies are installed on your machine.
