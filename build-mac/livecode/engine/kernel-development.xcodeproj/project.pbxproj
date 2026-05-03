@@ -2633,8 +2633,8 @@
 				);
 				OTHER_LDFLAGS = (
 					"-weak_framework AVFoundation",
-					/Applications/VLC.app/Contents/MacOS/lib/libvlc.dylib,
-					/Applications/VLC.app/Contents/MacOS/lib/libvlccore.dylib,
+					"-weak_library /Applications/VLC.app/Contents/MacOS/lib/libvlc.dylib",
+					"-weak_library /Applications/VLC.app/Contents/MacOS/lib/libvlccore.dylib",
 					"-Wl,-platform_version",
 					"-Wl,macos",
 					"-Wl,11.0",
@@ -3089,8 +3089,8 @@
 				);
 				OTHER_LDFLAGS = (
 					"-weak_framework AVFoundation",
-					/Applications/VLC.app/Contents/MacOS/lib/libvlc.dylib,
-					/Applications/VLC.app/Contents/MacOS/lib/libvlccore.dylib,
+					"-weak_library /Applications/VLC.app/Contents/MacOS/lib/libvlc.dylib",
+					"-weak_library /Applications/VLC.app/Contents/MacOS/lib/libvlccore.dylib",
 					"-Wl,-platform_version",
 					"-Wl,macos",
 					"-Wl,11.0",
@@ -3487,8 +3487,8 @@
 				);
 				OTHER_LDFLAGS = (
 					"-weak_framework AVFoundation",
-					/Applications/VLC.app/Contents/MacOS/lib/libvlc.dylib,
-					/Applications/VLC.app/Contents/MacOS/lib/libvlccore.dylib,
+					"-weak_library /Applications/VLC.app/Contents/MacOS/lib/libvlc.dylib",
+					"-weak_library /Applications/VLC.app/Contents/MacOS/lib/libvlccore.dylib",
 					"-Wl,-platform_version",
 					"-Wl,macos",
 					"-Wl,11.0",
