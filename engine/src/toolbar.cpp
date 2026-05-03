@@ -434,8 +434,15 @@ MCToolbarItem *MCToolbar::FindItem(MCNameRef p_name)
 
 void MCToolbar::itemClicked(MCNameRef p_item_name)
 {
-    message_with_valueref_args(MCM_toolbar_item_clicked,
-                               MCNameGetString(p_item_name));
+    // The toolbar is parented to the stack, not a card, so a bare
+    // message_with_valueref_args would dispatch toolbar → stack, skipping the
+    // current card entirely.  Send through the current card instead so the
+    // message follows the normal card → stack path that scripts expect.
+    MCStack *t_stack = getstack();
+    MCCard  *t_card  = t_stack != nil ? t_stack->getcurcard() : nil;
+    MCObject *t_target = t_card != nil ? (MCObject *)t_card : (MCObject *)this;
+    t_target->message_with_valueref_args(MCM_toolbar_item_clicked,
+                                         MCNameGetString(p_item_name));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
