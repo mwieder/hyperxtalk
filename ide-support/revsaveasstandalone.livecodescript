@@ -985,6 +985,11 @@ command revSaveAsWindowsStandalone pStack, pRestoreFileName, pFolder, @xStandalo
       put item 1 to -2 of tName & "/Sample Icons/genericdoc.ico" into sStandaloneSettingsA["Windows,documenticonFile"]
    end if
    
+   -- Determine VLC requirement before the loop: revStandaloneDeployWithParams moves/saves
+   -- the stack, making it unreachable by name inside the loop body.
+   local tNeedsVLC
+   put revSAStandaloneNeedsVLC(pStack) into tNeedsVLC
+
    -- keep a copy of the standalone settings to restore after each build
    local tStandaloneSettingsA
    put sStandaloneSettingsA into tStandaloneSettingsA
@@ -1132,13 +1137,20 @@ command revSaveAsWindowsStandalone pStack, pRestoreFileName, pFolder, @xStandalo
       end if
       
       revStandaloneDeployWithParams tTarget, tStackSourceFile, tDeployInfo
-      
+
+      -- Always copy the two VLC DLLs alongside the .exe — the engine links against
+      -- them at load time and will crash on launch if they are absent, even when no
+      -- player control is used.  Plugins are only copied when the project contains
+      -- a player control.
+      -- tDirectory ends with a path separator; strip it before passing to the helper.
+      revSBCopyVLCToStandalone "Windows", char 1 to -2 of tDirectory, tStandalonePath, tNeedsVLC
+
       --Restore stack to its post-savingStandalone message state
       __RestoreStackFromTemporaryLocation pStack, pRestoreFileName, tOriginalFileName
    end repeat
-   
+
    revStandalonePostBuild pStack, pFolder
-   
+
    return empty
 end revSaveAsWindowsStandalone
 
@@ -1151,6 +1163,11 @@ command revSaveAsLinuxStandalone pStack, pRestoreFileName, pFolder, @xStandalone
    put item 1 to -2 of tOriginalFileName into tStackPath
    set the itemDelimiter to comma
    
+   -- Determine VLC requirement before the loop: revStandaloneDeployWithParams moves/saves
+   -- the stack, making it unreachable by name inside the loop body.
+   local tNeedsVLC
+   put revSAStandaloneNeedsVLC(pStack) into tNeedsVLC
+
    -- keep a copy of the standalone settings to restore after each build
    local tStandaloneSettingsA
    put sStandaloneSettingsA into tStandaloneSettingsA
@@ -1207,13 +1224,19 @@ command revSaveAsLinuxStandalone pStack, pRestoreFileName, pFolder, @xStandalone
             tStandalonePath, tEngineSourceFile) into tDeployInfo
       
       revStandaloneDeployWithParams tTarget, tStackSourceFile, tDeployInfo
-      
+
+      -- Bundle VLC runtime alongside the binary if the project uses player controls.
+      -- tDirectory ends with a path separator; strip it before passing to the helper.
+      if tNeedsVLC then
+         revSBCopyVLCToStandalone "Linux", char 1 to -2 of tDirectory, tStandalonePath, tNeedsVLC
+      end if
+
       --Restore stack to its post-savingStandalone message state
       __RestoreStackFromTemporaryLocation pStack, pRestoreFileName, tOriginalFileName
    end repeat
-   
+
    revStandalonePostBuild pStack, pFolder
-   
+
    return empty
 end revSaveAsLinuxStandalone
 
@@ -1386,11 +1409,16 @@ private command revOutputDirectories pFolder
    if tOSXCount > 0 then add 1 to tPlatforms
    repeat for each item tTarget in tTargets
       if sStandaloneSettingsA[tTarget] = true then
+         -- Never attempt a Mac build on non-Mac hosts: the Mac engine binaries
+         -- are not present and the build tools (install_name_tool etc.) don't exist.
+         if tTarget contains "MacOSX" and the platform is not "MacOS" then
+            next repeat
+         end if
          if not revDownloadEngine(tTarget) then
             revStandaloneAddWarning "Could not build for " & tTarget & " because required files are missing."
             next repeat
          end if
-         
+
          local tPlatform
          put revSBTargetToPlatform(tTarget) into tPlatform
          
@@ -2682,7 +2710,7 @@ private command revCopyExternals pPlatform, pStackFilePath, pEnginePath, pStanda
       // AL-2015-05-07: [[ Bug 15320 ]] Make sure universal external name is used.
       local tExternal
       put revSBExternalNameFromFile(tPlatform, tSourceExternal) into tExternal
-      
+
       revCopyModule tPlatform, tExternal, tSourceExternal, item 1 to -2 of tExternalPath, tCurrentLocation, "Externals", tPlatform is "MacOSX"
       if the result is not empty then
          revStandaloneAddWarning tPlatform && tArch & ", external" && the result & ":" && quote & tExternalPath & quote
@@ -2694,37 +2722,37 @@ private command revCopyExternals pPlatform, pStackFilePath, pEnginePath, pStanda
       end if
       revAddExternal tExternal
    end repeat
-   
+
    local tSourceFile, tSourceFolder, tTargetFolder, tDestFolder
    repeat for each line tLib in sStandaloneSettingsA["jarFiles"]
       set the itemdelimiter to slash
       put item -1 of tLib into tSourceFile
       put item 1 to -2 of tLib into tSourceFolder
       put tCurrentLocation & slash & "Externals/JVM" into tDestFolder
-      
+
       revSBEnsureFolder tDestFolder
       revCopyModule tPlatform, tSourceFile, tSourceFile, \
             tSourceFolder, tCurrentLocation, "Externals/JVM", false
    end repeat
-   
+
    repeat for each line tLib in sStandaloneSettingsA["extension_code_resources"]
       set the itemdelimiter to slash
       put item -1 of tLib into tSourceFile
       put item 1 to -2 of tLib into tSourceFolder
       put tCurrentLocation & slash & "Externals" into tDestFolder
-      
+
       revSBEnsureFolder tDestFolder
       set the itemDelimiter to "."
       revCopyModule tPlatform, item 1 to -2 of tSourceFile, tSourceFile, \
             tSourceFolder, tCurrentLocation, "Externals", there is a folder tLib
    end repeat
-   
+
    // SN-2015-07-01: [[ Bug 15259 ]] We don't want the saving to be trapped by
    //  a saveStackRequest handler in the standalone stack
    lock messages
    save stack pStackFilePath
    unlock messages
-   
+
    -- MM-2013-04-05: [[ Bug 10756 ]] Make sure we're allowed to delete the stack before deleteing.
    set the cantDelete of stack pStackFilePath to false
    delete stack pStackFilePath
@@ -2777,7 +2805,7 @@ command revStandaloneDeployWithParams pTarget, pStackFilePath, pDeployInfo
    if the result is not empty then
       throw "Build failed for " & pTarget & ":" && the result
    end if
-   
+
    -- Again, present in the original, this will remove the stackfile we saved
    -- above.
    revDeleteFile pStackFilePath
@@ -2788,16 +2816,16 @@ command revRedirectMacOSResources pStandalonePath
    set the itemDelimiter to slash
    put item 1 to -2 of pStandalonePath into tOldRFolder
    put (item 1 to -2 of tOldRFolder) & "/Resources/_MacOS" into tNewRFolder
-   
+
    create folder (tOldRFolder & slash & "../Resources")
    create folder (tOldRFolder & slash & "../Resources/_MacOS")
-   
+
    revRedirectMacOSResourcesRecurse tOldRFolder, tNewRFolder
 end revRedirectMacOSResources
 
 command revRedirectMacOSResourcesRecurse pSourceFolder, pTargetFolder
    create folder pTargetFolder
-   
+
    local tFiles
    repeat for each line tFile in files(pSourceFolder)
       if tFile ends with ".dylib" then
@@ -2818,7 +2846,7 @@ command revRedirectMacOSResourcesRecurse pSourceFolder, pTargetFolder
             break
       end switch
    end repeat
-   
+
    local tFolder
    repeat for each line tFolder in folders(pSourceFolder)
       if tFolder is ".." then
@@ -2835,7 +2863,7 @@ command revRedirectMacOSResourcesRecurse pSourceFolder, pTargetFolder
       end if
       revRedirectMacOSResourcesRecurse pSourceFolder & slash & tFolder, pTargetFolder & slash & tFolder
    end repeat
-   
+
    if files(pSourceFolder) is empty and folders(pSourceFolder) is ".." then
       delete folder pSourceFolder
    end if
@@ -2844,7 +2872,7 @@ end revRedirectMacOSResourcesRecurse
 function revRedirectMacOSResourcesIsExecutable pFile
    local tIsExecutable
    put false into tIsExecutable
-   
+
    open file pFile for binary read
    read from file pFile for 1 int4
    if the result is not "eof" then
@@ -2855,7 +2883,7 @@ function revRedirectMacOSResourcesIsExecutable pFile
       end if
    end if
    close file pFile
-   
+
    return tIsExecutable
 end revRedirectMacOSResourcesIsExecutable
 

@@ -922,11 +922,14 @@ on revSBDefaultStandaloneSettings pStack, @xSettingsA
    -- Since the intel choice, set the default here:
    -- MM-2014-03-21: [[ PPC Support Dropped ]] Only create standalone setting for Intel (for OS X) by default.
    -- Prefer arm64 on Apple Silicon; fall back to x86-64 if no Mac arch is selected.
-   if xSettingsA["MacOSX arm64"] is empty and xSettingsA["MacOSX x86-64"] is empty and xSettingsA["MacOSX x86-32"] is empty then
-      if revEngineCheck("MacOSX arm64") then
-         put true into xSettingsA["MacOSX arm64"]
-      else
-         put true into xSettingsA["MacOSX x86-64"]
+   -- Only auto-enable a MacOSX target when running on macOS; on Windows/Linux the user must opt in explicitly.
+   if the platform is "MacOS" then
+      if xSettingsA["MacOSX arm64"] is empty and xSettingsA["MacOSX x86-64"] is empty and xSettingsA["MacOSX x86-32"] is empty then
+         if revEngineCheck("MacOSX arm64") then
+            put true into xSettingsA["MacOSX arm64"]
+         else
+            put true into xSettingsA["MacOSX x86-64"]
+         end if
       end if
    end if
    
@@ -3234,7 +3237,7 @@ function revSBGetSettings pStack, pDeploy
          put tLibrary["settings"] into tSettingsA
       end if
    end repeat
-   
+
    return tSettingsA
 end revSBGetSettings
 
@@ -3298,7 +3301,7 @@ user does not need VLC installed separately.
 - Linux: copies libvlc.so + libvlccore.so alongside the exe and the plugins tree
   into <exe-dir>/vlc-plugins/.
 */
-command revSBCopyVLCToStandalone pPlatform, pStandaloneDir, pEnginePath
+command revSBCopyVLCToStandalone pPlatform, pStandaloneDir, pEnginePath, pCopyPlugins
    local tVLCLib, tAppContents, tMacOS, tResources, tLibvlc, tLibvlccore
    local tVLCPlugins, tDestLibvlc, tDestLibvlccore, tVLCWin, tDest, tSrc
    if pPlatform begins with "MacOSX" then
@@ -3314,49 +3317,68 @@ command revSBCopyVLCToStandalone pPlatform, pStandaloneDir, pEnginePath
       put tAppContents & "/MacOS" into tMacOS
       put tAppContents & "/Resources/vlc-plugins" into tResources
       -- Copy dylibs
+      local tMacVLCR
       put tVLCLib & "/libvlc.dylib" into tLibvlc
       put tVLCLib & "/libvlccore.dylib" into tLibvlccore
       put tMacOS & "/libvlc.dylib" into tDest
-      shell "cp -f " & QUOTE & tLibvlc & QUOTE & " " & QUOTE & tDest & QUOTE
+      put shell("cp -f " & QUOTE & tLibvlc & QUOTE & " " & QUOTE & tDest & QUOTE) into tMacVLCR
       put tMacOS & "/libvlccore.dylib" into tDest
-      shell "cp -f " & QUOTE & tLibvlccore & QUOTE & " " & QUOTE & tDest & QUOTE
+      put shell("cp -f " & QUOTE & tLibvlccore & QUOTE & " " & QUOTE & tDest & QUOTE) into tMacVLCR
       -- Copy plugins
       put "/Applications/VLC.app/Contents/MacOS/plugins/" into tVLCPlugins
-      shell "mkdir -p " & QUOTE & tResources & QUOTE
+      put shell("mkdir -p " & QUOTE & tResources & QUOTE) into tMacVLCR
       put tResources & "/" into tDest
-      shell "cp -rn " & QUOTE & tVLCPlugins & QUOTE & " " & QUOTE & tDest & QUOTE
+      put shell("cp -rn " & QUOTE & tVLCPlugins & QUOTE & " " & QUOTE & tDest & QUOTE) into tMacVLCR
       -- Rewrite load paths so dylibs resolve relative to the bundle
       put tMacOS & "/libvlc.dylib" into tDestLibvlc
       put tMacOS & "/libvlccore.dylib" into tDestLibvlccore
-      shell "install_name_tool -change " & \
+      put shell("install_name_tool -change " & \
             "/Applications/VLC.app/Contents/MacOS/lib/libvlccore.dylib " & \
             "@executable_path/libvlccore.dylib " & \
-            QUOTE & tDestLibvlc & QUOTE
-      shell "install_name_tool -id @executable_path/libvlc.dylib " & QUOTE & tDestLibvlc & QUOTE
-      shell "install_name_tool -id @executable_path/libvlccore.dylib " & QUOTE & tDestLibvlccore & QUOTE
+            QUOTE & tDestLibvlc & QUOTE) into tMacVLCR
+      put shell("install_name_tool -id @executable_path/libvlc.dylib " & QUOTE & tDestLibvlc & QUOTE) into tMacVLCR
+      put shell("install_name_tool -id @executable_path/libvlccore.dylib " & QUOTE & tDestLibvlccore & QUOTE) into tMacVLCR
       -- Add @executable_path to the binary's rpath so @rpath/libvlc.dylib resolves
-      shell "install_name_tool -add_rpath @executable_path " & QUOTE & pEnginePath & QUOTE
+      put shell("install_name_tool -add_rpath @executable_path " & QUOTE & pEnginePath & QUOTE) into tMacVLCR
    else if pPlatform begins with "Windows" then
       put "C:\Program Files\VideoLAN\VLC" into tVLCWin
       if there is not a folder tVLCWin then
          revStandaloneProgress "VLC not found at " & tVLCWin & " - skipping VLC bundle."
          exit revSBCopyVLCToStandalone
       end if
+      -- Normalise the standalone dir to backslashes for cmd.exe/xcopy.
+      -- LiveCode paths use forward slashes on all platforms; xcopy needs backslashes.
+      local tWinDir, tVLCR
+      put pStandaloneDir into tWinDir
+      replace "/" with "\" in tWinDir
+      -- Ensure the destination directory exists before copying into it.
+      create folder tWinDir
+      -- Suppress the xcopy console window on Windows.
+      set the hideConsoleWindows to true
+      -- Always copy the two load-time DLLs.
       put tVLCWin & "\libvlc.dll" into tSrc
-      put pStandaloneDir & "\" into tDest
-      shell "xcopy /Y /Q " & QUOTE & tSrc & QUOTE & " " & QUOTE & tDest & QUOTE
+      put tWinDir & "\" into tDest
+      put shell("xcopy /Y /Q " & QUOTE & tSrc & QUOTE & " " & QUOTE & tDest & QUOTE) into tVLCR
       put tVLCWin & "\libvlccore.dll" into tSrc
-      shell "xcopy /Y /Q " & QUOTE & tSrc & QUOTE & " " & QUOTE & tDest & QUOTE
-      put tVLCWin & "\plugins" into tSrc
-      put pStandaloneDir & "\vlc-plugins\plugins" into tDest
-      shell "xcopy /E /I /Y /Q " & QUOTE & tSrc & QUOTE & " " & QUOTE & tDest & QUOTE
+      put shell("xcopy /Y /Q " & QUOTE & tSrc & QUOTE & " " & QUOTE & tDest & QUOTE) into tVLCR
+      -- Copy the plugins tree only when the project contains a player control.
+      if pCopyPlugins then
+         put tVLCWin & "\plugins" into tSrc
+         put tWinDir & "\vlc-plugins\plugins" into tDest
+         put shell("xcopy /E /I /Y /Q " & QUOTE & tSrc & QUOTE & " " & QUOTE & tDest & QUOTE) into tVLCR
+      end if
+      set the hideConsoleWindows to false
+      revStandaloneProgress "VLC runtime bundled."
    else if pPlatform begins with "Linux" then
+      -- Use 'get shell(...)' so a non-zero exit (e.g. no matching .so) is a warning, not a fatal throw.
       put pStandaloneDir & "/vlc-plugins/plugins" into tDest
-      shell "mkdir -p " & QUOTE & tDest & QUOTE
+      create folder tDest
       put pStandaloneDir & "/" into tDest
-      shell "cp -f /usr/lib/x86_64-linux-gnu/libvlc.so* " & QUOTE & tDest & QUOTE
-      shell "cp -f /usr/lib/x86_64-linux-gnu/libvlccore.so* " & QUOTE & tDest & QUOTE
+      get shell("cp -f /usr/lib/x86_64-linux-gnu/libvlc.so* " & QUOTE & tDest & QUOTE)
+      get shell("cp -f /usr/lib/x86_64-linux-gnu/libvlccore.so* " & QUOTE & tDest & QUOTE)
       put pStandaloneDir & "/vlc-plugins/plugins/" into tDest
-      shell "cp -rn /usr/lib/vlc/plugins/. " & QUOTE & tDest & QUOTE
+      get shell("cp -rn /usr/lib/vlc/plugins/. " & QUOTE & tDest & QUOTE)
+      revStandaloneProgress "VLC runtime bundled."
    end if
 end revSBCopyVLCToStandalone
+ 
