@@ -1629,7 +1629,7 @@ local sOpenedStacksA
 on ideOpenStack pCard
    local tStack
    put the long id of the owner of pCard into tStack
-   if tStack is the long id of stack sSampleFileName then
+   if sSampleFileName is not empty and tStack is the long id of stack sSampleFileName then
       ## Clear the filename to force the user to choose save location if saving the stack
       put the short name of tStack into sOpenedStacksA[sSampleFileName]
       set the filename of tStack to empty
