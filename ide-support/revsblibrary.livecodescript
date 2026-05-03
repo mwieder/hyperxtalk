@@ -3362,10 +3362,15 @@ command revSBCopyVLCToStandalone pPlatform, pStandaloneDir, pEnginePath, pCopyPl
       put tVLCWin & "\libvlccore.dll" into tSrc
       put shell("xcopy /Y /Q " & QUOTE & tSrc & QUOTE & " " & QUOTE & tDest & QUOTE) into tVLCR
       -- Copy the plugins tree only when the project contains a player control.
+      -- Destination is plugins\ next to libvlc.dll (the default VLC search path).
+      -- Delete plugins.dat after copying: the standalone folder may be in Program Files
+      -- where VLC cannot write, so the cache can never be updated. Leaving a stale
+      -- plugins.dat causes VLC to waste time parsing it before rescanning anyway.
       if pCopyPlugins then
          put tVLCWin & "\plugins" into tSrc
          put tWinDir & "\vlc-plugins\plugins" into tDest
          put shell("xcopy /E /I /Y /Q " & QUOTE & tSrc & QUOTE & " " & QUOTE & tDest & QUOTE) into tVLCR
+         delete file (tWinDir & "\vlc-plugins\plugins\plugins.dat")
       end if
       set the hideConsoleWindows to false
       revStandaloneProgress "VLC runtime bundled."

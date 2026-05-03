@@ -59,6 +59,7 @@ namespace x11 {
 #include <ctype.h>   // tolower — used in EnumProcessModules path comparison
 #include <io.h>      // _open_osfhandle, _dup2, _close
 #include <fcntl.h>   // _O_WRONLY, _O_TEXT
+#include <shlobj.h>  // SHGetFolderPathA, CSIDL_LOCAL_APPDATA, SHGFP_TYPE_CURRENT
 static void vlc_log(const char *fmt, ...)
 {
     static FILE *s_log = nullptr;
@@ -908,8 +909,45 @@ bool MCVLCPlayer::EnsureVLCInstance()
     PVOID t_veh = AddVectoredExceptionHandler(1 /*first*/, vlc_crash_veh);
     vlc_log("[VLC] VEH installed: %p\n", t_veh);
 
-    // --no-plugins-cache prevents VLC from trying to write plugins.dat into
-    // the plugins directory, which fails when running from Program Files.
+    // Build a --cache-file path inside %LOCALAPPDATA%\<AppName>\Cache\ so VLC
+    // can persist its plugin scan results across launches.  This avoids the
+    // 5-10 second rescan that occurs with --no-plugins-cache, and keeps the
+    // cache in a user-writable location rather than next to the executable
+    // (which may be in the protected Program Files directory).
+    // The folder name is derived from the executable name so each standalone
+    // app gets its own cache and there is no dependency on HyperXTalk itself.
+    static char s_cache_file_arg[MAX_PATH + 32];
+    s_cache_file_arg[0] = '\0';
+    {
+        char t_local_appdata[MAX_PATH];
+        if (SHGetFolderPathA(NULL, CSIDL_LOCAL_APPDATA, NULL, SHGFP_TYPE_CURRENT,
+                             t_local_appdata) == S_OK)
+        {
+            // Get the exe filename and strip the .exe extension.
+            char t_exe_full[MAX_PATH];
+            char t_app_name[MAX_PATH] = "HyperXTalkApp";
+            if (GetModuleFileNameA(NULL, t_exe_full, MAX_PATH))
+            {
+                char *t_fname = strrchr(t_exe_full, '\\');
+                t_fname = t_fname ? t_fname + 1 : t_exe_full;
+                strncpy(t_app_name, t_fname, sizeof(t_app_name) - 1);
+                char *t_dot = strrchr(t_app_name, '.');
+                if (t_dot) *t_dot = '\0';
+            }
+            // Ensure the cache directory exists, creating parent folders as needed.
+            char t_cache_dir[MAX_PATH];
+            char t_app_dir[MAX_PATH];
+            snprintf(t_app_dir,   sizeof(t_app_dir),   "%s\\%s",        t_local_appdata, t_app_name);
+            snprintf(t_cache_dir, sizeof(t_cache_dir), "%s\\%s\\Cache", t_local_appdata, t_app_name);
+            CreateDirectoryA(t_app_dir,   NULL); // no-op if already exists
+            CreateDirectoryA(t_cache_dir, NULL); // no-op if already exists
+            snprintf(s_cache_file_arg, sizeof(s_cache_file_arg),
+                     "--cache-file=%s\\vlc-plugins.dat", t_cache_dir);
+        }
+    }
+    vlc_log("[VLC] cache file arg: %s\n",
+            s_cache_file_arg[0] ? s_cache_file_arg : "(none, falling back to --no-plugins-cache)");
+
     // --verbose=2 makes VLC write its init diagnostics to stderr (now a file).
     // vlc_new_safe wraps libvlc_new in an SEH handler so any internal crash
     // is caught and logged rather than silently returning null.
@@ -917,7 +955,7 @@ bool MCVLCPlayer::EnsureVLCInstance()
         "--verbose=2",
         "--no-osd",
         "--no-stats",
-        "--no-plugins-cache",
+        s_cache_file_arg[0] ? s_cache_file_arg : "--no-plugins-cache",
         s_plugin_path_arg[0] ? s_plugin_path_arg : "--no-plugins-scan",
     };
     s_vlc_instance = vlc_new_safe(5, t_args_win);
@@ -981,7 +1019,7 @@ bool MCVLCPlayer::EnsureVLCInstance()
             const char *t_args_sys[] = {
                 "--no-osd",
                 "--no-stats",
-                "--no-plugins-cache",
+                s_cache_file_arg[0] ? s_cache_file_arg : "--no-plugins-cache",
             };
             s_vlc_instance = vlc_new_safe(3, t_args_sys);
             vlc_log("[VLC] libvlc_new (system plugins) -> %p  errmsg: %s\n",
