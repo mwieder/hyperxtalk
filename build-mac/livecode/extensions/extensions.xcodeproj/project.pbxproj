@@ -285,7 +285,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-
 		04FA25B2422B6A6D22927BB9 /* spinner.lcb */ = {isa = PBXFileReference; lastKnownFileType = text; path = spinner.lcb; sourceTree = "<group>"; };
 		055458572DDDDCC68F999E70 /* macbutton.lcb */ = {isa = PBXFileReference; lastKnownFileType = text; path = macbutton.lcb; sourceTree = "<group>"; };
 		080E694909697B21303227BC /* emscripten.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; name = emscripten.gypi; path = ../config/emscripten.gypi; sourceTree = "<group>"; };
@@ -519,7 +518,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-
 		60D9C84BCE5D008C76ACE7C0 /* script-libraries */ = {
 			isa = PBXGroup;
 			children = (
@@ -592,28 +590,6 @@
 				AC1A3DD93DB06E605B0186F8 /* iconsvg.lcb */,
 			);
 			path = iconsvg;
-			sourceTree = "<group>";
-		};
-		7062D07CAB3232BEAC027BA9 /* libraries */ = {
-			isa = PBXGroup;
-			children = (
-				E821D02578CB81C23B1731A9 /* canvas */,
-				7045E98444D8ED188924CA43 /* iconsvg */,
-				BCB58FCE91D48A1A19F31D8E /* ini */,
-				82F4A7FC27905018637EDCFD /* json */,
-				AD62BE68DFA3F8DBBAAF96A5 /* macoscontacts */,
-				F7B65F081291150253B0BF40 /* macosdock */,
-				DB8D45A95FC25C912075673A /* macosfsevents */,
-				88225E9F34D9C89E8C985E32 /* macoskeychain */,
-				08C26ADA143E786B840C3673 /* macosmenubar */,
-				95DBA3302A7F5EF317476834 /* macosrequestuserattention */,
-
-				C93011A05830F3FB1BBC4134 /* macoswindowresizeanimation */,
-				3A6144ACA15A44D24952664C /* macstatusmenu */,
-				96AC3424D5160F898744D5A8 /* objectrepository */,
-				EF048964F9D832D12E51B4E7 /* timezone */,
-			);
-			path = libraries;
 			sourceTree = "<group>";
 		};
 		7266BBBA680580B8D6BE7C2F /* Products */ = {
@@ -704,7 +680,7 @@
 			children = (
 				FAE473DD255136C9E5E1D437 /* .. */,
 				05E3C8AFA752C5626BCAD914 /* BUILT_PRODUCTS_DIR */,
-				7062D07CAB3232BEAC027BA9 /* libraries */,
+				9BA5710AF51B6BF47D214844 /* libraries */,
 				25E8F2B132C5DCBFEFA7FF0D /* modules */,
 				60D9C84BCE5D008C76ACE7C0 /* script-libraries */,
 				EA63B93248183172BE5C3531 /* widgets */,
@@ -743,6 +719,27 @@
 				8C33398F99668CE3C1500204 /* objectrepository.lcb */,
 			);
 			path = objectrepository;
+			sourceTree = "<group>";
+		};
+		9BA5710AF51B6BF47D214844 /* libraries */ = {
+			isa = PBXGroup;
+			children = (
+				E821D02578CB81C23B1731A9 /* canvas */,
+				7045E98444D8ED188924CA43 /* iconsvg */,
+				BCB58FCE91D48A1A19F31D8E /* ini */,
+				82F4A7FC27905018637EDCFD /* json */,
+				AD62BE68DFA3F8DBBAAF96A5 /* macoscontacts */,
+				F7B65F081291150253B0BF40 /* macosdock */,
+				DB8D45A95FC25C912075673A /* macosfsevents */,
+				88225E9F34D9C89E8C985E32 /* macoskeychain */,
+				08C26ADA143E786B840C3673 /* macosmenubar */,
+				95DBA3302A7F5EF317476834 /* macosrequestuserattention */,
+				C93011A05830F3FB1BBC4134 /* macoswindowresizeanimation */,
+				3A6144ACA15A44D24952664C /* macstatusmenu */,
+				96AC3424D5160F898744D5A8 /* objectrepository */,
+				EF048964F9D832D12E51B4E7 /* timezone */,
+			);
+			path = libraries;
 			sourceTree = "<group>";
 		};
 		A1EF15F52C81855B78B3E1DD /* Projects */ = {
@@ -1225,8 +1222,6 @@
 				libraries/macosfsevents/macosfsevents.lcb,
 				libraries/macoskeychain/macoskeychain.lcb,
 				libraries/macosmenubar/macosmenubar.lcb,
-				libraries/macostoolbar/macostoolbar.lcb,
-				libraries/macosusernotifications/macosusernotifications.lcb,
 				widgets/macbutton/macbutton.lcb,
 				widgets/mactextfield/mactextfield.lcb,
 				widgets/iosbutton/iosbutton.lcb,
@@ -1252,7 +1247,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "echo note: \"Building extensions\"\nexec \"${BUILT_PRODUCTS_DIR}/server-community\" script-libraries/extension-utils/resources/extension-utils.lc \"${not_a_real_variable}buildlcbextensions\" ../ide-support/revdocsparser.livecodescript \"${BUILT_PRODUCTS_DIR}/packaged_extensions\" \"${not_a_real_variable}false\" \"${BUILT_PRODUCTS_DIR}/lc-compile\" \"${BUILT_PRODUCTS_DIR}/modules/lci\" \"${not_a_real_variable}\" modules/widget-utils/widget-utils.lcb modules/scriptitems/scriptitems.lcb libraries/canvas/canvas.lcb libraries/iconsvg/iconsvg.lcb libraries/json/json.lcb libraries/objectrepository/objectrepository.lcb libraries/ini/ini.lcb libraries/timezone/timezone.lcb libraries/macstatusmenu/macstatusmenu.lcb libraries/macoswindowresizeanimation/macoswindowresizeanimation.lcb libraries/macosrequestuserattention/macosrequestuserattention.lcb libraries/macoscontacts/macoscontacts.lcb libraries/macosdock/macosdock.lcb libraries/macosfsevents/macosfsevents.lcb libraries/macoskeychain/macoskeychain.lcb libraries/macosmenubar/macosmenubar.lcb libraries/macostoolbar/macostoolbar.lcb libraries/macosusernotifications/macosusernotifications.lcb widgets/macbutton/macbutton.lcb widgets/mactextfield/mactextfield.lcb widgets/iosbutton/iosbutton.lcb widgets/browser/browser.lcb widgets/clock/clock.lcb widgets/graph/graph.lcb widgets/header/header.lcb widgets/iconpicker/iconpicker.lcb widgets/navbar/navbar.lcb widgets/paletteactions/paletteactions.lcb widgets/segmented/segmented.lcb widgets/svgpath/svgpath.lcb widgets/switchbutton/switchbutton.lcb widgets/treeview/treeview.lcb widgets/colorswatch/colorswatch.lcb widgets/gradientrampeditor/gradientrampeditor.lcb widgets/tile/tile.lcb widgets/spinner/spinner.lcb\nexit 1\n";
+			shellScript = "echo note: \"Building extensions\"\nexec \"${BUILT_PRODUCTS_DIR}/server-community\" script-libraries/extension-utils/resources/extension-utils.lc \"${not_a_real_variable}buildlcbextensions\" ../ide-support/revdocsparser.livecodescript \"${BUILT_PRODUCTS_DIR}/packaged_extensions\" \"${not_a_real_variable}false\" \"${BUILT_PRODUCTS_DIR}/lc-compile\" \"${BUILT_PRODUCTS_DIR}/modules/lci\" \"${not_a_real_variable}\" modules/widget-utils/widget-utils.lcb modules/scriptitems/scriptitems.lcb libraries/canvas/canvas.lcb libraries/iconsvg/iconsvg.lcb libraries/json/json.lcb libraries/objectrepository/objectrepository.lcb libraries/ini/ini.lcb libraries/timezone/timezone.lcb libraries/macstatusmenu/macstatusmenu.lcb libraries/macoswindowresizeanimation/macoswindowresizeanimation.lcb libraries/macosrequestuserattention/macosrequestuserattention.lcb libraries/macoscontacts/macoscontacts.lcb libraries/macosdock/macosdock.lcb libraries/macosfsevents/macosfsevents.lcb libraries/macoskeychain/macoskeychain.lcb libraries/macosmenubar/macosmenubar.lcb widgets/macbutton/macbutton.lcb widgets/mactextfield/mactextfield.lcb widgets/iosbutton/iosbutton.lcb widgets/browser/browser.lcb widgets/clock/clock.lcb widgets/graph/graph.lcb widgets/header/header.lcb widgets/iconpicker/iconpicker.lcb widgets/navbar/navbar.lcb widgets/paletteactions/paletteactions.lcb widgets/segmented/segmented.lcb widgets/svgpath/svgpath.lcb widgets/switchbutton/switchbutton.lcb widgets/treeview/treeview.lcb widgets/colorswatch/colorswatch.lcb widgets/gradientrampeditor/gradientrampeditor.lcb widgets/tile/tile.lcb widgets/spinner/spinner.lcb\nexit 1\n";
 			showEnvVarsInLog = 0;
 		};
 		D23FCBCA2BD88F099B34123D /* Rule "build_script_extension" */ = {
