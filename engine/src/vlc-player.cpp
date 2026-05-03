@@ -306,6 +306,35 @@ extern "C" void  MCVLCDestroyNSView(void *p_view);
 extern "C" void  MCVLCReparentNSView(void *p_view, void *p_parent_view);
 extern "C" void  MCVLCSyncNSView(void *p_view,
                                   MCRectangle p_rect, bool p_visible);
+extern "C" void  MCVLCSetFrameReadyCallback(void *p_view,
+                                             void (*p_callback)(void *),
+                                             void  *p_opaque);
+extern "C" bool  MCVLCViewHasNonZeroFrame(void *p_view);
+extern "C" bool  MCVLCViewHasWindow(void *p_view);
+#endif
+
+// ---------------------------------------------------------------------------
+// VLC internal log relay (macOS only — helps diagnose vout failures)
+// ---------------------------------------------------------------------------
+#if defined(TARGET_PLATFORM_MACOS_X)
+static void vlc_internal_log_cb(void * /*data*/, int level,
+                                 const libvlc_log_t * /*ctx*/,
+                                 const char *fmt, va_list args)
+{
+    // Relay warnings and errors to our own stderr log so we can see VLC's
+    // own vout/audio error messages without full verbose spam.
+    if (level < LIBVLC_WARNING)
+        return;
+    char t_buf[512];
+    vsnprintf(t_buf, sizeof(t_buf), fmt, args);
+    // Strip trailing newline for consistency with our vlc_log() style.
+    size_t t_len = strlen(t_buf);
+    if (t_len > 0 && t_buf[t_len - 1] == '\n')
+        t_buf[t_len - 1] = '\0';
+    const char *t_lvl = (level == LIBVLC_ERROR) ? "ERR" :
+                        (level == LIBVLC_WARNING) ? "WRN" : "INF";
+    vlc_log("[VLC-internal %s] %s\n", t_lvl, t_buf);
+}
 #endif
 
 // ---------------------------------------------------------------------------
@@ -387,12 +416,21 @@ bool MCVLCPlayer::EnsureVLCInstance()
             setenv("VLC_PLUGIN_PATH", t_vlc_flat, 1);
     }
 
+    // Guard: with -weak_library the symbol address is NULL if VLC.app is absent
+    // and the standalone did not bundle the dylibs.  Return false gracefully so
+    // player controls simply don't play rather than crashing.
+    if (&libvlc_new == nullptr)
+        return false;
+
+    // Note: --quiet is intentionally omitted so libvlc_log_set() can relay
+    // vout error/warning messages via vlc_internal_log_cb() above.
     const char *t_args_mac[] = {
-        "--quiet",
         "--no-osd",
         "--no-stats",
     };
-    s_vlc_instance = libvlc_new(3, t_args_mac);
+    s_vlc_instance = libvlc_new(2, t_args_mac);
+    if (s_vlc_instance != nullptr)
+        libvlc_log_set(s_vlc_instance, vlc_internal_log_cb, nullptr);
 #elif defined(TARGET_PLATFORM_WINDOWS)
     static char s_plugin_path_arg[MAX_PATH + 32];
     s_plugin_path_arg[0] = '\0';
@@ -848,6 +886,21 @@ bool MCVLCPlayer::EnsureVLCInstance()
         vlc_log("[VLC] --- end logger plugin load tests ---\n");
     }
 
+    // Guard: with /DELAYLOAD:libvlc.dll the import thunk resolves on first
+    // call.  If libvlc.dll is absent the thunk raises a structured exception
+    // before vlc_new_safe's __try is in scope.  A GetProcAddress probe on the
+    // already-loaded module handle detects absence without triggering SEH.
+    {
+        HMODULE t_hmod = LoadLibraryExA("libvlc.dll", NULL,
+                                        LOAD_LIBRARY_AS_DATAFILE);
+        if (t_hmod == NULL)
+        {
+            vlc_log("[VLC] libvlc.dll not found — VLC not bundled, skipping init\n");
+            return false;
+        }
+        FreeLibrary(t_hmod);
+    }
+
     // Install the VEH so we capture crash addresses from ALL libvlc_new
     // attempts below, even when VLC's own __try/__except swallows the fault.
     PVOID t_veh = AddVectoredExceptionHandler(1 /*first*/, vlc_crash_veh);
@@ -1233,10 +1286,12 @@ void MCVLCPlayer::ReleaseVLCInstance()
     if (s_vlc_refcount == 0)
         return;
     s_vlc_refcount--;
-#if defined(TARGET_PLATFORM_WINDOWS)
-    // Keep the VLC instance alive as a process-wide singleton on Windows.
-    // libvlc_release tears down VLC's D3D context; re-initializing it in the
-    // same process is racy and causes video output failure on the next open.
+#if defined(TARGET_PLATFORM_WINDOWS) || defined(TARGET_PLATFORM_MACOS_X)
+    // Keep the VLC instance alive as a process-wide singleton.
+    // libvlc_release tears down VLC's platform video output modules
+    // (D3D on Windows, AVFoundation/vout on macOS); re-initializing them
+    // via a second libvlc_new in the same process is racy and causes
+    // video output failure on the next open (blank frame, no render).
     // The OS reclaims all resources on process exit.
     (void)s_vlc_instance; // intentionally not released
 #else
@@ -1312,6 +1367,9 @@ MCVLCPlayer::MCVLCPlayer()
     // Create the platform-specific native view.
 #if defined(TARGET_PLATFORM_MACOS_X)
     m_view = MCVLCCreateNSView();
+    m_needs_vout_reattach = false;
+    m_play_pending_mac    = false;
+    m_pending_rate_mac    = 1.0;
 #endif
 }
 
@@ -1410,7 +1468,15 @@ MCVLCPlayer::~MCVLCPlayer()
 void MCVLCPlayer::Realize()
 {
     AttachNativeView();
-#if defined(TARGET_PLATFORM_WINDOWS)
+#if defined(TARGET_PLATFORM_MACOS_X)
+    // Arm the deferred vout re-attach.  VLC's macOS vout module requires the
+    // NSView to be in a live window AND have a non-zero frame when it
+    // initializes its OpenGL context.  At this point the view is not yet
+    // embedded, so the initial AttachNativeView() call above will not produce
+    // working video.  Synchronize() checks this flag and performs a
+    // nil → view re-attach once both conditions are met.
+    m_needs_vout_reattach = true;
+#elif defined(TARGET_PLATFORM_WINDOWS)
     // Unrealize() hides the HWND with SW_HIDE.  Re-show it here so that
     // VLC's D3D vout has a visible surface to render into when Start() is
     // called.  (WS_VISIBLE alone is not enough after an explicit SW_HIDE.)
@@ -1427,6 +1493,8 @@ void MCVLCPlayer::Unrealize()
         return;
 
 #if defined(TARGET_PLATFORM_MACOS_X)
+    m_needs_vout_reattach = false;
+    m_play_pending_mac    = false;  // cancel any pending deferred play
     MCVLCSyncNSView(m_view,
                     MCRectangleMake(0, 0, 0, 0),
                     false);
@@ -1443,7 +1511,30 @@ void MCVLCPlayer::Synchronize()
 
 #if defined(TARGET_PLATFORM_MACOS_X)
     if (m_view != nullptr)
+    {
         MCVLCSyncNSView(m_view, m_rect, m_visible);
+
+        // Deferred vout re-attach: VLC's macOS vout (OpenGL) silently fails
+        // to initialize when libvlc_media_player_set_nsobject() is called
+        // before the NSView is in a live window.  We wait until Synchronize
+        // is called with a valid, visible rect AND the view is in a window,
+        // then do a nil → view re-attach to force VLC to tear down its
+        // degenerate vout state and reinitialize with a properly sized,
+        // window-backed view.  This mirrors the Windows nil → hwnd re-attach
+        // that is triggered by WM_SIZE.
+        if (m_needs_vout_reattach
+            && m_player != nullptr
+            && m_visible
+            && m_rect.width  > 0
+            && m_rect.height > 0
+            && MCVLCViewHasWindow(m_view))
+        {
+            m_needs_vout_reattach = false;
+            vlc_log("[VLC] Synchronize: deferred vout re-attach (nil → view)\n");
+            libvlc_media_player_set_nsobject(m_player, nullptr);
+            libvlc_media_player_set_nsobject(m_player, m_view);
+        }
+    }
 #elif defined(TARGET_PLATFORM_WINDOWS)
     // On Windows, MCNativeLayerWin32::doAttach() re-parents m_view into a
     // viewport container HWND and manages geometry + visibility via MoveWindow.
@@ -1469,6 +1560,29 @@ void MCVLCPlayer::Synchronize()
     }
 #endif
 }
+
+#if defined(TARGET_PLATFORM_MACOS_X)
+// Fired (async, on the main queue) by MCVLCPlayerView::setFrame: the first
+// time its frame becomes non-zero.  At this point MCNativeLayerMac has applied
+// the deferred player rect, so VLC's macOS vout can create a properly-sized
+// GL surface.  We do the nil → view re-attach to ensure a clean vout init, then
+// start play.
+/*static*/ void MCVLCPlayer::OnFrameReady(void *p_opaque)
+{
+    MCVLCPlayer *self = static_cast<MCVLCPlayer *>(p_opaque);
+    if (self == nullptr || !self->m_play_pending_mac)
+        return;
+    if (self->m_player == nullptr || self->m_view == nullptr)
+        return;
+
+    self->m_play_pending_mac = false;
+    vlc_log("[VLC] OnFrameReady: frame is now non-zero — starting deferred play\n");
+    libvlc_media_player_set_nsobject(self->m_player, nullptr);
+    libvlc_media_player_set_nsobject(self->m_player, self->m_view);
+    libvlc_media_player_play(self->m_player);
+    libvlc_media_player_set_rate(self->m_player, (float)self->m_pending_rate_mac);
+}
+#endif
 
 void MCVLCPlayer::AttachNativeView()
 {
@@ -2169,6 +2283,9 @@ void MCVLCPlayer::Start(double rate)
                 t_pr.right - t_pr.left, t_pr.bottom - t_pr.top,
                 (int)t_par_vis);
     }
+#elif defined(TARGET_PLATFORM_MACOS_X)
+    vlc_log("[VLC] Start(rate=%.2f) m_player=%p m_view=%p inWindow=%d\n",
+            rate, (void *)m_player, m_view, (int)MCVLCViewHasWindow(m_view));
 #else
     vlc_log("[VLC] Start(rate=%.2f) m_player=%p m_view=%p\n",
             rate, (void *)m_player, m_view);
@@ -2236,6 +2353,56 @@ void MCVLCPlayer::Start(double rate)
         vlc_log("[VLC] Start: re-set xwindow=%u\n", t_xid);
     }
 #endif
+
+#if defined(TARGET_PLATFORM_MACOS_X)
+    // On macOS, libvlc_media_player_set_nsobject() is NOT called in the normal
+    // open flow (MCNativeLayerMac sets the view's frame/visibility directly,
+    // bypassing the MCVLCPlayer API).  We must call it here before play.
+    //
+    // Critical timing issue: MCNativeLayer::m_defer_geometry_changes starts
+    // true and m_rect starts {0,0,0,0}.  doAttach() calls doSetGeometry(0,0,0,0)
+    // — so the NSView's frame is ZERO when open() → attachplayer() → Start()
+    // fires.  The actual player rect lives in m_deferred_rect and is applied
+    // asynchronously during the first OnPaint() cycle.  If we call
+    // libvlc_media_player_play() now, VLC's macosx vout creates a zero-size GL
+    // surface and silently fails to render video (audio still works because it
+    // uses a separate output pipeline that doesn't need a view).
+    //
+    // Fix: if the view's frame is non-zero we play immediately.  Otherwise we
+    // arm a one-shot setFrame: callback on MCVLCPlayerView; when OnPaint()
+    // applies the deferred rect and calls [view setFrame: actualRect], the
+    // callback fires (async, to avoid re-entering AppKit's layout pass) and
+    // starts VLC at that safe moment.
+    if (!m_offscreen && m_view != nullptr)
+    {
+        bool t_has_frame  = MCVLCViewHasNonZeroFrame(m_view);
+        bool t_has_window = MCVLCViewHasWindow(m_view);
+        vlc_log("[VLC] Start: NSView %p inWindow=%d hasFrame=%d\n",
+                m_view, (int)t_has_window, (int)t_has_frame);
+
+        // Always defer play to the next run-loop turn via the frame-ready
+        // mechanism, regardless of whether the frame is already non-zero.
+        //
+        // When hasFrame=0 (first open): MCVLCSetFrameReadyCallback arms the
+        // setFrame: callback and play happens when the native layer applies its
+        // deferred geometry.
+        //
+        // When hasFrame=1 (reopen): MCVLCSetFrameReadyCallback detects the
+        // frame is already valid and dispatches the callback on the next
+        // main-queue turn.  The one-turn deferral lets AppKit finish all
+        // pending layout and compositing operations before VLC initialises its
+        // vout surface.  Playing immediately in this case caused VLC's macOS
+        // vout to silently fail even though set_nsobject and the frame were
+        // both correct.
+        vlc_log("[VLC] Start: deferring play (hasFrame=%d)\n", (int)t_has_frame);
+        m_play_pending_mac = true;
+        m_pending_rate_mac = rate;
+        MCVLCSetFrameReadyCallback(m_view, OnFrameReady, this);
+        m_playing = true;
+        return;
+    }
+#endif
+
     libvlc_media_player_play(m_player);
     libvlc_media_player_set_rate(m_player, (float)rate);
     m_playing = true;

@@ -1780,7 +1780,7 @@ private function revSBAvailableResources
    local tInclusions, tResources
    put kResources into tResources
    split tResources by "," and "|"
-   
+
    repeat for each key tTitle in tResources
       local tInclusion
       put tResources[tTitle] into tInclusion["id"]
@@ -1789,6 +1789,16 @@ private function revSBAvailableResources
       put revSBAllDesktopPlatforms() into tInclusion["platforms"]
       addToList tInclusion, tInclusions
    end repeat
+
+   -- VLC Player: special resource — only shown when desktop platforms are targeted.
+   -- The standalone builder copies the VLC runtime when this is enabled.
+   local tVLC
+   put "vlcPlayer" into tVLC["id"]
+   put "VLC Player" into tVLC["title"]
+   put "resource" into tVLC["type"]
+   put revSBAllDesktopPlatforms() into tVLC["platforms"]
+   addToList tVLC, tInclusions
+
    return tInclusions
 end revSBAvailableResources
 
@@ -3232,3 +3242,121 @@ command revSBSetSettings pStack, pSettings
    set the customProperties["cRevStandaloneSettings"] of stack \
          (the mainstack of stack pStack) to pSettings
 end revSBSetSettings
+
+/**
+Summary: Returns true if the target stack (or any substack/card) contains a player control.
+
+Parameters:
+pStack: The name of the mainstack to scan.
+
+Returns: true if at least one player control is found, false otherwise.
+
+Description:
+Walks every stack in the stackfile, every card, and every control looking for
+controls whose type is "player". Used by the standalone settings inclusions panel
+to auto-enable the VLC Player resource when the project contains media playback.
+*/
+function revSBProjectHasPlayerControls pStackFileList
+   local tStackFile, tStacksList, tStack, tCardNum, tCard, tControlNum, tControl
+   repeat for each line tStackFile in pStackFileList
+      if tStackFile is empty then next repeat
+      if there is not a file tStackFile then next repeat
+      put the short name of stack tStackFile & return & the substacks of stack tStackFile into tStacksList
+      repeat for each line tStack in tStacksList
+         if tStack is empty then next repeat
+         put the number of cards of stack tStack into tCardNum
+         repeat with tCard = 1 to tCardNum
+            put the number of controls of cd tCard of stack tStack into tControlNum
+            repeat with tControl = 1 to tControlNum
+               if the type of control tControl of cd tCard of stack tStack is "player" then
+                  return true
+               end if
+            end repeat
+         end repeat
+      end repeat
+   end repeat
+   return false
+end revSBProjectHasPlayerControls
+
+/**
+Summary: Copies the VLC runtime into a standalone application folder.
+
+Parameters:
+pPlatform:      The target platform string (e.g. "macos", "windows", "linux").
+pStandaloneDir: The folder that contains the standalone executable.
+pEnginePath:    The full path to the standalone executable (used on macOS for install_name_tool).
+
+Description:
+Bundles the VLC shared libraries and plugin tree into the standalone so the end
+user does not need VLC installed separately.
+
+- macOS: copies libvlc.dylib + libvlccore.dylib into <app>/Contents/MacOS/ and
+  the plugins tree into <app>/Contents/Resources/vlc-plugins/, then rewrites the
+  dylib load paths with install_name_tool.
+- Windows: copies libvlc.dll + libvlccore.dll alongside the exe and the plugins
+  tree into <exe-dir>\vlc-plugins\.
+- Linux: copies libvlc.so + libvlccore.so alongside the exe and the plugins tree
+  into <exe-dir>/vlc-plugins/.
+*/
+command revSBCopyVLCToStandalone pPlatform, pStandaloneDir, pEnginePath
+   local tVLCLib, tAppContents, tMacOS, tResources, tLibvlc, tLibvlccore
+   local tVLCPlugins, tDestLibvlc, tDestLibvlccore, tVLCWin, tDest, tSrc
+   if pPlatform begins with "MacOSX" then
+      put "/Applications/VLC.app/Contents/MacOS/lib" into tVLCLib
+      if there is not a folder tVLCLib then
+         revStandaloneProgress "VLC not found at " & tVLCLib & " - skipping VLC bundle."
+         exit revSBCopyVLCToStandalone
+      end if
+      -- Determine the .app bundle root (go up from Contents/MacOS)
+      set the itemDelimiter to slash
+      put item 1 to -3 of pStandaloneDir & "/Contents" into tAppContents
+      set the itemDelimiter to ","
+      put tAppContents & "/MacOS" into tMacOS
+      put tAppContents & "/Resources/vlc-plugins" into tResources
+      -- Copy dylibs
+      put tVLCLib & "/libvlc.dylib" into tLibvlc
+      put tVLCLib & "/libvlccore.dylib" into tLibvlccore
+      put tMacOS & "/libvlc.dylib" into tDest
+      shell "cp -f " & QUOTE & tLibvlc & QUOTE & " " & QUOTE & tDest & QUOTE
+      put tMacOS & "/libvlccore.dylib" into tDest
+      shell "cp -f " & QUOTE & tLibvlccore & QUOTE & " " & QUOTE & tDest & QUOTE
+      -- Copy plugins
+      put "/Applications/VLC.app/Contents/MacOS/plugins/" into tVLCPlugins
+      shell "mkdir -p " & QUOTE & tResources & QUOTE
+      put tResources & "/" into tDest
+      shell "cp -rn " & QUOTE & tVLCPlugins & QUOTE & " " & QUOTE & tDest & QUOTE
+      -- Rewrite load paths so dylibs resolve relative to the bundle
+      put tMacOS & "/libvlc.dylib" into tDestLibvlc
+      put tMacOS & "/libvlccore.dylib" into tDestLibvlccore
+      shell "install_name_tool -change " & \
+            "/Applications/VLC.app/Contents/MacOS/lib/libvlccore.dylib " & \
+            "@executable_path/libvlccore.dylib " & \
+            QUOTE & tDestLibvlc & QUOTE
+      shell "install_name_tool -id @executable_path/libvlc.dylib " & QUOTE & tDestLibvlc & QUOTE
+      shell "install_name_tool -id @executable_path/libvlccore.dylib " & QUOTE & tDestLibvlccore & QUOTE
+      -- Add @executable_path to the binary's rpath so @rpath/libvlc.dylib resolves
+      shell "install_name_tool -add_rpath @executable_path " & QUOTE & pEnginePath & QUOTE
+   else if pPlatform begins with "Windows" then
+      put "C:\Program Files\VideoLAN\VLC" into tVLCWin
+      if there is not a folder tVLCWin then
+         revStandaloneProgress "VLC not found at " & tVLCWin & " - skipping VLC bundle."
+         exit revSBCopyVLCToStandalone
+      end if
+      put tVLCWin & "\libvlc.dll" into tSrc
+      put pStandaloneDir & "\" into tDest
+      shell "xcopy /Y /Q " & QUOTE & tSrc & QUOTE & " " & QUOTE & tDest & QUOTE
+      put tVLCWin & "\libvlccore.dll" into tSrc
+      shell "xcopy /Y /Q " & QUOTE & tSrc & QUOTE & " " & QUOTE & tDest & QUOTE
+      put tVLCWin & "\plugins" into tSrc
+      put pStandaloneDir & "\vlc-plugins\plugins" into tDest
+      shell "xcopy /E /I /Y /Q " & QUOTE & tSrc & QUOTE & " " & QUOTE & tDest & QUOTE
+   else if pPlatform begins with "Linux" then
+      put pStandaloneDir & "/vlc-plugins/plugins" into tDest
+      shell "mkdir -p " & QUOTE & tDest & QUOTE
+      put pStandaloneDir & "/" into tDest
+      shell "cp -f /usr/lib/x86_64-linux-gnu/libvlc.so* " & QUOTE & tDest & QUOTE
+      shell "cp -f /usr/lib/x86_64-linux-gnu/libvlccore.so* " & QUOTE & tDest & QUOTE
+      put pStandaloneDir & "/vlc-plugins/plugins/" into tDest
+      shell "cp -rn /usr/lib/vlc/plugins/. " & QUOTE & tDest & QUOTE
+   end if
+end revSBCopyVLCToStandalone

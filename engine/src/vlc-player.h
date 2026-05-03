@@ -80,6 +80,13 @@ private:
     // -- VLC event callbacks (called on VLC internal thread) -----------------
     static void OnVLCEvent(const struct libvlc_event_t *p_event, void *p_opaque);
 
+#if defined(TARGET_PLATFORM_MACOS_X)
+    // Called (on main thread, async) by MCVLCPlayerView when its frame first
+    // becomes non-zero.  Starts the deferred libvlc_media_player_play() so
+    // VLC's vout initializes with a properly-sized NSView.
+    static void OnFrameReady(void *p_opaque);
+#endif
+
 #if defined(TARGET_PLATFORM_WINDOWS)
     // WndProc for the VLC render-surface HWND.  Handles WM_SIZE so that
     // VLC's D3D vout is reattached when MCNativeLayerWin32 resizes the
@@ -119,6 +126,17 @@ private:
     void *m_view;       // NSView* on Mac, HWND on Win, X11 Window on Linux
 #if defined(TARGET_PLATFORM_LINUX)
     unsigned long m_colormap;
+#endif
+#if defined(TARGET_PLATFORM_MACOS_X)
+    // Set by Realize(), cleared by Unrealize() and Synchronize() once both
+    // conditions (in-window, non-zero frame) are met.
+    bool m_needs_vout_reattach;
+
+    // Deferred play state.  Set by Start() when the native layer's initial
+    // frame is still {0,0,0,0} (deferred geometry).  OnFrameReady() starts
+    // play when the first non-zero frame is applied by MCNativeLayerMac.
+    bool   m_play_pending_mac;
+    double m_pending_rate_mac;
 #endif
 
     // -- Playback state ------------------------------------------------------

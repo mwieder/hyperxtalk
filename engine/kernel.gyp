@@ -210,15 +210,17 @@
                         },
                     ],
 					[
-						# VLC: link against libvlc from VLC.app on macOS.
+						# VLC: weakly link libvlc/libvlccore from VLC.app on macOS.
+						# Weak linking lets standalones that do not bundle VLC still
+						# launch; EnsureVLCInstance() guards every symbol before use.
 						'OS == "mac"',
 						{
 							'xcode_settings':
 							{
 								'OTHER_LDFLAGS':
 								[
-									'/Applications/VLC.app/Contents/MacOS/lib/libvlc.dylib',
-									'/Applications/VLC.app/Contents/MacOS/lib/libvlccore.dylib',
+									'-weak_library /Applications/VLC.app/Contents/MacOS/lib/libvlc.dylib',
+									'-weak_library /Applications/VLC.app/Contents/MacOS/lib/libvlccore.dylib',
 								],
 							},
 						},
@@ -235,13 +237,22 @@
 						},
 					],
 					[
-						# VLC: link against libvlc.lib from the Windows SDK
+						# VLC: delay-load libvlc.dll on Windows so standalones that do
+						# not bundle VLC still launch; EnsureVLCInstance() is the only
+						# call site and returns false gracefully when symbols are null.
 						'OS == "win"',
 						{
 							'libraries':
 							[
 								'libvlc.lib',
 							],
+							'msvs_settings':
+							{
+								'VCLinkerTool':
+								{
+									'DelayLoadDLLs': 'libvlc.dll',
+								},
+							},
 						},
 					],
                     [

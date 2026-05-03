@@ -623,6 +623,10 @@ private command revStandaloneCopyInclusions pStack, pStackFileList, pStackSource
          end if
       end repeat
    end if
+
+   -- VLC runtime bundling is handled in revSaveAsMacStandalone after engine deploy,
+   -- because revStandaloneDeployWithParams recreates the .app bundle and would
+   -- wipe any Resources/ content written here.
 end revStandaloneCopyInclusions
 
 local sLastUsedSettingsA
@@ -722,6 +726,11 @@ command revSaveAsMacStandalone pStack, pRestoreFileName, pFolder, @xStandalonePa
       put tStackPath & "/" before sStandaloneSettingsA["OSX,plist"]
    end if
    
+   -- Determine VLC requirement before the loop: revStandaloneDeployWithParams moves/saves
+   -- the stack, making it unreachable by name inside the loop body.
+   local tNeedsVLC
+   put revSAStandaloneNeedsVLC(pStack) into tNeedsVLC
+
    -- keep a copy of the standalone settings to restore after each build
    local tStandaloneSettingsA
    put sStandaloneSettingsA into tStandaloneSettingsA
@@ -792,7 +801,75 @@ command revSaveAsMacStandalone pStack, pRestoreFileName, pFolder, @xStandalonePa
       revSetMacOS tStandalonePath, tTarget, tEngineSourceFile
       
       revRedirectMacOSResources tStandalonePath
-      
+
+      -- Bundle VLC runtime and patch binary @rpath references after engine deploy.
+      -- Done here (not in revStandaloneCopyInclusions) because revStandaloneDeployWithParams
+      -- recreates the .app bundle, wiping any Resources/ content written before it.
+      -- performAdHocCodesign (--deep -f) below will re-sign everything afterward.
+      --
+      -- The engine binary always hard-links libvlc.dylib (LC_LOAD_DYLIB), so the two
+      -- dylibs must always be present in the bundle to prevent a launch-time crash,
+      -- even in projects that contain no player object.  Only the 340 codec plugins
+      -- (~150 MB) are omitted when there is no player.
+      if tTarget begins with "MacOSX" then
+         local tVLCLibSrcPost
+         put "/Applications/VLC.app/Contents/MacOS/lib" into tVLCLibSrcPost
+         if there is a folder tVLCLibSrcPost then
+            local tVLCContentsPath, tVLCLibDestPost, tVLCPluginsDestPost, tVLCR
+            set the itemDelimiter to slash
+            put item 1 to -3 of tStandalonePath into tVLCContentsPath
+            set the itemDelimiter to ","
+            put tVLCContentsPath & "/Resources/vlc-plugins/lib" into tVLCLibDestPost
+            put tVLCContentsPath & "/Resources/vlc-plugins/plugins" into tVLCPluginsDestPost
+            -- Always create lib dir and copy the two dylibs (required to satisfy the binary dependency)
+            put shell("mkdir -p " & QUOTE & tVLCLibDestPost & QUOTE) into tVLCR
+            put shell("cp -f " & QUOTE & tVLCLibSrcPost & "/libvlc.dylib" & QUOTE & " " & QUOTE & tVLCLibDestPost & "/libvlc.dylib" & QUOTE) into tVLCR
+            put shell("cp -f " & QUOTE & tVLCLibSrcPost & "/libvlccore.dylib" & QUOTE & " " & QUOTE & tVLCLibDestPost & "/libvlccore.dylib" & QUOTE) into tVLCR
+            -- Only copy the codec plugins when a player object is present in the project
+            if tNeedsVLC then
+               put shell("mkdir -p " & QUOTE & tVLCPluginsDestPost & QUOTE) into tVLCR
+               put shell("cp -rn " & QUOTE & "/Applications/VLC.app/Contents/MacOS/plugins/." & QUOTE & " " & QUOTE & tVLCPluginsDestPost & QUOTE) into tVLCR
+            end if
+            -- Patch libvlccore: use @rpath/libvlccore.dylib as install name so it matches
+            -- the reference form already used by both libvlc and all 340 plugin dylibs,
+            -- avoiding any dyld cache key mismatch between @loader_path and @rpath forms.
+            local tVLCLib
+            put tVLCLibDestPost & "/libvlccore.dylib" into tVLCLib
+            put shell("codesign --remove-signature " & QUOTE & tVLCLib & QUOTE) into tVLCR
+            put shell("install_name_tool -id @rpath/libvlccore.dylib " & QUOTE & tVLCLib & QUOTE) into tVLCR
+            put shell("codesign --sign - " & QUOTE & tVLCLib & QUOTE) into tVLCR
+            -- Patch libvlc: dynamically read the actual libvlccore reference (handles
+            -- versioned sonames like @rpath/libvlccore.9.dylib or absolute paths) then
+            -- normalise to @rpath/libvlccore.dylib.
+            put tVLCLibDestPost & "/libvlc.dylib" into tVLCLib
+            put shell("codesign --remove-signature " & QUOTE & tVLCLib & QUOTE) into tVLCR
+            local tLibvlcCoreRefs, tLibvlcCoreRef
+            put shell("otool -L " & QUOTE & tVLCLib & QUOTE & " | grep libvlccore | awk '{print $1}'") into tLibvlcCoreRefs
+            repeat for each line tLibvlcCoreRef in tLibvlcCoreRefs
+               put word 1 of tLibvlcCoreRef into tLibvlcCoreRef
+               if tLibvlcCoreRef is not empty and tLibvlcCoreRef is not "@rpath/libvlccore.dylib" then
+                  put shell("install_name_tool -change " & QUOTE & tLibvlcCoreRef & QUOTE & " @rpath/libvlccore.dylib " & QUOTE & tVLCLib & QUOTE) into tVLCR
+               end if
+            end repeat
+            put shell("install_name_tool -id @rpath/libvlc.dylib " & QUOTE & tVLCLib & QUOTE) into tVLCR
+            -- Add @loader_path as LC_RPATH so that when libvlc (in vlc-plugins/lib/) dlopen's
+            -- a plugin, dyld inherits this rpath and resolves @rpath/libvlccore.dylib →
+            -- vlc-plugins/lib/libvlccore.dylib.  Covers all 340 plugins in one shot.
+            put shell("install_name_tool -add_rpath @loader_path " & QUOTE & tVLCLib & QUOTE) into tVLCR
+            put shell("codesign --sign - " & QUOTE & tVLCLib & QUOTE) into tVLCR
+            -- Patch binary: rewrite @rpath/libvlc and @rpath/libvlccore to @executable_path/../Resources/vlc-plugins/lib/
+            local tVLCLibRef
+            put "@executable_path/../Resources/vlc-plugins/lib" into tVLCLibRef
+            put shell("install_name_tool -change @rpath/libvlc.dylib " & tVLCLibRef & "/libvlc.dylib " & QUOTE & tStandalonePath & QUOTE) into tVLCR
+            put shell("install_name_tool -change @rpath/libvlccore.dylib " & tVLCLibRef & "/libvlccore.dylib " & QUOTE & tStandalonePath & QUOTE) into tVLCR
+            if tNeedsVLC then
+               revStandaloneProgress "VLC player runtime bundled."
+            else
+               revStandaloneProgress "VLC runtime stubs bundled (no player in project)."
+            end if
+         end if
+      end if
+
       --Restore stack to its post-savingStandalone message state
       __RestoreStackFromTemporaryLocation pStack, pRestoreFileName, tOriginalFileName
    end repeat
@@ -810,6 +887,33 @@ command revSaveAsMacStandalone pStack, pRestoreFileName, pFolder, @xStandalonePa
    
    return empty
 end revSaveAsMacStandalone
+
+-- Returns true if pStack (or any of its substacks) contains at least one player control.
+-- Used to gate VLC runtime bundling so the runtime is not copied for projects that
+-- never use a player object.
+private function revSAStandaloneNeedsVLC pStack
+   local tCardNum, tCard, tControlNum, tControl
+   put the number of cards of stack pStack into tCardNum
+   repeat with tCard = 1 to tCardNum
+      put the number of controls of card tCard of stack pStack into tControlNum
+      repeat with tControl = 1 to tControlNum
+         if word 1 of (the long id of control tControl of card tCard of stack pStack) is "player" then
+            return true
+         end if
+      end repeat
+   end repeat
+   -- Also check any in-memory substacks that belong to the same file
+   local tSubstacks, tSubstack
+   put the substacks of stack pStack into tSubstacks
+   repeat for each line tSubstack in tSubstacks
+      if tSubstack is not empty and there is a stack tSubstack then
+         if revSAStandaloneNeedsVLC(tSubstack) then
+            return true
+         end if
+      end if
+   end repeat
+   return false
+end revSAStandaloneNeedsVLC
 
 private command performAdHocCodesign pAppBundle
    local tShell
