@@ -318,6 +318,8 @@
 		6B99F0BF407C71FAF37DB8EC /* cmdse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8B5FDDDD7B03F53DC4BC5208 /* cmdse.cpp */; };
 		6BA1FE1AD82F91227499FD2E /* exec-interface-card.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BF549D96AAE1A4B695DFDFB /* exec-interface-card.cpp */; };
 		6BCCADC57B1B62CE7976233B /* dispatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 784B9912592B9E59F46FA3CC /* dispatch.cpp */; };
+		CF86E94CE2B547E3BE4DFD7A /* hxtlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 29F908B574D74C7793EFD1CD /* hxtlib.cpp */; };
+		3519183B17224AA9B7C37D2E /* hxtlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 29F908B574D74C7793EFD1CD /* hxtlib.cpp */; };
 		6BD7C780B58FBE0E77DCC2A3 /* exec-graphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 542B815FA579203697D6C7DD /* exec-graphics.cpp */; };
 		6BEF5F4406F577D159F20174 /* control.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ECD436D3C8D561D2EB317006 /* control.cpp */; };
 		6BFC267BA7705F60EBE98634 /* image_rep_gimage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88F0CDB2F9955632D561B8B1 /* image_rep_gimage.cpp */; };
@@ -1811,6 +1813,7 @@
 		76415A79DE7D4D279A2407D8 /* widget-events.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "widget-events.cpp"; sourceTree = "<group>"; };
 		76EE5EF6B6EB424F66FB535D /* mblflst.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = mblflst.cpp; sourceTree = "<group>"; };
 		784B9912592B9E59F46FA3CC /* dispatch.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = dispatch.cpp; sourceTree = "<group>"; };
+		29F908B574D74C7793EFD1CD /* hxtlib.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = hxtlib.cpp; path = ../hxtlib/hxtlib.cpp; sourceTree = SOURCE_ROOT; };
 		786D4F73E376339B9BF7A90B /* mblandroidcontact.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = mblandroidcontact.cpp; sourceTree = "<group>"; };
 		78CF1169B99AB9E75EEC8DA8 /* mblcontrol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mblcontrol.h; sourceTree = "<group>"; };
 		79A0774B93B3C0CA31556A0A /* srvsession.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = srvsession.h; sourceTree = "<group>"; };
@@ -2375,6 +2378,7 @@
 				FEA1237F8F1A0ABA0B503DD9 /* debug.cpp */,
 				890FA003BB0CA65E8F9688DB /* debug.h */,
 				784B9912592B9E59F46FA3CC /* dispatch.cpp */,
+			29F908B574D74C7793EFD1CD /* hxtlib.cpp */,
 				FD16C18530E8B6A2AA54A809 /* dispatch.h */,
 				CB57F5AC468D3B7DD399127B /* dllst.cpp */,
 				44CBE51C1A99AF141E49D1CD /* dllst.h */,
@@ -3964,6 +3968,7 @@
 				2755E9487D10290B9A7312B8 /* control.cpp in Sources */,
 				31C6A3A6BAA6F05668C91687 /* cpalette.cpp in Sources */,
 				B5C74CC71E5208A505F5409A /* dispatch.cpp in Sources */,
+				CF86E94CE2B547E3BE4DFD7A /* hxtlib.cpp in Sources */,
 				C52631E8CFB0367AB6329761 /* edittool.cpp in Sources */,
 				444CC2DD3EB01F41064C9907 /* eps.cpp in Sources */,
 				5AB8945917444A13F8AD9991 /* field.cpp in Sources */,
@@ -4231,6 +4236,7 @@
 				6BEF5F4406F577D159F20174 /* control.cpp in Sources */,
 				7031B93ABA826772301394B5 /* cpalette.cpp in Sources */,
 				6BCCADC57B1B62CE7976233B /* dispatch.cpp in Sources */,
+				3519183B17224AA9B7C37D2E /* hxtlib.cpp in Sources */,
 				05032C765F840561E863C8D1 /* edittool.cpp in Sources */,
 				A2EEDCF280E5637C8A9C0B40 /* eps.cpp in Sources */,
 				043C0DDF84AA297224E5CE7E /* field.cpp in Sources */,
@@ -5166,6 +5172,7 @@
 					../thirdparty/libz/include,
 					"$(SHARED_INTERMEDIATE_DIR)/include",
 					../libbrowser/include,
+					../hxtlib,
 					../thirdparty/libcurl/include,
 				);
 				OTHER_LDFLAGS = (
@@ -5271,6 +5278,7 @@
 					../thirdparty/libz/include,
 					"$(SHARED_INTERMEDIATE_DIR)/include",
 					../libbrowser/include,
+					../hxtlib,
 					../thirdparty/libcurl/include,
 				);
 				OTHER_LDFLAGS = (
@@ -5604,6 +5612,7 @@
 					../thirdparty/libz/include,
 					"$(SHARED_INTERMEDIATE_DIR)/include",
 					../libbrowser/include,
+					../hxtlib,
 					../thirdparty/libcurl/include,
 				);
 				OTHER_LDFLAGS = (
@@ -5740,6 +5749,7 @@
 					../thirdparty/libz/include,
 					"$(SHARED_INTERMEDIATE_DIR)/include",
 					../libbrowser/include,
+					../hxtlib,
 					../thirdparty/libcurl/include,
 				);
 				OTHER_LDFLAGS = (
@@ -5846,6 +5856,7 @@
 					../thirdparty/libz/include,
 					"$(SHARED_INTERMEDIATE_DIR)/include",
 					../libbrowser/include,
+					../hxtlib,
 					../thirdparty/libcurl/include,
 				);
 				OTHER_LDFLAGS = (
@@ -5950,6 +5961,7 @@
 					../thirdparty/libz/include,
 					"$(SHARED_INTERMEDIATE_DIR)/include",
 					../libbrowser/include,
+					../hxtlib,
 					../thirdparty/libcurl/include,
 				);
 				OTHER_LDFLAGS = (
@@ -6056,6 +6068,7 @@
 					../thirdparty/libz/include,
 					"$(SHARED_INTERMEDIATE_DIR)/include",
 					../libbrowser/include,
+					../hxtlib,
 					../thirdparty/libcurl/include,
 				);
 				OTHER_LDFLAGS = (
@@ -6182,6 +6195,7 @@
 					../thirdparty/libz/include,
 					"$(SHARED_INTERMEDIATE_DIR)/include",
 					../libbrowser/include,
+					../hxtlib,
 					../thirdparty/libcurl/include,
 				);
 				OTHER_LDFLAGS = (
@@ -6287,6 +6301,7 @@
 					../thirdparty/libz/include,
 					"$(SHARED_INTERMEDIATE_DIR)/include",
 					../libbrowser/include,
+					../hxtlib,
 					../thirdparty/libcurl/include,
 				);
 				OTHER_LDFLAGS = (
@@ -6483,6 +6498,7 @@
 					../thirdparty/libz/include,
 					"$(SHARED_INTERMEDIATE_DIR)/include",
 					../libbrowser/include,
+					../hxtlib,
 					../thirdparty/libcurl/include,
 				);
 				OTHER_LDFLAGS = (
@@ -6588,6 +6604,7 @@
 					../thirdparty/libz/include,
 					"$(SHARED_INTERMEDIATE_DIR)/include",
 					../libbrowser/include,
+					../hxtlib,
 					../thirdparty/libcurl/include,
 				);
 				OTHER_LDFLAGS = (
@@ -6694,6 +6711,7 @@
 					../thirdparty/libz/include,
 					"$(SHARED_INTERMEDIATE_DIR)/include",
 					../libbrowser/include,
+					../hxtlib,
 					../thirdparty/libcurl/include,
 				);
 				OTHER_LDFLAGS = (

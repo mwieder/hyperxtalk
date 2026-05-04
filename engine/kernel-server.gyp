@@ -73,14 +73,16 @@
 			[
 				'include',
 				'src',
+				'../hxtlib',
 				'/opt/homebrew/Cellar/openssl@3/3.6.1/include',
 			],
-			
+
 			'sources':
 			[
 				'<@(engine_common_source_files)',
 				'<@(engine_server_source_files)',
 				'<@(engine_module_source_files)',
+				'../hxtlib/hxtlib.cpp',
 			],
 			
 			'sources!':

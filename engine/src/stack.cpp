@@ -302,7 +302,10 @@ MCStack::MCStack()
 	
     // MW-2014-09-30: [[ ScriptOnlyStack ]] Stacks are not script-only by default.
     m_is_script_only = false;
-    
+
+    // HXT: Not a compiled library by default.
+    m_is_compiled_lib = false;
+
     // BWM-2017-08-16: [[ Bug 17810 ]] Script-only-stack line endings default to LF.
     m_line_encoding_style = kMCStringLineEndingStyleLF;
 
@@ -523,6 +526,9 @@ MCStack::MCStack(const MCStack &sref)
 	
     // MW-2014-09-30: [[ ScriptOnlyStack ]] Stacks copy the source script-onlyness.
     m_is_script_only = sref.m_is_script_only;
+
+    // HXT: Compiled-library flag is copied.
+    m_is_compiled_lib = sref.m_is_compiled_lib;
     
 	// IM-2014-05-27: [[ Bug 12321 ]] No fonts to purge yet
 	m_purge_fonts = false;
@@ -2064,9 +2070,29 @@ void MCStack::setasscriptonly(MCStringRef p_script)
 {
     MCExecContext ctxt(nil,nil,nil);
     /* UNCHECKED */ SetScript(ctxt, p_script);
-    
+
     m_is_script_only = true;
-    
+
+    // Make sure we have at least one card.
+    if (cards == NULL)
+    {
+        curcard = cards = MCtemplatecard->clone(False, False);
+        cards->setparent(this);
+    }
+}
+
+// HXT: Set up this stack as a compiled library loaded from a .hxtlib file.
+// The stack is treated as a script-only stack (invisible, at least one card),
+// but marked immutable so the source script cannot be read or modified.
+//
+// TODO: When the engine AST serialisation layer is defined, this should accept
+// an hxtlib::Document and reconstruct the handler list (hlist) from doc.nodes
+// instead of parsing source text.
+void MCStack::setascompiledlib(void)
+{
+    m_is_script_only   = true;
+    m_is_compiled_lib  = true;
+
     // Make sure we have at least one card.
     if (cards == NULL)
     {

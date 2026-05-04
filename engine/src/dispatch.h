@@ -267,6 +267,15 @@ public:
     
     virtual bool recomputefonts(MCFontRef parent_font, bool force);
     
+    // HXT: Try to read a .hxtlib compiled library from the file at p_openpath.
+    // The stream is not used (hxtlib has its own I/O); p_openpath is the
+    // resolved file path.  On IO_NORMAL the file was not a .hxtlib file and
+    // r_stack is left unchanged.  On IO_ERROR an error message is in r_result.
+    IO_stat trytoreadhxtlibstack(MCStringRef p_openpath,
+                                 MCObject* p_parent,
+                                 MCStack* &r_stack,
+                                 const char* &r_result);
+
     // Try to read a binary stack from the stream. If the return value is
     // IO_ERROR, a reason is returned in r_result. If the return value is
     // IO_NORMAL, there was no error but the stream did not contain a binary

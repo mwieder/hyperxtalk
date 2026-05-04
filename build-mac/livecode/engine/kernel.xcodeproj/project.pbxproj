@@ -191,6 +191,7 @@
 		88BC8057B9377B570AFB2C16 /* widget.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A791564EA1C6D1FE9BF748C9 /* widget.cpp */; };
 		8A5778C6A38D2E06B7D83742 /* card.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 524742108B60D85E52090AF5 /* card.cpp */; };
 		8B30E047FD50BF39686B3A01 /* dispatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 62C6C99419B18502AE18D638 /* dispatch.cpp */; };
+		6D421974854C4D6596F39DCA /* hxtlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A18B08BAE9E7431DBA177147 /* hxtlib.cpp */; };
 		8CD3A715F4343493D846453D /* scrollbardraw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D32F5633C122940034D6B22F /* scrollbardraw.cpp */; };
 		8F8EB707C9AEFF8000318CA0 /* paragraf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 579CD83D78079FD836D098A4 /* paragraf.cpp */; };
 		935F8A81DA01BAECA162ABF1 /* objptr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE475872AE1F5EFE06BF032E /* objptr.cpp */; };
@@ -690,6 +691,7 @@
 		621E8C58389A923F1EC853E8 /* mbliphone.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mbliphone.h; sourceTree = "<group>"; };
 		628CBE69478A2C615DB5ABA5 /* SamsungBillingProvider.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; path = SamsungBillingProvider.java; sourceTree = "<group>"; };
 		62C6C99419B18502AE18D638 /* dispatch.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = dispatch.cpp; sourceTree = "<group>"; };
+		A18B08BAE9E7431DBA177147 /* hxtlib.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = hxtlib.cpp; path = ../hxtlib/hxtlib.cpp; sourceTree = SOURCE_ROOT; };
 		630BE31B779A994E7A72E387 /* quicktimestubs.mac.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = quicktimestubs.mac.cpp; sourceTree = "<group>"; };
 		630D7CF0131EBE73A9CDE37F /* styledtext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = styledtext.h; sourceTree = "<group>"; };
 		635737A8EC724FAAE3063D6E /* lnx-clipboard.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "lnx-clipboard.cpp"; sourceTree = "<group>"; };
@@ -1490,6 +1492,7 @@
 				9D51CED174E4F2195C491CD6 /* desktop-stack.cpp */,
 				14AE093FFD198FAD1BCF3FC0 /* desktop.cpp */,
 				62C6C99419B18502AE18D638 /* dispatch.cpp */,
+				A18B08BAE9E7431DBA177147 /* hxtlib.cpp */,
 				9FE02C59CB27FD0FFD4ADA80 /* dispatch.h */,
 				3E6594E3D684BEA634AA98B2 /* dllst.cpp */,
 				9A0F29A9E13FF3D10B24169D /* dllst.h */,
@@ -2379,6 +2382,7 @@
 				D542EE77028A6E7CA56A9AF1 /* control.cpp in Sources */,
 				DEBEBFB31B5A54664F8B3831 /* cpalette.cpp in Sources */,
 				8B30E047FD50BF39686B3A01 /* dispatch.cpp in Sources */,
+				6D421974854C4D6596F39DCA /* hxtlib.cpp in Sources */,
 				1D55ED4038E0F2399083E403 /* edittool.cpp in Sources */,
 				C6679D3AFD1D1CFD86314119 /* eps.cpp in Sources */,
 				5DBB62A3DBEFC58B5C5FD870 /* field.cpp in Sources */,
@@ -2733,6 +2737,7 @@
 					../thirdparty/libgif/src,
 					../thirdparty/libpng/include,
 					../thirdparty/libvlc/include,
+					../hxtlib,
 					../thirdparty/libz/include,
 					"$(SHARED_INTERMEDIATE_DIR)/include",
 				);
@@ -2948,6 +2953,7 @@
 					../thirdparty/libgif/src,
 					../thirdparty/libpng/include,
 					../thirdparty/libvlc/include,
+					../hxtlib,
 					../thirdparty/libz/include,
 					"$(SHARED_INTERMEDIATE_DIR)/include",
 				);
@@ -3254,6 +3260,7 @@
 					../thirdparty/libgif/src,
 					../thirdparty/libpng/include,
 					../thirdparty/libvlc/include,
+					../hxtlib,
 					../thirdparty/libz/include,
 					"$(SHARED_INTERMEDIATE_DIR)/include",
 				);

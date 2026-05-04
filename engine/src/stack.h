@@ -300,7 +300,11 @@ protected:
     
     // MW-2014-09-30: [[ ScriptOnlyStack ]] If true, the stack is a script-only-stack.
     bool m_is_script_only : 1;
-    
+
+    // HXT: If true, the stack was loaded from a .hxtlib compiled library file.
+    // Its source script is not available; get/set the script of are no-ops.
+    bool m_is_compiled_lib : 1;
+
     // BWM-2017-08-16: [[ Bug 17810 ]] Line endings for imported script-only-stack.
     MCStringLineEndingStyle m_line_encoding_style : 3;
 	
@@ -954,6 +958,11 @@ public:
     //   the stack is taken from ep.
     bool isscriptonly(void) const { return m_is_script_only; }
     void setasscriptonly(MCStringRef p_script);
+
+    // HXT: Mark the stack as a pre-compiled library loaded from a .hxtlib file.
+    // Compiled stacks are immutable: get/set the script of returns empty / is ignored.
+    bool iscompiledlib(void) const { return m_is_compiled_lib; }
+    void setascompiledlib(void);
     
     // BWM-2017-08-16: [[ Bug 17810 ]] Get/set line endings for imported script-only-stack.
     MCStringLineEndingStyle getlineencodingstyle(void) const

@@ -67,6 +67,8 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "graphics_util.h"
 
 #include "stackfileformat.h"
+#include "revbuild.h"
+#include "hxtlib.h"
 
 #define UNLICENSED_TIME 6.0
 #ifdef _DEBUG_MALLOC_INC
@@ -958,28 +960,138 @@ void MCDispatch::processstack(MCStringRef p_openpath, MCStack* &x_stack)
     }
 }
 
+// HXT: Attempt to load p_openpath as a .hxtlib compiled library.
+//
+// Returns IO_ERROR (and sets r_result) only if the file was recognised as a
+// .hxtlib file but could not be loaded (bad CRC, wrong engine version, etc.).
+// Returns IO_NORMAL with r_stack == nullptr if the file is not a .hxtlib file
+// (the caller should then fall through to the other format attempts).
+// Returns IO_NORMAL with r_stack set on success.
+IO_stat MCDispatch::trytoreadhxtlibstack(MCStringRef p_openpath,
+                                          MCObject*   p_parent,
+                                          MCStack*   &r_stack,
+                                          const char* &r_result)
+{
+    // Convert the MCStringRef path to a plain C string for hxtlib's file I/O.
+    // MCStringConvertToCString allocates; we free it when done.
+    char *t_path_cstr = nullptr;
+    if (!MCStringConvertToCString(p_openpath, t_path_cstr))
+        return IO_NORMAL; // can't convert path — treat as not a .hxtlib file
+
+    // hxtlib::validate() opens the file itself and is cheap — it only reads
+    // the fixed header and META section.  We use it to probe for the magic
+    // bytes before committing to a full read.
+    hxtlib::Error t_verr = hxtlib::validate(
+        t_path_cstr,
+        MC_BUILD_ENGINE_MAJOR_VERSION,
+        MC_BUILD_ENGINE_MINOR_VERSION,
+        MC_BUILD_ENGINE_POINT_VERSION);
+
+    if (t_verr == hxtlib::Error::BadMagic)
+    {
+        MCMemoryDeleteArray(t_path_cstr);
+        return IO_NORMAL; // not a .hxtlib file; let the caller try other formats
+    }
+
+    if (t_verr == hxtlib::Error::EngineVersionTooOld)
+    {
+        MCMemoryDeleteArray(t_path_cstr);
+        r_result = "hxtlib: library requires a newer version of HyperXTalk";
+        return IO_ERROR;
+    }
+
+    if (t_verr != hxtlib::Error::Ok)
+    {
+        MCMemoryDeleteArray(t_path_cstr);
+        r_result = hxtlib::strerror(t_verr);
+        return IO_ERROR;
+    }
+
+    // Full read — deserialises META, STRT, and ASTN sections.
+    hxtlib::Document t_doc;
+    hxtlib::Error t_rerr = hxtlib::read(
+        t_path_cstr,
+        t_doc,
+        MC_BUILD_ENGINE_MAJOR_VERSION,
+        MC_BUILD_ENGINE_MINOR_VERSION,
+        MC_BUILD_ENGINE_POINT_VERSION);
+
+    MCMemoryDeleteArray(t_path_cstr);
+
+    if (t_rerr != hxtlib::Error::Ok)
+    {
+        r_result = hxtlib::strerror(t_rerr);
+        return IO_ERROR;
+    }
+
+    // Create the stack object.
+    MCStack *t_stack;
+    if (!MCStackSecurityCreateStack(t_stack))
+    {
+        r_result = "hxtlib: out of memory creating stack";
+        return IO_ERROR;
+    }
+
+    // Set parent before any other setup so property lookups work.
+    if (p_parent != nullptr)
+        t_stack->setparent(p_parent);
+    else if (stacks != nullptr)
+        t_stack->setparent(stacks);
+    else
+        t_stack->setparent(this);
+
+    // Stack name comes from the META section; setname_cstring handles the
+    // MCStringRef → MCNameRef conversion internally.
+    if (!t_doc.meta.name.empty())
+        t_stack->setname_cstring(t_doc.meta.name.c_str());
+
+    t_stack->setfilename(p_openpath);
+
+    // Mark the stack as a compiled library (sets m_is_script_only too).
+    t_stack->setascompiledlib();
+
+    // TODO: When the engine AST serialisation layer is defined, reconstruct
+    // the handler list (hlist) from t_doc.nodes here instead of leaving it
+    // empty.  Until then, .hxtlib stacks load successfully and are immutable
+    // but have no callable handlers.
+
+    t_stack->setflag(False, F_VISIBLE);
+
+    r_stack = t_stack;
+    return IO_NORMAL;
+}
+
 // MW-2012-02-17: [[ LogFonts ]] Actually load the stack file (wrapped by readfile
 //   to handle font table cleanup).
 IO_stat MCDispatch::doreadfile(MCStringRef p_openpath, MCStringRef p_name, IO_handle &stream, MCStack* &r_stack)
 {
     MCresult -> clear();
-    
+
     const char* t_result = nullptr;
     MCStack *t_stack = nullptr;
-    
-	if (trytoreadbinarystack(p_openpath, p_name, stream, nullptr,
+
+    // HXT: Try .hxtlib compiled library first — it has its own I/O, so the
+    // open stream is not consumed here.
+    if (trytoreadhxtlibstack(p_openpath, nullptr, t_stack, t_result) != IO_NORMAL)
+    {
+        /* UNCHECKED */ MCresult -> setvalueref(MCSTR(t_result));
+        return IO_ERROR;
+    }
+
+    if (t_stack == nullptr &&
+        trytoreadbinarystack(p_openpath, p_name, stream, nullptr,
                              t_stack, t_result) != IO_NORMAL)
     {
         /* UNCHECKED */ MCresult -> setvalueref(MCSTR(t_result));
         return IO_ERROR;
     }
-    
+
     // If there was no IO error but it wasn't a binary stack then try as script-only
     if (t_stack == nullptr)
     {
         // Reset to position 0.
         MCS_seek_set(stream, 0);
-    
+
         if (trytoreadscriptonlystack(p_openpath, stream, nullptr,
                                      t_stack, t_result) != IO_NORMAL)
         {

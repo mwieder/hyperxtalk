@@ -1577,6 +1577,13 @@ void MCObject::GetScript(MCExecContext& ctxt, MCStringRef& r_script)
 		return;
 	}
 
+	// HXT: Compiled libraries are immutable — return empty script.
+	if (getstack() -> iscompiledlib())
+	{
+		r_script = MCValueRetain(kMCEmptyString);
+		return;
+	}
+
 	if (!getstack() -> iskeyed())
 	{
 		ctxt . LegacyThrow(EE_STACK_NOKEY);
@@ -1595,6 +1602,11 @@ void MCObject::SetScript(MCExecContext& ctxt, MCStringRef new_script)
 		ctxt . LegacyThrow(EE_OBJECT_NOHOME);
 		return;
 	}
+
+	// HXT: Compiled libraries are immutable — silently ignore set the script.
+	if (getstack()->iscompiledlib())
+		return;
+
 	if (!getstack()->iskeyed())
 	{
 		ctxt . LegacyThrow(EE_STACK_NOKEY);
