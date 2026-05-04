@@ -20,43 +20,378 @@ Software Foundation.  */
 #include "object.h"
 #include "param.h"
 #include "exec.h"
+#include "variable.h"
 #include "stacksecurity.h"
 #include "osspec.h"
 #include "securemode.h"
-#include "variable.h"
+#include "notify.h"
 
 #include "executionerrors.h"
 
 #include "mcworker.h"
 
 // ---------------------------------------------------------------------------
+// Thread-local: which MCWorker is currently running on this thread.
+// Set by the worker thread before each handler dispatch; nullptr on the main
+// thread and between messages.
+// ---------------------------------------------------------------------------
+static thread_local MCWorker *tls_current_worker = nullptr;
+
+// ---------------------------------------------------------------------------
+// MCWorkerParam helpers
+// ---------------------------------------------------------------------------
+
+bool MCWorkerMarshalParams(MCExecContext  &ctxt,
+                           MCParameter    *p_params,
+                           MCWorkerParam *&r_params,
+                           uint32_t       &r_count)
+{
+    // Count parameters.
+    uint32_t t_count = 0;
+    for (MCParameter *p = p_params; p != nullptr; p = p->getnext())
+        t_count++;
+
+    r_count = t_count;
+
+    if (t_count == 0)
+    {
+        r_params = nullptr;
+        return true;
+    }
+
+    r_params = new (nothrow) MCWorkerParam[t_count];
+    if (r_params == nullptr)
+    {
+        ctxt.LegacyThrow(EE_NO_MEMORY);
+        return false;
+    }
+
+    uint32_t i = 0;
+    for (MCParameter *p = p_params; p != nullptr; p = p->getnext(), i++)
+    {
+        MCAutoValueRef t_val;
+        if (!p->eval(ctxt, &t_val))
+        {
+            // Free what we've retained so far and bail.
+            for (uint32_t j = 0; j < i; j++)
+                MCValueRelease(r_params[j].value);
+            delete[] r_params;
+            r_params = nullptr;
+            r_count  = 0;
+            return false;
+        }
+
+        // Deep-copy so the value is fully owned by this param and has no
+        // shared mutable state that could race across the thread boundary.
+        if (!MCValueCopy(*t_val, r_params[i].value))
+        {
+            for (uint32_t j = 0; j < i; j++)
+                MCValueRelease(r_params[j].value);
+            delete[] r_params;
+            r_params = nullptr;
+            r_count  = 0;
+            ctxt.LegacyThrow(EE_NO_MEMORY);
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void MCWorkerParamsFree(MCWorkerParam *p_params, uint32_t p_count)
+{
+    if (p_params == nullptr)
+        return;
+    for (uint32_t i = 0; i < p_count; i++)
+        MCValueRelease(p_params[i].value);
+    delete[] p_params;
+}
+
+// ---------------------------------------------------------------------------
+// MCWorkerMessage
+// ---------------------------------------------------------------------------
+
+MCWorkerMessage *MCWorkerMessageNew(MCNameRef      p_message,
+                                    MCWorkerParam *p_params,
+                                    uint32_t       p_count,
+                                    MCStack       *p_caller)
+{
+    MCWorkerMessage *t_msg = new (nothrow) MCWorkerMessage;
+    if (t_msg == nullptr)
+        return nullptr;
+
+    t_msg->message      = MCValueRetain(p_message);
+    t_msg->params       = p_params;
+    t_msg->param_count  = p_count;
+    t_msg->caller_stack = p_caller;
+    t_msg->next         = nullptr;
+    return t_msg;
+}
+
+void MCWorkerMessageFree(MCWorkerMessage *p_msg)
+{
+    if (p_msg == nullptr)
+        return;
+    MCValueRelease(p_msg->message);
+    MCWorkerParamsFree(p_msg->params, p_msg->param_count);
+    delete p_msg;
+}
+
+// ---------------------------------------------------------------------------
+// MCWorkerCallback — delivered on main thread by MCNotify
+// ---------------------------------------------------------------------------
+
+void MCWorkerDeliverCallback(void *p_opaque)
+{
+    MCWorkerCallback *t_cb = static_cast<MCWorkerCallback *>(p_opaque);
+
+    // Verify the target stack still exists.
+    if (t_cb->target == nullptr ||
+        MCdispatcher->findstackid(t_cb->target->getid()) == nullptr)
+    {
+        MCWorkerParamsFree(t_cb->params, t_cb->param_count);
+        MCValueRelease(t_cb->message);
+        delete t_cb;
+        return;
+    }
+
+    // Build an MCParameter list from the marshalled values.
+    MCParameter *t_first = nullptr;
+    MCParameter *t_last  = nullptr;
+    for (uint32_t i = 0; i < t_cb->param_count; i++)
+    {
+        MCParameter *t_p = new (nothrow) MCParameter;
+        if (t_p == nullptr)
+            break;
+        // setvalueref_argument takes ownership of the retained ref.
+        t_p->setvalueref_argument(MCValueRetain(t_cb->params[i].value));
+        if (t_first == nullptr)
+            t_first = t_last = t_p;
+        else
+        {
+            t_last->setnext(t_p);
+            t_last = t_p;
+        }
+    }
+
+    // Dispatch the callback on the main thread.
+    MCObjectPtr t_target;
+    t_target.object  = t_cb->target;
+    t_target.part_id = 0;
+
+    MCExecContext t_ctxt;
+    MCEngineExecDispatch(t_ctxt, HT_MESSAGE, t_cb->message, &t_target, t_first);
+
+    // Free the parameter list.
+    MCParameter *t_p = t_first;
+    while (t_p != nullptr)
+    {
+        MCParameter *t_next = t_p->getnext();
+        delete t_p;
+        t_p = t_next;
+    }
+
+    MCWorkerParamsFree(t_cb->params, t_cb->param_count);
+    MCValueRelease(t_cb->message);
+    delete t_cb;
+}
+
+// ---------------------------------------------------------------------------
 // MCWorker
 // ---------------------------------------------------------------------------
 
 MCWorker::MCWorker(MCStringRef p_name)
-    : next(nullptr), m_stack(nullptr), m_caller_stack(nullptr)
+    : next(nullptr),
+      m_stack(nullptr),
+      m_current_caller(nullptr),
+      m_thread_started(false),
+      m_queue_head(nullptr),
+      m_queue_tail(nullptr),
+      m_stop(false)
 {
     m_name = MCValueRetain(p_name);
+    pthread_mutex_init(&m_queue_mutex, nullptr);
+    pthread_cond_init (&m_queue_cond,  nullptr);
 }
 
 MCWorker::~MCWorker()
 {
     MCValueRelease(m_name);
-    // m_stack and m_caller_stack are not owned — do not delete here.
+    pthread_mutex_destroy(&m_queue_mutex);
+    pthread_cond_destroy (&m_queue_cond);
+
+    // Drain any messages that were queued but never delivered.
+    MCWorkerMessage *t_msg = m_queue_head;
+    while (t_msg != nullptr)
+    {
+        MCWorkerMessage *t_next = t_msg->next;
+        MCWorkerMessageFree(t_msg);
+        t_msg = t_next;
+    }
+}
+
+void MCWorker::PostMessage(MCWorkerMessage *p_msg)
+{
+    pthread_mutex_lock(&m_queue_mutex);
+    if (m_queue_tail == nullptr)
+        m_queue_head = m_queue_tail = p_msg;
+    else
+    {
+        m_queue_tail->next = p_msg;
+        m_queue_tail       = p_msg;
+    }
+    pthread_cond_signal(&m_queue_cond);
+    pthread_mutex_unlock(&m_queue_mutex);
+}
+
+bool MCWorker::StartThread()
+{
+    if (m_thread_started)
+        return true;
+
+    int t_err = pthread_create(&m_thread, nullptr, ThreadEntry, this);
+    if (t_err != 0)
+        return false;
+
+    m_thread_started = true;
+    return true;
+}
+
+void MCWorker::StopThread()
+{
+    if (!m_thread_started)
+        return;
+
+    pthread_mutex_lock(&m_queue_mutex);
+    m_stop = true;
+    pthread_cond_signal(&m_queue_cond);
+    pthread_mutex_unlock(&m_queue_mutex);
+
+    pthread_join(m_thread, nullptr);
+    m_thread_started = false;
+}
+
+/*static*/ void *MCWorker::ThreadEntry(void *p_arg)
+{
+    static_cast<MCWorker *>(p_arg)->RunLoop();
+    return nullptr;
+}
+
+void MCWorker::RunLoop()
+{
+    // -----------------------------------------------------------------------
+    // Bootstrap thread-local engine state for this worker.
+    //
+    // Each of these is thread_local (declared in globals.h), so we are
+    // setting up our own private copies — the main thread's copies are
+    // completely unaffected.
+    // -----------------------------------------------------------------------
+    MCdefaultstackptr = m_stack->GetHandle();
+    MCerrorptr        = nil;
+    MCtargetptr       = nullptr;
+    MCexitall         = False;
+    MCabortscript     = False;
+    MCresultmode      = kMCExecResultModeReturn;
+
+    // Create a fresh, unnamed result variable for this thread.
+    MCresult = new (nothrow) MCVariable();
+
+    // Register as the current worker on this thread.
+    tls_current_worker = this;
+
+    for (;;)
+    {
+        // -----------------------------------------------------------------------
+        // Wait for the next message.
+        // -----------------------------------------------------------------------
+        pthread_mutex_lock(&m_queue_mutex);
+        while (m_queue_head == nullptr && !m_stop)
+            pthread_cond_wait(&m_queue_cond, &m_queue_mutex);
+
+        if (m_stop && m_queue_head == nullptr)
+        {
+            pthread_mutex_unlock(&m_queue_mutex);
+            break;
+        }
+
+        MCWorkerMessage *t_msg = m_queue_head;
+        m_queue_head = t_msg->next;
+        if (m_queue_head == nullptr)
+            m_queue_tail = nullptr;
+        pthread_mutex_unlock(&m_queue_mutex);
+
+        // -----------------------------------------------------------------------
+        // Expose the caller stack so 'dispatch to caller' can find it.
+        // -----------------------------------------------------------------------
+        m_current_caller = t_msg->caller_stack;
+
+        // -----------------------------------------------------------------------
+        // Build an MCParameter list from the pre-evaluated marshalled values.
+        // -----------------------------------------------------------------------
+        MCParameter *t_first = nullptr;
+        MCParameter *t_last  = nullptr;
+        for (uint32_t i = 0; i < t_msg->param_count; i++)
+        {
+            MCParameter *t_p = new (nothrow) MCParameter;
+            if (t_p == nullptr)
+                break;
+            t_p->setvalueref_argument(MCValueRetain(t_msg->params[i].value));
+            if (t_first == nullptr)
+                t_first = t_last = t_p;
+            else
+            {
+                t_last->setnext(t_p);
+                t_last = t_p;
+            }
+        }
+
+        // -----------------------------------------------------------------------
+        // Dispatch the message into the worker's backing stack.
+        // -----------------------------------------------------------------------
+        MCObjectPtr t_target;
+        t_target.object  = m_stack;
+        t_target.part_id = 0;
+
+        // Clear the result before each dispatch so stale values don't leak.
+        MCresult->clear();
+        MCexitall     = False;
+        MCabortscript = False;
+
+        MCExecContext t_ctxt;
+        MCEngineExecDispatch(t_ctxt, HT_MESSAGE, t_msg->message,
+                             &t_target, t_first);
+
+        // Free the parameter list.
+        MCParameter *t_p = t_first;
+        while (t_p != nullptr)
+        {
+            MCParameter *t_nxt = t_p->getnext();
+            delete t_p;
+            t_p = t_nxt;
+        }
+
+        m_current_caller = nullptr;
+        MCWorkerMessageFree(t_msg);
+    }
+
+    // -----------------------------------------------------------------------
+    // Tear down this thread's engine state.
+    // -----------------------------------------------------------------------
+    tls_current_worker = nullptr;
+    delete MCresult;
+    MCresult          = nullptr;
+    MCdefaultstackptr = nil;
 }
 
 // ---------------------------------------------------------------------------
 // Registry
 // ---------------------------------------------------------------------------
 
-static MCWorker *s_worker_list   = nullptr;
-// The worker whose handler is currently executing, if any.
-static MCWorker *s_current_worker = nullptr;
+static MCWorker *s_worker_list = nullptr;
 
 void MCWorkerRegistryInitialize()
 {
-    s_worker_list    = nullptr;
-    s_current_worker = nullptr;
+    s_worker_list = nullptr;
 }
 
 void MCWorkerRegistryFinalize()
@@ -65,24 +400,25 @@ void MCWorkerRegistryFinalize()
     while (t_worker != nullptr)
     {
         MCWorker *t_next = t_worker->next;
-        // Destroy the backing stack immediately (True) so file handles and
-        // other resources are released before the MCWorker object is deleted.
+
+        // Stop the background thread before destroying the stack so the
+        // thread is not mid-dispatch when we pull the stack away.
+        t_worker->StopThread();
+
         if (t_worker->GetStack() != nullptr)
             MCdispatcher->destroystack(t_worker->GetStack(), True);
+
         delete t_worker;
         t_worker = t_next;
     }
-    s_worker_list    = nullptr;
-    s_current_worker = nullptr;
+    s_worker_list = nullptr;
 }
 
 MCWorker *MCWorkerFind(MCStringRef p_name)
 {
     for (MCWorker *t_w = s_worker_list; t_w != nullptr; t_w = t_w->next)
-    {
         if (MCStringIsEqualTo(t_w->GetName(), p_name, kMCStringOptionCompareCaseless))
             return t_w;
-    }
     return nullptr;
 }
 
@@ -109,47 +445,7 @@ void MCWorkerRemove(MCStringRef p_name)
 
 MCWorker *MCWorkerGetCurrent()
 {
-    return s_current_worker;
-}
-
-// ---------------------------------------------------------------------------
-// Shared dispatch helper
-// ---------------------------------------------------------------------------
-
-static void DoDispatch(MCExecContext &ctxt,
-                       MCObjectPtr   &p_target,
-                       MCNameRef      p_message,
-                       bool           p_is_function,
-                       MCParameter   *p_params)
-{
-    uint32_t t_container_count = 0;
-    if (p_params != nullptr)
-        t_container_count = p_params->count_containers();
-
-    MCAutoPointer<MCContainer[]> t_containers = new MCContainer[t_container_count];
-    if (!t_containers)
-    {
-        ctxt.LegacyThrow(EE_NO_MEMORY);
-        return;
-    }
-
-    if (MCKeywordsExecSetupCommandOrFunction(ctxt,
-                                             p_params,
-                                             *t_containers,
-                                             0, 0,
-                                             p_is_function))
-    {
-        if (!ctxt.HasError())
-        {
-            MCEngineExecDispatch(ctxt,
-                                 p_is_function ? HT_FUNCTION : HT_MESSAGE,
-                                 p_message,
-                                 &p_target,
-                                 p_params);
-        }
-    }
-
-    MCKeywordsExecTeardownCommandOrFunction(p_params);
+    return tls_current_worker;
 }
 
 // ---------------------------------------------------------------------------
@@ -160,7 +456,6 @@ void MCWorkerExecCreate(MCExecContext &ctxt,
                         MCStringRef    p_name,
                         MCStringRef    p_script_file)
 {
-    // Reject duplicate names.
     if (MCWorkerFind(p_name) != nullptr)
     {
         ctxt.UserThrow(MCSTR("create worker: a worker with that name already exists"));
@@ -181,7 +476,6 @@ void MCWorkerExecCreate(MCExecContext &ctxt,
     t_stack->setflag(False, F_VISIBLE);
     t_stack->setasscriptonly(kMCEmptyString);
 
-    // Give the backing stack a name that won't collide with user stacks.
     MCAutoStringRef t_stack_name;
     if (!MCStringFormat(&t_stack_name, "__worker_%@", p_name))
     {
@@ -190,17 +484,13 @@ void MCWorkerExecCreate(MCExecContext &ctxt,
     }
     t_stack->setstringprop(ctxt, 0, P_NAME, False, *t_stack_name);
 
-    // If a script file was provided, load it and set the stack's script.
     if (p_script_file != nullptr && !MCStringIsEmpty(p_script_file))
     {
         MCAutoStringRef t_script;
         if (MCS_loadtextfile(p_script_file, &t_script))
             t_stack->setstringprop(ctxt, 0, P_SCRIPT, False, *t_script);
-        // A missing / unreadable file is not fatal — the worker exists but
-        // its script will be empty until the caller sets it explicitly.
     }
 
-    // Register the worker.
     MCWorker *t_worker = new (nothrow) MCWorker(p_name);
     if (t_worker == nullptr)
     {
@@ -208,9 +498,16 @@ void MCWorkerExecCreate(MCExecContext &ctxt,
         return;
     }
     t_worker->SetStack(t_stack);
-    MCWorkerAdd(t_worker);
 
-    // Set 'it' to the worker name so the calling script can refer to it.
+    if (!t_worker->StartThread())
+    {
+        MCdispatcher->destroystack(t_stack, True);
+        delete t_worker;
+        ctxt.UserThrow(MCSTR("create worker: failed to start worker thread"));
+        return;
+    }
+
+    MCWorkerAdd(t_worker);
     ctxt.SetItToValue(p_name);
 }
 
@@ -220,7 +517,6 @@ void MCWorkerExecDispatch(MCExecContext &ctxt,
                           bool           p_is_function,
                           MCParameter   *p_params)
 {
-    // Resolve the worker.
     MCWorker *t_worker = MCWorkerFind(p_worker_name);
     if (t_worker == nullptr)
     {
@@ -228,22 +524,27 @@ void MCWorkerExecDispatch(MCExecContext &ctxt,
         return;
     }
 
-    // Record the calling stack so the worker can use 'dispatch ... to caller'.
-    t_worker->SetCallerStack(MCdefaultstackptr);
+    // Evaluate and marshal all parameters on the calling (main) thread before
+    // handing off to the worker thread.
+    MCWorkerParam *t_params  = nullptr;
+    uint32_t       t_count   = 0;
+    if (!MCWorkerMarshalParams(ctxt, p_params, t_params, t_count))
+        return; // ctxt already has the error
 
-    // Track which worker is currently executing so CT_CALLER can find it.
-    MCWorker *t_prev_worker = s_current_worker;
-    s_current_worker = t_worker;
+    // Capture the calling stack so the worker can dispatch back to us.
+    MCStack *t_caller = MCdefaultstackptr;
 
-    // Build an MCObjectPtr targeting the worker's backing stack and dispatch.
-    MCObjectPtr t_target;
-    t_target.object  = t_worker->GetStack();
-    t_target.part_id = 0;
-    DoDispatch(ctxt, t_target, p_message, p_is_function, p_params);
+    MCWorkerMessage *t_msg = MCWorkerMessageNew(p_message, t_params, t_count,
+                                                 t_caller);
+    if (t_msg == nullptr)
+    {
+        MCWorkerParamsFree(t_params, t_count);
+        ctxt.LegacyThrow(EE_NO_MEMORY);
+        return;
+    }
 
-    // Restore the previous worker context (supports nested worker calls).
-    s_current_worker = t_prev_worker;
-    t_worker->SetCallerStack(nullptr);
+    // Post to the worker's queue and return immediately — non-blocking.
+    t_worker->PostMessage(t_msg);
 }
 
 void MCWorkerExecDispatchToCaller(MCExecContext &ctxt,
@@ -251,17 +552,37 @@ void MCWorkerExecDispatchToCaller(MCExecContext &ctxt,
                                   bool           p_is_function,
                                   MCParameter   *p_params)
 {
-    // Must be called from within a worker handler.
-    if (s_current_worker == nullptr || s_current_worker->GetCallerStack() == nullptr)
+    // Must be executing inside a worker handler.
+    MCWorker *t_worker = tls_current_worker;
+    if (t_worker == nullptr || t_worker->GetCurrentCaller() == nullptr)
     {
         ctxt.UserThrow(MCSTR("dispatch to caller: not currently executing inside a worker"));
         return;
     }
 
-    MCObjectPtr t_target;
-    t_target.object  = s_current_worker->GetCallerStack();
-    t_target.part_id = 0;
-    DoDispatch(ctxt, t_target, p_message, p_is_function, p_params);
+    // Evaluate and marshal parameters on the worker thread.
+    MCWorkerParam *t_params = nullptr;
+    uint32_t       t_count  = 0;
+    if (!MCWorkerMarshalParams(ctxt, p_params, t_params, t_count))
+        return;
+
+    MCWorkerCallback *t_cb = new (nothrow) MCWorkerCallback;
+    if (t_cb == nullptr)
+    {
+        MCWorkerParamsFree(t_params, t_count);
+        ctxt.LegacyThrow(EE_NO_MEMORY);
+        return;
+    }
+
+    t_cb->target      = t_worker->GetCurrentCaller();
+    t_cb->message     = MCValueRetain(p_message);
+    t_cb->params      = t_params;
+    t_cb->param_count = t_count;
+
+    // Queue the callback for delivery on the main thread.  safe=true means
+    // it will be dispatched at the next script-safe point.
+    MCNotifyPush(MCWorkerDeliverCallback, t_cb, false, true);
+    MCNotifyPing(false);
 }
 
 void MCWorkerExecDestroy(MCExecContext &ctxt,
@@ -274,9 +595,10 @@ void MCWorkerExecDestroy(MCExecContext &ctxt,
         return;
     }
 
-    // Remove the backing stack from the dispatcher immediately (True) so that
-    // any file handles or other resources held by the stack are released right
-    // away rather than deferred until the next idle cycle.
+    // Stop the thread first so it is not mid-dispatch when we destroy the
+    // backing stack.
+    t_worker->StopThread();
+
     MCStack *t_stack = t_worker->GetStack();
     if (t_stack != nullptr)
         MCdispatcher->destroystack(t_stack, True);
