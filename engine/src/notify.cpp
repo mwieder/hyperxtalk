@@ -89,6 +89,14 @@ static MCNotifySyncEvent *s_sync_events = nil;
 static MCNotification *s_notifications = nil;
 static MCNotification *s_safe_notifications = nil;
 
+// Depth counter for safe-notification dispatch.  Incremented by
+// MCNotifyDispatch while it is draining s_safe_notifications; nested calls
+// (e.g. from a modal-dialog event loop) skip the safe list when depth > 0.
+// This prevents callbacks in s_safe_notifications from being re-dispatched
+// re-entrantly, which would allow them to fire while already inside a handler
+// execution context.
+static int s_safe_dispatch_depth = 0;
+
 // The notification system has been initialized.
 static bool s_initialized = false;
 
@@ -499,9 +507,21 @@ bool MCNotifyDispatch(bool p_safe)
 	bool t_dispatched;
 	t_dispatched = MCNotifyDispatchList(s_notifications);
 
-	if (p_safe)
+	// Guard against re-entrant safe-notification dispatch.  When a safe
+	// notification callback (e.g. a worker callback) triggers a modal event
+	// loop (e.g. via 'answer'), that loop also calls MCNotifyDispatch(true).
+	// Without this guard the s_safe_notifications list is drained from within
+	// the modal-loop callback, causing handler re-entrancy and — if our drain
+	// logic tries to reschedule itself — an infinite loop.  By skipping the
+	// safe list when depth > 0, we leave pending safe notifications in place
+	// for the outer MCNotifyDispatch call to deliver once the modal loop exits.
+	if (p_safe && s_safe_dispatch_depth == 0)
+	{
+		s_safe_dispatch_depth++;
 		if (MCNotifyDispatchList(s_safe_notifications))
 			t_dispatched = true;
+		s_safe_dispatch_depth--;
+	}
 
 	return t_dispatched;
 }

@@ -67,7 +67,6 @@ struct MCWorkerCallback
     MCNameRef       message;
     MCWorkerParam  *params;
     uint32_t        param_count;
-    MCWorkerCallback *next;        // intrusive link for the deferred-delivery queue
 };
 
 // Called by the MCNotify system on the main thread to deliver a callback that
