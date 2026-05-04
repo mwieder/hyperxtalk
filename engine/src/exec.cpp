@@ -1233,7 +1233,7 @@ void MCExecContext::UserThrow(MCStringRef p_error)
 
 MCObjectHandle MCExecContext::GetObjectHandle(void) const
 {
-    extern MCExecContext *MCECptr;
+    extern thread_local MCExecContext *MCECptr;
 	return MCECptr->GetObject()->GetHandle();
 }
 

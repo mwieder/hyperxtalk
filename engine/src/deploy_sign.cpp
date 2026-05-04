@@ -988,7 +988,7 @@ static bool MCDeploySignWindowsAddTimeStamp(const MCDeploySignParameters& p_para
 			t_data . setvalueref_argument(*t_req_base64);
 			t_data . setnext(&t_url);
 			t_url . setvalueref_argument(p_params . timestamper);
-            extern MCExecContext *MCECptr;
+            extern thread_local MCExecContext *MCECptr;
 			if (MCECptr->GetObject() -> message(MCM_post_url, &t_data, False, True) == ES_NORMAL &&
 				MCresult -> isempty())
 			{
@@ -1011,7 +1011,7 @@ static bool MCDeploySignWindowsAddTimeStamp(const MCDeploySignParameters& p_para
     MCAutoValueRef t_result_value;
     MCAutoStringRef t_result_base64;
     MCAutoDataRef t_result_data;
-    extern MCExecContext *MCECptr;
+    extern thread_local MCExecContext *MCECptr;
 	
     if (t_success)
     {

@@ -758,7 +758,7 @@ void MCMultimediaExecPlayVideoClip(MCExecContext& ctxt, MCStack *p_target, int p
 {
 #ifdef _MOBILE
 	// PM-2015-09-22: [[ Bug 15969 ]] Playing a video on iOS crashes when touching the screen
-	extern MCExecContext *MCECptr;
+	extern thread_local MCExecContext *MCECptr;
 	
 	// Add a new entry in the execution contexts
 	MCExecContext *oldctxt = MCECptr;

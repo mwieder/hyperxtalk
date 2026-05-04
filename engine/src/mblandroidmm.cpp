@@ -107,7 +107,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_runrev_android_Engine_doMovieTouched(
 JNIEXPORT void JNICALL Java_com_runrev_android_Engine_doMovieTouched(JNIEnv *env, jobject object)
 {
 	MCLog("doMovieTouched");
-	extern MCExecContext *MCECptr;
+	extern thread_local MCExecContext *MCECptr;
 	MCEventQueuePostCustom(new MCMovieTouchedEvent(MCECptr -> GetObject()));
 }
 

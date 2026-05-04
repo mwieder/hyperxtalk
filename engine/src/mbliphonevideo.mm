@@ -211,7 +211,7 @@ static MCFullscreenMovieDelegate *s_movie_player_delegate = nil;
 
 - (void)movieWindowTouched: (UIControl*) p_sender
 {
-	extern MCExecContext *MCECptr;
+	extern thread_local MCExecContext *MCECptr;
 	MCEventQueuePostCustom(new MCMovieTouchedEvent(MCECptr -> GetObject()));
 }
 
