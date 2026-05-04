@@ -37,11 +37,11 @@ end testWorkers
 -- Callbacks ‚Äî dispatched back here by the worker via 'to caller'
 -- -----------------------------------------------------------------------
 on onComputeSquaresResult pResults
-   answer "Squares (1‚Äì8):" & return & pResults
+   answer "Squares (1‚Äì8):" & return & pResults  // & LF after msg
 end onComputeSquaresResult
 
 on onReverseWordsResult pResult
-   answer "Reversed:" && pResult
+   answer "Reversed:" && pResult // & LF after msg
 end onReverseWordsResult
 
 -- -----------------------------------------------------------------------
