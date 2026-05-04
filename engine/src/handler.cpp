@@ -438,11 +438,6 @@ Exec_stat MCHandler::exec(MCExecContext& ctxt, MCParameter *plist)
 	Exec_stat stat = ES_NORMAL;
 	MCStatement *tspr = statements;
 
-    if (MCWorkerGetCurrent() != nullptr)
-        fprintf(stderr, "[MCHandler/worker] exec '%s': statements=%p MCtrace=%d MCnbreakpoints=%d MCexitall=%d\n",
-                MCStringGetCString(MCNameGetString(name)),
-                (void*)tspr, (int)MCtrace, (int)MCnbreakpoints, (int)MCexitall);
-
     // Worker threads must not call MCB_trace: it performs main-thread GUI
     // operations (message sends, screen updates) that are not safe from a
     // background thread.  All debugging is suppressed for worker handlers.

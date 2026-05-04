@@ -8,8 +8,6 @@ Software Foundation.  */
 
 #include "prefix.h"
 
-#include <cstdio>  // fprintf, stderr
-
 // Defined in libfoundation/src/foundation-value.cpp.
 // Drains the calling thread's value-pool free list, returning each slot to the
 // heap.  Must be called from worker threads before they exit to avoid leaks.
@@ -164,10 +162,6 @@ static void MCWorkerDeliverCallbackNow(MCWorkerCallback *t_cb)
     // Look up the target stack by name; it may have been closed since the
     // callback was posted.
     MCStack *t_target_stack = MCdispatcher->findstackname(t_cb->target_name);
-    fprintf(stderr, "[MCWorker] delivering callback '%s' to stack named '%s' (%s)\n",
-            MCStringGetCString(MCNameGetString(t_cb->message)),
-            MCStringGetCString(MCNameGetString(t_cb->target_name)),
-            t_target_stack ? "found" : "NOT FOUND — dropping");
     if (t_target_stack == nullptr)
     {
         MCWorkerParamsFree(t_cb->params, t_cb->param_count);
@@ -246,12 +240,8 @@ void MCWorkerDeliverCallback(void *p_opaque)
 
     if (MCnexecutioncontexts > 0)
     {
-        // Should not normally happen thanks to the notify.cpp depth guard.
-        // If it does, log and drop rather than risk nested modal dialogs.
-        fprintf(stderr, "[MCWorker] WARNING: callback '%s' arrived while inside "
-                "handler (depth=%u) — dropping\n",
-                MCStringGetCString(MCNameGetString(t_cb->message)),
-                (unsigned)MCnexecutioncontexts);
+        // Should not normally happen thanks to the s_safe_dispatch_depth guard
+        // in notify.cpp.  If it does, drop rather than risk nested modal dialogs.
         MCWorkerParamsFree(t_cb->params, t_cb->param_count);
         MCValueRelease(t_cb->target_name);
         MCValueRelease(t_cb->message);
@@ -381,8 +371,6 @@ void MCWorker::RunLoop()
 
     // Register as the current worker on this thread.
     tls_current_worker = this;
-    fprintf(stderr, "[MCWorker] thread started for worker '%s'\n",
-            MCStringGetCString(m_name));
 
     for (;;)
     {
@@ -408,9 +396,6 @@ void MCWorker::RunLoop()
         // -----------------------------------------------------------------------
         // Expose the caller stack so 'dispatch to caller' can find it.
         // -----------------------------------------------------------------------
-        fprintf(stderr, "[MCWorker] dequeued message '%s' (caller=%p)\n",
-                MCStringGetCString(MCNameGetString(t_msg->message)),
-                (void *)t_msg->caller_stack);
         m_current_caller = t_msg->caller_stack;
 
         // -----------------------------------------------------------------------
@@ -450,9 +435,6 @@ void MCWorker::RunLoop()
         t_ctxt.SetWorkerIt(t_it_ref);
         MCEngineExecDispatch(t_ctxt, HT_MESSAGE, t_msg->message,
                              &t_target, t_first);
-
-        fprintf(stderr, "[MCWorker] dispatch returned (error=%d)\n",
-                (int)t_ctxt.GetExecStat());
 
         // Free the parameter list.
         MCParameter *t_p = t_first;
@@ -588,18 +570,9 @@ void MCWorkerExecCreate(MCExecContext &ctxt,
     {
         MCAutoStringRef t_script;
         bool t_loaded = MCS_loadtextfile(p_script_file, &t_script);
-        fprintf(stderr, "[MCWorkerCreate] script_file='%s' loaded=%d len=%u\n",
-                MCStringGetCString(p_script_file),
-                (int)t_loaded,
-                t_loaded ? (unsigned)MCStringGetLength(*t_script) : 0u);
         if (t_loaded)
             t_stack->setstringprop(ctxt, 0, P_SCRIPT, False, *t_script);
     }
-    else
-    {
-        fprintf(stderr, "[MCWorkerCreate] no script file (p_script_file=%p empty=%d)\n",
-                (void*)p_script_file,
-                p_script_file ? (int)MCStringIsEmpty(p_script_file) : -1);
     }
 
     MCWorker *t_worker = new (nothrow) MCWorker(p_name);
@@ -665,9 +638,6 @@ void MCWorkerExecDispatchToCaller(MCExecContext &ctxt,
 {
     // Must be executing inside a worker handler.
     MCWorker *t_worker = tls_current_worker;
-    fprintf(stderr, "[MCWorker] dispatch to caller: tls=%p caller=%p\n",
-            (void *)t_worker,
-            t_worker ? (void *)t_worker->GetCurrentCaller() : nullptr);
     if (t_worker == nullptr || t_worker->GetCurrentCaller() == nullptr)
     {
         ctxt.UserThrow(MCSTR("dispatch to caller: not currently executing inside a worker"));

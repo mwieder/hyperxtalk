@@ -16,12 +16,10 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 
 #include "prefix.h"
 
-#include <cstdio>   // fprintf, stderr
 
 #include "globdefs.h"
 // Forward-declare so we can check whether execution is on a worker thread
 // without pulling in all of mcworker.h's dependencies.
-extern class MCWorker *MCWorkerGetCurrent();
 #include "filedefs.h"
 #include "objdefs.h"
 #include "parsedef.h"
@@ -1123,17 +1121,9 @@ Exec_stat _MCEngineExecDoDispatch(MCExecContext &ctxt, int p_handler_type, MCNam
 	t_stat = MCU_dofrontscripts((Handler_type)p_handler_type, p_message, p_parameters);
 	Boolean olddynamic = MCdynamicpath;
 	MCdynamicpath = MCdynamiccard.IsValid();
-    if (MCWorkerGetCurrent() != nullptr)
-        fprintf(stderr, "[MCDoDispatch/worker] msg='%s' frontscript_stat=%d object=%p valid=%d\n",
-                MCStringGetCString(MCNameGetString(p_message)),
-                (int)t_stat, (void*)t_object.Get(),
-                (int)t_object.IsValid());
 	if (t_stat == ES_PASS || t_stat == ES_NOT_HANDLED)
     {
         t_stat = t_object -> handle((Handler_type)p_handler_type, p_message, p_parameters, t_object.Get());
-        if (MCWorkerGetCurrent() != nullptr)
-            fprintf(stderr, "[MCDoDispatch/worker] msg='%s' handle_stat=%d\n",
-                    MCStringGetCString(MCNameGetString(p_message)), (int)t_stat);
         switch(t_stat)
         {
         case ES_ERROR:
