@@ -930,9 +930,9 @@ struct MCWindowsSystem: public MCSystemInterface
 				t_entry . name = data . cFileName;
 				t_entry . data_size = t_stat . st_size;
 				t_entry . resource_size = 0;
-				t_entry . creation_time = (uint32_t)t_stat . st_ctime;
-				t_entry . modification_time = (uint32_t)t_stat . st_mtime;
-				t_entry . access_time = (uint32_t)t_stat . st_atime;
+				t_entry . creation_time = (uint64_t)t_stat . st_ctime;
+				t_entry . modification_time = (uint64_t)t_stat . st_mtime;
+				t_entry . access_time = (uint64_t)t_stat . st_atime;
 				t_entry . permissions = t_stat . st_mode & 0777;
 				t_entry . is_folder = (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 

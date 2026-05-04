@@ -1326,8 +1326,8 @@ virtual real64_t GetCurrentMicroseconds(void)
             {
                 p_entry.name = *t_unicode_name;
                 p_entry.data_size = buf.st_size;
-                p_entry.modification_time = (uint32_t)buf.st_mtime;
-                p_entry.access_time = (uint32_t)buf.st_atime;
+                p_entry.modification_time = (uint64_t)buf.st_mtime;
+                p_entry.access_time = (uint64_t)buf.st_atime;
                 p_entry.group_id = buf.st_uid;
                 p_entry.user_id = buf.st_uid;
                 p_entry.permissions = buf.st_mode & 0777;

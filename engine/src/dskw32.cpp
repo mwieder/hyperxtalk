@@ -2354,7 +2354,7 @@ struct MCWindowsDesktop: public MCSystemInterface, public MCWindowsSystemService
     }
 	
 	// Utility function: converts FILETIME to a Unix time
-	static uint32_t FiletimeToUnix(const FILETIME& ft)
+	static uint64_t FiletimeToUnix(const FILETIME& ft)
 	{
 		// Assemble the FILETIME into a 64-bit integer
 		uint64_t u64;
@@ -2367,8 +2367,7 @@ struct MCWindowsDesktop: public MCSystemInterface, public MCWindowsSystemService
 		// Convert from 100ns intervals into seconds
 		u64 /= 10000000;
 
-		// Like all Unix times, this will overflow in 2038
-		return uint32_t(u64);
+		return u64;
 	}
 
 	virtual bool ListFolderEntries(MCStringRef p_folder, MCSystemListFolderEntriesCallback p_callback, void *x_context)

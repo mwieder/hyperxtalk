@@ -51,10 +51,10 @@ struct MCSystemFolderEntry
 	MCStringRef name;
 	int64_t data_size;
 	int64_t resource_size;
-	uint32_t creation_time;
-	uint32_t modification_time;
-	uint32_t access_time;
-	uint32_t backup_time;
+	uint64_t creation_time;
+	uint64_t modification_time;
+	uint64_t access_time;
+	uint64_t backup_time;
 	uint32_t user_id;
 	uint32_t group_id;
 	uint32_t permissions;
