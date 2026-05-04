@@ -34,8 +34,32 @@ extern void __MCValueDrainPoolForThread(void);
 #include "notify.h"
 
 #include "executionerrors.h"
+#include "debug.h"     // MCnexecutioncontexts (thread_local)
 
 #include "mcworker.h"
+
+// ---------------------------------------------------------------------------
+// Deferred callback queue
+//
+// Worker callbacks are delivered on the main thread via MCNotifyPush.  If a
+// callback arrives while the main thread is already executing a handler (e.g.
+// inside the event loop of an 'answer' modal dialog), dispatching another
+// handler from within that nested event loop would silently drop any further
+// modal dialogs on macOS.
+//
+// To avoid this, MCWorkerDeliverCallback defers the callback onto a
+// singly-linked list when MCnexecutioncontexts > 0.  It schedules exactly
+// one MCWorkerDrainCallbacks notification so the deferred items will be
+// retried at the next safe point.  The drain function also re-schedules
+// itself (once) if it fires while still inside a handler.  At most one drain
+// notification lives in the MCNotify queue at any moment.
+// ---------------------------------------------------------------------------
+static MCWorkerCallback *s_deferred_head   = nullptr;
+static MCWorkerCallback *s_deferred_tail   = nullptr;
+static bool              s_drain_scheduled = false;
+
+static void MCWorkerDrainCallbacks(void *);
+static void MCWorkerDeliverCallbackNow(MCWorkerCallback *t_cb);
 
 // ---------------------------------------------------------------------------
 // Thread-local: which MCWorker is currently running on this thread.
@@ -148,10 +172,9 @@ void MCWorkerMessageFree(MCWorkerMessage *p_msg)
 // MCWorkerCallback — delivered on main thread by MCNotify
 // ---------------------------------------------------------------------------
 
-void MCWorkerDeliverCallback(void *p_opaque)
+// Actual delivery — runs only when MCnexecutioncontexts == 0.
+static void MCWorkerDeliverCallbackNow(MCWorkerCallback *t_cb)
 {
-    MCWorkerCallback *t_cb = static_cast<MCWorkerCallback *>(p_opaque);
-
     // Look up the target stack by name; it may have been closed since the
     // callback was posted.
     MCStack *t_target_stack = MCdispatcher->findstackname(t_cb->target_name);
@@ -219,6 +242,67 @@ void MCWorkerDeliverCallback(void *p_opaque)
     MCValueRelease(t_cb->target_name);
     MCValueRelease(t_cb->message);
     delete t_cb;
+}
+
+// Drain deferred callbacks — fires from MCNotify when script-safe.
+// Schedules itself once more if we're still inside a handler execution.
+static void MCWorkerDrainCallbacks(void *)
+{
+    s_drain_scheduled = false;
+
+    if (MCnexecutioncontexts > 0)
+    {
+        // Still inside a handler (e.g. a modal dialog's event loop).
+        // Re-schedule exactly one more attempt; bail without delivering.
+        if (s_deferred_head != nullptr && !s_drain_scheduled)
+        {
+            s_drain_scheduled = true;
+            MCNotifyPush(MCWorkerDrainCallbacks, nullptr, false, true);
+        }
+        return;
+    }
+
+    // We're at the top level — drain all deferred callbacks in FIFO order.
+    while (s_deferred_head != nullptr)
+    {
+        MCWorkerCallback *t_cb = s_deferred_head;
+        s_deferred_head = t_cb->next;
+        if (s_deferred_head == nullptr)
+            s_deferred_tail = nullptr;
+        t_cb->next = nullptr;
+        MCWorkerDeliverCallbackNow(t_cb);
+    }
+}
+
+// MCNotify entry point — defers if we're inside a handler execution.
+void MCWorkerDeliverCallback(void *p_opaque)
+{
+    MCWorkerCallback *t_cb = static_cast<MCWorkerCallback *>(p_opaque);
+
+    // If we're currently executing a handler (MCnexecutioncontexts > 0),
+    // MCNotifyDispatch was called from a nested event loop (e.g. 'answer').
+    // Delivering another handler from here would nest modal dialogs on macOS,
+    // causing the inner dialog to be silently dropped.  Defer to a later
+    // top-level event loop iteration instead.
+    if (MCnexecutioncontexts > 0)
+    {
+        t_cb->next = nullptr;
+        if (s_deferred_tail != nullptr)
+            s_deferred_tail->next = t_cb;
+        else
+            s_deferred_head = t_cb;
+        s_deferred_tail = t_cb;
+
+        // Schedule exactly one drain attempt — avoid queueing duplicates.
+        if (!s_drain_scheduled)
+        {
+            s_drain_scheduled = true;
+            MCNotifyPush(MCWorkerDrainCallbacks, nullptr, false, true);
+        }
+        return;
+    }
+
+    MCWorkerDeliverCallbackNow(t_cb);
 }
 
 // ---------------------------------------------------------------------------
@@ -646,6 +730,7 @@ void MCWorkerExecDispatchToCaller(MCExecContext &ctxt,
         ctxt.LegacyThrow(EE_NO_MEMORY);
         return;
     }
+    t_cb->next = nullptr;
 
     // Capture the caller's name for use at delivery time (on the main thread).
     // We store a name rather than a raw pointer so MCdispatcher->findstackname()
