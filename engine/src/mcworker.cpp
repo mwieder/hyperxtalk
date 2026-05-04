@@ -8,6 +8,8 @@ Software Foundation.  */
 
 #include "prefix.h"
 
+#include <cstdio>  // fprintf, stderr
+
 #include "globdefs.h"
 #include "objdefs.h"
 #include "parsedef.h"
@@ -146,9 +148,12 @@ void MCWorkerDeliverCallback(void *p_opaque)
     MCWorkerCallback *t_cb = static_cast<MCWorkerCallback *>(p_opaque);
 
     // Verify the target stack still exists.
+    fprintf(stderr, "[MCWorker] delivering callback '%s' to stack %p\n",
+            MCStringGetCString(MCNameGetString(t_cb->message)), (void *)t_cb->target);
     if (t_cb->target == nullptr ||
         MCdispatcher->findstackid(t_cb->target->getid()) == nullptr)
     {
+        fprintf(stderr, "[MCWorker] callback target stack not found — dropping\n");
         MCWorkerParamsFree(t_cb->params, t_cb->param_count);
         MCValueRelease(t_cb->message);
         delete t_cb;
@@ -318,6 +323,8 @@ void MCWorker::RunLoop()
 
     // Register as the current worker on this thread.
     tls_current_worker = this;
+    fprintf(stderr, "[MCWorker] thread started for worker '%s'\n",
+            MCStringGetCString(m_name));
 
     for (;;)
     {
@@ -343,6 +350,9 @@ void MCWorker::RunLoop()
         // -----------------------------------------------------------------------
         // Expose the caller stack so 'dispatch to caller' can find it.
         // -----------------------------------------------------------------------
+        fprintf(stderr, "[MCWorker] dequeued message '%s' (caller=%p)\n",
+                MCStringGetCString(MCNameGetString(t_msg->message)),
+                (void *)t_msg->caller_stack);
         m_current_caller = t_msg->caller_stack;
 
         // -----------------------------------------------------------------------
@@ -381,6 +391,9 @@ void MCWorker::RunLoop()
         t_ctxt.SetWorkerIt(t_it_ref);
         MCEngineExecDispatch(t_ctxt, HT_MESSAGE, t_msg->message,
                              &t_target, t_first);
+
+        fprintf(stderr, "[MCWorker] dispatch returned (error=%d)\n",
+                (int)t_ctxt.GetExecStat());
 
         // Free the parameter list.
         MCParameter *t_p = t_first;
@@ -577,6 +590,9 @@ void MCWorkerExecDispatchToCaller(MCExecContext &ctxt,
 {
     // Must be executing inside a worker handler.
     MCWorker *t_worker = tls_current_worker;
+    fprintf(stderr, "[MCWorker] dispatch to caller: tls=%p caller=%p\n",
+            (void *)t_worker,
+            t_worker ? (void *)t_worker->GetCurrentCaller() : nullptr);
     if (t_worker == nullptr || t_worker->GetCurrentCaller() == nullptr)
     {
         ctxt.UserThrow(MCSTR("dispatch to caller: not currently executing inside a worker"));
