@@ -9,7 +9,9 @@ Software Foundation.  */
 #ifndef __MC_WORKER_H__
 #define __MC_WORKER_H__
 
-#include <pthread.h>
+#include <mutex>
+#include <condition_variable>
+#include <thread>
 
 class MCStack;
 class MCExecContext;
@@ -133,17 +135,16 @@ private:
     MCStack     *m_current_caller;  // set transiently during handler execution
 
     // Background thread
-    pthread_t        m_thread;
-    bool             m_thread_started;
+    std::thread              m_thread;
 
     // Incoming message queue (written by main thread, drained by worker)
-    pthread_mutex_t  m_queue_mutex;
-    pthread_cond_t   m_queue_cond;
-    MCWorkerMessage *m_queue_head;
-    MCWorkerMessage *m_queue_tail;
-    bool             m_stop;
+    std::mutex               m_queue_mutex;
+    std::condition_variable  m_queue_cond;
+    MCWorkerMessage         *m_queue_head;
+    MCWorkerMessage         *m_queue_tail;
+    bool                     m_stop;
 
-    static void *ThreadEntry(void *p_arg);
+    static void ThreadEntry(MCWorker *p_worker);
     void         RunLoop();
 };
 

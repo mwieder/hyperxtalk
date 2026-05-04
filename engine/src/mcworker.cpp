@@ -260,21 +260,19 @@ MCWorker::MCWorker(MCStringRef p_name)
     : next(nullptr),
       m_stack(nullptr),
       m_current_caller(nullptr),
-      m_thread_started(false),
       m_queue_head(nullptr),
       m_queue_tail(nullptr),
       m_stop(false)
 {
     m_name = MCValueRetain(p_name);
-    pthread_mutex_init(&m_queue_mutex, nullptr);
-    pthread_cond_init (&m_queue_cond,  nullptr);
+    // std::mutex and std::condition_variable are default-initialised — no
+    // explicit init calls needed.
 }
 
 MCWorker::~MCWorker()
 {
     MCValueRelease(m_name);
-    pthread_mutex_destroy(&m_queue_mutex);
-    pthread_cond_destroy (&m_queue_cond);
+    // std::mutex / std::condition_variable clean themselves up via RAII.
 
     // Drain any messages that were queued but never delivered.
     MCWorkerMessage *t_msg = m_queue_head;
@@ -288,49 +286,47 @@ MCWorker::~MCWorker()
 
 void MCWorker::PostMessage(MCWorkerMessage *p_msg)
 {
-    pthread_mutex_lock(&m_queue_mutex);
-    if (m_queue_tail == nullptr)
-        m_queue_head = m_queue_tail = p_msg;
-    else
     {
-        m_queue_tail->next = p_msg;
-        m_queue_tail       = p_msg;
+        std::lock_guard<std::mutex> t_lock(m_queue_mutex);
+        if (m_queue_tail == nullptr)
+            m_queue_head = m_queue_tail = p_msg;
+        else
+        {
+            m_queue_tail->next = p_msg;
+            m_queue_tail       = p_msg;
+        }
     }
-    pthread_cond_signal(&m_queue_cond);
-    pthread_mutex_unlock(&m_queue_mutex);
+    m_queue_cond.notify_one();
 }
 
 bool MCWorker::StartThread()
 {
-    if (m_thread_started)
+    if (m_thread.joinable())
         return true;
 
-    int t_err = pthread_create(&m_thread, nullptr, ThreadEntry, this);
-    if (t_err != 0)
-        return false;
-
-    m_thread_started = true;
+    // With -fno-exceptions a failed std::thread construction calls
+    // std::terminate(), so there is no catchable failure path here.
+    m_thread = std::thread(ThreadEntry, this);
     return true;
 }
 
 void MCWorker::StopThread()
 {
-    if (!m_thread_started)
+    if (!m_thread.joinable())
         return;
 
-    pthread_mutex_lock(&m_queue_mutex);
-    m_stop = true;
-    pthread_cond_signal(&m_queue_cond);
-    pthread_mutex_unlock(&m_queue_mutex);
+    {
+        std::lock_guard<std::mutex> t_lock(m_queue_mutex);
+        m_stop = true;
+    }
+    m_queue_cond.notify_one();
 
-    pthread_join(m_thread, nullptr);
-    m_thread_started = false;
+    m_thread.join();
 }
 
-/*static*/ void *MCWorker::ThreadEntry(void *p_arg)
+/*static*/ void MCWorker::ThreadEntry(MCWorker *p_worker)
 {
-    static_cast<MCWorker *>(p_arg)->RunLoop();
-    return nullptr;
+    p_worker->RunLoop();
 }
 
 void MCWorker::RunLoop()
@@ -377,21 +373,20 @@ void MCWorker::RunLoop()
         // -----------------------------------------------------------------------
         // Wait for the next message.
         // -----------------------------------------------------------------------
-        pthread_mutex_lock(&m_queue_mutex);
-        while (m_queue_head == nullptr && !m_stop)
-            pthread_cond_wait(&m_queue_cond, &m_queue_mutex);
-
-        if (m_stop && m_queue_head == nullptr)
+        MCWorkerMessage *t_msg;
         {
-            pthread_mutex_unlock(&m_queue_mutex);
-            break;
-        }
+            std::unique_lock<std::mutex> t_lock(m_queue_mutex);
+            m_queue_cond.wait(t_lock,
+                [this]{ return m_queue_head != nullptr || m_stop; });
 
-        MCWorkerMessage *t_msg = m_queue_head;
-        m_queue_head = t_msg->next;
-        if (m_queue_head == nullptr)
-            m_queue_tail = nullptr;
-        pthread_mutex_unlock(&m_queue_mutex);
+            if (m_stop && m_queue_head == nullptr)
+                break;
+
+            t_msg        = m_queue_head;
+            m_queue_head = t_msg->next;
+            if (m_queue_head == nullptr)
+                m_queue_tail = nullptr;
+        }
 
         // -----------------------------------------------------------------------
         // Expose the caller stack so 'dispatch to caller' can find it.
