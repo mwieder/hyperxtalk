@@ -1095,6 +1095,7 @@ const LT factor_table[] =
         {"id", TT_PROPERTY, P_ID},
         {"idlerate", TT_PROPERTY, P_IDLE_RATE},
         {"idleticks", TT_PROPERTY, P_IDLE_TICKS},
+        {"iff", TT_FUNCTION, F_IFF},
         // MERG-2014-06-02: [[ IgnoreMouseEvents ]] ignoreMouseEvents stack property
         {"ignoremouseevents", TT_PROPERTY, P_IGNORE_MOUSE_EVENTS},
         {"image", TT_CHUNK, CT_IMAGE},
@@ -1111,7 +1112,6 @@ const LT factor_table[] =
 		{"innerglow", TT_PROPERTY, P_BITMAP_EFFECT_INNER_GLOW},
 		{"innershadow", TT_PROPERTY, P_BITMAP_EFFECT_INNER_SHADOW},
         {"internet", TT_PROPERTY, P_INTERNET},
-        {"iff", TT_FUNCTION, F_IFF},
         {"interrupt", TT_FUNCTION, F_INTERRUPT},
         {"intersect", TT_FUNCTION, F_INTERSECT},
         {"into", TT_PREP, PT_INTO},

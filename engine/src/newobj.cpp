@@ -535,6 +535,8 @@ MCExpression *MCN_new_function(int2 which)
 		return new MCHeapSpace;
 	case F_HTTP_PROXY_FOR_URL:
 		return new MCHTTPProxyForURL;
+	case F_IFF:
+		return new MCIff;
 	case F_INTERRUPT:
 		return new MCInterrupt;
 	case F_HA:
@@ -545,8 +547,6 @@ MCExpression *MCN_new_function(int2 which)
 		return new MCHostName;
 	case F_HNTOA:
 		return new MCHostNtoA;
-	case F_IFF:
-		return new MCIff;
 	case F_INTERSECT:
 		return new MCIntersect;
 	case F_IS_NUMBER:
