@@ -1602,7 +1602,15 @@ public:
 	{
         m_curhandler = p_handler;
 	}
-	
+
+    // Worker-thread support: provide a fallback 'it' variable for contexts
+    // that have no enclosing handler (used by MCWorker::RunLoop and
+    // MCWorkerDeliverCallback so MCEngineExecDispatch can write 'it').
+    void SetWorkerIt(MCVariable *p_it)
+    {
+        m_worker_it = p_it;
+    }
+
     MCHandlerlist *GetHandlerList() const
 	{
         return m_hlist;
@@ -1763,7 +1771,12 @@ private:
 
     MCHandlerlist *m_hlist;
     MCHandler *m_curhandler;
-    
+
+    // Used by worker threads, which have no enclosing handler at dispatch
+    // time.  Set via SetWorkerIt(); checked by GetIt() as a fallback when
+    // m_curhandler is nullptr (non-server builds only).
+    MCVariable *m_worker_it;
+
     MCStringRef m_itemdel;
     MCStringRef m_columndel;
     MCStringRef m_linedel;
