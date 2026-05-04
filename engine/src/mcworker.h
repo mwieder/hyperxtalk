@@ -62,7 +62,8 @@ void             MCWorkerMessageFree(MCWorkerMessage *p_msg);
 
 struct MCWorkerCallback
 {
-    MCStack        *target;        // main-thread stack to dispatch into
+    MCNameRef       target_name;   // retained name of the calling stack; looked
+                                   // up via MCdispatcher->findstackname() on delivery
     MCNameRef       message;
     MCWorkerParam  *params;
     uint32_t        param_count;

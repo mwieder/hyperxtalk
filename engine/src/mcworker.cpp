@@ -152,14 +152,17 @@ void MCWorkerDeliverCallback(void *p_opaque)
 {
     MCWorkerCallback *t_cb = static_cast<MCWorkerCallback *>(p_opaque);
 
-    // Verify the target stack still exists.
-    fprintf(stderr, "[MCWorker] delivering callback '%s' to stack %p\n",
-            MCStringGetCString(MCNameGetString(t_cb->message)), (void *)t_cb->target);
-    if (t_cb->target == nullptr ||
-        MCdispatcher->findstackid(t_cb->target->getid()) == nullptr)
+    // Look up the target stack by name; it may have been closed since the
+    // callback was posted.
+    MCStack *t_target_stack = MCdispatcher->findstackname(t_cb->target_name);
+    fprintf(stderr, "[MCWorker] delivering callback '%s' to stack named '%s' (%s)\n",
+            MCStringGetCString(MCNameGetString(t_cb->message)),
+            MCStringGetCString(MCNameGetString(t_cb->target_name)),
+            t_target_stack ? "found" : "NOT FOUND — dropping");
+    if (t_target_stack == nullptr)
     {
-        fprintf(stderr, "[MCWorker] callback target stack not found — dropping\n");
         MCWorkerParamsFree(t_cb->params, t_cb->param_count);
+        MCValueRelease(t_cb->target_name);
         MCValueRelease(t_cb->message);
         delete t_cb;
         return;
@@ -186,7 +189,7 @@ void MCWorkerDeliverCallback(void *p_opaque)
 
     // Dispatch the callback on the main thread.
     MCObjectPtr t_target;
-    t_target.object  = t_cb->target;
+    t_target.object  = t_target_stack;
     t_target.part_id = 0;
 
     // MCEngineExecDispatch writes to 'it' after every dispatch.  This context
@@ -213,6 +216,7 @@ void MCWorkerDeliverCallback(void *p_opaque)
     }
 
     MCWorkerParamsFree(t_cb->params, t_cb->param_count);
+    MCValueRelease(t_cb->target_name);
     MCValueRelease(t_cb->message);
     delete t_cb;
 }
@@ -643,7 +647,11 @@ void MCWorkerExecDispatchToCaller(MCExecContext &ctxt,
         return;
     }
 
-    t_cb->target      = t_worker->GetCurrentCaller();
+    // Capture the caller's name for use at delivery time (on the main thread).
+    // We store a name rather than a raw pointer so MCdispatcher->findstackname()
+    // can verify the stack still exists — findstackid() fails for stacks whose
+    // obj_id is 0 (not explicitly assigned).
+    t_cb->target_name = MCValueRetain(t_worker->GetCurrentCaller()->getname());
     t_cb->message     = MCValueRetain(p_message);
     t_cb->params      = t_params;
     t_cb->param_count = t_count;
