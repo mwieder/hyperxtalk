@@ -293,8 +293,9 @@ void MCWorker::RunLoop()
     MCabortscript     = False;
     MCresultmode      = kMCExecResultModeReturn;
 
-    // Create a fresh, unnamed result variable for this thread.
-    MCresult = new (nothrow) MCVariable();
+    // Create a fresh result variable for this thread using the same factory
+    // the main thread uses (MCVariable's default constructor is protected).
+    /* UNCHECKED */ MCVariable::createwithname(MCNAME("MCresult"), MCresult);
 
     // Register as the current worker on this thread.
     tls_current_worker = this;
