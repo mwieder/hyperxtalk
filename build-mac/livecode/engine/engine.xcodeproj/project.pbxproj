@@ -99,220 +99,226 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		03A3C2B3AEEB998C83E5D129 /* libicuio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 30DBA9DA1D200DDDD99D4892 /* libicuio.a */; };
+		02EF5D1010E4FEDFB901C090 /* libcups.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 40CBA8A477415E76D92D18EA /* libcups.dylib */; };
+		0381F32F80EC6A1947D63C87 /* libicuuc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FFCA982B503572DCA9650E6 /* libicuuc.a */; };
 		03AB8AD91D972980C48ABCBC /* libpcre (host).a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F318EDA2A9A17DC2B045642 /* libpcre (host).a */; };
-		03E99974E89F17C88EBE693C /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1D042857F01B945E7A531FC /* Carbon.framework */; };
 		049E9144C0D0C0FE1469D96E /* libskia_opt_arm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 72C05C8B63AA37C8ED22E2AA /* libskia_opt_arm.a */; };
-		050095CF5C9E4EFF0A85B97D /* libicutu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49F491936D472AE302E7924D /* libicutu.a */; };
 		056ADBE26782BBB34BB155B4 /* libScript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 69D08846995F47A4316C7842 /* libScript.a */; };
-		05E1296AB8E15764C47C78BC /* libcups.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 40CBA8A477415E76D92D18EA /* libcups.dylib */; };
+		057C45CE4552662619E8ADD2 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3A6C181A1AB2B6376AEA190 /* WebKit.framework */; };
+		06C45C6ED53705F226910F65 /* libicui18n.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DF2031CA40F78D1D995F4D2 /* libicui18n.a */; };
+		072CE564DF8FEA49233A9C1F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2E04E5A11866B3B48AA3D410 /* Foundation.framework */; };
 		0797F569125E68FAA78F308A /* startupstack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDA20FAB76F0A980A099F4C5 /* startupstack.cpp */; };
+		0821C65AAF80DFAE2806188D /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1D042857F01B945E7A531FC /* Carbon.framework */; };
 		0827F1212F7BF35CE04A3CFD /* libskia_opt_avx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EDD9849D7D0D6142C444FD0B /* libskia_opt_avx.a */; };
+		089D691372F1066076B87CF7 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B6B494B78C5B2FF2D592A28 /* Accelerate.framework */; };
 		095D60104DD27C10A447030F /* libFoundation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 50836C43A6EBD90CD5CFB73A /* libFoundation.a */; };
 		0A391A81B1F0911D29D784FF /* libskia_opt_avx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EDD9849D7D0D6142C444FD0B /* libskia_opt_avx.a */; };
-		0C30731EB58B1196DB0783A1 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9085221E561C3041C597767 /* Security.framework */; };
+		0AD33D915979C1F067EDFCCF /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FF5F84EC673493AF752ED34 /* CoreGraphics.framework */; };
+		0BD31A0E4DEAE075BB4805DB /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7CA036E985B1015AF9FE9356 /* ApplicationServices.framework */; };
+		0BD8A7720319D629F3B7B7A3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2E04E5A11866B3B48AA3D410 /* Foundation.framework */; };
 		0CB0C72CADA979F16BA749BD /* libScript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 69D08846995F47A4316C7842 /* libScript.a */; };
-		0D8709C8E736E3A93AB8BA43 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 579691938457283837E7DFEE /* AudioToolbox.framework */; };
-		0E0011AAE8400BCFF86FEB06 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 579691938457283837E7DFEE /* AudioToolbox.framework */; };
 		0E29D7789DAEE5721E072545 /* libskia_opt_sse42 (host).a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B8EFB08807A5659D3DAB1EE /* libskia_opt_sse42 (host).a */; };
 		0F18348D6BB9F6D6C87E37FC /* Localisation.strings in Resources */ = {isa = PBXBuildFile; fileRef = FF1ECF3BF79519BA821A3EF9 /* Localisation.strings */; };
-		102A5AC55C5C08F4239FE29A /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 445CF12E072C34F29DBFD95B /* IOKit.framework */; };
+		10A03572ECDE4726C0F03BAE /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 445CF12E072C34F29DBFD95B /* IOKit.framework */; };
 		114FF95221FE4B567682EC17 /* libffi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 51785C2E9DF34B3C5FC7902B /* libffi.a */; };
+		1220619FE1C93A81BACECF22 /* libffi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C9395DE81FF5B7C6F006FEF9 /* libffi.a */; };
 		129A59BDE8371B0584DBA75F /* libskia_opt_sse41 (host).a in Frameworks */ = {isa = PBXBuildFile; fileRef = CDAD92C927D13F96CC3C0B18 /* libskia_opt_sse41 (host).a */; };
 		12C8A8DEC5EDC10194D35919 /* libskia_opt_none.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 369F0CAA6DB00AB55E8BD758 /* libskia_opt_none.a */; };
-		134B4FB58E8C625F2C2E18B1 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9085221E561C3041C597767 /* Security.framework */; };
 		13D0B48ED339A08524E33CB7 /* libScript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 69D08846995F47A4316C7842 /* libScript.a */; };
-		13F2699BFD7F89E3CE39DF11 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 579691938457283837E7DFEE /* AudioToolbox.framework */; };
-		1527BC53E24F9B34C1DD814C /* libicui18n.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DF2031CA40F78D1D995F4D2 /* libicui18n.a */; };
-		15DFB1031B9ECDB985DA1499 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC9B7AF8F28BE680EC5ACF1F /* Quartz.framework */; };
+		15F798E5786A505F4BA84348 /* libicui18n.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DF2031CA40F78D1D995F4D2 /* libicui18n.a */; };
 		1634E337D214CBD26643DFCE /* libskia_opt_sse2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A98174D110547D33F1DACA92 /* libskia_opt_sse2.a */; };
-		1670EE83FDBABFCCD91DC785 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FF5F84EC673493AF752ED34 /* CoreGraphics.framework */; };
-		17F7409A0C69413C0FA96339 /* MediaToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27FD540B4CE986BA3AA40CA2 /* MediaToolbox.framework */; };
 		18F2BFEA44A1DCF908A64573 /* terminology.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 38AA7DCFC6E5361FEE3EE60E /* terminology.sdef */; };
-		1A544D77BE21E10931A961E6 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2B52D24440498CE69EA1A85 /* Cocoa.framework */; };
+		194F5E1366B4C59A8F1627BA /* libicui18n.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DF2031CA40F78D1D995F4D2 /* libicui18n.a */; };
 		1A771E4F388ADD9A954D9A31 /* libskia_opt_none.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 369F0CAA6DB00AB55E8BD758 /* libskia_opt_none.a */; };
 		1B4AAB42822F8D7B049CFF3E /* libffi-host.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EB746157A71F0853D81D9FF0 /* libffi-host.a */; };
-		1CD1BF9143F7B9E840751E06 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FF5F84EC673493AF752ED34 /* CoreGraphics.framework */; };
 		1E6D1E841185619F30460145 /* engine_lcb_modules.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CECBD01ED4A616C388364D26 /* engine_lcb_modules.cpp */; };
-		1EF7665730963EC532FA6AB9 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF2617E3B7DE34289E4F10B1 /* CoreFoundation.framework */; };
+		1EE59076C20922EE3521FF67 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C017A5488895848B14CA4F1 /* AppKit.framework */; };
 		1F603F4C3BD59E6CA01F87EE /* libScript-host.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D50599B99398582AC55222B /* libScript-host.a */; };
 		1FC5C9471E7E5165638EA806 /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 562AE13E9F0BE93D0244CB26 /* libpng.a */; };
-		230A172A89AEEE3823FAD36B /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3A6C181A1AB2B6376AEA190 /* WebKit.framework */; };
 		23358DBD1248DFCBE7944EF7 /* libskia_opt_sse3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B825E37096F001277CDC357 /* libskia_opt_sse3.a */; };
-		2587C3A62C00D953DE985736 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1D042857F01B945E7A531FC /* Carbon.framework */; };
-		268D5B09D0443C6D834B8FE8 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC9B7AF8F28BE680EC5ACF1F /* Quartz.framework */; };
+		26ACEA629F4877557C4AC6B5 /* libicuuc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FFCA982B503572DCA9650E6 /* libicuuc.a */; };
 		274DFDC6C34FD65F4298802D /* StandaloneDoc.icns in Resources */ = {isa = PBXBuildFile; fileRef = 833F7C255BF7A37821B40CAE /* StandaloneDoc.icns */; };
-		27F20D4BFA7BFE2D82FF794C /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 579691938457283837E7DFEE /* AudioToolbox.framework */; };
+		27F8D8F18727125B6CD69DCE /* libicuuc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FFCA982B503572DCA9650E6 /* libicuuc.a */; };
 		2875734F5B8F8BA22B564C17 /* Localisation.strings in Resources */ = {isa = PBXBuildFile; fileRef = FF1ECF3BF79519BA821A3EF9 /* Localisation.strings */; };
+		2877673039B7D17875342C53 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8416525A62C91BC008B2DAB1 /* CoreText.framework */; };
+		28AC2292E7DA9B0836C184C7 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1D042857F01B945E7A531FC /* Carbon.framework */; };
 		291517253FD3AEBAC1CAB4C2 /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 562AE13E9F0BE93D0244CB26 /* libpng.a */; };
-		2AF9FBFFFA6E3435F88B9AA9 /* libicuio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 30DBA9DA1D200DDDD99D4892 /* libicuio.a */; };
+		2AF7DBA1D5D409F47FB0B4B0 /* libicudata.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7862EBA8C3F6165E618A27A4 /* libicudata.a */; };
+		2B1079CB08AEA6429175B4B9 /* libcups.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 40CBA8A477415E76D92D18EA /* libcups.dylib */; };
 		2B2A084FC0E73FE01559D876 /* libpng (host).a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D840AD2BA2E220572DC9C9B /* libpng (host).a */; };
 		2B9C0D7A04343D126B16A8C9 /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 562AE13E9F0BE93D0244CB26 /* libpng.a */; };
+		2C987F2D89AD3B5373883B7A /* libcustomcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D54FAD2D1C6CE1BA74D58F1 /* libcustomcrypto.a */; };
+		2CA4ADC0034718A5EE9C5260 /* libcustomssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CF6FF9266510D41A0BE78063 /* libcustomssl.a */; };
 		2CF5AEA59778F78DA0938829 /* terminology.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 38AA7DCFC6E5361FEE3EE60E /* terminology.sdef */; };
+		2D119751CA21300005474C15 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FF5F84EC673493AF752ED34 /* CoreGraphics.framework */; };
+		2D4E6A1C15BFF388E8F5AC74 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8416525A62C91BC008B2DAB1 /* CoreText.framework */; };
 		2ECF2290AD614B643042C34F /* engine_lcb_modules.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CECBD01ED4A616C388364D26 /* engine_lcb_modules.cpp */; };
-		2FE2560FCA3638AF803F6C7E /* libffi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C9395DE81FF5B7C6F006FEF9 /* libffi.a */; };
+		2FAA809E599777B90FC0F906 /* libicutu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49F491936D472AE302E7924D /* libicutu.a */; };
+		303CD38DC930D1C11384B2B4 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3A6C181A1AB2B6376AEA190 /* WebKit.framework */; };
 		30746FC9240B78231CD879FA /* libkernel-development.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 323BEE8BAAEF4C82930133DC /* libkernel-development.a */; };
 		30AFCACC997EFF39F020FAF6 /* libgif.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 930E5D5E7404A2103EAF56CB /* libgif.a */; };
-		30B4DCB1B7A22ADB2237A947 /* libcustomssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CF6FF9266510D41A0BE78063 /* libcustomssl.a */; };
-		31CC46CB17A1189E8ED0E2F4 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 445CF12E072C34F29DBFD95B /* IOKit.framework */; };
-		3362FC9C0A6E0F22C41AA868 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A81BB630B5F0CF5E4C5F6036 /* JavaScriptCore.framework */; };
-		34BCE5E6F7F86E7E3810331B /* libcups.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 40CBA8A477415E76D92D18EA /* libcups.dylib */; };
+		31CEDE2E6176509DF03962B1 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8416525A62C91BC008B2DAB1 /* CoreText.framework */; };
+		3271F971A041C2D46EF4FE0A /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9085221E561C3041C597767 /* Security.framework */; };
+		3362636605E4A77F00AC13F1 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 445CF12E072C34F29DBFD95B /* IOKit.framework */; };
+		344366B32BD6DDF4AD9AFEA3 /* libicuuc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FFCA982B503572DCA9650E6 /* libicuuc.a */; };
 		34EA471A573C07D5EEF30A7E /* libskia_opt_arm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 72C05C8B63AA37C8ED22E2AA /* libskia_opt_arm.a */; };
 		356A193FC1E1D774FDD8F84E /* Standalone.icns in Resources */ = {isa = PBXBuildFile; fileRef = DFDFB59A06CB83C8C197B055 /* Standalone.icns */; };
-		35B3B093A3E59EF8134DF748 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2E04E5A11866B3B48AA3D410 /* Foundation.framework */; };
-		37314C34F52DFED27C7FB4E8 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 47D2260307EB3E59175803F3 /* SystemConfiguration.framework */; };
-		3837A4858E2B465A0F98B904 /* libcustomcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D54FAD2D1C6CE1BA74D58F1 /* libcustomcrypto.a */; };
-		3930CF29D4610185E96B5492 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3A6C181A1AB2B6376AEA190 /* WebKit.framework */; };
-		3A8B25AEBF36A47AEF9EBF0D /* libcustomssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CF6FF9266510D41A0BE78063 /* libcustomssl.a */; };
+		37DBCC96AF9BE63F8352B139 /* libicui18n.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DF2031CA40F78D1D995F4D2 /* libicui18n.a */; };
+		38BD5695B42C59C92A7B5D1D /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A81BB630B5F0CF5E4C5F6036 /* JavaScriptCore.framework */; };
 		3AD383EE89AD053CD4D71E83 /* libskia_opt_hsw.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AFCBC97A1D1B794E5872D6ED /* libskia_opt_hsw.a */; };
-		3B1B7A4BFB070FEA55066F2A /* libffi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C9395DE81FF5B7C6F006FEF9 /* libffi.a */; };
-		3CC7DEACB140D94D21E1FDE4 /* libicuio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 30DBA9DA1D200DDDD99D4892 /* libicuio.a */; };
-		3D9E6A09CCDDD7847A191512 /* libicutu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49F491936D472AE302E7924D /* libicutu.a */; };
+		3CCCFFA20C8A2A310C794D92 /* MediaToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27FD540B4CE986BA3AA40CA2 /* MediaToolbox.framework */; };
 		3E21CFBF308EA95B3216069E /* libFoundation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 50836C43A6EBD90CD5CFB73A /* libFoundation.a */; };
-		3E4E448A0436123C7967FA72 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9085221E561C3041C597767 /* Security.framework */; };
 		3E6AAD5CD647A0079F213A02 /* libpcre.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C625828BEB5C2F1E09390B8 /* libpcre.a */; };
 		3E74F9181D5CBC639DF82EDE /* stdscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D5DA91B5C51EE6E84A5F2682 /* stdscript.a */; };
 		3EAEE10F8A9B1CDDA0A4FAE8 /* libgif.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 930E5D5E7404A2103EAF56CB /* libgif.a */; };
-		3EB043035AFFFCAF1F372565 /* libicudata.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7862EBA8C3F6165E618A27A4 /* libicudata.a */; };
 		3FE0584D723DFAC96BD88447 /* dummy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE95FB8405383C1DE5775625 /* dummy.cpp */; };
-		414CF50EA4FE488ECD40DE76 /* libcustomcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D54FAD2D1C6CE1BA74D58F1 /* libcustomcrypto.a */; };
-		43E5435D2B9AE63A1CD16353 /* libicui18n.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DF2031CA40F78D1D995F4D2 /* libicui18n.a */; };
 		440403A679861BB1B856397D /* libskia_opt_avx (host).a in Frameworks */ = {isa = PBXBuildFile; fileRef = A10FCB65BBF8EFD204F7BA17 /* libskia_opt_avx (host).a */; };
-		457165580529D7ABFB7EE8CF /* libcustomcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D54FAD2D1C6CE1BA74D58F1 /* libcustomcrypto.a */; };
-		4575B0ADED12D6A081D912B0 /* libcups.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 40CBA8A477415E76D92D18EA /* libcups.dylib */; };
-		457928E1D50F9894EA058B57 /* libcustomcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D54FAD2D1C6CE1BA74D58F1 /* libcustomcrypto.a */; };
-		4672B269C0C8BD4727C2E0C5 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3A6C181A1AB2B6376AEA190 /* WebKit.framework */; };
-		49713254DBDC67BE1026DFA2 /* libicutu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49F491936D472AE302E7924D /* libicutu.a */; };
+		47D2DB6427CC06CFDE52335F /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2B52D24440498CE69EA1A85 /* Cocoa.framework */; };
 		49DACD8673A5B41276E9D2F8 /* HyperXTalk.rsrc in Resources */ = {isa = PBXBuildFile; fileRef = A2FA5F34C349F1903257F9D6 /* HyperXTalk.rsrc */; };
-		4CFDEE3CF8D8B7405D5A8B94 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 47D2260307EB3E59175803F3 /* SystemConfiguration.framework */; };
-		4D0BB281E8A17B1806923555 /* libicutu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49F491936D472AE302E7924D /* libicutu.a */; };
+		49EF4AEBC6E6E93C39294409 /* libcups.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 40CBA8A477415E76D92D18EA /* libcups.dylib */; };
+		4A8938241DE242ACDF8EBE71 /* libicuio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 30DBA9DA1D200DDDD99D4892 /* libicuio.a */; };
+		4C001C211AEF4203969D6CAE /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9085221E561C3041C597767 /* Security.framework */; };
+		4D2A3BC1F7217B806FC4E384 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8416525A62C91BC008B2DAB1 /* CoreText.framework */; };
 		4D7C0CF50848779FA6A54660 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94A9922D48175DA0E1D5BBDA /* main.cpp */; };
 		4DCD51FCD468B87705C11FD9 /* HyperXTalk.rsrc in Resources */ = {isa = PBXBuildFile; fileRef = A2FA5F34C349F1903257F9D6 /* HyperXTalk.rsrc */; };
-		4E75B3A627E581DBCCC20CC9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2E04E5A11866B3B48AA3D410 /* Foundation.framework */; };
-		4EDDFDF09504E3E5F092C31E /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7CA036E985B1015AF9FE9356 /* ApplicationServices.framework */; };
+		4FC4CE895E1DEA91083EA417 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2E04E5A11866B3B48AA3D410 /* Foundation.framework */; };
 		50DD9D3E6104778F149B593D /* libbrowser.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 042B0B4AEE827523B371BD9C /* libbrowser.a */; };
-		516FA8FB20DCE8B4013CA4EA /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC44BDB13ECEE5596F184C94 /* CoreMedia.framework */; };
-		5433544620AC1D31A8A5E059 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9085221E561C3041C597767 /* Security.framework */; };
-		54D2CFE187F54B76FDDD9023 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 47D2260307EB3E59175803F3 /* SystemConfiguration.framework */; };
+		51CA5AC1B41AC47C9F1444BA /* libcustomssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CF6FF9266510D41A0BE78063 /* libcustomssl.a */; };
+		52D1084DF7A96985564FFF79 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1D042857F01B945E7A531FC /* Carbon.framework */; };
 		55633A8EBE9CA186F9648F14 /* libskia_opt_sse3 (host).a in Frameworks */ = {isa = PBXBuildFile; fileRef = B49DFA15F1D0E2EEE3DCAC32 /* libskia_opt_sse3 (host).a */; };
-		5603DC2D8E5D41DF613C5696 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8416525A62C91BC008B2DAB1 /* CoreText.framework */; };
+		556C729BB773F76606C2AB00 /* libicudata.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7862EBA8C3F6165E618A27A4 /* libicudata.a */; };
 		57324AB42804296CD7894815 /* libskia_opt_none (host).a in Frameworks */ = {isa = PBXBuildFile; fileRef = AF8BD5E63094EB391C3CA1A2 /* libskia_opt_none (host).a */; };
-		58BE66D44BDDE1B361603CDE /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8416525A62C91BC008B2DAB1 /* CoreText.framework */; };
+		5750C99E917DC4E765D88C34 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF2617E3B7DE34289E4F10B1 /* CoreFoundation.framework */; };
+		58C61BB56E9FE03E792B2066 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A81BB630B5F0CF5E4C5F6036 /* JavaScriptCore.framework */; };
 		58FA9DCE2E7BA73126FD38D3 /* libgif.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 930E5D5E7404A2103EAF56CB /* libgif.a */; };
-		592036CEAB3F1EAE4E14446D /* libicudata.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7862EBA8C3F6165E618A27A4 /* libicudata.a */; };
 		5A1D5997B7DB87F7556DF422 /* libskia_opt_arm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 72C05C8B63AA37C8ED22E2AA /* libskia_opt_arm.a */; };
-		5B1AEE423738FC90F8F34B2D /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC9B7AF8F28BE680EC5ACF1F /* Quartz.framework */; };
+		5AF537FD4FD02DBFD80DA90A /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF2617E3B7DE34289E4F10B1 /* CoreFoundation.framework */; };
 		5B4E0C16D16AF2FF5F1FDEBA /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F9F99AE5FE42CEBB601B6194 /* libz.a */; };
+		5C1354DC7F1C8DD94EEC7195 /* libcustomcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D54FAD2D1C6CE1BA74D58F1 /* libcustomcrypto.a */; };
 		5DB0D214274E9B79E3394754 /* engine_lcb_modules.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CECBD01ED4A616C388364D26 /* engine_lcb_modules.cpp */; };
-		5E03B4B983ECA92252EED97D /* libcups.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 40CBA8A477415E76D92D18EA /* libcups.dylib */; };
-		60C6F23979A3C055DD76B901 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7CA036E985B1015AF9FE9356 /* ApplicationServices.framework */; };
+		5E4DC06756A065142F826B5C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2E04E5A11866B3B48AA3D410 /* Foundation.framework */; };
+		5F32A6FEED2EE5F344E93347 /* libcustomcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D54FAD2D1C6CE1BA74D58F1 /* libcustomcrypto.a */; };
+		5FFB149AC7249E6665AAA209 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF2617E3B7DE34289E4F10B1 /* CoreFoundation.framework */; };
 		60EFAC1836045552B048ACFE /* libskia_opt_hsw (host).a in Frameworks */ = {isa = PBXBuildFile; fileRef = 48DF4E017222A39C596EDEF2 /* libskia_opt_hsw (host).a */; };
-		624810DC739B9FE98BEC8C1F /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC44BDB13ECEE5596F184C94 /* CoreMedia.framework */; };
+		62265FF47693AE021F1BA519 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2B52D24440498CE69EA1A85 /* Cocoa.framework */; };
 		63C357DE196F3E84A2479D4C /* libskia_opt_arm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 72C05C8B63AA37C8ED22E2AA /* libskia_opt_arm.a */; };
-		649947B0197F3DB186CC66C6 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A81BB630B5F0CF5E4C5F6036 /* JavaScriptCore.framework */; };
+		65CFD506C4944079C72C5103 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3A6C181A1AB2B6376AEA190 /* WebKit.framework */; };
+		65DAADD97914947EA27A4A5C /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 579691938457283837E7DFEE /* AudioToolbox.framework */; };
 		670F5B2E903ABCA64F192EFC /* libpcre.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C625828BEB5C2F1E09390B8 /* libpcre.a */; };
 		67B3CE6FB4E0AC32786E0F6B /* libFoundation-host.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DBFF61BA8FA2C7543A823657 /* libFoundation-host.a */; };
+		68347BE6861E3FAAD8F39056 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF2617E3B7DE34289E4F10B1 /* CoreFoundation.framework */; };
 		6910D786D5435DEA8CAA17EB /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 562AE13E9F0BE93D0244CB26 /* libpng.a */; };
-		6A42D3683F394B2C5B82EF14 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B6B494B78C5B2FF2D592A28 /* Accelerate.framework */; };
-		6DAD879BB782CA782207BA6F /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FF5F84EC673493AF752ED34 /* CoreGraphics.framework */; };
-		6DC19E11B00EBCC8EFA1AA12 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 445CF12E072C34F29DBFD95B /* IOKit.framework */; };
-		6DF95A11002408319280A41C /* libicui18n.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DF2031CA40F78D1D995F4D2 /* libicui18n.a */; };
+		6B59C080BD7F7BEBC433013D /* libicutu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49F491936D472AE302E7924D /* libicutu.a */; };
+		6CA71C59819DE1BB33B75189 /* libcups.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 40CBA8A477415E76D92D18EA /* libcups.dylib */; };
+		6CC0C7CEE4893FC7DB391852 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7CA036E985B1015AF9FE9356 /* ApplicationServices.framework */; };
+		6ED748B5AE5999A2B4B13FE4 /* libffi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C9395DE81FF5B7C6F006FEF9 /* libffi.a */; };
 		6F3E0B4D5DE928CCC06D6014 /* libpcre.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C625828BEB5C2F1E09390B8 /* libpcre.a */; };
-		6FFC41130A36B52AA1CD2767 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1D042857F01B945E7A531FC /* Carbon.framework */; };
-		71552E2C83F5EE8DBF218392 /* libicui18n.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DF2031CA40F78D1D995F4D2 /* libicui18n.a */; };
 		719D928A4F1EBD8CA9E12D2D /* libFoundation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 50836C43A6EBD90CD5CFB73A /* libFoundation.a */; };
 		7364F674E40DDB6518A0DFCF /* revpdfprinter.bundle in Copy to $(BUILT_PRODUCTS_DIR)/HyperXTalk.app/Contents/MacOS */ = {isa = PBXBuildFile; fileRef = 97A924D0B053CBDC95C8AA71 /* revpdfprinter.bundle */; };
-		7436AB8735F5B14C36BDC152 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9085221E561C3041C597767 /* Security.framework */; };
+		740FA049FEBA09323E433AA3 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 50B2B4BE64B43CB5E857D39A /* UserNotifications.framework */; };
+		747293ED8987570F0B71DAB2 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 50B2B4BE64B43CB5E857D39A /* UserNotifications.framework */; };
+		759D17C4D17561CA5D26FB98 /* libffi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C9395DE81FF5B7C6F006FEF9 /* libffi.a */; };
 		776FE8F366965DFF81BC6C27 /* libGraphics.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E03BC65C8F9488DE90E9823E /* libGraphics.a */; };
+		779869C4E3F2299C00C7822C /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FF5F84EC673493AF752ED34 /* CoreGraphics.framework */; };
+		77AE982178EA5417CA18B4B9 /* libicuio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 30DBA9DA1D200DDDD99D4892 /* libicuio.a */; };
+		77F19B73C2D59647A290EFDC /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FF5F84EC673493AF752ED34 /* CoreGraphics.framework */; };
+		77F2146528DF5B90279A816D /* libcustomcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D54FAD2D1C6CE1BA74D58F1 /* libcustomcrypto.a */; };
+		78F4B0AD3A5663A18125E5B2 /* libcups.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 40CBA8A477415E76D92D18EA /* libcups.dylib */; };
+		795B8493EA319986A7FFE32E /* libffi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C9395DE81FF5B7C6F006FEF9 /* libffi.a */; };
 		799B25CFFCFBE7CD3124C8BC /* stacksecurity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36DB9478D7E0DC0BF4E385CF /* stacksecurity.cpp */; };
 		79A803A26A58B37F7ADA2231 /* libkernel-installer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 21C86298F396EB077EAB58B8 /* libkernel-installer.a */; };
+		7A32F55CFB1A58E4CB64E815 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9085221E561C3041C597767 /* Security.framework */; };
 		7AA48F443D9F37F4B977FC04 /* libGraphics.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E03BC65C8F9488DE90E9823E /* libGraphics.a */; };
-		7ABA369BDD87CBD400CA3C76 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3A6C181A1AB2B6376AEA190 /* WebKit.framework */; };
 		7C1288E42E16A12889C952B6 /* engine_lcb_modules.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CECBD01ED4A616C388364D26 /* engine_lcb_modules.cpp */; };
 		7E28ED73277E9CCD5F7DE7AF /* libskia_opt_sse3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B825E37096F001277CDC357 /* libskia_opt_sse3.a */; };
-		8248E724CF866B75E4332985 /* MediaToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27FD540B4CE986BA3AA40CA2 /* MediaToolbox.framework */; };
+		7EFAAF6AFEDD9FF113B98AC6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2E04E5A11866B3B48AA3D410 /* Foundation.framework */; };
+		80E75DBFA6337B0AAB946BF1 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC44BDB13ECEE5596F184C94 /* CoreMedia.framework */; };
+		8179A08B0B09224051DD2395 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 445CF12E072C34F29DBFD95B /* IOKit.framework */; };
 		828AFD230769B083B2B92310 /* stdscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D5DA91B5C51EE6E84A5F2682 /* stdscript.a */; };
-		8441D7EF85F57E7F3B9A501A /* libcurl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E87CA7845C223C38DF1A7D30 /* libcurl.dylib */; };
-		847ECF78FE15FB1715ED24D5 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A81BB630B5F0CF5E4C5F6036 /* JavaScriptCore.framework */; };
+		846262D50F2736E500BF58B4 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B6B494B78C5B2FF2D592A28 /* Accelerate.framework */; };
 		84F1834405447D6618488A80 /* libFoundation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 50836C43A6EBD90CD5CFB73A /* libFoundation.a */; };
-		857F6E00406ED442504D1170 /* libicutu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49F491936D472AE302E7924D /* libicutu.a */; };
 		869F989B482859462B036DA5 /* libbrowser.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 042B0B4AEE827523B371BD9C /* libbrowser.a */; };
-		87D19999162086D52CEF1D93 /* libffi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C9395DE81FF5B7C6F006FEF9 /* libffi.a */; };
-		87DF69B5BBA4B8BE21941F06 /* libcustomssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CF6FF9266510D41A0BE78063 /* libcustomssl.a */; };
+		87900CFED66595433E1809DE /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC9B7AF8F28BE680EC5ACF1F /* Quartz.framework */; };
 		87F4115622F0740CD307182D /* libjpeg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AA248C0E9843DD2958D03B8A /* libjpeg.a */; };
 		8821BE8C8C71D13DDE9FE85D /* libsecurity-community.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 43AF16C8E0B365F6DE5C1CD7 /* libsecurity-community.a */; };
+		89397E63024DED7C2475B9D4 /* libicudata.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7862EBA8C3F6165E618A27A4 /* libicudata.a */; };
 		89860DCCD0D4F988BD5A6403 /* libskia_opt_sse2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A98174D110547D33F1DACA92 /* libskia_opt_sse2.a */; };
-		89AB6DDB380F00E52C3435AD /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7CA036E985B1015AF9FE9356 /* ApplicationServices.framework */; };
-		89B4931C634254E051E0A6F5 /* libcups.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 40CBA8A477415E76D92D18EA /* libcups.dylib */; };
 		8AF695A53E67FE728E91CFAF /* libskia_opt_sse41.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 280346BD7E86EE38C0D2C9B3 /* libskia_opt_sse41.a */; };
-		8B30437705028A3258CE8711 /* libcurl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E87CA7845C223C38DF1A7D30 /* libcurl.dylib */; };
+		8B3C40C96C07DA373AAEFA81 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC44BDB13ECEE5596F184C94 /* CoreMedia.framework */; };
 		8C8FF70FEE37933ED3382434 /* libskia.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CA9CDA4EA72652D029E05F2 /* libskia.a */; };
 		8CDFA31EA56F2A61E9C1251A /* libskia_opt_sse2 (host).a in Frameworks */ = {isa = PBXBuildFile; fileRef = C64DE6D0C2846BF8FA400E5C /* libskia_opt_sse2 (host).a */; };
-		8D20E9A26185A71A9C452E98 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2E04E5A11866B3B48AA3D410 /* Foundation.framework */; };
-		8D2CF51D2863614A31BB666B /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF2617E3B7DE34289E4F10B1 /* CoreFoundation.framework */; };
+		8E0346C704D042BAC0234A54 /* libcustomssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CF6FF9266510D41A0BE78063 /* libcustomssl.a */; };
 		8E6975A152639964670BAE59 /* libpcre.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C625828BEB5C2F1E09390B8 /* libpcre.a */; };
-		9020F7E7E989E739680FA8A6 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B6B494B78C5B2FF2D592A28 /* Accelerate.framework */; };
+		8F162B95E9438B0E2BC9867B /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 47D2260307EB3E59175803F3 /* SystemConfiguration.framework */; };
+		90207E3664E758F3A298EC2E /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 50B2B4BE64B43CB5E857D39A /* UserNotifications.framework */; };
+		9040B9BF44946BEDEAB66691 /* libicudata.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7862EBA8C3F6165E618A27A4 /* libicudata.a */; };
+		90453E5AB3A706451D0FBFB0 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B6B494B78C5B2FF2D592A28 /* Accelerate.framework */; };
 		90CD64DB6D8FABC4AF7D91C4 /* libskia_opt_sse41.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 280346BD7E86EE38C0D2C9B3 /* libskia_opt_sse41.a */; };
 		90DE5BED0696B8533CCD2D2E /* libkernel-server.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BB776BFD4BEC6B493B9AD8BF /* libkernel-server.a */; };
-		914F7505F2B6409C63300B3C /* libffi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C9395DE81FF5B7C6F006FEF9 /* libffi.a */; };
-		91DF7A2D0C61D94C8839100C /* libicuio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 30DBA9DA1D200DDDD99D4892 /* libicuio.a */; };
-		93DE77FB4398E573A546AD81 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF2617E3B7DE34289E4F10B1 /* CoreFoundation.framework */; };
+		9136DB48F0A0A844AFC12DFE /* libcurl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E87CA7845C223C38DF1A7D30 /* libcurl.dylib */; };
+		91EF994004D3FC95A47A3760 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7CA036E985B1015AF9FE9356 /* ApplicationServices.framework */; };
+		9368325596791FEDC288FD19 /* libicutu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49F491936D472AE302E7924D /* libicutu.a */; };
+		93C7B12D1628CE659EB9A7BE /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF2617E3B7DE34289E4F10B1 /* CoreFoundation.framework */; };
 		95BABDDCFCBB2756259C813B /* libkernel-server (host).a in Frameworks */ = {isa = PBXBuildFile; fileRef = 92A37F435378C203C6D5A2F0 /* libkernel-server (host).a */; };
 		95C7245ECE477CBCC454AA33 /* libskia_opt_sse2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A98174D110547D33F1DACA92 /* libskia_opt_sse2.a */; };
 		9682AD85DF7893BD94D39E00 /* libkernel.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C4858D912F1C4E0CA1293350 /* libkernel.a */; };
-		975C660A395F89D8A024F4B7 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3A6C181A1AB2B6376AEA190 /* WebKit.framework */; };
-		981688890C611FC19476377A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2B52D24440498CE69EA1A85 /* Cocoa.framework */; };
+		986678FA2AC10301568DAD5F /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 579691938457283837E7DFEE /* AudioToolbox.framework */; };
+		989ED23BE21B5947C820250E /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 445CF12E072C34F29DBFD95B /* IOKit.framework */; };
 		990A800ECCF3EF93BB5D050D /* engine_lcb_modules.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CECBD01ED4A616C388364D26 /* engine_lcb_modules.cpp */; };
+		99EA7B31D5669C09E075762C /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 50B2B4BE64B43CB5E857D39A /* UserNotifications.framework */; };
+		9AE2C28A5814FE40B1F51C38 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2B52D24440498CE69EA1A85 /* Cocoa.framework */; };
+		9AFA4A170710D9F0A62A202F /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A81BB630B5F0CF5E4C5F6036 /* JavaScriptCore.framework */; };
 		9B1BA8BE5C0583D74F7E4EDB /* libjpeg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AA248C0E9843DD2958D03B8A /* libjpeg.a */; };
-		9BB8CEE7998FA518077A95F5 /* libicui18n.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DF2031CA40F78D1D995F4D2 /* libicui18n.a */; };
-		9C700A22C2B0C2B253B4CC4B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2E04E5A11866B3B48AA3D410 /* Foundation.framework */; };
-		9D33A6E95798F4D48F01AA3E /* MediaToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27FD540B4CE986BA3AA40CA2 /* MediaToolbox.framework */; };
-		9D5428D0A6FAB10AB02462E1 /* libicudata.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7862EBA8C3F6165E618A27A4 /* libicudata.a */; };
+		9CAF390FAB066BA6E41D4A47 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 50B2B4BE64B43CB5E857D39A /* UserNotifications.framework */; };
 		9D9B1554CB46B1A6A5D4934D /* libkernel.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C4858D912F1C4E0CA1293350 /* libkernel.a */; };
+		9FF01C906477BACE4C25E007 /* libcustomssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CF6FF9266510D41A0BE78063 /* libcustomssl.a */; };
 		A0BE33F197A15DDDB0E7E4AF /* libskia_opt_avx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EDD9849D7D0D6142C444FD0B /* libskia_opt_avx.a */; };
-		A4665BBCEEDAD1B4D4EE1BB5 /* libicuuc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FFCA982B503572DCA9650E6 /* libicuuc.a */; };
-		A4DF17EF789991E632A5A8AD /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 445CF12E072C34F29DBFD95B /* IOKit.framework */; };
+		A1D0B112BF09E0B12349EAC9 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2B52D24440498CE69EA1A85 /* Cocoa.framework */; };
+		A3B318DC057CE5950CA7752C /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7CA036E985B1015AF9FE9356 /* ApplicationServices.framework */; };
+		A49F77B1D485067B28FF7097 /* libcustomcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D54FAD2D1C6CE1BA74D58F1 /* libcustomcrypto.a */; };
 		A518BE4282E4B299C62AEFBB /* libskia_opt_avx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EDD9849D7D0D6142C444FD0B /* libskia_opt_avx.a */; };
-		A5B61949B667614B97FBF2F6 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1D042857F01B945E7A531FC /* Carbon.framework */; };
 		A6D8E2F6531441FC98812B72 /* HyperXTalk.rsrc in Resources */ = {isa = PBXBuildFile; fileRef = A2FA5F34C349F1903257F9D6 /* HyperXTalk.rsrc */; };
-		A7D8337A836625598BBCCCED /* libcustomcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D54FAD2D1C6CE1BA74D58F1 /* libcustomcrypto.a */; };
 		A7EA4E4F1651A8685ED9400B /* libbrowser.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 042B0B4AEE827523B371BD9C /* libbrowser.a */; };
-		A80DFC64616438D1D37EB5FE /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 445CF12E072C34F29DBFD95B /* IOKit.framework */; };
-		A8F3E340EA0A0CDA298C1A16 /* libcustomssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CF6FF9266510D41A0BE78063 /* libcustomssl.a */; };
 		AB79D22BE9212867A636B8A5 /* libskia_opt_hsw.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AFCBC97A1D1B794E5872D6ED /* libskia_opt_hsw.a */; };
-		AE14FE0B74D8D055DE0372DC /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C017A5488895848B14CA4F1 /* AppKit.framework */; };
+		ABB32D543499B0B549C7FF2C /* libicuio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 30DBA9DA1D200DDDD99D4892 /* libicuio.a */; };
+		ABBDA916E71A33C69FAD6DF4 /* libcurl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E87CA7845C223C38DF1A7D30 /* libcurl.dylib */; };
 		AF2433D5BC588DC2B9EAF094 /* HyperXTalkDoc.icns in Resources */ = {isa = PBXBuildFile; fileRef = E03DF4A54F17DE97AB0EE7DD /* HyperXTalkDoc.icns */; };
-		B1A63334AE26ED9284B3B5F5 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7CA036E985B1015AF9FE9356 /* ApplicationServices.framework */; };
 		B1FDA62BF2315BDB3254D0F8 /* libffi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 51785C2E9DF34B3C5FC7902B /* libffi.a */; };
+		B33958B83DA912A50B697C2C /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A81BB630B5F0CF5E4C5F6036 /* JavaScriptCore.framework */; };
 		B34574FFCB739392091FEA0F /* libjpeg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AA248C0E9843DD2958D03B8A /* libjpeg.a */; };
 		B3F441BCF2ED85B5AB456614 /* libskia.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CA9CDA4EA72652D029E05F2 /* libskia.a */; };
-		B6A4543371C8F0A9434E62D2 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF2617E3B7DE34289E4F10B1 /* CoreFoundation.framework */; };
 		B8F518AF457B58DA6CC72B05 /* libskia_opt_arm (host).a in Frameworks */ = {isa = PBXBuildFile; fileRef = 726FE295B966854553AB2045 /* libskia_opt_arm (host).a */; };
+		B9C5CE626711D214ABF4BFF6 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 579691938457283837E7DFEE /* AudioToolbox.framework */; };
 		BA04721622C4A22A1339DC34 /* libskia_opt_sse3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B825E37096F001277CDC357 /* libskia_opt_sse3.a */; };
 		BA111A60BF166F8B5D6E15AB /* libskia_opt_sse42.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 267642A922931A516407AC21 /* libskia_opt_sse42.a */; };
 		BC6050983FBF889732862256 /* libskia_opt_none.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 369F0CAA6DB00AB55E8BD758 /* libskia_opt_none.a */; };
 		BE0FDBAF181950581A833063 /* libsecurity-community.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 43AF16C8E0B365F6DE5C1CD7 /* libsecurity-community.a */; };
-		BEB103C577DB050B1E254402 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FF5F84EC673493AF752ED34 /* CoreGraphics.framework */; };
 		BF0A8492B7F33BBEC818E13B /* libz-host.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 40EE1BED099A401197723F6B /* libz-host.a */; };
 		BF1AFF1A364F48C68786D1A5 /* libskia_opt_sse41.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 280346BD7E86EE38C0D2C9B3 /* libskia_opt_sse41.a */; };
-		C174FA428BBB29140B9DC26D /* libicuuc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FFCA982B503572DCA9650E6 /* libicuuc.a */; };
-		C208B992E63E410EF28714EA /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1D042857F01B945E7A531FC /* Carbon.framework */; };
+		BF4BA73F519CDA0ADBCE0960 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 47D2260307EB3E59175803F3 /* SystemConfiguration.framework */; };
+		BFBCF0E9539A63414D7B6300 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1D042857F01B945E7A531FC /* Carbon.framework */; };
+		BFF9D07F743A113A6E26503C /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8416525A62C91BC008B2DAB1 /* CoreText.framework */; };
+		C140FD3810B39F91584FB5B8 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3A6C181A1AB2B6376AEA190 /* WebKit.framework */; };
 		C2A093298C95B145CAB40B9D /* libskia_opt_sse2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A98174D110547D33F1DACA92 /* libskia_opt_sse2.a */; };
 		C3725C6E6D5343BB53B2BFD7 /* terminology.sdef in Resources */ = {isa = PBXBuildFile; fileRef = 38AA7DCFC6E5361FEE3EE60E /* terminology.sdef */; };
+		C3FF4824AB6CE7B2373FDE50 /* libcustomssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CF6FF9266510D41A0BE78063 /* libcustomssl.a */; };
 		C41366932C2BE278141618BC /* libGraphics.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E03BC65C8F9488DE90E9823E /* libGraphics.a */; };
-		C4457ED7768446BB857B23A6 /* libcustomssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CF6FF9266510D41A0BE78063 /* libcustomssl.a */; };
 		C47418537A8F04FC3FD40E22 /* libskia.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CA9CDA4EA72652D029E05F2 /* libskia.a */; };
 		C4FC86ADFA1982A9E617A366 /* libgif (host).a in Frameworks */ = {isa = PBXBuildFile; fileRef = FD0A69F5F454AB9293A8F305 /* libgif (host).a */; };
-		CAAA90C35C96FE8224A603C4 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8416525A62C91BC008B2DAB1 /* CoreText.framework */; };
-		CAECA40787D51E0EDC47C628 /* libicudata.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7862EBA8C3F6165E618A27A4 /* libicudata.a */; };
-		CCDC78A99F8A9A9AC4A88FEF /* libicuuc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FFCA982B503572DCA9650E6 /* libicuuc.a */; };
+		C8FFBB09B77E8915002809C2 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9085221E561C3041C597767 /* Security.framework */; };
+		C98AFD82AC7CCF6106D51696 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 579691938457283837E7DFEE /* AudioToolbox.framework */; };
+		CA87DBABE59C985195057732 /* libicutu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49F491936D472AE302E7924D /* libicutu.a */; };
+		CAE5E4998C14D567B72FBFDC /* MediaToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27FD540B4CE986BA3AA40CA2 /* MediaToolbox.framework */; };
+		CD3B17F9D8AACAB7D0C2CF59 /* libicuuc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FFCA982B503572DCA9650E6 /* libicuuc.a */; };
+		CDC271C2C7A8231EF292FD70 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3A6C181A1AB2B6376AEA190 /* WebKit.framework */; };
 		CDD385042B9D10815E7DDF0B /* libjpeg (host).a in Frameworks */ = {isa = PBXBuildFile; fileRef = A6EE287818D7FE4D9382C1FA /* libjpeg (host).a */; };
+		CFEF5F9388FEBDC862C12AB3 /* libicuio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 30DBA9DA1D200DDDD99D4892 /* libicuio.a */; };
 		D0C0D1B48DA3F764ED71C87B /* dummy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BE95FB8405383C1DE5775625 /* dummy.cpp */; };
 		D2175DD5F55E1CCEA45D3732 /* Installer.icns in Resources */ = {isa = PBXBuildFile; fileRef = FD53611CBA54B6A3B4687F76 /* Installer.icns */; };
+		D3FFDD163A4DDF1E1F0E2226 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2B52D24440498CE69EA1A85 /* Cocoa.framework */; };
 		D47BFF9B8EBD630776A9866A /* revsecurity.dylib in Copy to $(BUILT_PRODUCTS_DIR)/HyperXTalk.app/Contents/MacOS */ = {isa = PBXBuildFile; fileRef = F62803B18A3EAFE1D4A5916D /* revsecurity.dylib */; };
 		D4D4DBC7ECC46BFAFC82487B /* libgif.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 930E5D5E7404A2103EAF56CB /* libgif.a */; };
 		D6063FD3FBFE2EBB974D9F80 /* stdscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D5DA91B5C51EE6E84A5F2682 /* stdscript.a */; };
-		D68EE66A2C9FBF63360D1FF5 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B6B494B78C5B2FF2D592A28 /* Accelerate.framework */; };
 		D7B48BF12B2AA8BD2A8F5F77 /* stdscript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D5DA91B5C51EE6E84A5F2682 /* stdscript.a */; };
 		D7C357503EC3DB122845A122 /* libbrowser.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 042B0B4AEE827523B371BD9C /* libbrowser.a */; };
 		D821BD6F62E1E804D66106A3 /* libffi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 51785C2E9DF34B3C5FC7902B /* libffi.a */; };
@@ -320,55 +326,50 @@
 		D98A451435092684FE32C4D7 /* libGraphics (host).a in Frameworks */ = {isa = PBXBuildFile; fileRef = 96021B41BFD0C6028795E025 /* libGraphics (host).a */; };
 		D9C07E32652A626D545C7B62 /* stacksecurity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 36DB9478D7E0DC0BF4E385CF /* stacksecurity.cpp */; };
 		D9C19C78515E5052C41A7417 /* libskia_opt_sse42.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 267642A922931A516407AC21 /* libskia_opt_sse42.a */; };
-		D9E0C5317F003F4431205EA0 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FF5F84EC673493AF752ED34 /* CoreGraphics.framework */; };
 		DA83D7A354BE791CF71B12BC /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F9F99AE5FE42CEBB601B6194 /* libz.a */; };
 		DAF936ECA26E35C6396D4C3A /* libskia_opt_sse42.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 267642A922931A516407AC21 /* libskia_opt_sse42.a */; };
 		DCFF28413CB0634B58F5FBE9 /* libsecurity-community.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 43AF16C8E0B365F6DE5C1CD7 /* libsecurity-community.a */; };
+		DDBB79CDC4D5E1537CCFA9E1 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6FF5F84EC673493AF752ED34 /* CoreGraphics.framework */; };
+		DDDACC58E057E184381D1C7C /* libicudata.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7862EBA8C3F6165E618A27A4 /* libicudata.a */; };
 		DE01E314C9DA38EE7F0F9297 /* libskia.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CA9CDA4EA72652D029E05F2 /* libskia.a */; };
 		DE201EC8E60889DF4859E838 /* libskia (host).a in Frameworks */ = {isa = PBXBuildFile; fileRef = 709C943D4F485876E46DF04C /* libskia (host).a */; };
 		DE6E101EB7A3A31C119E7032 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94A9922D48175DA0E1D5BBDA /* main.cpp */; };
-		DEB1C6B52B996608D9DCB6F9 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2B52D24440498CE69EA1A85 /* Cocoa.framework */; };
+		DE7F5DFBCF2EB3E6B4A3FDBE /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1D042857F01B945E7A531FC /* Carbon.framework */; };
+		DFC61A18C4CF61E31E6756AF /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC9B7AF8F28BE680EC5ACF1F /* Quartz.framework */; };
 		E06D2D8DDB1D1546C8B0877C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94A9922D48175DA0E1D5BBDA /* main.cpp */; };
-		E1917A1FE80847E724315B46 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2B52D24440498CE69EA1A85 /* Cocoa.framework */; };
-		E2A29B20F8481C43CF6FE06E /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC44BDB13ECEE5596F184C94 /* CoreMedia.framework */; };
+		E0C102176327E11EF1A5B12B /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC9B7AF8F28BE680EC5ACF1F /* Quartz.framework */; };
+		E29B7E2F2858166CC9EBB056 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 47D2260307EB3E59175803F3 /* SystemConfiguration.framework */; };
 		E3F5B1C71A73DBB4069144FF /* libScript.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 69D08846995F47A4316C7842 /* libScript.a */; };
-		E578795CAA20A57A282F11A5 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 579691938457283837E7DFEE /* AudioToolbox.framework */; };
+		E43EE045B4018D6837A06E31 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC44BDB13ECEE5596F184C94 /* CoreMedia.framework */; };
+		E564AB025517B7B114B3FAFF /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9085221E561C3041C597767 /* Security.framework */; };
 		E63B20C1B36F953C9C98C916 /* libGraphics.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E03BC65C8F9488DE90E9823E /* libGraphics.a */; };
-		E64CF5C650D3F0BCDBABFE37 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF2617E3B7DE34289E4F10B1 /* CoreFoundation.framework */; };
-		E68B639781DF71724F541A37 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C017A5488895848B14CA4F1 /* AppKit.framework */; };
-		E762E2574E0D0332754032C8 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8416525A62C91BC008B2DAB1 /* CoreText.framework */; };
+		E7A7398881114DE37B639841 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 445CF12E072C34F29DBFD95B /* IOKit.framework */; };
+		E7EE11807531FA0C08A355C9 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C017A5488895848B14CA4F1 /* AppKit.framework */; };
 		E87B321C47800CB5940DE89F /* libskia_opt_none.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 369F0CAA6DB00AB55E8BD758 /* libskia_opt_none.a */; };
 		E8D545E56B1F63A2B0F2DBF1 /* libbrowser (host).a in Frameworks */ = {isa = PBXBuildFile; fileRef = C6D886B29AED0BEC070D5508 /* libbrowser (host).a */; };
-		EB077A651D9D4EED77D4384B /* libicudata.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7862EBA8C3F6165E618A27A4 /* libicudata.a */; };
+		E9ADB1B4774A0C8F209C1A5E /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 579691938457283837E7DFEE /* AudioToolbox.framework */; };
 		EB35CDB4E9C684C93BAD8C93 /* libskia_opt_hsw.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AFCBC97A1D1B794E5872D6ED /* libskia_opt_hsw.a */; };
-		EBB7CBA37F3E5FC13EA3E3C9 /* libicuuc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FFCA982B503572DCA9650E6 /* libicuuc.a */; };
+		EB7E5F3CD954A79FEEEECD4C /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A81BB630B5F0CF5E4C5F6036 /* JavaScriptCore.framework */; };
+		EB8847219106CC7F6CB4B843 /* libicutu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 49F491936D472AE302E7924D /* libicutu.a */; };
 		EBDD9EDD30F7D0591D0DDF52 /* HyperXTalk.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4312AD1B32862CCB0894D29E /* HyperXTalk.icns */; };
-		ECBB98336CD12CA53203D736 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2B52D24440498CE69EA1A85 /* Cocoa.framework */; };
 		ECBDE559FEFC81745265B57A /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F9F99AE5FE42CEBB601B6194 /* libz.a */; };
-		EE656CB83921587FA25E756B /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8416525A62C91BC008B2DAB1 /* CoreText.framework */; };
+		EE41C3ED4DAA61204C219972 /* MediaToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27FD540B4CE986BA3AA40CA2 /* MediaToolbox.framework */; };
 		EE8BFEBFFC62224A320BB0FF /* libskia_opt_hsw.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AFCBC97A1D1B794E5872D6ED /* libskia_opt_hsw.a */; };
+		EF19634B8CDF7538D7C10946 /* libicui18n.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DF2031CA40F78D1D995F4D2 /* libicui18n.a */; };
 		EF5A2B48F49A86E121C4B35F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94A9922D48175DA0E1D5BBDA /* main.cpp */; };
 		F16AF1B5C931492189408AD8 /* libskia_opt_sse42.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 267642A922931A516407AC21 /* libskia_opt_sse42.a */; };
-		F1F207F1365E939A8A460A10 /* libicuuc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FFCA982B503572DCA9650E6 /* libicuuc.a */; };
 		F351EC31477A4F41CAA3C2B1 /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F9F99AE5FE42CEBB601B6194 /* libz.a */; };
 		F4B4787A032FA3A143B8835E /* libskia_opt_sse41.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 280346BD7E86EE38C0D2C9B3 /* libskia_opt_sse41.a */; };
-		F573EFD7A70AD3B2714A0840 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A81BB630B5F0CF5E4C5F6036 /* JavaScriptCore.framework */; };
 		F6D0A4DBA35D4C985D362021 /* stdscript-host.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BD922313FB6480CFE98E68CC /* stdscript-host.a */; };
 		F6DF4CCB3AE38F11F8071157 /* libkernel-standalone.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C46C7359927E6C0AE1CF943 /* libkernel-standalone.a */; };
 		F78A54F297962A8D33B75601 /* libffi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 51785C2E9DF34B3C5FC7902B /* libffi.a */; };
-		F8EDA882757058924078EC36 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7CA036E985B1015AF9FE9356 /* ApplicationServices.framework */; };
+		F810C917D09705864AA6182F /* libicuio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 30DBA9DA1D200DDDD99D4892 /* libicuio.a */; };
 		F8F107272D4D8CA0D52A3A76 /* libjpeg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AA248C0E9843DD2958D03B8A /* libjpeg.a */; };
-		F9E3DC67A0D3DE7E37C2E2F5 /* libicuio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 30DBA9DA1D200DDDD99D4892 /* libicuio.a */; };
+		FA2A3CFD301607CBBDE5C4FB /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7CA036E985B1015AF9FE9356 /* ApplicationServices.framework */; };
 		FCB94D5149F548E9EFE0B92E /* Localisation.strings in Resources */ = {isa = PBXBuildFile; fileRef = FF1ECF3BF79519BA821A3EF9 /* Localisation.strings */; };
-		FD2DF18D10CFD577643AB24B /* libffi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C9395DE81FF5B7C6F006FEF9 /* libffi.a */; };
 		FD65C5379457FD3D490764DE /* libskia_opt_sse3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B825E37096F001277CDC357 /* libskia_opt_sse3.a */; };
+		FDA35FF67761FE227508E345 /* libffi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C9395DE81FF5B7C6F006FEF9 /* libffi.a */; };
 		FDC9708EBC72D0987BE6A1A7 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94A9922D48175DA0E1D5BBDA /* main.cpp */; };
-		FE5C590A48559CFCA5DA0C1B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2E04E5A11866B3B48AA3D410 /* Foundation.framework */; };
-		FF50578B3083704C65CCF3EC /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A81BB630B5F0CF5E4C5F6036 /* JavaScriptCore.framework */; };
-		FF66AA11BB22CC33DD44EE55 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE55FF66AA11BB22CC33DD44 /* UserNotifications.framework */; };
-		AA11BB22CC33DD44EE55FF00 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE55FF66AA11BB22CC33DD44 /* UserNotifications.framework */; };
-		BB22CC33DD44EE55FF001122 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE55FF66AA11BB22CC33DD44 /* UserNotifications.framework */; };
-		CC33DD44EE55FF0011223344 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE55FF66AA11BB22CC33DD44 /* UserNotifications.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2403,6 +2404,7 @@
 		4BF8324C0E47802A0EA4686F /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Localisation.strings; sourceTree = "<group>"; };
 		4FF1431E6D08DB3EC8A428F9 /* zh_CN */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = zh_CN; path = zh_CN.lproj/Localisation.strings; sourceTree = "<group>"; };
 		4FFCA982B503572DCA9650E6 /* libicuuc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libicuuc.a; path = ../prebuilt/lib/mac/libicuuc.a; sourceTree = "<group>"; };
+		50B2B4BE64B43CB5E857D39A /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		525F9077B840DA1B57A2B402 /* no */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = no; path = no.lproj/Localisation.strings; sourceTree = "<group>"; };
 		53D5B71814DE06A692C214D0 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localisation.strings; sourceTree = "<group>"; };
 		579691938457283837E7DFEE /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -2502,7 +2504,6 @@
 		FD53611CBA54B6A3B4687F76 /* Installer.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Installer.icns; sourceTree = "<group>"; };
 		FF2617E3B7DE34289E4F10B1 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		FF46801026559E06D04AF4B3 /* thirdparty.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = thirdparty.xcodeproj; path = "../build-mac/livecode/prebuilt/thirdparty.xcodeproj"; sourceTree = SOURCE_ROOT; };
-		EE55FF66AA11BB22CC33DD44 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2531,33 +2532,33 @@
 				828AFD230769B083B2B92310 /* stdscript.a in Frameworks */,
 				A7EA4E4F1651A8685ED9400B /* libbrowser.a in Frameworks */,
 				6F3E0B4D5DE928CCC06D6014 /* libpcre.a in Frameworks */,
-				0D8709C8E736E3A93AB8BA43 /* AudioToolbox.framework in Frameworks */,
-				E64CF5C650D3F0BCDBABFE37 /* CoreFoundation.framework in Frameworks */,
-				516FA8FB20DCE8B4013CA4EA /* CoreMedia.framework in Frameworks */,
-				102A5AC55C5C08F4239FE29A /* IOKit.framework in Frameworks */,
-				134B4FB58E8C625F2C2E18B1 /* Security.framework in Frameworks */,
-				37314C34F52DFED27C7FB4E8 /* SystemConfiguration.framework in Frameworks */,
-				89B4931C634254E051E0A6F5 /* libcups.dylib in Frameworks */,
-				9020F7E7E989E739680FA8A6 /* Accelerate.framework in Frameworks */,
-				89AB6DDB380F00E52C3435AD /* ApplicationServices.framework in Frameworks */,
-				A5B61949B667614B97FBF2F6 /* Carbon.framework in Frameworks */,
-				1A544D77BE21E10931A961E6 /* Cocoa.framework in Frameworks */,
-				8248E724CF866B75E4332985 /* MediaToolbox.framework in Frameworks */,
-				15DFB1031B9ECDB985DA1499 /* Quartz.framework in Frameworks */,
-				D9E0C5317F003F4431205EA0 /* CoreGraphics.framework in Frameworks */,
-				EE656CB83921587FA25E756B /* CoreText.framework in Frameworks */,
-				FE5C590A48559CFCA5DA0C1B /* Foundation.framework in Frameworks */,
-				AA11BB22CC33DD44EE55FF00 /* UserNotifications.framework in Frameworks */,
-				43E5435D2B9AE63A1CD16353 /* libicui18n.a in Frameworks */,
-				03A3C2B3AEEB998C83E5D129 /* libicuio.a in Frameworks */,
-				857F6E00406ED442504D1170 /* libicutu.a in Frameworks */,
-				C174FA428BBB29140B9DC26D /* libicuuc.a in Frameworks */,
-				EB077A651D9D4EED77D4384B /* libicudata.a in Frameworks */,
-				914F7505F2B6409C63300B3C /* libffi.a in Frameworks */,
-				230A172A89AEEE3823FAD36B /* WebKit.framework in Frameworks */,
-				3362FC9C0A6E0F22C41AA868 /* JavaScriptCore.framework in Frameworks */,
-				A7D8337A836625598BBCCCED /* libcustomcrypto.a in Frameworks */,
-				3A8B25AEBF36A47AEF9EBF0D /* libcustomssl.a in Frameworks */,
+				C98AFD82AC7CCF6106D51696 /* AudioToolbox.framework in Frameworks */,
+				5FFB149AC7249E6665AAA209 /* CoreFoundation.framework in Frameworks */,
+				8B3C40C96C07DA373AAEFA81 /* CoreMedia.framework in Frameworks */,
+				989ED23BE21B5947C820250E /* IOKit.framework in Frameworks */,
+				7A32F55CFB1A58E4CB64E815 /* Security.framework in Frameworks */,
+				E29B7E2F2858166CC9EBB056 /* SystemConfiguration.framework in Frameworks */,
+				78F4B0AD3A5663A18125E5B2 /* libcups.dylib in Frameworks */,
+				089D691372F1066076B87CF7 /* Accelerate.framework in Frameworks */,
+				6CC0C7CEE4893FC7DB391852 /* ApplicationServices.framework in Frameworks */,
+				BFBCF0E9539A63414D7B6300 /* Carbon.framework in Frameworks */,
+				D3FFDD163A4DDF1E1F0E2226 /* Cocoa.framework in Frameworks */,
+				EE41C3ED4DAA61204C219972 /* MediaToolbox.framework in Frameworks */,
+				DFC61A18C4CF61E31E6756AF /* Quartz.framework in Frameworks */,
+				740FA049FEBA09323E433AA3 /* UserNotifications.framework in Frameworks */,
+				779869C4E3F2299C00C7822C /* CoreGraphics.framework in Frameworks */,
+				2D4E6A1C15BFF388E8F5AC74 /* CoreText.framework in Frameworks */,
+				4FC4CE895E1DEA91083EA417 /* Foundation.framework in Frameworks */,
+				37DBCC96AF9BE63F8352B139 /* libicui18n.a in Frameworks */,
+				F810C917D09705864AA6182F /* libicuio.a in Frameworks */,
+				CA87DBABE59C985195057732 /* libicutu.a in Frameworks */,
+				26ACEA629F4877557C4AC6B5 /* libicuuc.a in Frameworks */,
+				89397E63024DED7C2475B9D4 /* libicudata.a in Frameworks */,
+				1220619FE1C93A81BACECF22 /* libffi.a in Frameworks */,
+				65CFD506C4944079C72C5103 /* WebKit.framework in Frameworks */,
+				B33958B83DA912A50B697C2C /* JavaScriptCore.framework in Frameworks */,
+				77F2146528DF5B90279A816D /* libcustomcrypto.a in Frameworks */,
+				8E0346C704D042BAC0234A54 /* libcustomssl.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2586,29 +2587,30 @@
 				F6D0A4DBA35D4C985D362021 /* stdscript-host.a in Frameworks */,
 				03AB8AD91D972980C48ABCBC /* libpcre (host).a in Frameworks */,
 				E8D545E56B1F63A2B0F2DBF1 /* libbrowser (host).a in Frameworks */,
-				34BCE5E6F7F86E7E3810331B /* libcups.dylib in Frameworks */,
-				27F20D4BFA7BFE2D82FF794C /* AudioToolbox.framework in Frameworks */,
-				E68B639781DF71724F541A37 /* AppKit.framework in Frameworks */,
-				4EDDFDF09504E3E5F092C31E /* ApplicationServices.framework in Frameworks */,
-				C208B992E63E410EF28714EA /* Carbon.framework in Frameworks */,
-				981688890C611FC19476377A /* Cocoa.framework in Frameworks */,
-				A4DF17EF789991E632A5A8AD /* IOKit.framework in Frameworks */,
-				3E4E448A0436123C7967FA72 /* Security.framework in Frameworks */,
-				6DAD879BB782CA782207BA6F /* CoreGraphics.framework in Frameworks */,
-				58BE66D44BDDE1B361603CDE /* CoreText.framework in Frameworks */,
-				8D2CF51D2863614A31BB666B /* CoreFoundation.framework in Frameworks */,
-				35B3B093A3E59EF8134DF748 /* Foundation.framework in Frameworks */,
-				9BB8CEE7998FA518077A95F5 /* libicui18n.a in Frameworks */,
-				3CC7DEACB140D94D21E1FDE4 /* libicuio.a in Frameworks */,
-				3D9E6A09CCDDD7847A191512 /* libicutu.a in Frameworks */,
-				A4665BBCEEDAD1B4D4EE1BB5 /* libicuuc.a in Frameworks */,
-				592036CEAB3F1EAE4E14446D /* libicudata.a in Frameworks */,
-				2FE2560FCA3638AF803F6C7E /* libffi.a in Frameworks */,
-				8B30437705028A3258CE8711 /* libcurl.dylib in Frameworks */,
-				457928E1D50F9894EA058B57 /* libcustomcrypto.a in Frameworks */,
-				87DF69B5BBA4B8BE21941F06 /* libcustomssl.a in Frameworks */,
-				7ABA369BDD87CBD400CA3C76 /* WebKit.framework in Frameworks */,
-				F573EFD7A70AD3B2714A0840 /* JavaScriptCore.framework in Frameworks */,
+				6CA71C59819DE1BB33B75189 /* libcups.dylib in Frameworks */,
+				B9C5CE626711D214ABF4BFF6 /* AudioToolbox.framework in Frameworks */,
+				1EE59076C20922EE3521FF67 /* AppKit.framework in Frameworks */,
+				91EF994004D3FC95A47A3760 /* ApplicationServices.framework in Frameworks */,
+				52D1084DF7A96985564FFF79 /* Carbon.framework in Frameworks */,
+				62265FF47693AE021F1BA519 /* Cocoa.framework in Frameworks */,
+				8179A08B0B09224051DD2395 /* IOKit.framework in Frameworks */,
+				C8FFBB09B77E8915002809C2 /* Security.framework in Frameworks */,
+				9CAF390FAB066BA6E41D4A47 /* UserNotifications.framework in Frameworks */,
+				2D119751CA21300005474C15 /* CoreGraphics.framework in Frameworks */,
+				2877673039B7D17875342C53 /* CoreText.framework in Frameworks */,
+				93C7B12D1628CE659EB9A7BE /* CoreFoundation.framework in Frameworks */,
+				072CE564DF8FEA49233A9C1F /* Foundation.framework in Frameworks */,
+				06C45C6ED53705F226910F65 /* libicui18n.a in Frameworks */,
+				77AE982178EA5417CA18B4B9 /* libicuio.a in Frameworks */,
+				6B59C080BD7F7BEBC433013D /* libicutu.a in Frameworks */,
+				CD3B17F9D8AACAB7D0C2CF59 /* libicuuc.a in Frameworks */,
+				556C729BB773F76606C2AB00 /* libicudata.a in Frameworks */,
+				FDA35FF67761FE227508E345 /* libffi.a in Frameworks */,
+				9136DB48F0A0A844AFC12DFE /* libcurl.dylib in Frameworks */,
+				2C987F2D89AD3B5373883B7A /* libcustomcrypto.a in Frameworks */,
+				51CA5AC1B41AC47C9F1444BA /* libcustomssl.a in Frameworks */,
+				057C45CE4552662619E8ADD2 /* WebKit.framework in Frameworks */,
+				EB7E5F3CD954A79FEEEECD4C /* JavaScriptCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2635,30 +2637,30 @@
 				D7B48BF12B2AA8BD2A8F5F77 /* stdscript.a in Frameworks */,
 				670F5B2E903ABCA64F192EFC /* libpcre.a in Frameworks */,
 				50DD9D3E6104778F149B593D /* libbrowser.a in Frameworks */,
-				05E1296AB8E15764C47C78BC /* libcups.dylib in Frameworks */,
-				0E0011AAE8400BCFF86FEB06 /* AudioToolbox.framework in Frameworks */,
-				AE14FE0B74D8D055DE0372DC /* AppKit.framework in Frameworks */,
-				B1A63334AE26ED9284B3B5F5 /* ApplicationServices.framework in Frameworks */,
-				6FFC41130A36B52AA1CD2767 /* Carbon.framework in Frameworks */,
-				DEB1C6B52B996608D9DCB6F9 /* Cocoa.framework in Frameworks */,
-				6DC19E11B00EBCC8EFA1AA12 /* IOKit.framework in Frameworks */,
-				7436AB8735F5B14C36BDC152 /* Security.framework in Frameworks */,
-				BEB103C577DB050B1E254402 /* CoreGraphics.framework in Frameworks */,
-				5603DC2D8E5D41DF613C5696 /* CoreText.framework in Frameworks */,
-				B6A4543371C8F0A9434E62D2 /* CoreFoundation.framework in Frameworks */,
-				9C700A22C2B0C2B253B4CC4B /* Foundation.framework in Frameworks */,
-				CC33DD44EE55FF0011223344 /* UserNotifications.framework in Frameworks */,
-				6DF95A11002408319280A41C /* libicui18n.a in Frameworks */,
-				91DF7A2D0C61D94C8839100C /* libicuio.a in Frameworks */,
-				49713254DBDC67BE1026DFA2 /* libicutu.a in Frameworks */,
-				EBB7CBA37F3E5FC13EA3E3C9 /* libicuuc.a in Frameworks */,
-				3EB043035AFFFCAF1F372565 /* libicudata.a in Frameworks */,
-				FD2DF18D10CFD577643AB24B /* libffi.a in Frameworks */,
-				8441D7EF85F57E7F3B9A501A /* libcurl.dylib in Frameworks */,
-				457165580529D7ABFB7EE8CF /* libcustomcrypto.a in Frameworks */,
-				A8F3E340EA0A0CDA298C1A16 /* libcustomssl.a in Frameworks */,
-				3930CF29D4610185E96B5492 /* WebKit.framework in Frameworks */,
-				847ECF78FE15FB1715ED24D5 /* JavaScriptCore.framework in Frameworks */,
+				2B1079CB08AEA6429175B4B9 /* libcups.dylib in Frameworks */,
+				986678FA2AC10301568DAD5F /* AudioToolbox.framework in Frameworks */,
+				E7EE11807531FA0C08A355C9 /* AppKit.framework in Frameworks */,
+				FA2A3CFD301607CBBDE5C4FB /* ApplicationServices.framework in Frameworks */,
+				0821C65AAF80DFAE2806188D /* Carbon.framework in Frameworks */,
+				9AE2C28A5814FE40B1F51C38 /* Cocoa.framework in Frameworks */,
+				3362636605E4A77F00AC13F1 /* IOKit.framework in Frameworks */,
+				3271F971A041C2D46EF4FE0A /* Security.framework in Frameworks */,
+				90207E3664E758F3A298EC2E /* UserNotifications.framework in Frameworks */,
+				77F19B73C2D59647A290EFDC /* CoreGraphics.framework in Frameworks */,
+				4D2A3BC1F7217B806FC4E384 /* CoreText.framework in Frameworks */,
+				5750C99E917DC4E765D88C34 /* CoreFoundation.framework in Frameworks */,
+				0BD8A7720319D629F3B7B7A3 /* Foundation.framework in Frameworks */,
+				194F5E1366B4C59A8F1627BA /* libicui18n.a in Frameworks */,
+				ABB32D543499B0B549C7FF2C /* libicuio.a in Frameworks */,
+				9368325596791FEDC288FD19 /* libicutu.a in Frameworks */,
+				344366B32BD6DDF4AD9AFEA3 /* libicuuc.a in Frameworks */,
+				9040B9BF44946BEDEAB66691 /* libicudata.a in Frameworks */,
+				6ED748B5AE5999A2B4B13FE4 /* libffi.a in Frameworks */,
+				ABBDA916E71A33C69FAD6DF4 /* libcurl.dylib in Frameworks */,
+				5F32A6FEED2EE5F344E93347 /* libcustomcrypto.a in Frameworks */,
+				2CA4ADC0034718A5EE9C5260 /* libcustomssl.a in Frameworks */,
+				C140FD3810B39F91584FB5B8 /* WebKit.framework in Frameworks */,
+				58C61BB56E9FE03E792B2066 /* JavaScriptCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2687,33 +2689,33 @@
 				D6063FD3FBFE2EBB974D9F80 /* stdscript.a in Frameworks */,
 				869F989B482859462B036DA5 /* libbrowser.a in Frameworks */,
 				3E6AAD5CD647A0079F213A02 /* libpcre.a in Frameworks */,
-				E578795CAA20A57A282F11A5 /* AudioToolbox.framework in Frameworks */,
-				93DE77FB4398E573A546AD81 /* CoreFoundation.framework in Frameworks */,
-				624810DC739B9FE98BEC8C1F /* CoreMedia.framework in Frameworks */,
-				A80DFC64616438D1D37EB5FE /* IOKit.framework in Frameworks */,
-				0C30731EB58B1196DB0783A1 /* Security.framework in Frameworks */,
-				4CFDEE3CF8D8B7405D5A8B94 /* SystemConfiguration.framework in Frameworks */,
-				4575B0ADED12D6A081D912B0 /* libcups.dylib in Frameworks */,
-				D68EE66A2C9FBF63360D1FF5 /* Accelerate.framework in Frameworks */,
-				F8EDA882757058924078EC36 /* ApplicationServices.framework in Frameworks */,
-				2587C3A62C00D953DE985736 /* Carbon.framework in Frameworks */,
-				ECBB98336CD12CA53203D736 /* Cocoa.framework in Frameworks */,
-				9D33A6E95798F4D48F01AA3E /* MediaToolbox.framework in Frameworks */,
-				5B1AEE423738FC90F8F34B2D /* Quartz.framework in Frameworks */,
-				1670EE83FDBABFCCD91DC785 /* CoreGraphics.framework in Frameworks */,
-				E762E2574E0D0332754032C8 /* CoreText.framework in Frameworks */,
-				4E75B3A627E581DBCCC20CC9 /* Foundation.framework in Frameworks */,
-				BB22CC33DD44EE55FF001122 /* UserNotifications.framework in Frameworks */,
-				1527BC53E24F9B34C1DD814C /* libicui18n.a in Frameworks */,
-				2AF9FBFFFA6E3435F88B9AA9 /* libicuio.a in Frameworks */,
-				050095CF5C9E4EFF0A85B97D /* libicutu.a in Frameworks */,
-				CCDC78A99F8A9A9AC4A88FEF /* libicuuc.a in Frameworks */,
-				9D5428D0A6FAB10AB02462E1 /* libicudata.a in Frameworks */,
-				87D19999162086D52CEF1D93 /* libffi.a in Frameworks */,
-				975C660A395F89D8A024F4B7 /* WebKit.framework in Frameworks */,
-				649947B0197F3DB186CC66C6 /* JavaScriptCore.framework in Frameworks */,
-				414CF50EA4FE488ECD40DE76 /* libcustomcrypto.a in Frameworks */,
-				C4457ED7768446BB857B23A6 /* libcustomssl.a in Frameworks */,
+				65DAADD97914947EA27A4A5C /* AudioToolbox.framework in Frameworks */,
+				68347BE6861E3FAAD8F39056 /* CoreFoundation.framework in Frameworks */,
+				E43EE045B4018D6837A06E31 /* CoreMedia.framework in Frameworks */,
+				10A03572ECDE4726C0F03BAE /* IOKit.framework in Frameworks */,
+				4C001C211AEF4203969D6CAE /* Security.framework in Frameworks */,
+				8F162B95E9438B0E2BC9867B /* SystemConfiguration.framework in Frameworks */,
+				02EF5D1010E4FEDFB901C090 /* libcups.dylib in Frameworks */,
+				90453E5AB3A706451D0FBFB0 /* Accelerate.framework in Frameworks */,
+				A3B318DC057CE5950CA7752C /* ApplicationServices.framework in Frameworks */,
+				DE7F5DFBCF2EB3E6B4A3FDBE /* Carbon.framework in Frameworks */,
+				47D2DB6427CC06CFDE52335F /* Cocoa.framework in Frameworks */,
+				CAE5E4998C14D567B72FBFDC /* MediaToolbox.framework in Frameworks */,
+				87900CFED66595433E1809DE /* Quartz.framework in Frameworks */,
+				747293ED8987570F0B71DAB2 /* UserNotifications.framework in Frameworks */,
+				DDBB79CDC4D5E1537CCFA9E1 /* CoreGraphics.framework in Frameworks */,
+				31CEDE2E6176509DF03962B1 /* CoreText.framework in Frameworks */,
+				5E4DC06756A065142F826B5C /* Foundation.framework in Frameworks */,
+				15F798E5786A505F4BA84348 /* libicui18n.a in Frameworks */,
+				4A8938241DE242ACDF8EBE71 /* libicuio.a in Frameworks */,
+				2FAA809E599777B90FC0F906 /* libicutu.a in Frameworks */,
+				27F8D8F18727125B6CD69DCE /* libicuuc.a in Frameworks */,
+				2AF7DBA1D5D409F47FB0B4B0 /* libicudata.a in Frameworks */,
+				759D17C4D17561CA5D26FB98 /* libffi.a in Frameworks */,
+				303CD38DC930D1C11384B2B4 /* WebKit.framework in Frameworks */,
+				9AFA4A170710D9F0A62A202F /* JavaScriptCore.framework in Frameworks */,
+				A49F77B1D485067B28FF7097 /* libcustomcrypto.a in Frameworks */,
+				9FF01C906477BACE4C25E007 /* libcustomssl.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2742,33 +2744,33 @@
 				3E74F9181D5CBC639DF82EDE /* stdscript.a in Frameworks */,
 				D7C357503EC3DB122845A122 /* libbrowser.a in Frameworks */,
 				8E6975A152639964670BAE59 /* libpcre.a in Frameworks */,
-				13F2699BFD7F89E3CE39DF11 /* AudioToolbox.framework in Frameworks */,
-				1EF7665730963EC532FA6AB9 /* CoreFoundation.framework in Frameworks */,
-				E2A29B20F8481C43CF6FE06E /* CoreMedia.framework in Frameworks */,
-				31CC46CB17A1189E8ED0E2F4 /* IOKit.framework in Frameworks */,
-				5433544620AC1D31A8A5E059 /* Security.framework in Frameworks */,
-				54D2CFE187F54B76FDDD9023 /* SystemConfiguration.framework in Frameworks */,
-				5E03B4B983ECA92252EED97D /* libcups.dylib in Frameworks */,
-				6A42D3683F394B2C5B82EF14 /* Accelerate.framework in Frameworks */,
-				60C6F23979A3C055DD76B901 /* ApplicationServices.framework in Frameworks */,
-				03E99974E89F17C88EBE693C /* Carbon.framework in Frameworks */,
-				E1917A1FE80847E724315B46 /* Cocoa.framework in Frameworks */,
-				17F7409A0C69413C0FA96339 /* MediaToolbox.framework in Frameworks */,
-				268D5B09D0443C6D834B8FE8 /* Quartz.framework in Frameworks */,
-				1CD1BF9143F7B9E840751E06 /* CoreGraphics.framework in Frameworks */,
-				CAAA90C35C96FE8224A603C4 /* CoreText.framework in Frameworks */,
-				8D20E9A26185A71A9C452E98 /* Foundation.framework in Frameworks */,
-				FF66AA11BB22CC33DD44EE55 /* UserNotifications.framework in Frameworks */,
-				71552E2C83F5EE8DBF218392 /* libicui18n.a in Frameworks */,
-				F9E3DC67A0D3DE7E37C2E2F5 /* libicuio.a in Frameworks */,
-				4D0BB281E8A17B1806923555 /* libicutu.a in Frameworks */,
-				F1F207F1365E939A8A460A10 /* libicuuc.a in Frameworks */,
-				CAECA40787D51E0EDC47C628 /* libicudata.a in Frameworks */,
-				3B1B7A4BFB070FEA55066F2A /* libffi.a in Frameworks */,
-				4672B269C0C8BD4727C2E0C5 /* WebKit.framework in Frameworks */,
-				FF50578B3083704C65CCF3EC /* JavaScriptCore.framework in Frameworks */,
-				3837A4858E2B465A0F98B904 /* libcustomcrypto.a in Frameworks */,
-				30B4DCB1B7A22ADB2237A947 /* libcustomssl.a in Frameworks */,
+				E9ADB1B4774A0C8F209C1A5E /* AudioToolbox.framework in Frameworks */,
+				5AF537FD4FD02DBFD80DA90A /* CoreFoundation.framework in Frameworks */,
+				80E75DBFA6337B0AAB946BF1 /* CoreMedia.framework in Frameworks */,
+				E7A7398881114DE37B639841 /* IOKit.framework in Frameworks */,
+				E564AB025517B7B114B3FAFF /* Security.framework in Frameworks */,
+				BF4BA73F519CDA0ADBCE0960 /* SystemConfiguration.framework in Frameworks */,
+				49EF4AEBC6E6E93C39294409 /* libcups.dylib in Frameworks */,
+				846262D50F2736E500BF58B4 /* Accelerate.framework in Frameworks */,
+				0BD31A0E4DEAE075BB4805DB /* ApplicationServices.framework in Frameworks */,
+				28AC2292E7DA9B0836C184C7 /* Carbon.framework in Frameworks */,
+				A1D0B112BF09E0B12349EAC9 /* Cocoa.framework in Frameworks */,
+				3CCCFFA20C8A2A310C794D92 /* MediaToolbox.framework in Frameworks */,
+				E0C102176327E11EF1A5B12B /* Quartz.framework in Frameworks */,
+				99EA7B31D5669C09E075762C /* UserNotifications.framework in Frameworks */,
+				0AD33D915979C1F067EDFCCF /* CoreGraphics.framework in Frameworks */,
+				BFF9D07F743A113A6E26503C /* CoreText.framework in Frameworks */,
+				7EFAAF6AFEDD9FF113B98AC6 /* Foundation.framework in Frameworks */,
+				EF19634B8CDF7538D7C10946 /* libicui18n.a in Frameworks */,
+				CFEF5F9388FEBDC862C12AB3 /* libicuio.a in Frameworks */,
+				EB8847219106CC7F6CB4B843 /* libicutu.a in Frameworks */,
+				0381F32F80EC6A1947D63C87 /* libicuuc.a in Frameworks */,
+				DDDACC58E057E184381D1C7C /* libicudata.a in Frameworks */,
+				795B8493EA319986A7FFE32E /* libffi.a in Frameworks */,
+				CDC271C2C7A8231EF292FD70 /* WebKit.framework in Frameworks */,
+				38BD5695B42C59C92A7B5D1D /* JavaScriptCore.framework in Frameworks */,
+				5C1354DC7F1C8DD94EEC7195 /* libcustomcrypto.a in Frameworks */,
+				C3FF4824AB6CE7B2373FDE50 /* libcustomssl.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2905,42 +2907,6 @@
 			path = environment;
 			sourceTree = "<group>";
 		};
-		21DC1EFB03B5F2CF04DBB71D /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				8B6B494B78C5B2FF2D592A28 /* Accelerate.framework */,
-				9C017A5488895848B14CA4F1 /* AppKit.framework */,
-				7CA036E985B1015AF9FE9356 /* ApplicationServices.framework */,
-				579691938457283837E7DFEE /* AudioToolbox.framework */,
-				A1D042857F01B945E7A531FC /* Carbon.framework */,
-				D2B52D24440498CE69EA1A85 /* Cocoa.framework */,
-				FF2617E3B7DE34289E4F10B1 /* CoreFoundation.framework */,
-				6FF5F84EC673493AF752ED34 /* CoreGraphics.framework */,
-				CC44BDB13ECEE5596F184C94 /* CoreMedia.framework */,
-				8416525A62C91BC008B2DAB1 /* CoreText.framework */,
-				2E04E5A11866B3B48AA3D410 /* Foundation.framework */,
-				EE55FF66AA11BB22CC33DD44 /* UserNotifications.framework */,
-				445CF12E072C34F29DBFD95B /* IOKit.framework */,
-				A81BB630B5F0CF5E4C5F6036 /* JavaScriptCore.framework */,
-				27FD540B4CE986BA3AA40CA2 /* MediaToolbox.framework */,
-				EC9B7AF8F28BE680EC5ACF1F /* Quartz.framework */,
-				C9085221E561C3041C597767 /* Security.framework */,
-				47D2260307EB3E59175803F3 /* SystemConfiguration.framework */,
-				C3A6C181A1AB2B6376AEA190 /* WebKit.framework */,
-				40CBA8A477415E76D92D18EA /* libcups.dylib */,
-				E87CA7845C223C38DF1A7D30 /* libcurl.dylib */,
-				1D54FAD2D1C6CE1BA74D58F1 /* libcustomcrypto.a */,
-				CF6FF9266510D41A0BE78063 /* libcustomssl.a */,
-				C9395DE81FF5B7C6F006FEF9 /* libffi.a */,
-				7862EBA8C3F6165E618A27A4 /* libicudata.a */,
-				8DF2031CA40F78D1D995F4D2 /* libicui18n.a */,
-				30DBA9DA1D200DDDD99D4892 /* libicuio.a */,
-				49F491936D472AE302E7924D /* libicutu.a */,
-				4FFCA982B503572DCA9650E6 /* libicuuc.a */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		26C27460D8C8B3F093071E0D /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -3044,13 +3010,49 @@
 			path = rsrc;
 			sourceTree = "<group>";
 		};
+		6985ADF3656B0CDAC241070C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				8B6B494B78C5B2FF2D592A28 /* Accelerate.framework */,
+				9C017A5488895848B14CA4F1 /* AppKit.framework */,
+				7CA036E985B1015AF9FE9356 /* ApplicationServices.framework */,
+				579691938457283837E7DFEE /* AudioToolbox.framework */,
+				A1D042857F01B945E7A531FC /* Carbon.framework */,
+				D2B52D24440498CE69EA1A85 /* Cocoa.framework */,
+				FF2617E3B7DE34289E4F10B1 /* CoreFoundation.framework */,
+				6FF5F84EC673493AF752ED34 /* CoreGraphics.framework */,
+				CC44BDB13ECEE5596F184C94 /* CoreMedia.framework */,
+				8416525A62C91BC008B2DAB1 /* CoreText.framework */,
+				2E04E5A11866B3B48AA3D410 /* Foundation.framework */,
+				445CF12E072C34F29DBFD95B /* IOKit.framework */,
+				A81BB630B5F0CF5E4C5F6036 /* JavaScriptCore.framework */,
+				27FD540B4CE986BA3AA40CA2 /* MediaToolbox.framework */,
+				EC9B7AF8F28BE680EC5ACF1F /* Quartz.framework */,
+				C9085221E561C3041C597767 /* Security.framework */,
+				47D2260307EB3E59175803F3 /* SystemConfiguration.framework */,
+				50B2B4BE64B43CB5E857D39A /* UserNotifications.framework */,
+				C3A6C181A1AB2B6376AEA190 /* WebKit.framework */,
+				40CBA8A477415E76D92D18EA /* libcups.dylib */,
+				E87CA7845C223C38DF1A7D30 /* libcurl.dylib */,
+				1D54FAD2D1C6CE1BA74D58F1 /* libcustomcrypto.a */,
+				CF6FF9266510D41A0BE78063 /* libcustomssl.a */,
+				C9395DE81FF5B7C6F006FEF9 /* libffi.a */,
+				7862EBA8C3F6165E618A27A4 /* libicudata.a */,
+				8DF2031CA40F78D1D995F4D2 /* libicui18n.a */,
+				30DBA9DA1D200DDDD99D4892 /* libicuio.a */,
+				49F491936D472AE302E7924D /* libicutu.a */,
+				4FFCA982B503572DCA9650E6 /* libicuuc.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		7395376279994663985E9B8A = {
 			isa = PBXGroup;
 			children = (
 				CF1A8A99830C58348CD0F57F /* Source */,
 				1382E76774D805367DC20DBD /* Intermediates */,
 				C2076926A0BBCBBCA139AC41 /* Projects */,
-				21DC1EFB03B5F2CF04DBB71D /* Frameworks */,
+				6985ADF3656B0CDAC241070C /* Frameworks */,
 				BB7CCB820CAA5BFB1F370B3E /* Products */,
 				133A48BEB916D19C0880A2E4 /* Build */,
 			);

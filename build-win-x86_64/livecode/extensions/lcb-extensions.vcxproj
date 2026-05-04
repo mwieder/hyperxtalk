@@ -292,30 +292,6 @@
     <None Include="..\..\..\extensions\libraries\timezone\timezone.lcb">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </None>
-    <None Include="..\..\..\extensions\libraries\macstatusmenu\macstatusmenu.lcb">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </None>
-    <None Include="..\..\..\extensions\libraries\macoswindowresizeanimation\macoswindowresizeanimation.lcb">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </None>
-    <None Include="..\..\..\extensions\libraries\macosrequestuserattention\macosrequestuserattention.lcb">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </None>
-    <None Include="..\..\..\extensions\libraries\macoscontacts\macoscontacts.lcb">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </None>
-    <None Include="..\..\..\extensions\libraries\macosdock\macosdock.lcb">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </None>
-    <None Include="..\..\..\extensions\libraries\macosfsevents\macosfsevents.lcb">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </None>
-    <None Include="..\..\..\extensions\libraries\macoskeychain\macoskeychain.lcb">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </None>
-    <None Include="..\..\..\extensions\libraries\macosmenubar\macosmenubar.lcb">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </None>
     <None Include="..\..\..\extensions\widgets\macbutton\macbutton.lcb">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </None>

@@ -193,6 +193,7 @@
 								'$(SDKROOT)/System/Library/Frameworks/Cocoa.framework',
 								'$(SDKROOT)/System/Library/Frameworks/MediaToolbox.framework',
 								'$(SDKROOT)/System/Library/Frameworks/Quartz.framework',
+								'$(SDKROOT)/System/Library/Frameworks/UserNotifications.framework',
 							],
 						},
 					],

@@ -267,11 +267,7 @@ Source: "{#SourceDir}\modules\lci\*"; \
 Source: "{#SourceDir}\packaged_extensions\*"; \
     DestDir: "{app}\packaged_extensions"; \
     Flags: ignoreversion recursesubdirs createallsubdirs; \
-    Excludes: "com.hyperxtalk.macos*,\
-               com.livecode.library.native.mac.*,\
-               com.livecode.widget.native.mac.*,\
-               com.livecode.widget.native.ios.*,\
-               com.livecode.widget.native.emscripten.*"
+    Excludes: "com.hyperxtalk.macos*,com.livecode.library.native.mac.*,com.livecode.widget.native.mac.*,com.livecode.widget.native.ios.*,com.livecode.widget.native.emscripten.*"
 
 ; ---- IDE Toolset (home stack, libraries, palettes, resources) ----
 ; This is the entire development environment UI layer. Without it

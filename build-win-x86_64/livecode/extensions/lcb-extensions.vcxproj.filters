@@ -76,79 +76,6 @@
     <Filter Include="libraries">
       <UniqueIdentifier>{91746794-0D1F-C637-2673-8F987201349D}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\macstatusmenu">
-      <UniqueIdentifier>{EEE9E875-6467-0F7D-44AA-AC5F00FA2A95}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\macstatusmenu\_excluded_files">
-      <UniqueIdentifier>{158E591E-B6EA-0C85-8F5A-18EAFA09B4CE}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries">
-      <UniqueIdentifier>{91746794-0D1F-C637-2673-8F987201349D}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\macoswindowresizeanimation">
-      <UniqueIdentifier>{91D82978-F97A-1E94-8839-C3762CA24416}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\macoswindowresizeanimation\_excluded_files">
-      <UniqueIdentifier>{158E591E-B6EA-0C85-8F5A-18EAFA09B4CE}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries">
-      <UniqueIdentifier>{91746794-0D1F-C637-2673-8F987201349D}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\macosrequestuserattention">
-      <UniqueIdentifier>{4F60A896-344A-2129-6A9A-1B0338CCBCBA}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\macosrequestuserattention\_excluded_files">
-      <UniqueIdentifier>{158E591E-B6EA-0C85-8F5A-18EAFA09B4CE}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries">
-      <UniqueIdentifier>{91746794-0D1F-C637-2673-8F987201349D}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\macoscontacts">
-      <UniqueIdentifier>{61B592C5-448F-7B27-E6C9-6D783D0667E0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\macoscontacts\_excluded_files">
-      <UniqueIdentifier>{158E591E-B6EA-0C85-8F5A-18EAFA09B4CE}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries">
-      <UniqueIdentifier>{91746794-0D1F-C637-2673-8F987201349D}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\macosdock">
-      <UniqueIdentifier>{15C63D48-4B37-4EA3-79D3-38239F6E4453}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\macosdock\_excluded_files">
-      <UniqueIdentifier>{158E591E-B6EA-0C85-8F5A-18EAFA09B4CE}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries">
-      <UniqueIdentifier>{91746794-0D1F-C637-2673-8F987201349D}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\macosfsevents">
-      <UniqueIdentifier>{1A833B8E-6E7F-C22F-BB91-D6C8755E2C07}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\macosfsevents\_excluded_files">
-      <UniqueIdentifier>{158E591E-B6EA-0C85-8F5A-18EAFA09B4CE}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries">
-      <UniqueIdentifier>{91746794-0D1F-C637-2673-8F987201349D}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\macoskeychain">
-      <UniqueIdentifier>{306069F0-828E-D2CB-E4D3-8D5116859EB6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\macoskeychain\_excluded_files">
-      <UniqueIdentifier>{158E591E-B6EA-0C85-8F5A-18EAFA09B4CE}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries">
-      <UniqueIdentifier>{91746794-0D1F-C637-2673-8F987201349D}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\macosmenubar">
-      <UniqueIdentifier>{447F0E4F-A9CD-2C63-3ABC-D6AEE05CC8FD}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\macosmenubar\_excluded_files">
-      <UniqueIdentifier>{158E591E-B6EA-0C85-8F5A-18EAFA09B4CE}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries">
-      <UniqueIdentifier>{91746794-0D1F-C637-2673-8F987201349D}</UniqueIdentifier>
-    </Filter>
-
     <Filter Include="libraries">
       <UniqueIdentifier>{91746794-0D1F-C637-2673-8F987201349D}</UniqueIdentifier>
     </Filter>
@@ -343,30 +270,6 @@
     </None>
     <None Include="..\..\..\extensions\libraries\timezone\timezone.lcb">
       <Filter>libraries\timezone\_excluded_files</Filter>
-    </None>
-    <None Include="..\..\..\extensions\libraries\macstatusmenu\macstatusmenu.lcb">
-      <Filter>libraries\macstatusmenu\_excluded_files</Filter>
-    </None>
-    <None Include="..\..\..\extensions\libraries\macoswindowresizeanimation\macoswindowresizeanimation.lcb">
-      <Filter>libraries\macoswindowresizeanimation\_excluded_files</Filter>
-    </None>
-    <None Include="..\..\..\extensions\libraries\macosrequestuserattention\macosrequestuserattention.lcb">
-      <Filter>libraries\macosrequestuserattention\_excluded_files</Filter>
-    </None>
-    <None Include="..\..\..\extensions\libraries\macoscontacts\macoscontacts.lcb">
-      <Filter>libraries\macoscontacts\_excluded_files</Filter>
-    </None>
-    <None Include="..\..\..\extensions\libraries\macosdock\macosdock.lcb">
-      <Filter>libraries\macosdock\_excluded_files</Filter>
-    </None>
-    <None Include="..\..\..\extensions\libraries\macosfsevents\macosfsevents.lcb">
-      <Filter>libraries\macosfsevents\_excluded_files</Filter>
-    </None>
-    <None Include="..\..\..\extensions\libraries\macoskeychain\macoskeychain.lcb">
-      <Filter>libraries\macoskeychain\_excluded_files</Filter>
-    </None>
-    <None Include="..\..\..\extensions\libraries\macosmenubar\macosmenubar.lcb">
-      <Filter>libraries\macosmenubar\_excluded_files</Filter>
     </None>
     <None Include="..\..\..\extensions\widgets\macbutton\macbutton.lcb">
       <Filter>widgets\macbutton\_excluded_files</Filter>

@@ -82,13 +82,11 @@
 		01F2D9CBC65272B6A9745741 /* exec-text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE08B8F2D819A0733B1299A1 /* exec-text.cpp */; };
 		025B6E17E799575929C9CD75 /* exec-mail.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 136F7022663D231E37EFABC3 /* exec-mail.cpp */; };
 		02C5A73FFC44156D1DA6E8E2 /* sha512.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A654699BCBB7DD7F1EFE0A0C /* sha512.cpp */; };
-		033E4C563524D6742D52EF6E /* libicuio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E023CC95F91A73A4FCFCA465 /* libicuio.a */; };
 		03444ED434EFA3A553A09982 /* srvspec.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 02F9CE29830C9B201745F73C /* srvspec.cpp */; };
 		03DFE86359B49CE0E67079A5 /* srvmultipart.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E62FD6CBAE80AC05870E957D /* srvmultipart.cpp */; };
 		043308559460C010DE5A0813 /* exec-pick.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0260C7F3A363EE3A203111A9 /* exec-pick.cpp */; };
 		043C0DDF84AA297224E5CE7E /* field.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0E444F3E9A45ADE54CE4681F /* field.cpp */; };
 		0445747C719E5454272CD477 /* exec-files.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C50532ABCFEE068AF86DB9DF /* exec-files.cpp */; };
-		04B3D4375728E1468C96EE36 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6898F1E70CEBC5C1DC7D865E /* Foundation.framework */; };
 		04DDC1B6AF90BAA8D5A7A083 /* mac-notification.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2EF08D3F2C0CC85C4FAF61BE /* mac-notification.mm */; };
 		04EED87FF25DB8B4B8FBAC8B /* stackfileformat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B123B366BCECA027774A5326 /* stackfileformat.cpp */; };
 		05032C765F840561E863C8D1 /* edittool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 28C375DD23631F4FAE148125 /* edittool.cpp */; };
@@ -102,9 +100,7 @@
 		0AC77A554C288E0D5DCF87DD /* stackcache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F053061F0C1DCFAC3794EBDA /* stackcache.cpp */; };
 		0AF7BFB3B1422B2CCA60E582 /* exec-legacy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5BA9F609AE3AC69CB2F630E8 /* exec-legacy.cpp */; };
 		0B1E047A144B5C423E5DB914 /* exec-interface-group.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 572329AC40B3042D2C326B90 /* exec-interface-group.cpp */; };
-		0BF3B4E33A7BA41B9E9DBBF2 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FBD60E5EE891BB034EFFE0EB /* CoreFoundation.framework */; };
 		0C3A74F145AB4C9C8AA7204B /* srvstack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9389F8FD1141E9B16F9C312F /* srvstack.cpp */; };
-		0C7E80DC7F02742DC32B5985 /* libffi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 31E8482F1DC2BB132469097B /* libffi.a */; };
 		0D039851077A473E791FA27A /* visual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C7FB34FF5DD25BA89AF54389 /* visual.cpp */; };
 		0D78E74270D3BAF1145E3F8A /* libpcre.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A95C986C91648B83630B5D61 /* libpcre.a */; };
 		0E577923D1DFB9659D578F87 /* module-canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EEBD1C12F47AF52B3ACE32D2 /* module-canvas.cpp */; };
@@ -139,7 +135,6 @@
 		1B2C793A54EDF1F5DFC13D85 /* widget.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41BEA300F5DF1371B09132C0 /* widget.cpp */; };
 		1C41AE06E7A3637BD75BF940 /* md5.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B9229E36A69F8FD4EF5C55BA /* md5.cpp */; };
 		1C93C25CE304AC445774A413 /* srvoutput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 076C18C1476FC3836AF86698 /* srvoutput.cpp */; };
-		1CD3425A9D27C1E1592E4DA2 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F582153E96EFC17B4B1237B /* AudioToolbox.framework */; };
 		1DE6AD9D1B53AAD64694C7F3 /* funcsm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5CDE66893838CC7D2099AE94 /* funcsm.cpp */; };
 		1E1ABDCF144347B470B7EA73 /* literal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2249915A7F8A614DB7BE5D22 /* literal.cpp */; };
 		1E991285E6509A927AF28EDE /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1601A0A64BC3D4E5E7F7D51B /* util.cpp */; };
@@ -154,14 +149,12 @@
 		20AA2438EE264319B1D731F9 /* test_new.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3DFB191A4E6CE0DBFBF04C2 /* test_new.cpp */; };
 		21654E18ADFC1F8CAECB4763 /* widget-events.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76415A79DE7D4D279A2407D8 /* widget-events.cpp */; };
 		2178AE989F93C02A744993BF /* exec-interface-object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 11F7D5358B2BC6AA546A184E /* exec-interface-object.cpp */; };
-		220A4EB027C21DD1D60463F2 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61756E13CDF8A803FC6EB633 /* CoreGraphics.framework */; };
 		22811C9203DF64E9052C1902 /* button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AAD404EF42D5334FA8C9AC3 /* button.cpp */; };
 		22C9539FA18D1F67FBBE7018 /* stack2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 12AD414C075F44124ED514ED /* stack2.cpp */; };
 		230133AEE5AD1BDB94FE2A66 /* customprinter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 47C986C1BF9FFE48851CDBE2 /* customprinter.cpp */; };
 		232D77D6FC7ABAE34C791941 /* statemnt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ACF055E025EEAFCD1F771E6F /* statemnt.cpp */; };
 		2357BB3F6D3C1C9DEF6A3DD1 /* srvsession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 28A0CE8172D4C018EB2F1150 /* srvsession.cpp */; };
 		248CBB97C3A240B210BFA4E3 /* srvsession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 28A0CE8172D4C018EB2F1150 /* srvsession.cpp */; };
-		2498A9E2A7D0138DCE4E085E /* libcustomssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 05258B830C125EA963A3577C /* libcustomssl.a */; };
 		24C782AE6C20085A6A349A83 /* image_rep_resampled.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FAB24A3C7476195D8C5D8B14 /* image_rep_resampled.cpp */; };
 		24F3FFDC532A61B057257B97 /* exec-interface-aclip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BAF688F3CE3A35F217E54981 /* exec-interface-aclip.cpp */; };
 		25531E280C420500E282F3E5 /* exec-interface-graphic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FD413AF3AFB3C4BC981DB684 /* exec-interface-graphic.cpp */; };
@@ -175,12 +168,13 @@
 		27B9B15EFBA0E0C113E5FB68 /* region.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0BB643180BF16248D19520EB /* region.cpp */; };
 		27E3E9FDE1617BE67BACCEF7 /* iquantization.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 37A8A8EFA0653CB67B5A0417 /* iquantization.cpp */; };
 		2A02DE8F5223621A84271B16 /* exec-notification.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 19D45BCC0AD1E5755910CA5A /* exec-notification.cpp */; };
+		2A1492A05DBD584955609D99 /* libicuio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E023CC95F91A73A4FCFCA465 /* libicuio.a */; };
 		2A50C97F74EB32B441F3F58E /* ask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 645E33C879B73626DCEA0043 /* ask.cpp */; };
 		2AC217FDBA6D5C6EE889A10C /* syscfdate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1FBD9C7D5777DF9A850D319C /* syscfdate.cpp */; };
 		2B2FF7D0971327E136E4D1A6 /* stackview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5D708000D42AC129B000E1FC /* stackview.cpp */; };
 		2BECF25B52F2A92411B2E755 /* hndlrlst.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70BCCB3B85345592ED4AF349 /* hndlrlst.cpp */; };
-		2CA166BE5346FE7BA3F9404B /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BF5C7DD88AE1D1B26272863 /* Carbon.framework */; };
 		2DBD790E1947C700D12EFA11 /* fieldhtml.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C6271F7AF1867227EF15C7B8 /* fieldhtml.cpp */; };
+		2DC5C30372C55CFFE1D6DEA1 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 61756E13CDF8A803FC6EB633 /* CoreGraphics.framework */; };
 		2E420217252872D3B24DFE33 /* buttondraw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C180D3E301441E079500C864 /* buttondraw.cpp */; };
 		2FFCA5434A3390C8C3239B0D /* paragrafattr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8452433519E7AD92836CEA8B /* paragrafattr.cpp */; };
 		312674CEFF54640F85BB4355 /* idraw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EAA030C025B5EA861B2665F /* idraw.cpp */; };
@@ -197,10 +191,10 @@
 		36F51A3F1BC400B7C1E96F88 /* widget-popup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3AFB98E67C1BC57F796394E0 /* widget-popup.cpp */; };
 		371F2040E9D700CD8D79B321 /* uuid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA2E8B78E2A59A127C2FCB6A /* uuid.cpp */; };
 		374B0178E71FE779E58B2D0C /* exec-server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 997618D0C8CF81A83AB644D4 /* exec-server.cpp */; };
-		3922D1D813A2EAFEED33DE75 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 283C3CDF064D448F5BB36CCF /* Security.framework */; };
 		39356C0515D764B92ABBECFE /* libbrowser.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 67D5ACAA0F692B5983C62786 /* libbrowser.a */; };
 		39944685482ADF271ADC766E /* bitmapeffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 375D04E8F167E651D011F71E /* bitmapeffect.cpp */; };
 		3A07463BD2045D06C8B7CC6F /* redraw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0D1833E63B53037FBF3F58C5 /* redraw.cpp */; };
+		3A1C0A30A2A5C494AA6F60E1 /* libcustomcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B0F3B7775C4907A8C14C3C00 /* libcustomcrypto.a */; };
 		3C1B9AC180EF09B307767AC5 /* image_rep.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EB35D516332CA26757B251F5 /* image_rep.cpp */; };
 		3C5476BF5892ED3A884615D2 /* tilecachesw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4C700B20965B48AA5EF9B824 /* tilecachesw.cpp */; };
 		3C95640EF9CB5B24CE33EB1A /* fiber.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7435D8942ED7BC11D2999A52 /* fiber.cpp */; };
@@ -217,7 +211,6 @@
 		411275CE099253025AB5BA1E /* ibmp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3AA7E1769895544CE6D3ECB6 /* ibmp.cpp */; };
 		423721734E53A1BADA51D728 /* objptr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BEFEFDB60FEC52F2E83326EE /* objptr.cpp */; };
 		425B678938F689BE88E1B236 /* mcworker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9E41557A4FDE64912509E861 /* mcworker.cpp */; };
-		430B52B438B593B6C245C56C /* libicui18n.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 43E7DAD0341ED31DE5F92F8B /* libicui18n.a */; };
 		4327A5C074E11ECB1032D2E0 /* iutil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F6F3C8139AE6868C8F976D91 /* iutil.cpp */; };
 		432947E766D37BEF718FAA13 /* exec-security.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 55BADBCF943235F9F96FF6D5 /* exec-security.cpp */; };
 		4418475524BFBB3CE9F1D6DD /* exec-filters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EBA84FC42AB845740E75B6F3 /* exec-filters.cpp */; };
@@ -227,6 +220,7 @@
 		461E19AAE111A5786132D760 /* exec-server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 997618D0C8CF81A83AB644D4 /* exec-server.cpp */; };
 		465AA9D4737DB4E9C2EE0C92 /* fieldrtf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 003D90732C1757B93CFE02D7 /* fieldrtf.cpp */; };
 		4698071E84EAB723634A62E8 /* exec-datetime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 566FBA901423857F4C5C3CEC /* exec-datetime.cpp */; };
+		470D4DD06012FAA9ACCB3063 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F95F9CF512964CFB07ED5D8A /* AppKit.framework */; };
 		472B0D86CCF90BAB2E9C3DB4 /* rtf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 68F998FF743D349309FC657B /* rtf.cpp */; };
 		4747BEA2A5652144ED7154BF /* exec-pasteboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F16B57641ED29AC3BB6657E2 /* exec-pasteboard.cpp */; };
 		4768B2DEE6251290A8296EAF /* exec-calendar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 411F1A6244A651CC465984AB /* exec-calendar.cpp */; };
@@ -262,7 +256,6 @@
 		57F841F637D805863A10929F /* mode_server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0B399BC98678E276ED312B56 /* mode_server.cpp */; };
 		57FA33B966AC5E0DBA37FA87 /* imagebitmap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E521CFBED8B4188FA016A2C1 /* imagebitmap.cpp */; };
 		58170BFD509CFF227758EFAE /* pickle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C01AB7C3CB5F71FB09532E4E /* pickle.cpp */; };
-		585D2ABAEC64C04AB066EB4E /* libicudata.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 510BA98ABC9E1B248730CA62 /* libicudata.a */; };
 		58D5647CF01FD7A3299B07ED /* vclip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D04841920862DC099D3433B7 /* vclip.cpp */; };
 		5919FB012A44378FB89F4BE5 /* aclip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C8B0AF393D42EB4F9AE7379 /* aclip.cpp */; };
 		595EFCA5385248D8040EF066 /* exec-interface-field.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B9CD5E4C73DFBC9D9A9DF056 /* exec-interface-field.cpp */; };
@@ -281,6 +274,7 @@
 		5D0874D36B9EF9BB54D072A0 /* card.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C772C1AFDFF3D34FCB7BD80F /* card.cpp */; };
 		5D3081A91A350761BC789CD4 /* encodederrors.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92ECF0EDAE2F61E6BE817155 /* encodederrors.cpp */; };
 		5D3DC0B54F2D25EB15E2232C /* card.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C772C1AFDFF3D34FCB7BD80F /* card.cpp */; };
+		5D5566B9EF9DD7FFBF194AA9 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94B9639AA14E9C0AF43B64D9 /* UserNotifications.framework */; };
 		5D61892D2D2BB74ACFB15707 /* imagelist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9DE3D82B6E356FFF08A46E5 /* imagelist.cpp */; };
 		5D8598D3165721D580BB2B53 /* exec-extension.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF67A3177FA8EDB5E51FB5D7 /* exec-extension.cpp */; };
 		5D92C4F99E7CB82F90A5F852 /* property.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE6525F58EB5466F2A66426E /* property.cpp */; };
@@ -303,6 +297,7 @@
 		64CBEDFBF3F9F010A523D516 /* exec-interface-scrollbar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C5F6F6D3B71C587B56FF16BB /* exec-interface-scrollbar.cpp */; };
 		650DD50396B0B921C07066A7 /* stack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 63F31CF39C95D0E58A7BD875 /* stack.cpp */; };
 		6593D723D2E3C80008D8CCB4 /* idraw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2EAA030C025B5EA861B2665F /* idraw.cpp */; };
+		6598BAA5664CAA1B4584E943 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FBD60E5EE891BB034EFFE0EB /* CoreFoundation.framework */; };
 		65A9D65EEDA2ABC1214A63C8 /* ipng.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1542068A0AE18EF3162C27C0 /* ipng.cpp */; };
 		665B57CE837223DB7D416E8B /* line.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A9DB39D2EFB18D771683B650 /* line.cpp */; };
 		66E0789B55D03647EB5DEC30 /* cmdsp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6FEFDA80CBCA9D1A087D79FD /* cmdsp.cpp */; };
@@ -344,6 +339,7 @@
 		73BD963BF774CB53D0C2BD9F /* menuparse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4C7CAC127B8BFBD32BB8CC2 /* menuparse.cpp */; };
 		74386DF48B34E0113AE62C33 /* date.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A9FFBBE23ED50C3A3D7BEDC0 /* date.cpp */; };
 		74AB69889BA589B28D527688 /* styledtext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7CD0766FD53DFEC59D6FD8BF /* styledtext.cpp */; };
+		768885956532729EC70D1335 /* libcurl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 49283402DF806CE41E4BF6D3 /* libcurl.dylib */; };
 		76B0FDD5A85054A917EB6C83 /* handler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 45E8B08A718FC5D69764C462 /* handler.cpp */; };
 		7723FD1E232086A6B07FBA18 /* stack3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8302920D48B2F98F031917FF /* stack3.cpp */; };
 		77484DD950C92F9C740DAD2C /* exec-debugging.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C8442A6FCC09F05B72D24940 /* exec-debugging.cpp */; };
@@ -361,13 +357,13 @@
 		7BF6F31B152A381B50EE88A7 /* exec-nfc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C6B1558979AAD3ECE903B4EA /* exec-nfc.cpp */; };
 		7C3A0BC1FDE7F78467C3B1DE /* exec-interface-widget.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5283057BBFB1DC804CC5EDE4 /* exec-interface-widget.cpp */; };
 		7D83F82A35948728EF2CEB1F /* objectpropsets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 191FD9D8D5B6307C4B164798 /* objectpropsets.cpp */; };
-		7DEEF8E6B1CF59C8B1CC8C3C /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 73C4B762F6DEBF9F7E98096C /* IOKit.framework */; };
+		7DA7744A3796FC1ABB9EFC80 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 73C4B762F6DEBF9F7E98096C /* IOKit.framework */; };
+		7E59276D11978134B2964B97 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BF5C7DD88AE1D1B26272863 /* Carbon.framework */; };
 		7F0C18DAAFA7366A2710DC9E /* styledtext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7CD0766FD53DFEC59D6FD8BF /* styledtext.cpp */; };
 		7F6784A79BBF544F166A1A19 /* sellst.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 08F973F5665AD12570B6DC6F /* sellst.cpp */; };
 		7F89633F35FC378368AEBE2A /* exec-idletimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 42B04611F3C79F6ED5F2EC2D /* exec-idletimer.cpp */; };
 		80909EF3A8F4B86AB963ED39 /* widget-syntax.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E17CF6ED902651DD296BCCAF /* widget-syntax.cpp */; };
 		80B7CAA0CC0F61945CD283B5 /* cmdsp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6FEFDA80CBCA9D1A087D79FD /* cmdsp.cpp */; };
-		810CA1083924BDD66B0587FC /* libcurl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 49283402DF806CE41E4BF6D3 /* libcurl.dylib */; };
 		82116E2CCD955249CB6B0EAC /* fonttable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BEAD655B0EBF37ECDA9A0080 /* fonttable.cpp */; };
 		822EB3E4C71A3FDEAA721F5F /* cmdss.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B9D3594AB0E9CEB77C0F96B1 /* cmdss.cpp */; };
 		83888A53609461F0451C5654 /* iquantize_new.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 12EB85280C13B2A4D5449736 /* iquantize_new.cpp */; };
@@ -382,7 +378,6 @@
 		87D4A6B5EAB48B3A48C6E725 /* exec-engine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6CEDD77002CF7301A19B50B4 /* exec-engine.cpp */; };
 		888E0585178363AF543EDDE1 /* capsule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F9CDFA10F914B71D954505 /* capsule.cpp */; };
 		894407DD7AC5E2BCDF6DFA18 /* graphics_util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C1C6C62A56F6E07BD478EA3 /* graphics_util.cpp */; };
-		8A9350E1A3BA3D50E7328E48 /* libcups.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22B82F94437682FC728C4C83 /* libcups.dylib */; };
 		8A9DCB0AB5F95159FC12BC50 /* aclip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6C8B0AF393D42EB4F9AE7379 /* aclip.cpp */; };
 		8C83DFBBB6E4C3E2E79FCD57 /* mcmessagedigest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 076E79A876E62EDE218720CE /* mcmessagedigest.cpp */; };
 		8CA64DB6D2F4716143FDF879 /* md5.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B9229E36A69F8FD4EF5C55BA /* md5.cpp */; };
@@ -400,6 +395,7 @@
 		8F448809586896F105FBDFBF /* exec-interface-button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EB700235E29A3C0C415DCC6 /* exec-interface-button.cpp */; };
 		9043EE926A941A3F1F08ECAE /* ijpg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8135A8542A827BF3354364EF /* ijpg.cpp */; };
 		909B156BDD03BC4D94D87779 /* exec-interface-player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 08BDAFBAA953CAB1DB81D754 /* exec-interface-player.cpp */; };
+		9160D4F152BA86A5AFA71DEE /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C4A824CABC23BE168740AB67 /* WebKit.framework */; };
 		91AA5C66543A81EEFDF0E475 /* font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD30CC5C02C02FC2C71C432E /* font.cpp */; };
 		9209A0659681ECD35F24A29C /* opensslsocket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F0A7C32E6702F0C065D399F4 /* opensslsocket.cpp */; };
 		92929E24CC1FF3D3E0FCDF9B /* sysunxnetwork.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C0057E377ABDD918FEAE2FD5 /* sysunxnetwork.cpp */; };
@@ -421,6 +417,7 @@
 		9735271160EDD4C67DFB3C3B /* sellst.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 08F973F5665AD12570B6DC6F /* sellst.cpp */; };
 		97EF1BC5F21E9B4CB1F79498 /* sha1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9E04CF47E4E31B68891A58D4 /* sha1.cpp */; };
 		985722979E9E243FBC68FD15 /* param.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2E85EFA247F1C3B13FC86113 /* param.cpp */; };
+		992C6E2A23F9B6CC88F85965 /* libffi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 31E8482F1DC2BB132469097B /* libffi.a */; };
 		99635E245B8130C95B2FD990 /* exec-nativecontrol.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 98A23537F04689AF2305FE51 /* exec-nativecontrol.cpp */; };
 		9A46640E12A7827AF015ED2B /* exec-interface-field.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B9CD5E4C73DFBC9D9A9DF056 /* exec-interface-field.cpp */; };
 		9ACF893465DD7F8BF18A53B5 /* irle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE2D57DF4B778D6BAB4BC824 /* irle.cpp */; };
@@ -429,6 +426,7 @@
 		9C74B493885A6B4C3C9CA4F6 /* libskia_opt_arm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9309A1DC0F4FDD6136E9DE20 /* libskia_opt_arm.a */; };
 		9CCA4E05C70E02968C44AC31 /* resolution.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2156850AD4D05D0982FCF6C6 /* resolution.cpp */; };
 		9E074C2232D6561B56ABB75A /* image_rep.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EB35D516332CA26757B251F5 /* image_rep.cpp */; };
+		9EF337649471AC46C69D0A0A /* libcups.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 22B82F94437682FC728C4C83 /* libcups.dylib */; };
 		9F78A1F65D94E2BC6E3F9BB1 /* surface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F0C777780C9609BC2603F7B4 /* surface.cpp */; };
 		A0753687425FD2AD905A7A24 /* uidc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 70FA0095F88096C955323275 /* uidc.cpp */; };
 		A0A409D82E4042C817C268F7 /* stackcache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F053061F0C1DCFAC3794EBDA /* stackcache.cpp */; };
@@ -437,7 +435,6 @@
 		A1C6A6843BEF452A471310F7 /* foundation-legacy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4D9746E615AC3D8B53E77515 /* foundation-legacy.cpp */; };
 		A21EF0785016541E79732FB2 /* exec-pick.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0260C7F3A363EE3A203111A9 /* exec-pick.cpp */; };
 		A24BD09752AAFE6543B96AA7 /* resolution.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2156850AD4D05D0982FCF6C6 /* resolution.cpp */; };
-		A287C17A214FE4DF76C4E638 /* libicuuc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 51E26D3BABC4AB7123F8F00D /* libicuuc.a */; };
 		A29173D4B9DF6383C77CE068 /* mcutility.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9FE6F84DBDC3769861CABF89 /* mcutility.cpp */; };
 		A2DC5A5195CAFE0BAB1216E7 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1601A0A64BC3D4E5E7F7D51B /* util.cpp */; };
 		A2EEDCF280E5637C8A9C0B40 /* eps.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CDE450A59B51D96F593BCBB9 /* eps.cpp */; };
@@ -446,6 +443,7 @@
 		A4A56DE5AB9D9894C65BADCD /* srvoutput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 076C18C1476FC3836AF86698 /* srvoutput.cpp */; };
 		A4AE24A824A44501EAFFEE9A /* externalv1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9F557A16E507D9531A36FC4F /* externalv1.cpp */; };
 		A5F54EEB7628928B841902B8 /* socket_resolve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A15983FCF5E2C11F42DD8775 /* socket_resolve.cpp */; };
+		A6203B68D07DBD53B8AFE8B3 /* libcustomssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 05258B830C125EA963A3577C /* libcustomssl.a */; };
 		A63AB7F7C5F8AC8E3754AEF8 /* exec-interface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9B68669EA526471CAC328BEB /* exec-interface.cpp */; };
 		A6631EA8BFC966F079621164 /* image_rep_gimage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88F0CDB2F9955632D561B8B1 /* image_rep_gimage.cpp */; };
 		A74CDDB295F8B5FD6989FF9E /* cmdss.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B9D3594AB0E9CEB77C0F96B1 /* cmdss.cpp */; };
@@ -453,8 +451,8 @@
 		A79E30C7408D9B3445560E50 /* igif.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5C736C82017D647BE48B4B /* igif.cpp */; };
 		A84FC26A6A0C621B36A5113F /* exec-text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE08B8F2D819A0733B1299A1 /* exec-text.cpp */; };
 		A85080F47B0B42DF8BACB171 /* mac-notification.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2EF08D3F2C0CC85C4FAF61BE /* mac-notification.mm */; };
-		A872194495E9489E87FEC866 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 693EE34A8AB38EB0DCAB2940 /* ApplicationServices.framework */; };
 		A8A1D99D12174CE1C511C9F0 /* unicode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 613A71E3D8518D2A8B930E67 /* unicode.cpp */; };
+		A99DB02B991B75948C3B39F6 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4FA3C06B4EA3A5C2E8D156F /* CoreText.framework */; };
 		A9C444B57BC1DCD4FBE5A471 /* srvcgi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B65703C75740AF977DA1149C /* srvcgi.cpp */; };
 		AAA2156E14F38BD5087C7DC7 /* graphics_util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C1C6C62A56F6E07BD478EA3 /* graphics_util.cpp */; };
 		AB44DA1DFD1D8C0E1F77F878 /* igif.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7B5C736C82017D647BE48B4B /* igif.cpp */; };
@@ -475,13 +473,15 @@
 		B056BEB3070AC07AB8B66648 /* cmds.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E1E3BB0296DF15E8988CC66 /* cmds.cpp */; };
 		B0716132D8AD7D3F29F7F98C /* sha256.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0C8CF2E6778746393065FF43 /* sha256.cpp */; };
 		B16551A83B529058E2001E7C /* printer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 41450E75C2505136CC24850B /* printer.cpp */; };
+		B17D491157EC41C51E1EDB59 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 283C3CDF064D448F5BB36CCF /* Security.framework */; };
 		B18C55C754C90858255D0468 /* capsule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F9CDFA10F914B71D954505 /* capsule.cpp */; };
 		B1A23445D9867EADB62FC71D /* mctheme.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DC727C454CB165E096A71FFF /* mctheme.cpp */; };
 		B256AB278D931164D21DAA46 /* exec-mail.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 136F7022663D231E37EFABC3 /* exec-mail.cpp */; };
+		B2CC699E82540C15F91BB0F5 /* libicudata.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 510BA98ABC9E1B248730CA62 /* libicudata.a */; };
 		B2ED98CCB9BED631E196974A /* clipboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A10B17AA5CDE2EAF0F3C3D05 /* clipboard.cpp */; };
 		B3D11A2B1C44DCCD14E6E3AD /* ibmp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3AA7E1769895544CE6D3ECB6 /* ibmp.cpp */; };
 		B3D9CA086A2C6BD3708C6018 /* variable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 888B9F423FE4645C5503E7FF /* variable.cpp */; };
-		B5528C9E3489C55A4E6DA748 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F298390541D43D2EA85B236 /* Cocoa.framework */; };
+		B478B23625AD143B9191624C /* libicuuc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 51E26D3BABC4AB7123F8F00D /* libicuuc.a */; };
 		B5C74CC71E5208A505F5409A /* dispatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 784B9912592B9E59F46FA3CC /* dispatch.cpp */; };
 		B65A2FEBE73F1DCC1319BEA8 /* mcssl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2341D5FE4714DDB407F33F15 /* mcssl.cpp */; };
 		B706D548FAF6CAAF00232549 /* exec-busyindicator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 52B563168A9A35E4084840B2 /* exec-busyindicator.cpp */; };
@@ -494,7 +494,6 @@
 		B9DA356962F69E638E0B9B69 /* fonttable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BEAD655B0EBF37ECDA9A0080 /* fonttable.cpp */; };
 		BA410C4FC5A70D12EE3589E1 /* color.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DAB6A8C3CFC3668C4538F525 /* color.cpp */; };
 		BA50281087EBAF88F0CD8A32 /* securemode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D442A5CF99B3B2EC996E0FBC /* securemode.cpp */; };
-		BA59CA92D16D00A25FD4AD13 /* libcustomcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B0F3B7775C4907A8C14C3C00 /* libcustomcrypto.a */; };
 		BAE560A11575733CAF4398A1 /* widget-ref.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B710A22EF1A5CC2AD07C1317 /* widget-ref.cpp */; };
 		BB1B3E3B10BFC84C32007163 /* fieldrtf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 003D90732C1757B93CFE02D7 /* fieldrtf.cpp */; };
 		BB7285C46FA2A188E5E9786E /* srvscript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0791D7F471E0359541D4F849 /* srvscript.cpp */; };
@@ -511,6 +510,7 @@
 		C00A0557813591EBFFF8BB6B /* exec-interface-stack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9145B4B35A4C4396E5A8CAC1 /* exec-interface-stack.cpp */; };
 		C08F2FA894E38A523EEED78F /* exec-security.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 55BADBCF943235F9F96FF6D5 /* exec-security.cpp */; };
 		C1B9C9462387789F653F6ADC /* exec-interface-scrollbar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C5F6F6D3B71C587B56FF16BB /* exec-interface-scrollbar.cpp */; };
+		C2DFD6E1F9241CAA8E7FB343 /* libicutu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D4CF4EB873AE064A94884E07 /* libicutu.a */; };
 		C3A0220AE4BA26FBF9C24444 /* buttondraw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C180D3E301441E079500C864 /* buttondraw.cpp */; };
 		C4EAED88FA05DAEE9491C963 /* segment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C1A6EFCB4B47E42FB6516460 /* segment.cpp */; };
 		C4F5E0595A0F63A330223D0A /* exec-interface-group.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 572329AC40B3042D2C326B90 /* exec-interface-group.cpp */; };
@@ -543,6 +543,7 @@
 		CBB784EBC69F1106E75251C3 /* exec-calendar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 411F1A6244A651CC465984AB /* exec-calendar.cpp */; };
 		CC804BE8E4D3E30290EE6C62 /* bitmapeffectblur.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A3AEDFCF286EE7E57362E249 /* bitmapeffectblur.cpp */; };
 		CCC878E7CEB72AE7693C3799 /* patternmatcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8782F1A06ED5FDFC04257CFB /* patternmatcher.cpp */; };
+		CCCC76E8EE6E0F8AD7E7CF95 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F582153E96EFC17B4B1237B /* AudioToolbox.framework */; };
 		CCEB31CA8659D62DDB3FDED2 /* scrollbardraw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C899DFB59B9FCDB7E387ED89 /* scrollbardraw.cpp */; };
 		CD38614A53AAD64692DEE371 /* stack3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8302920D48B2F98F031917FF /* stack3.cpp */; };
 		CD7D99E9E2F2BDA2469D64F4 /* param.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2E85EFA247F1C3B13FC86113 /* param.cpp */; };
@@ -579,11 +580,12 @@
 		DD636C5612237E463559DADE /* exec-extension.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF67A3177FA8EDB5E51FB5D7 /* exec-extension.cpp */; };
 		DD7DD02B3BDF154DE5D8F856 /* lextable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2E2E5CAC5A1A6848106BF410 /* lextable.cpp */; };
 		DDB541808F3C93FFEB236F07 /* image_rep_mutable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 96C2997658318DDD6080B151 /* image_rep_mutable.cpp */; };
+		DE7AE72B20DB3F0E5A0FC919 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 693EE34A8AB38EB0DCAB2940 /* ApplicationServices.framework */; };
 		DED1BCF75C7F2D29CB56B5CE /* exec-nativecontrol.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 98A23537F04689AF2305FE51 /* exec-nativecontrol.cpp */; };
+		DED24704EFB4BA5D3628D74A /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B5397E325ABE0DC78CBB410 /* JavaScriptCore.framework */; };
 		DF3D71D0991BDF0BBACFDB9A /* exec-strings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 05C323F3229D308F00F1C961 /* exec-strings.cpp */; };
 		DF83E89BBA63B8BA7A804C89 /* ipng.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1542068A0AE18EF3162C27C0 /* ipng.cpp */; };
 		DFA4EE78BB36F72A57F7F2C7 /* exec-sound.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8A82914839BA25DC45982E4C /* exec-sound.cpp */; };
-		DFD4B26A73B8113E060E6463 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4FA3C06B4EA3A5C2E8D156F /* CoreText.framework */; };
 		E029E717A8CA4E3EC1C0B59F /* exec-interface-control.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D175832F8792F277F4B65A83 /* exec-interface-control.cpp */; };
 		E0702B871F50F4180F7A6380 /* uuid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA2E8B78E2A59A127C2FCB6A /* uuid.cpp */; };
 		E1941A636359F176CA564B7B /* sysspec-url.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 19CCE9E8065A8BFE77B99E8F /* sysspec-url.cpp */; };
@@ -593,7 +595,7 @@
 		E33DEB31530D2D3AED1F33F6 /* cmdsf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5E07E35054973B94AC0308CC /* cmdsf.cpp */; };
 		E400AF983AA75649D662E44A /* ifile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1CC80F85DB42A5E99B01A55 /* ifile.cpp */; };
 		E4734F3AD84994A0838779EB /* libffi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E34EF139C4F28C7D6F5B6980 /* libffi.a */; };
-		E4AA9946DF0B5AF4AD728F17 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C4A824CABC23BE168740AB67 /* WebKit.framework */; };
+		E480FD7D94FDB6225F9343F2 /* libicui18n.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 43E7DAD0341ED31DE5F92F8B /* libicui18n.a */; };
 		E537B7556DF9B7DF9D6799A0 /* coretextfonts.mm in Sources */ = {isa = PBXBuildFile; fileRef = DD512602542290B96A716319 /* coretextfonts.mm */; };
 		E543DF244A7CA11E8089CFA9 /* tilecache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 605C06197DB6B4B2ACF51F38 /* tilecache.cpp */; };
 		E58D9463ED1DE1C4E4721178 /* raw-clipboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE56F0CBEF831CD3D2F12417 /* raw-clipboard.cpp */; };
@@ -608,11 +610,10 @@
 		E9C233DC2892E19AF797482D /* filepath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 53E2D2A6E8CD4D145303E4B5 /* filepath.cpp */; };
 		E9C7759CE7D2C05B26905DF0 /* exec-ad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 06D74F61D61416DD7120336E /* exec-ad.cpp */; };
 		E9E594F5EDC94BC77DA9FA43 /* fieldhtml.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C6271F7AF1867227EF15C7B8 /* fieldhtml.cpp */; };
+		EA30425549CB5393C9F49B91 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F298390541D43D2EA85B236 /* Cocoa.framework */; };
 		EC467E9ECAD81901E1F7C402 /* button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AAD404EF42D5334FA8C9AC3 /* button.cpp */; };
-		EC96C697D57746DB802FEE4B /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B5397E325ABE0DC78CBB410 /* JavaScriptCore.framework */; };
 		ECA97F3F1ACD427C21B9B2F9 /* libskia_opt_hsw.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 35C2B50DC8D3BE9294CEBC7A /* libskia_opt_hsw.a */; };
 		ECA9F8503462E07CBB4FBABB /* widget-events.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 76415A79DE7D4D279A2407D8 /* widget-events.cpp */; };
-		ED34741FCBA045BDFE7F5E6A /* libicutu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D4CF4EB873AE064A94884E07 /* libicutu.a */; };
 		ED85C26EDF0537DC8607AD78 /* widget-popup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3AFB98E67C1BC57F796394E0 /* widget-popup.cpp */; };
 		EDB033996151F395E2568C5A /* srvscript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0791D7F471E0359541D4F849 /* srvscript.cpp */; };
 		EDBDEDE236DA7BEE73666369 /* exec-addressbook.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DB03117619218DD23185EB46 /* exec-addressbook.cpp */; };
@@ -628,7 +629,7 @@
 		F400B3E0B8A915DFFEAF4A84 /* srvdebug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C64868ADDB540578AE58DFF7 /* srvdebug.cpp */; };
 		F620E2C0261051C2503BEE5C /* font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CD30CC5C02C02FC2C71C432E /* font.cpp */; };
 		F6A8F58FE5C2EB96C8FF2BE4 /* stack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 63F31CF39C95D0E58A7BD875 /* stack.cpp */; };
-		F6C0800E8F5DA1CBF61D2499 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F95F9CF512964CFB07ED5D8A /* AppKit.framework */; };
+		F6E55243B4CF3C77C12082B7 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6898F1E70CEBC5C1DC7D865E /* Foundation.framework */; };
 		F7191069E061F937B8DC6592 /* image_rep_densitymapped.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 19762D84F4B45E938372A402 /* image_rep_densitymapped.cpp */; };
 		F943828BB794177F27855D0C /* external.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EFD36A5A968EE9903D537E60 /* external.cpp */; };
 		FA5E5DC554DF52B619FD2A0B /* iimport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 51638548E788588D35359129 /* iimport.cpp */; };
@@ -1870,6 +1871,7 @@
 		9389F8FD1141E9B16F9C312F /* srvstack.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = srvstack.cpp; sourceTree = "<group>"; };
 		93C8EEBA56075A5B64C5F03A /* mblandroidorientation.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = mblandroidorientation.cpp; sourceTree = "<group>"; };
 		94AFCFDA88C892FED6CCCF21 /* textbuffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = textbuffer.h; sourceTree = "<group>"; };
+		94B9639AA14E9C0AF43B64D9 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		9518EE00CCB6346ADF4695BE /* stacklst.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = stacklst.cpp; sourceTree = "<group>"; };
 		95239CB20151729A50F5199E /* mac-server-stubs-arm64.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "mac-server-stubs-arm64.mm"; sourceTree = "<group>"; };
 		9541E9F867384486BDF275F1 /* engine-common.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "engine-common.xcodeproj"; path = "../build-mac/livecode/engine/engine-common.xcodeproj"; sourceTree = SOURCE_ROOT; };
@@ -2181,29 +2183,30 @@
 				1F7D36AA0DC386B614403FF7 /* stdscript.a in Frameworks */,
 				0D78E74270D3BAF1145E3F8A /* libpcre.a in Frameworks */,
 				39356C0515D764B92ABBECFE /* libbrowser.a in Frameworks */,
-				8A9350E1A3BA3D50E7328E48 /* libcups.dylib in Frameworks */,
-				1CD3425A9D27C1E1592E4DA2 /* AudioToolbox.framework in Frameworks */,
-				F6C0800E8F5DA1CBF61D2499 /* AppKit.framework in Frameworks */,
-				A872194495E9489E87FEC866 /* ApplicationServices.framework in Frameworks */,
-				2CA166BE5346FE7BA3F9404B /* Carbon.framework in Frameworks */,
-				B5528C9E3489C55A4E6DA748 /* Cocoa.framework in Frameworks */,
-				7DEEF8E6B1CF59C8B1CC8C3C /* IOKit.framework in Frameworks */,
-				3922D1D813A2EAFEED33DE75 /* Security.framework in Frameworks */,
-				220A4EB027C21DD1D60463F2 /* CoreGraphics.framework in Frameworks */,
-				DFD4B26A73B8113E060E6463 /* CoreText.framework in Frameworks */,
-				0BF3B4E33A7BA41B9E9DBBF2 /* CoreFoundation.framework in Frameworks */,
-				04B3D4375728E1468C96EE36 /* Foundation.framework in Frameworks */,
-				430B52B438B593B6C245C56C /* libicui18n.a in Frameworks */,
-				033E4C563524D6742D52EF6E /* libicuio.a in Frameworks */,
-				ED34741FCBA045BDFE7F5E6A /* libicutu.a in Frameworks */,
-				A287C17A214FE4DF76C4E638 /* libicuuc.a in Frameworks */,
-				585D2ABAEC64C04AB066EB4E /* libicudata.a in Frameworks */,
-				0C7E80DC7F02742DC32B5985 /* libffi.a in Frameworks */,
-				810CA1083924BDD66B0587FC /* libcurl.dylib in Frameworks */,
-				BA59CA92D16D00A25FD4AD13 /* libcustomcrypto.a in Frameworks */,
-				2498A9E2A7D0138DCE4E085E /* libcustomssl.a in Frameworks */,
-				E4AA9946DF0B5AF4AD728F17 /* WebKit.framework in Frameworks */,
-				EC96C697D57746DB802FEE4B /* JavaScriptCore.framework in Frameworks */,
+				9EF337649471AC46C69D0A0A /* libcups.dylib in Frameworks */,
+				CCCC76E8EE6E0F8AD7E7CF95 /* AudioToolbox.framework in Frameworks */,
+				470D4DD06012FAA9ACCB3063 /* AppKit.framework in Frameworks */,
+				DE7AE72B20DB3F0E5A0FC919 /* ApplicationServices.framework in Frameworks */,
+				7E59276D11978134B2964B97 /* Carbon.framework in Frameworks */,
+				EA30425549CB5393C9F49B91 /* Cocoa.framework in Frameworks */,
+				7DA7744A3796FC1ABB9EFC80 /* IOKit.framework in Frameworks */,
+				B17D491157EC41C51E1EDB59 /* Security.framework in Frameworks */,
+				5D5566B9EF9DD7FFBF194AA9 /* UserNotifications.framework in Frameworks */,
+				2DC5C30372C55CFFE1D6DEA1 /* CoreGraphics.framework in Frameworks */,
+				A99DB02B991B75948C3B39F6 /* CoreText.framework in Frameworks */,
+				6598BAA5664CAA1B4584E943 /* CoreFoundation.framework in Frameworks */,
+				F6E55243B4CF3C77C12082B7 /* Foundation.framework in Frameworks */,
+				E480FD7D94FDB6225F9343F2 /* libicui18n.a in Frameworks */,
+				2A1492A05DBD584955609D99 /* libicuio.a in Frameworks */,
+				C2DFD6E1F9241CAA8E7FB343 /* libicutu.a in Frameworks */,
+				B478B23625AD143B9191624C /* libicuuc.a in Frameworks */,
+				B2CC699E82540C15F91BB0F5 /* libicudata.a in Frameworks */,
+				992C6E2A23F9B6CC88F85965 /* libffi.a in Frameworks */,
+				768885956532729EC70D1335 /* libcurl.dylib in Frameworks */,
+				3A1C0A30A2A5C494AA6F60E1 /* libcustomcrypto.a in Frameworks */,
+				A6203B68D07DBD53B8AFE8B3 /* libcustomssl.a in Frameworks */,
+				9160D4F152BA86A5AFA71DEE /* WebKit.framework in Frameworks */,
+				DED24704EFB4BA5D3628D74A /* JavaScriptCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2314,36 +2317,6 @@
 				35B846C70BF3B796154B6550 /* yacc.gypi */,
 			);
 			name = Build;
-			sourceTree = "<group>";
-		};
-		2FE215D3A12DA1782743CC6A /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				F95F9CF512964CFB07ED5D8A /* AppKit.framework */,
-				693EE34A8AB38EB0DCAB2940 /* ApplicationServices.framework */,
-				1F582153E96EFC17B4B1237B /* AudioToolbox.framework */,
-				5BF5C7DD88AE1D1B26272863 /* Carbon.framework */,
-				8F298390541D43D2EA85B236 /* Cocoa.framework */,
-				FBD60E5EE891BB034EFFE0EB /* CoreFoundation.framework */,
-				61756E13CDF8A803FC6EB633 /* CoreGraphics.framework */,
-				E4FA3C06B4EA3A5C2E8D156F /* CoreText.framework */,
-				6898F1E70CEBC5C1DC7D865E /* Foundation.framework */,
-				73C4B762F6DEBF9F7E98096C /* IOKit.framework */,
-				7B5397E325ABE0DC78CBB410 /* JavaScriptCore.framework */,
-				283C3CDF064D448F5BB36CCF /* Security.framework */,
-				C4A824CABC23BE168740AB67 /* WebKit.framework */,
-				22B82F94437682FC728C4C83 /* libcups.dylib */,
-				49283402DF806CE41E4BF6D3 /* libcurl.dylib */,
-				B0F3B7775C4907A8C14C3C00 /* libcustomcrypto.a */,
-				05258B830C125EA963A3577C /* libcustomssl.a */,
-				31E8482F1DC2BB132469097B /* libffi.a */,
-				510BA98ABC9E1B248730CA62 /* libicudata.a */,
-				43E7DAD0341ED31DE5F92F8B /* libicui18n.a */,
-				E023CC95F91A73A4FCFCA465 /* libicuio.a */,
-				D4CF4EB873AE064A94884E07 /* libicutu.a */,
-				51E26D3BABC4AB7123F8F00D /* libicuuc.a */,
-			);
-			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		342E70A6F203064006E2868F /* src */ = {
@@ -3042,6 +3015,37 @@
 			path = src;
 			sourceTree = INTERMEDIATE_DIR;
 		};
+		9B035767007D7190BA3F637C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F95F9CF512964CFB07ED5D8A /* AppKit.framework */,
+				693EE34A8AB38EB0DCAB2940 /* ApplicationServices.framework */,
+				1F582153E96EFC17B4B1237B /* AudioToolbox.framework */,
+				5BF5C7DD88AE1D1B26272863 /* Carbon.framework */,
+				8F298390541D43D2EA85B236 /* Cocoa.framework */,
+				FBD60E5EE891BB034EFFE0EB /* CoreFoundation.framework */,
+				61756E13CDF8A803FC6EB633 /* CoreGraphics.framework */,
+				E4FA3C06B4EA3A5C2E8D156F /* CoreText.framework */,
+				6898F1E70CEBC5C1DC7D865E /* Foundation.framework */,
+				73C4B762F6DEBF9F7E98096C /* IOKit.framework */,
+				7B5397E325ABE0DC78CBB410 /* JavaScriptCore.framework */,
+				283C3CDF064D448F5BB36CCF /* Security.framework */,
+				94B9639AA14E9C0AF43B64D9 /* UserNotifications.framework */,
+				C4A824CABC23BE168740AB67 /* WebKit.framework */,
+				22B82F94437682FC728C4C83 /* libcups.dylib */,
+				49283402DF806CE41E4BF6D3 /* libcurl.dylib */,
+				B0F3B7775C4907A8C14C3C00 /* libcustomcrypto.a */,
+				05258B830C125EA963A3577C /* libcustomssl.a */,
+				31E8482F1DC2BB132469097B /* libffi.a */,
+				510BA98ABC9E1B248730CA62 /* libicudata.a */,
+				43E7DAD0341ED31DE5F92F8B /* libicui18n.a */,
+				E023CC95F91A73A4FCFCA465 /* libicuio.a */,
+				D4CF4EB873AE064A94884E07 /* libicutu.a */,
+				51E26D3BABC4AB7123F8F00D /* libicuuc.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		9BD7B56CAC3A906C47350817 /* test */ = {
 			isa = PBXGroup;
 			children = (
@@ -3165,7 +3169,7 @@
 				BAB933BD57FD058E6B55DE03 /* Source */,
 				D73C865EB0FE1979308E0CB8 /* Intermediates */,
 				BF54C8E934103CBEC49CA6B0 /* Projects */,
-				2FE215D3A12DA1782743CC6A /* Frameworks */,
+				9B035767007D7190BA3F637C /* Frameworks */,
 				84A02162D26AFAF3176205E9 /* Products */,
 				2FBAB7FE49B29F7368651991 /* Build */,
 			);

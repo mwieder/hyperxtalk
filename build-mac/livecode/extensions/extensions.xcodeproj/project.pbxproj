@@ -321,7 +321,6 @@
 		6390F4DB7E5A4051B07069E1 /* notarealfile.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = notarealfile.txt; sourceTree = "<group>"; };
 		6630AAAA7A41190BC4C1B84C /* oauth2.livecodescript */ = {isa = PBXFileReference; lastKnownFileType = text; path = oauth2.livecodescript; sourceTree = "<group>"; };
 		665D0B93AD1E5609725B9ADA /* tz.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = tz.xcodeproj; path = "../build-mac/livecode/extensions/libraries/timezone/tz/tz.xcodeproj"; sourceTree = SOURCE_ROOT; };
-		6785FF17E464BCB0A542290F /* macosfsevents.lcb */ = {isa = PBXFileReference; lastKnownFileType = text; path = macosfsevents.lcb; sourceTree = "<group>"; };
 		68E5C703E02E896682648F2A /* clock.lcb */ = {isa = PBXFileReference; lastKnownFileType = text; path = clock.lcb; sourceTree = "<group>"; };
 		6A00D3F08D6DA867A02A6561 /* android.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; name = android.gypi; path = ../config/android.gypi; sourceTree = "<group>"; };
 		6BBA71530A6FB2322423DA56 /* win32.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; name = win32.gypi; path = ../config/win32.gypi; sourceTree = "<group>"; };
@@ -333,7 +332,6 @@
 		75BB35F2E7ACCD89B8A5E859 /* paletteactions.lcb */ = {isa = PBXFileReference; lastKnownFileType = text; path = paletteactions.lcb; sourceTree = "<group>"; };
 		765821DBB4089580B0A3762D /* linux-settings.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; name = "linux-settings.gypi"; path = "../config/linux-settings.gypi"; sourceTree = "<group>"; };
 		765E8F681BC4847B7439B525 /* mime.livecodescript */ = {isa = PBXFileReference; lastKnownFileType = text; path = mime.livecodescript; sourceTree = "<group>"; };
-		77392FDD026688C1416AEBE4 /* macoskeychain.lcb */ = {isa = PBXFileReference; lastKnownFileType = text; path = macoskeychain.lcb; sourceTree = "<group>"; };
 		7773F11FBB3F66418D32360F /* dropbox.livecodescript */ = {isa = PBXFileReference; lastKnownFileType = text; path = dropbox.livecodescript; sourceTree = "<group>"; };
 		7FC0AFFE4D48942412596A52 /* widget-utils.lcb */ = {isa = PBXFileReference; lastKnownFileType = text; path = "widget-utils.lcb"; sourceTree = "<group>"; };
 		8078AFEC7148FCF021ECBF8E /* extension-utils.lc */ = {isa = PBXFileReference; lastKnownFileType = text; path = "extension-utils.lc"; sourceTree = "<group>"; };
@@ -350,10 +348,8 @@
 		AC1A3DD93DB06E605B0186F8 /* iconsvg.lcb */ = {isa = PBXFileReference; lastKnownFileType = text; path = iconsvg.lcb; sourceTree = "<group>"; };
 		AE03F16E1C381E853E5909B6 /* extension-utils.livecodescript */ = {isa = PBXFileReference; lastKnownFileType = text; path = "extension-utils.livecodescript"; sourceTree = "<group>"; };
 		AF74F4305B443D6612A680C9 /* svgpath.lcb */ = {isa = PBXFileReference; lastKnownFileType = text; path = svgpath.lcb; sourceTree = "<group>"; };
-		B1BCC78EAE2393E7EA6A9C4B /* macosmenubar.lcb */ = {isa = PBXFileReference; lastKnownFileType = text; path = macosmenubar.lcb; sourceTree = "<group>"; };
 		B28F90BE45D0E1FE780D759F /* httpd.livecodescript */ = {isa = PBXFileReference; lastKnownFileType = text; path = httpd.livecodescript; sourceTree = "<group>"; };
 		C2E83828E4A1938AE59C81E5 /* extension-utils.livecodescript */ = {isa = PBXFileReference; lastKnownFileType = text; path = "extension-utils.livecodescript"; sourceTree = "<group>"; };
-		C886047B2735B48F062BF8D4 /* macosrequestuserattention.lcb */ = {isa = PBXFileReference; lastKnownFileType = text; path = macosrequestuserattention.lcb; sourceTree = "<group>"; };
 		CA25D9A296BC16CE4571F8E7 /* yacc.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; name = yacc.gypi; path = ../config/yacc.gypi; sourceTree = "<group>"; };
 		D0FD89D96D8C1BBD1D80A969 /* mime.livecodescript */ = {isa = PBXFileReference; lastKnownFileType = text; path = mime.livecodescript; sourceTree = "<group>"; };
 		D3E35F27FB4C94214782C1E4 /* configurations.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; name = configurations.gypi; path = ../config/configurations.gypi; sourceTree = "<group>"; };
@@ -362,11 +358,8 @@
 		D874E23AA3C1A8E51E893F81 /* lc-compile.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "lc-compile.xcodeproj"; path = "../build-mac/livecode/toolchain/lc-compile/lc-compile.xcodeproj"; sourceTree = SOURCE_ROOT; };
 		DAE40567799010158FDA89A2 /* macoswindowresizeanimation.lcb */ = {isa = PBXFileReference; lastKnownFileType = text; path = macoswindowresizeanimation.lcb; sourceTree = "<group>"; };
 		DE508F1F93C39DEB0A854BDC /* ini.lcb */ = {isa = PBXFileReference; lastKnownFileType = text; path = ini.lcb; sourceTree = "<group>"; };
-		E1E1D76BC71D065DA0C527AB /* macosdock.lcb */ = {isa = PBXFileReference; lastKnownFileType = text; path = macosdock.lcb; sourceTree = "<group>"; };
 		EBC76BE81EA572A18D0C0830 /* macstatusmenu.lcb */ = {isa = PBXFileReference; lastKnownFileType = text; path = macstatusmenu.lcb; sourceTree = "<group>"; };
 		F0AB51543817E71EA6A9A182 /* common.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; name = common.gypi; path = ../common.gypi; sourceTree = "<group>"; };
-		F219DAD7D08F70804B48B951 /* iosbutton.lcb */ = {isa = PBXFileReference; lastKnownFileType = text; path = iosbutton.lcb; sourceTree = "<group>"; };
-		F277BB9B93C7FBF6826B9FAB /* macoscontacts.lcb */ = {isa = PBXFileReference; lastKnownFileType = text; path = macoscontacts.lcb; sourceTree = "<group>"; };
 		F6ECDDAAAF475C70A02EAFCE /* exclusions.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; name = exclusions.gypi; path = ../config/exclusions.gypi; sourceTree = "<group>"; };
 		FCEF34BEEF0960AAE10B75F4 /* timezone.lcb */ = {isa = PBXFileReference; lastKnownFileType = text; path = timezone.lcb; sourceTree = "<group>"; };
 		FD1902DD7900153856FBAFBD /* messageauthentication.livecodescript */ = {isa = PBXFileReference; lastKnownFileType = text; path = messageauthentication.livecodescript; sourceTree = "<group>"; };
@@ -399,14 +392,6 @@
 				09BBEEE465D5021FFCF76AE1 /* browser.lcb */,
 			);
 			path = browser;
-			sourceTree = "<group>";
-		};
-		08C26ADA143E786B840C3673 /* macosmenubar */ = {
-			isa = PBXGroup;
-			children = (
-				B1BCC78EAE2393E7EA6A9C4B /* macosmenubar.lcb */,
-			);
-			path = macosmenubar;
 			sourceTree = "<group>";
 		};
 		145EA4B78DABF400869B9600 /* scriptitems */ = {
@@ -584,6 +569,30 @@
 			path = svgpath;
 			sourceTree = "<group>";
 		};
+		6ED7B665D37EA34CE950C70E /* widgets */ = {
+			isa = PBXGroup;
+			children = (
+				083BA2D5A447156EE6A896C7 /* browser */,
+				B851E5E16DE2DEF460F04ED2 /* clock */,
+				C8F1A1EE6204E2404C93E78B /* colorswatch */,
+				1D2C256ED3AF73DF1D76FBC6 /* gradientrampeditor */,
+				C7599FA7D3D29D72FD050C15 /* graph */,
+				63543A57472E5F130DEC836B /* header */,
+				BF3E25D4ACDC6CA616BD7ADE /* iconpicker */,
+				F471FAFA7F9C9F2D19AA4C00 /* macbutton */,
+				FE222E37403694B56CD26021 /* mactextfield */,
+				B9E029C458414C67972B119A /* navbar */,
+				FD12978AD42605F571EF5B60 /* paletteactions */,
+				E537B6F34B041661FA6E7647 /* segmented */,
+				73238705B4A200752A202761 /* spinner */,
+				6E035215B082F2D4DE8008D3 /* svgpath */,
+				7683D4FB20852B9E2767DB2A /* switchbutton */,
+				A7D36F019FCE7C3E602A9943 /* tile */,
+				6D53959924D927002224D5C0 /* treeview */,
+			);
+			path = widgets;
+			sourceTree = "<group>";
+		};
 		7045E98444D8ED188924CA43 /* iconsvg */ = {
 			isa = PBXGroup;
 			children = (
@@ -659,14 +668,6 @@
 			path = com.livecode.library.drawing;
 			sourceTree = "<group>";
 		};
-		88225E9F34D9C89E8C985E32 /* macoskeychain */ = {
-			isa = PBXGroup;
-			children = (
-				77392FDD026688C1416AEBE4 /* macoskeychain.lcb */,
-			);
-			path = macoskeychain;
-			sourceTree = "<group>";
-		};
 		8BA0CAA3917B4DA2073CFB14 /* com.livecode.library.extension-utils */ = {
 			isa = PBXGroup;
 			children = (
@@ -680,10 +681,10 @@
 			children = (
 				FAE473DD255136C9E5E1D437 /* .. */,
 				05E3C8AFA752C5626BCAD914 /* BUILT_PRODUCTS_DIR */,
-				9BA5710AF51B6BF47D214844 /* libraries */,
+				F778AD0ED2277CD13B305FA0 /* libraries */,
 				25E8F2B132C5DCBFEFA7FF0D /* modules */,
 				60D9C84BCE5D008C76ACE7C0 /* script-libraries */,
-				EA63B93248183172BE5C3531 /* widgets */,
+				6ED7B665D37EA34CE950C70E /* widgets */,
 				6390F4DB7E5A4051B07069E1 /* notarealfile.txt */,
 			);
 			name = Source;
@@ -705,41 +706,12 @@
 			path = com.livecode.library.dropbox;
 			sourceTree = "<group>";
 		};
-		95DBA3302A7F5EF317476834 /* macosrequestuserattention */ = {
-			isa = PBXGroup;
-			children = (
-				C886047B2735B48F062BF8D4 /* macosrequestuserattention.lcb */,
-			);
-			path = macosrequestuserattention;
-			sourceTree = "<group>";
-		};
 		96AC3424D5160F898744D5A8 /* objectrepository */ = {
 			isa = PBXGroup;
 			children = (
 				8C33398F99668CE3C1500204 /* objectrepository.lcb */,
 			);
 			path = objectrepository;
-			sourceTree = "<group>";
-		};
-		9BA5710AF51B6BF47D214844 /* libraries */ = {
-			isa = PBXGroup;
-			children = (
-				E821D02578CB81C23B1731A9 /* canvas */,
-				7045E98444D8ED188924CA43 /* iconsvg */,
-				BCB58FCE91D48A1A19F31D8E /* ini */,
-				82F4A7FC27905018637EDCFD /* json */,
-				AD62BE68DFA3F8DBBAAF96A5 /* macoscontacts */,
-				F7B65F081291150253B0BF40 /* macosdock */,
-				DB8D45A95FC25C912075673A /* macosfsevents */,
-				88225E9F34D9C89E8C985E32 /* macoskeychain */,
-				08C26ADA143E786B840C3673 /* macosmenubar */,
-				95DBA3302A7F5EF317476834 /* macosrequestuserattention */,
-				C93011A05830F3FB1BBC4134 /* macoswindowresizeanimation */,
-				3A6144ACA15A44D24952664C /* macstatusmenu */,
-				96AC3424D5160F898744D5A8 /* objectrepository */,
-				EF048964F9D832D12E51B4E7 /* timezone */,
-			);
-			path = libraries;
 			sourceTree = "<group>";
 		};
 		A1EF15F52C81855B78B3E1DD /* Projects */ = {
@@ -770,14 +742,6 @@
 				27EE243DE2BD5FE1ED7056D1 /* tile.lcb */,
 			);
 			path = tile;
-			sourceTree = "<group>";
-		};
-		AD62BE68DFA3F8DBBAAF96A5 /* macoscontacts */ = {
-			isa = PBXGroup;
-			children = (
-				F277BB9B93C7FBF6826B9FAB /* macoscontacts.lcb */,
-			);
-			path = macoscontacts;
 			sourceTree = "<group>";
 		};
 		B1748DB52650EAF304C2D423 /* oauth2 */ = {
@@ -900,14 +864,6 @@
 			path = mime;
 			sourceTree = "<group>";
 		};
-		DB8D45A95FC25C912075673A /* macosfsevents */ = {
-			isa = PBXGroup;
-			children = (
-				6785FF17E464BCB0A542290F /* macosfsevents.lcb */,
-			);
-			path = macosfsevents;
-			sourceTree = "<group>";
-		};
 		DC878380667BED3ABDB11736 /* Build */ = {
 			isa = PBXGroup;
 			children = (
@@ -951,31 +907,6 @@
 			path = canvas;
 			sourceTree = "<group>";
 		};
-		EA63B93248183172BE5C3531 /* widgets */ = {
-			isa = PBXGroup;
-			children = (
-				083BA2D5A447156EE6A896C7 /* browser */,
-				B851E5E16DE2DEF460F04ED2 /* clock */,
-				C8F1A1EE6204E2404C93E78B /* colorswatch */,
-				1D2C256ED3AF73DF1D76FBC6 /* gradientrampeditor */,
-				C7599FA7D3D29D72FD050C15 /* graph */,
-				63543A57472E5F130DEC836B /* header */,
-				BF3E25D4ACDC6CA616BD7ADE /* iconpicker */,
-				F3C692ED8067D603960C7DB9 /* iosbutton */,
-				F471FAFA7F9C9F2D19AA4C00 /* macbutton */,
-				FE222E37403694B56CD26021 /* mactextfield */,
-				B9E029C458414C67972B119A /* navbar */,
-				FD12978AD42605F571EF5B60 /* paletteactions */,
-				E537B6F34B041661FA6E7647 /* segmented */,
-				73238705B4A200752A202761 /* spinner */,
-				6E035215B082F2D4DE8008D3 /* svgpath */,
-				7683D4FB20852B9E2767DB2A /* switchbutton */,
-				A7D36F019FCE7C3E602A9943 /* tile */,
-				6D53959924D927002224D5C0 /* treeview */,
-			);
-			path = widgets;
-			sourceTree = "<group>";
-		};
 		EF048964F9D832D12E51B4E7 /* timezone */ = {
 			isa = PBXGroup;
 			children = (
@@ -1000,14 +931,6 @@
 			path = com.livecode.library.animationengine;
 			sourceTree = "<group>";
 		};
-		F3C692ED8067D603960C7DB9 /* iosbutton */ = {
-			isa = PBXGroup;
-			children = (
-				F219DAD7D08F70804B48B951 /* iosbutton.lcb */,
-			);
-			path = iosbutton;
-			sourceTree = "<group>";
-		};
 		F471FAFA7F9C9F2D19AA4C00 /* macbutton */ = {
 			isa = PBXGroup;
 			children = (
@@ -1016,12 +939,19 @@
 			path = macbutton;
 			sourceTree = "<group>";
 		};
-		F7B65F081291150253B0BF40 /* macosdock */ = {
+		F778AD0ED2277CD13B305FA0 /* libraries */ = {
 			isa = PBXGroup;
 			children = (
-				E1E1D76BC71D065DA0C527AB /* macosdock.lcb */,
+				E821D02578CB81C23B1731A9 /* canvas */,
+				7045E98444D8ED188924CA43 /* iconsvg */,
+				BCB58FCE91D48A1A19F31D8E /* ini */,
+				82F4A7FC27905018637EDCFD /* json */,
+				C93011A05830F3FB1BBC4134 /* macoswindowresizeanimation */,
+				3A6144ACA15A44D24952664C /* macstatusmenu */,
+				96AC3424D5160F898744D5A8 /* objectrepository */,
+				EF048964F9D832D12E51B4E7 /* timezone */,
 			);
-			path = macosdock;
+			path = libraries;
 			sourceTree = "<group>";
 		};
 		FAE473DD255136C9E5E1D437 /* .. */ = {
@@ -1216,15 +1146,8 @@
 				libraries/timezone/timezone.lcb,
 				libraries/macstatusmenu/macstatusmenu.lcb,
 				libraries/macoswindowresizeanimation/macoswindowresizeanimation.lcb,
-				libraries/macosrequestuserattention/macosrequestuserattention.lcb,
-				libraries/macoscontacts/macoscontacts.lcb,
-				libraries/macosdock/macosdock.lcb,
-				libraries/macosfsevents/macosfsevents.lcb,
-				libraries/macoskeychain/macoskeychain.lcb,
-				libraries/macosmenubar/macosmenubar.lcb,
 				widgets/macbutton/macbutton.lcb,
 				widgets/mactextfield/mactextfield.lcb,
-				widgets/iosbutton/iosbutton.lcb,
 				widgets/browser/browser.lcb,
 				widgets/clock/clock.lcb,
 				widgets/graph/graph.lcb,
@@ -1247,7 +1170,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "echo note: \"Building extensions\"\nexec \"${BUILT_PRODUCTS_DIR}/server-community\" script-libraries/extension-utils/resources/extension-utils.lc \"${not_a_real_variable}buildlcbextensions\" ../ide-support/revdocsparser.livecodescript \"${BUILT_PRODUCTS_DIR}/packaged_extensions\" \"${not_a_real_variable}false\" \"${BUILT_PRODUCTS_DIR}/lc-compile\" \"${BUILT_PRODUCTS_DIR}/modules/lci\" \"${not_a_real_variable}\" modules/widget-utils/widget-utils.lcb modules/scriptitems/scriptitems.lcb libraries/canvas/canvas.lcb libraries/iconsvg/iconsvg.lcb libraries/json/json.lcb libraries/objectrepository/objectrepository.lcb libraries/ini/ini.lcb libraries/timezone/timezone.lcb libraries/macstatusmenu/macstatusmenu.lcb libraries/macoswindowresizeanimation/macoswindowresizeanimation.lcb libraries/macosrequestuserattention/macosrequestuserattention.lcb libraries/macoscontacts/macoscontacts.lcb libraries/macosdock/macosdock.lcb libraries/macosfsevents/macosfsevents.lcb libraries/macoskeychain/macoskeychain.lcb libraries/macosmenubar/macosmenubar.lcb widgets/macbutton/macbutton.lcb widgets/mactextfield/mactextfield.lcb widgets/iosbutton/iosbutton.lcb widgets/browser/browser.lcb widgets/clock/clock.lcb widgets/graph/graph.lcb widgets/header/header.lcb widgets/iconpicker/iconpicker.lcb widgets/navbar/navbar.lcb widgets/paletteactions/paletteactions.lcb widgets/segmented/segmented.lcb widgets/svgpath/svgpath.lcb widgets/switchbutton/switchbutton.lcb widgets/treeview/treeview.lcb widgets/colorswatch/colorswatch.lcb widgets/gradientrampeditor/gradientrampeditor.lcb widgets/tile/tile.lcb widgets/spinner/spinner.lcb\nexit 1\n";
+			shellScript = "echo note: \"Building extensions\"\nexec \"${BUILT_PRODUCTS_DIR}/server-community\" script-libraries/extension-utils/resources/extension-utils.lc \"${not_a_real_variable}buildlcbextensions\" ../ide-support/revdocsparser.livecodescript \"${BUILT_PRODUCTS_DIR}/packaged_extensions\" \"${not_a_real_variable}false\" \"${BUILT_PRODUCTS_DIR}/lc-compile\" \"${BUILT_PRODUCTS_DIR}/modules/lci\" \"${not_a_real_variable}\" modules/widget-utils/widget-utils.lcb modules/scriptitems/scriptitems.lcb libraries/canvas/canvas.lcb libraries/iconsvg/iconsvg.lcb libraries/json/json.lcb libraries/objectrepository/objectrepository.lcb libraries/ini/ini.lcb libraries/timezone/timezone.lcb libraries/macstatusmenu/macstatusmenu.lcb libraries/macoswindowresizeanimation/macoswindowresizeanimation.lcb widgets/macbutton/macbutton.lcb widgets/mactextfield/mactextfield.lcb widgets/browser/browser.lcb widgets/clock/clock.lcb widgets/graph/graph.lcb widgets/header/header.lcb widgets/iconpicker/iconpicker.lcb widgets/navbar/navbar.lcb widgets/paletteactions/paletteactions.lcb widgets/segmented/segmented.lcb widgets/svgpath/svgpath.lcb widgets/switchbutton/switchbutton.lcb widgets/treeview/treeview.lcb widgets/colorswatch/colorswatch.lcb widgets/gradientrampeditor/gradientrampeditor.lcb widgets/tile/tile.lcb widgets/spinner/spinner.lcb\nexit 1\n";
 			showEnvVarsInLog = 0;
 		};
 		D23FCBCA2BD88F099B34123D /* Rule "build_script_extension" */ = {
