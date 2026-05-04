@@ -307,6 +307,14 @@ void MCWorker::RunLoop()
     // setting up our own private copies — the main thread's copies are
     // completely unaffected.
     // -----------------------------------------------------------------------
+
+    // Seed the C-stack bottom for this thread.  MCstackbottom is now
+    // thread_local; without this it would hold the main thread's stack
+    // address, making the recursion-depth check in MCObject::exechandler
+    // always fire and return ES_ERROR immediately.
+    char t_stack_sentinel;
+    MCstackbottom = &t_stack_sentinel;
+
     MCdefaultstackptr = m_stack->GetHandle();
     MCerrorptr        = nil;
     MCtargetptr       = nullptr;

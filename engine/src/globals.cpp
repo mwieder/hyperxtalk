@@ -234,7 +234,7 @@ char MCrecordinput[5] = "dflt";
 Boolean MCuselzw;
 
 real8 MCinfinity = 0.0;
-char *MCstackbottom;
+thread_local char *MCstackbottom;
 Boolean MCcheckstack = True;
 Boolean MCswapbytes;
 Boolean MCtranslatechars;
