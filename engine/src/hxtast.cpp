@@ -233,6 +233,19 @@ uint32_t MCHXTASTWriter::intern_const_valueref(MCValueRef v)
 
     switch (t_type)
     {
+        case kMCValueTypeCodeName:
+        {
+            // MCLiteral stores string literals as MCNameRef (the parser's token
+            // type).  Extract the underlying string content and store it the
+            // same way as a plain string constant so round-trips preserve text.
+            MCStringRef t_str = MCNameGetString((MCNameRef)v);
+            char *t_cstr = nullptr;
+            if (!MCStringConvertToCString(t_str, t_cstr))
+                return intern_const_empty();
+            uint32_t si = intern_str(t_cstr);
+            MCMemoryDeleteArray(t_cstr);
+            return intern_const_string(si);
+        }
         case kMCValueTypeCodeString:
         {
             MCStringRef t_str = (MCStringRef)v;
