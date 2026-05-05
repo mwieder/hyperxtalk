@@ -39,6 +39,9 @@ struct MCHandlerConstantInfo
 	MCValueRef value;
 };
 
+class MCHXTASTWriter;
+class MCHXTASTReader;
+
 class MCHandler
 {
 	MCHandlerlist *hlist;
@@ -75,6 +78,14 @@ class MCHandler
 public:
 	MCHandler(uint1 htype, bool p_is_private = false);
 	~MCHandler();
+
+    // HXT: AST serialization.
+    // hxt_serialize() writes the full handler record (type, name, params,
+    // locals, globals, statement list) into w.
+    // hxt_deserialize() is a static factory that reads a handler record
+    // and returns a fully initialised MCHandler, or nullptr on error.
+    bool hxt_serialize(MCHXTASTWriter &w) const;
+    static MCHandler *hxt_deserialize(MCHXTASTReader &r);
 
 	MCNameRef getname(void)
 	{

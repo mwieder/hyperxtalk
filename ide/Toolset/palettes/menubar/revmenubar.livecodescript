@@ -1497,6 +1497,7 @@ private function revMenubarFileMenu pContext
    put enableMenuItem("&Save/S", tCanSaveStack) & return after tFile
    put enableMenuItem("Save &As...", tCanSaveStack) & return after tFile
    put enableMenuItem("Save as &Project...", tCanSaveStack) & return after tFile
+   put enableMenuItem("Save as &Library...", tCanSaveStack) & return after tFile
    put enableMenuItem("Move S&ubstack to File...", tIsUserTarget and the short name of the topStack is not the mainStack of the topStack) & return after tFile
    put enableMenuItem("&Revert to Saved...", tIsUserTarget and the effective filename of the topStack is not empty) & return after tFile
    put "-" & return after tFile
@@ -2808,6 +2809,9 @@ on revMenubarFileMenuPick pWhich
          break
       case "Save as Project..."
          revIDEActionSaveAsProject the long id of the topStack
+         break
+      case "Save as Library..."
+         revIDEActionSaveAsLibrary the long id of the topStack
          break
       case "Save As Standalone Application..."
          revIDESaveAsStandalone the long id of the topStack

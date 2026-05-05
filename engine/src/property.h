@@ -45,6 +45,9 @@ public:
 	MCProperty();
 	virtual ~MCProperty();
 	virtual Parse_stat parse(MCScriptPoint &sp, Boolean the);
+    // HXT: AST serialization — see hxtast.h for the MCProperty record layout.
+    virtual bool hxt_serialize(MCHXTASTWriter &w) const override;
+    virtual bool hxt_deserialize_body(MCHXTASTReader &r) override;
 	//virtual Exec_stat set(MCExecPoint &);
 	//virtual Exec_stat eval(MCExecPoint &);
     virtual void eval_ctxt(MCExecContext& ctxt, MCExecValue& r_value);

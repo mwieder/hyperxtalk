@@ -966,6 +966,13 @@ public:
     // text is not exposed through the scripting API.
     bool iscompiledlib(void) const { return m_is_compiled_lib; }
     void setascompiledlib(MCStringRef p_script);
+
+    // HXT: Reconstruct the handler list from a raw ASTN section blob produced
+    // by MCHXTASTWriter::finalise().  Returns true on success; on failure the
+    // caller should fall back to setascompiledlib(srcs_text).
+    // Marks the stack compiled-lib and script-only on success (same as
+    // setascompiledlib).
+    bool setascompiledlib_from_astn(const uint8_t *p_astn_data, size_t p_astn_len);
     
     // BWM-2017-08-16: [[ Bug 17810 ]] Get/set line endings for imported script-only-stack.
     MCStringLineEndingStyle getlineencodingstyle(void) const

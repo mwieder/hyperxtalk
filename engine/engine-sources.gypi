@@ -121,7 +121,18 @@
 			'src/statemnt.cpp',
 			'src/variable.cpp',
 			'src/visual.cpp',
-			
+
+			# Group "Core - HyperXTalk AST serialization"
+			'src/hxtast.h',
+			'src/hxtast.cpp',
+			'src/hxtast-base.cpp',
+			'src/hxtast-hlist.cpp',
+			'src/hxtast-stmts.cpp',
+			'src/hxtast-exprs.cpp',
+			'src/hxt-cmds.cpp',
+			'../hxtlib/hxtlib.h',
+			'../hxtlib/hxtlib.cpp',
+
 			# Group "Core - Misc"
 			'<(SHARED_INTERMEDIATE_DIR)/include/revbuild.h',
 			'src/capsule.h',

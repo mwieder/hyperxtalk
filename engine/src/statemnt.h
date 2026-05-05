@@ -26,6 +26,8 @@ class MCChunk;
 class MCExpression;
 class MCVarref;
 class MCHandler;
+class MCHXTASTWriter;
+class MCHXTASTReader;
 
 class MCStatement
 {
@@ -35,12 +37,31 @@ protected:
 	MCStatement *next;
 public:
 	MCStatement();
-	
+
 	virtual ~MCStatement();
 	virtual Parse_stat parse(MCScriptPoint &);
 	virtual void exec_ctxt(MCExecContext&);
-	
+
 	virtual uint4 linecount();
+
+    // HXT: AST serialization.
+    //
+    // hxt_serialize() writes this statement's type-specific members into w.
+    // The caller (MCHandler::hxt_serialize) has already written the common
+    // statement header (stmt_type, line, pos) before calling this method.
+    // Returns false on error.
+    //
+    // hxt_deserialize() is a static factory: reads the common header from r,
+    // allocates the right MCStatement subclass via MCN_new_statement(), then
+    // calls the subclass hxt_deserialize_body() to fill in its members.
+    // Returns nullptr on error.
+    virtual bool hxt_serialize(MCHXTASTWriter &w) const;
+    static MCStatement *hxt_deserialize(MCHXTASTReader &r);
+
+    // Called by the static factory after allocating the subclass instance.
+    // Reads type-specific members from r.  The common header has already been
+    // consumed.  Returns false on error.
+    virtual bool hxt_deserialize_body(MCHXTASTReader &r);
 	
 	void setnext(MCStatement *n)
 	{

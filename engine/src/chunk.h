@@ -85,6 +85,10 @@ public:
     //Exec_stat eval(MCExecPoint &);
     void eval_ctxt(MCExecContext &ctxt, MCExecValue& r_value);
 
+    // HXT: AST serialization — see hxtast.h for the MCChunk record layout.
+    virtual bool hxt_serialize(MCHXTASTWriter &w) const override;
+    virtual bool hxt_deserialize_body(MCHXTASTReader &r) override;
+
 	MCVarref *getrootvarref(void);
 
 	Chunk_term getlastchunktype(void);

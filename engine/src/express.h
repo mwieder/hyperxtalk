@@ -26,6 +26,9 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "exec.h"
 #endif
 
+class MCHXTASTWriter;
+class MCHXTASTReader;
+
 class MCExpression
 {
 protected:
@@ -39,8 +42,26 @@ protected:
 public:
 	MCExpression();
 	virtual ~MCExpression();
-	
+
 	virtual Parse_stat parse(MCScriptPoint &, Boolean the);
+
+    // HXT: AST serialization.
+    //
+    // hxt_serialize() writes the expression type byte (HXTExprType), the
+    // line/pos header, then any type-specific fields into w.
+    // Use MCHXTASTWriter::put_null_expr() for null/absent expressions.
+    // Returns false on error.
+    //
+    // hxt_deserialize() is a static factory: reads the type byte; if it is
+    // kHXTExpr_Null returns nullptr (not an error); otherwise reads line/pos,
+    // allocates the right subclass, and calls hxt_deserialize_body().
+    // Returns nullptr on error (check r.ok() to distinguish null from error).
+    virtual bool hxt_serialize(MCHXTASTWriter &w) const;
+    static MCExpression *hxt_deserialize(MCHXTASTReader &r);
+
+    // Called by the static factory after reading the type header.
+    // Reads type-specific members from r.  Returns false on error.
+    virtual bool hxt_deserialize_body(MCHXTASTReader &r);
 
 	
 	// Evaluate the expression as its natural type basic type (note that

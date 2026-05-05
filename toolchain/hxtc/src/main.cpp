@@ -23,17 +23,16 @@
  *   3  hxtlib write error
  *
  * Current status:
- *   Phase 1 — generates a structurally valid .hxtlib file containing
- *   the META and STRT sections and the file-integrity HASH.  The ASTN
- *   section is present but empty (node_count = 0) because the engine's
- *   internal AST serialisation format has not yet been defined.
+ *   Phase 2 — generates a structurally valid .hxtlib file containing META,
+ *   STRT, SRCS, and an empty ASTN section.  The engine's AST serialisation
+ *   layer (MCHXTASTWriter/Reader, Tasks 22-31) is now fully defined, but hxtc
+ *   links only against hxtlib and cannot invoke the engine parser to produce
+ *   binary ASTN bytes.  The engine loader reads SRCS and re-parses source text
+ *   at load time as a fallback.
  *
- *   When the AST serialisation layer is ready:
- *     1.  Link against the engine's parser library.
- *     2.  Parse the source file into an MCScript AST.
- *     3.  Walk the handler list and serialise each node into
- *         hxtlib::ASTNode payloads.
- *     4.  Pass the populated Document to hxtlib::write().
+ *   To produce a source-stripped library with ASTN populated, use the engine's
+ *   built-in save-as-hxtlib facility (planned for a future task), which runs
+ *   inside the engine process with full access to the parsed AST.
  *
  * Build:
  *   See toolchain/hxtc/hxtc.gyp  (links only against hxtlib, no engine).
@@ -345,17 +344,21 @@ int main(int argc, char *argv[])
             "hxtc: stored %zu bytes of source script in SRCS section\n",
             source.size());
 
-    // --- AST nodes ---
+    // --- ASTN bytes ---
     //
-    // TODO: When the engine AST serialisation layer is defined, invoke the
-    // engine's parser on `source`, walk the resulting handler list, and
-    // serialise each MCHandler into an hxtlib::ASTNode.  Until then the
-    // nodes array is left empty.
+    // hxtc is a standalone tool that does not link against the engine, so it
+    // cannot call MCHandlerlist::hxt_serialize() to produce an ASTN blob here.
+    // doc.astn_bytes is left empty; the engine loader will fall back to the
+    // SRCS section and re-parse the source text at load time.
+    //
+    // To produce a source-stripped .hxtlib with a populated ASTN section, use
+    // the engine's own save-as-hxtlib facility (to be added in a future task),
+    // which runs inside the engine process and has access to the full AST.
 
-    if (verbose && doc.nodes.empty())
+    if (verbose && doc.astn_bytes.empty())
         std::fprintf(stderr,
-            "hxtc: note: ASTN is empty — AST serialisation not yet "
-            "implemented\n");
+            "hxtc: note: ASTN is empty — binary AST not available from "
+            "standalone hxtc; engine will re-parse from SRCS\n");
 
     // --- write ---
 

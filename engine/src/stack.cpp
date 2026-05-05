@@ -63,6 +63,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #endif
 
 #include "resolution.h"
+#include "hxtast.h"      // MCHXTASTReader (for setascompiledlib_from_astn)
 
 static int4 s_last_stack_time = 0;
 static int4 s_last_stack_index = 0;
@@ -2112,6 +2113,55 @@ void MCStack::setascompiledlib(MCStringRef p_script)
         curcard = cards = MCtemplatecard->clone(False, False);
         cards->setparent(this);
     }
+}
+
+// HXT: Reconstruct the handler list from the raw ASTN binary section produced
+// by MCHXTASTWriter::finalise().  On success the stack is marked as a compiled
+// library (same flags as setascompiledlib) and true is returned; the caller
+// can then skip the SRCS / SetScript fallback path.
+//
+// On any failure (magic mismatch, truncated data, reader error) false is
+// returned and the stack is left unchanged so the caller can fall back to SRCS.
+bool MCStack::setascompiledlib_from_astn(const uint8_t *p_astn_data, size_t p_astn_len)
+{
+    // Quick sanity check: must start with the HXTASTN magic.
+    if (p_astn_len < 8 || memcmp(p_astn_data, kASTNMagic, 8) != 0)
+        return false;
+
+    // Allocate a fresh handler list.
+    MCHandlerlist *t_hlist = new (nothrow) MCHandlerlist;
+    if (t_hlist == nullptr)
+        return false;
+
+    // Attach parent before deserialization so any internal lookups work.
+    t_hlist->setparent(this);
+
+    // Open the reader and reconstruct all handlers and script locals.
+    MCHXTASTReader t_reader;
+    if (!t_reader.open(p_astn_data, p_astn_len) ||
+        !t_hlist->hxt_deserialize(t_reader)      ||
+        !t_reader.ok())
+    {
+        delete t_hlist;
+        return false;
+    }
+
+    // Replace any existing handler list.
+    delete hlist;
+    hlist = t_hlist;
+
+    // Mark the stack immutable and script-only.
+    m_is_script_only  = true;
+    m_is_compiled_lib = true;
+
+    // Ensure there is at least one card (required by the engine).
+    if (cards == NULL)
+    {
+        curcard = cards = MCtemplatecard->clone(False, False);
+        cards->setparent(this);
+    }
+
+    return true;
 }
 
 MCPlatformControlType MCStack::getcontroltype()

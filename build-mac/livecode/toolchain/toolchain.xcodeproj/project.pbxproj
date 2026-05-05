@@ -15,6 +15,7 @@
 			dependencies = (
 				B6FE87A7782BFDFDFD62FDA2 /* PBXTargetDependency */,
 				B7F9A18C2203AF84C3DDFEE0 /* PBXTargetDependency */,
+				CFD68DA7BF8EAEB74DFCA78A /* PBXTargetDependency */,
 				11A3DA9BB53EDFC08A47B8A2 /* PBXTargetDependency */,
 			);
 			name = "toolchain-all";
@@ -37,12 +38,26 @@
 			remoteGlobalIDString = E7EE606C361A5A65304CBA3B;
 			remoteInfo = "lc-compile";
 		};
+		51E6213289024F6476F1401F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 96E7DE45487850C5D6098C70 /* hxtc.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = EE454996DA668230D32803F5;
+			remoteInfo = hxtc;
+		};
 		73E48699060B82EC0A8F909C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = CC6D58425BAD116416D71896 /* lc-run.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 3B9B5F2C92F2A9A63AF9A5D3;
 			remoteInfo = "lc-run";
+		};
+		8575364DD181C56E93B28F1B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 96E7DE45487850C5D6098C70 /* hxtc.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = DFB4D7EB9804FAFDAE5AA537;
+			remoteInfo = hxtc;
 		};
 		AD72A39C78D031758F0AF101 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -72,6 +87,7 @@
 		413B584696009403A0B2AF48 /* mac.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; name = mac.gypi; path = ../config/mac.gypi; sourceTree = "<group>"; };
 		426C55D6612ED54CC84DE577 /* crosscompile.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; name = crosscompile.gypi; path = ../config/crosscompile.gypi; sourceTree = "<group>"; };
 		8C37FA8CFD53A7D9EFA22A6D /* lc-compile.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "lc-compile.xcodeproj"; path = "../build-mac/livecode/toolchain/lc-compile/lc-compile.xcodeproj"; sourceTree = SOURCE_ROOT; };
+		96E7DE45487850C5D6098C70 /* hxtc.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = hxtc.xcodeproj; path = "../build-mac/livecode/toolchain/hxtc/hxtc.xcodeproj"; sourceTree = SOURCE_ROOT; };
 		A8D181F7557ADD6457066AC2 /* android.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; name = android.gypi; path = ../config/android.gypi; sourceTree = "<group>"; };
 		C587D5E2555AF1B72247781F /* linux-settings.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; name = "linux-settings.gypi"; path = "../config/linux-settings.gypi"; sourceTree = "<group>"; };
 		CBF34871DFFF594D2BF4A8F3 /* configurations.gypi */ = {isa = PBXFileReference; explicitFileType = sourcecode; name = configurations.gypi; path = ../config/configurations.gypi; sourceTree = "<group>"; };
@@ -115,16 +131,6 @@
 			name = Build;
 			sourceTree = "<group>";
 		};
-		17842491097B4A65EFB4AB83 /* Projects */ = {
-			isa = PBXGroup;
-			children = (
-				F0D1E795A7567065650B1A72 /* lc-compile-ffi-java.xcodeproj */,
-				8C37FA8CFD53A7D9EFA22A6D /* lc-compile.xcodeproj */,
-				CC6D58425BAD116416D71896 /* lc-run.xcodeproj */,
-			);
-			name = Projects;
-			sourceTree = "<group>";
-		};
 		2A18C06111077FFF6F85435A /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -150,11 +156,30 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		7C2E464E8CBA1FE0D54ABF5B /* Projects */ = {
+			isa = PBXGroup;
+			children = (
+				96E7DE45487850C5D6098C70 /* hxtc.xcodeproj */,
+				F0D1E795A7567065650B1A72 /* lc-compile-ffi-java.xcodeproj */,
+				8C37FA8CFD53A7D9EFA22A6D /* lc-compile.xcodeproj */,
+				CC6D58425BAD116416D71896 /* lc-run.xcodeproj */,
+			);
+			name = Projects;
+			sourceTree = "<group>";
+		};
+		8E1CA4835F102B2F7C74666F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				10E56B83CA02766AE585416D /* hxtc */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		912FAD8EB24C25A881427931 = {
 			isa = PBXGroup;
 			children = (
 				442508924FFC8B425CBD30B2 /* Source */,
-				17842491097B4A65EFB4AB83 /* Projects */,
+				7C2E464E8CBA1FE0D54ABF5B /* Projects */,
 				09134467CAB6DF0FAF29F968 /* Build */,
 			);
 			sourceTree = "<group>";
@@ -182,6 +207,10 @@
 			projectDirPath = ../../../toolchain;
 			projectReferences = (
 				{
+					ProductGroup = 8E1CA4835F102B2F7C74666F /* Products */;
+					ProjectRef = 96E7DE45487850C5D6098C70 /* hxtc.xcodeproj */;
+				},
+				{
 					ProductGroup = E8DD7A1C3FB1856166621D5A /* Products */;
 					ProjectRef = F0D1E795A7567065650B1A72 /* lc-compile-ffi-java.xcodeproj */;
 				},
@@ -202,6 +231,13 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		10E56B83CA02766AE585416D /* hxtc */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = hxtc;
+			remoteRef = 51E6213289024F6476F1401F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		74184E7C25F961DD9BEEA7FF /* lc-run */ = {
 			isa = PBXReferenceProxy;
 			fileType = "compiled.mach-o.executable";
@@ -233,6 +269,11 @@
 			isa = PBXTargetDependency;
 			name = "lc-compile-ffi-java";
 			targetProxy = 345A4649518711A0FBBDD9A1 /* PBXContainerItemProxy */;
+		};
+		CFD68DA7BF8EAEB74DFCA78A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = hxtc;
+			targetProxy = 8575364DD181C56E93B28F1B /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

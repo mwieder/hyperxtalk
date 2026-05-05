@@ -379,41 +379,23 @@ static hxtlib::Error parse_strt(const uint8_t *data, size_t len,
 }
 
 // ------------------------------------------------------------------ ASTN section
+//
+// The ASTN section now stores the raw output of MCHXTASTWriter::finalise(),
+// which starts with the 8-byte magic "HXTASTN\0".  When astn_bytes is empty
+// (no pre-parsed AST available) we write an empty section so the section
+// directory remains structurally valid; the loader treats an empty or
+// unrecognised ASTN as "fall back to SRCS".
 
-static Buf build_astn(const std::vector<hxtlib::ASTNode> &nodes)
+static Buf build_astn(const std::vector<uint8_t> &astn_bytes)
 {
-    Buf b;
-    put_u32(b, (uint32_t)nodes.size());
-    for (const auto &n : nodes) {
-        put_u16(b, n.type);
-        put_u16(b, n.child_count);
-        put_u32(b, (uint32_t)n.payload.size());
-        put_bytes(b, n.payload.data(), n.payload.size());
-    }
-    return b;
+    // Return the raw bytes as-is; an empty vector → empty section.
+    return Buf(astn_bytes.begin(), astn_bytes.end());
 }
 
 static hxtlib::Error parse_astn(const uint8_t *data, size_t len,
-                                 std::vector<hxtlib::ASTNode> &out)
+                                 std::vector<uint8_t> &out)
 {
-    size_t   pos = 0;
-    uint32_t count;
-    if (!get_u32(data, len, pos, count))
-        return hxtlib::Error::Truncated;
-
-    out.clear();
-    out.reserve(count);
-    for (uint32_t i = 0; i < count; ++i) {
-        hxtlib::ASTNode n;
-        if (!get_u16(data, len, pos, n.type))         return hxtlib::Error::Truncated;
-        if (!get_u16(data, len, pos, n.child_count))  return hxtlib::Error::Truncated;
-        uint32_t plen;
-        if (!get_u32(data, len, pos, plen))           return hxtlib::Error::Truncated;
-        if (pos + plen > len)                         return hxtlib::Error::Truncated;
-        n.payload.assign(data + pos, data + pos + plen);
-        pos += plen;
-        out.push_back(std::move(n));
-    }
+    out.assign(data, data + len);
     return hxtlib::Error::Ok;
 }
 
@@ -516,16 +498,18 @@ Error write(const Document &doc, const std::string &path)
     // Build section data buffers.
     Buf meta_buf = build_meta(doc.meta);
     Buf strt_buf = build_strt(doc.string_table);
-    Buf astn_buf = build_astn(doc.nodes);
+    Buf astn_buf = build_astn(doc.astn_bytes);
 
-    // SRCS section: raw UTF-8 source script (may be empty — loader handles both).
+    // SRCS section: raw UTF-8 source script.
+    // IDE-produced libraries leave source_script empty (source is never stored).
+    // hxtc-produced libraries populate it as a loader fallback while hxtc
+    // cannot produce ASTN bytes.  The section is always written (possibly empty)
+    // so the section count stays constant and readers need no version negotiation.
     Buf srcs_buf(doc.source_script.begin(), doc.source_script.end());
 
     // HASH is always 32 bytes (SHA-256, computed at end).
 
     // Section count: META + STRT + ASTN + SRCS + HASH = 5.
-    // We always write SRCS (possibly empty) so the section count is constant
-    // and readers don't need version negotiation for this field.
     static constexpr uint16_t kSecCount = 5;
     static constexpr size_t   kHdrSize  = 32;
     static constexpr size_t   kDirSize  = kSecCount * 16;
@@ -784,7 +768,7 @@ Error read(const std::string  &path,
     // ASTN (required).
     const SecEntry *astn_se = find_sec(kSectionAstn);
     if (!astn_se) return Error::InvalidStructure;
-    err = parse_astn(d + astn_se->offset, astn_se->length, doc_out.nodes);
+    err = parse_astn(d + astn_se->offset, astn_se->length, doc_out.astn_bytes);
     if (err != Error::Ok) return err;
 
     // SRCS (optional — absent in files compiled without source, e.g. for

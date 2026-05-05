@@ -24,6 +24,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "executionerrors.h"
 
 #include "express.h"
+#include "hxtast.h"     // HXTExprType, kHXTExpr_* — needed by hxt_expr_type() overrides
 
 class MCChunk;
 
@@ -32,17 +33,30 @@ class MCChunk;
 class MCUnaryOperator: public MCExpression
 {
 public:
+    // HXT: single operand is in MCExpression::right.
+    virtual HXTExprType hxt_expr_type() const { return kHXTExpr_Null; }
+    virtual bool hxt_serialize(MCHXTASTWriter &w) const override;
+    virtual bool hxt_deserialize_body(MCHXTASTReader &r) override;
 };
 
 class MCBinaryOperator: public MCExpression
 {
 public:
+    // HXT: left operand in MCExpression::left, right in MCExpression::right.
+    virtual HXTExprType hxt_expr_type() const { return kHXTExpr_Null; }
+    virtual bool hxt_serialize(MCHXTASTWriter &w) const override;
+    virtual bool hxt_deserialize_body(MCHXTASTReader &r) override;
 };
 
 class MCMultiBinaryOperator: public MCExpression
 {
 public:
 	virtual bool canbeunary(void) const {return false;}
+    // HXT: left in MCExpression::left, right in MCExpression::right.
+    // MCMinus overrides this to handle the unary case.
+    virtual HXTExprType hxt_expr_type() const { return kHXTExpr_Null; }
+    virtual bool hxt_serialize(MCHXTASTWriter &w) const override;
+    virtual bool hxt_deserialize_body(MCHXTASTReader &r) override;
 };
 
 //////////
@@ -273,6 +287,8 @@ public:
         rank = FR_AND;
     }
     virtual void eval_ctxt(MCExecContext &, MCExecValue &r_value);
+    virtual bool hxt_serialize(MCHXTASTWriter &w) const override;
+    virtual bool hxt_deserialize_body(MCHXTASTReader &r) override;
 };
 
 class MCAndBits : public MCBinaryOperatorCtxt<uinteger_t, uinteger_t, MCMathEvalBitwiseAnd, EE_ANDBITS_BADLEFT, EE_ANDBITS_BADRIGHT, FR_AND_BITS>
@@ -281,6 +297,8 @@ class MCAndBits : public MCBinaryOperatorCtxt<uinteger_t, uinteger_t, MCMathEval
 class MCConcat : public MCExpression
 {
 public:
+    virtual bool hxt_serialize(MCHXTASTWriter &w) const override;
+    virtual bool hxt_deserialize_body(MCHXTASTReader &r) override;
 	MCConcat()
 	{
 		rank = FR_CONCAT;
@@ -289,10 +307,10 @@ public:
 };
 
 class MCConcatSpace : public MCBinaryOperatorCtxt<MCStringRef, MCStringRef, MCStringsEvalConcatenateWithSpace, EE_CONCATSPACE_BADLEFT, EE_CONCATSPACE_BADRIGHT, FR_CONCAT>
-{};
+{ public: HXTExprType hxt_expr_type() const override { return kHXTExpr_ConcatSp; } };
 
 class MCContains : public MCBinaryOperatorCtxt<MCStringRef, bool, MCStringsEvalContains, EE_CONTAINS_BADLEFT, EE_CONTAINS_BADRIGHT, FR_COMPARISON>
-{};
+{ public: HXTExprType hxt_expr_type() const override { return kHXTExpr_Contains; } };
 
 class MCDiv : public MCMultiBinaryOperatorCtxt<
         MCMathEvalDiv,
@@ -303,16 +321,16 @@ class MCDiv : public MCMultiBinaryOperatorCtxt<
         EE_DIV_MISMATCH,
         false,
         FR_MULDIV>
-{};
+{ public: HXTExprType hxt_expr_type() const override { return kHXTExpr_IntDiv; } };
 
 class MCEqual : public MCBinaryOperatorCtxt<MCValueRef, bool, MCLogicEvalIsEqualTo, EE_FACTOR_BADLEFT, EE_FACTOR_BADRIGHT, FR_EQUAL>
-{};
+{ public: HXTExprType hxt_expr_type() const override { return kHXTExpr_Equal; } };
 
 class MCGreaterThan : public MCBinaryOperatorCtxt<MCValueRef, bool, MCLogicEvalIsGreaterThan, EE_FACTOR_BADLEFT, EE_FACTOR_BADRIGHT, FR_COMPARISON>
-{};
+{ public: HXTExprType hxt_expr_type() const override { return kHXTExpr_Greater; } };
 
 class MCGreaterThanEqual : public MCBinaryOperatorCtxt<MCValueRef, bool, MCLogicEvalIsGreaterThanOrEqualTo, EE_FACTOR_BADLEFT, EE_FACTOR_BADRIGHT, FR_COMPARISON>
-{};
+{ public: HXTExprType hxt_expr_type() const override { return kHXTExpr_GreaterEq; } };
 
 class MCGrouping : public MCExpression
 {
@@ -339,16 +357,19 @@ public:
 	}
     Parse_stat parse(MCScriptPoint &, Boolean the);
     virtual void eval_ctxt(MCExecContext &ctxt, MCExecValue &r_value);
+    // HXT: stores form(u8) + valid(u8) + delimiter(u8) + left + right.
+    virtual bool hxt_serialize(MCHXTASTWriter &w) const override;
+    virtual bool hxt_deserialize_body(MCHXTASTReader &r) override;
 };
 
 class MCItem : public MCBinaryOperatorCtxt<MCStringRef, MCStringRef, MCStringsEvalConcatenateWithComma, EE_CONCAT_BADLEFT, EE_CONCAT_BADRIGHT, FR_CONCAT>
 {};
 
 class MCLessThan : public MCBinaryOperatorCtxt<MCValueRef, bool, MCLogicEvalIsLessThan, EE_FACTOR_BADLEFT, EE_FACTOR_BADRIGHT, FR_COMPARISON>
-{};
+{ public: HXTExprType hxt_expr_type() const override { return kHXTExpr_Less; } };
 
 class MCLessThanEqual : public MCBinaryOperatorCtxt<MCValueRef, bool, MCLogicEvalIsLessThanOrEqualTo, EE_FACTOR_BADLEFT, EE_FACTOR_BADRIGHT, FR_COMPARISON>
-{};
+{ public: HXTExprType hxt_expr_type() const override { return kHXTExpr_LessEq; } };
 
 class MCMinus : public MCMultiBinaryOperator
 {
@@ -361,6 +382,13 @@ public:
     virtual void eval_ctxt(MCExecContext &ctxt, MCExecValue &r_value);
 
     virtual bool canbeunary(void) const {return true;}
+
+    HXTExprType hxt_expr_type() const override { return kHXTExpr_Sub; }
+    // HXT: writes kHXTExpr_Sub (binary) or kHXTExpr_Negate (unary, left==null).
+    virtual bool hxt_serialize(MCHXTASTWriter &w) const override;
+    // No hxt_deserialize_body override: MCMultiBinaryOperator reads left+right;
+    // for the unary (kHXTExpr_Negate) case the factory writes right only and
+    // sets left = nullptr before returning.
 };
 
 class MCMod : public MCMultiBinaryOperatorCtxt<
@@ -372,7 +400,7 @@ class MCMod : public MCMultiBinaryOperatorCtxt<
         EE_MOD_MISMATCH,
         false,
         FR_MULDIV>
-{};
+{ public: HXTExprType hxt_expr_type() const override { return kHXTExpr_Mod; } };
 
 class MCWrap : public MCMultiBinaryOperatorCtxt<
         MCMathEvalWrap,
@@ -394,13 +422,14 @@ public:
     }
 
     virtual void eval_ctxt(MCExecContext &ctxt, MCExecValue &r_value);
+    HXTExprType hxt_expr_type() const override { return kHXTExpr_Not; }
 };
 
 class MCNotBits : public MCUnaryOperatorCtxt<uinteger_t, MCMathEvalBitwiseNot, EE_NOTBITS_BADRIGHT, FR_UNARY>
 {};
 
 class MCNotEqual : public MCBinaryOperatorCtxt<MCValueRef, bool, MCLogicEvalIsNotEqualTo, EE_FACTOR_BADLEFT, EE_FACTOR_BADRIGHT, FR_EQUAL>
-{};
+{ public: HXTExprType hxt_expr_type() const override { return kHXTExpr_NotEqual; } };
 
 class MCOr : public MCExpression
 {
@@ -410,6 +439,8 @@ public:
 		rank = FR_OR;
     }
     virtual void eval_ctxt(MCExecContext &ctxt, MCExecValue &r_value);
+    virtual bool hxt_serialize(MCHXTASTWriter &w) const override;
+    virtual bool hxt_deserialize_body(MCHXTASTReader &r) override;
 };
 
 class MCOrBits : public MCBinaryOperatorCtxt<uinteger_t, uinteger_t, MCMathEvalBitwiseOr, EE_ORBITS_BADLEFT, EE_ORBITS_BADRIGHT, FR_OR_BITS>
@@ -424,7 +455,7 @@ class MCOver : public MCMultiBinaryOperatorCtxt<
         EE_OVER_MISMATCH,
         false,
         FR_MULDIV>
-{};
+{ public: HXTExprType hxt_expr_type() const override { return kHXTExpr_Div; } };
 
 class MCPlus : public MCMultiBinaryCommutativeOperatorCtxt<
         MCMathEvalAdd,
@@ -434,10 +465,10 @@ class MCPlus : public MCMultiBinaryCommutativeOperatorCtxt<
         EE_PLUS_BADRIGHT,
         true,
         FR_ADDSUB>
-{};
+{ public: HXTExprType hxt_expr_type() const override { return kHXTExpr_Add; } };
 
 class MCPow : public MCBinaryOperatorCtxt<double, double, MCMathEvalPower, EE_POW_BADLEFT, EE_POW_BADRIGHT, FR_POW>
-{};
+{ public: HXTExprType hxt_expr_type() const override { return kHXTExpr_Power; } };
 
 class MCThere : public MCExpression
 {
@@ -450,10 +481,14 @@ public:
 		rank = FR_UNARY;
 		form = IT_NORMAL;
 		object = NULL;
+		mode = TM_UNDEFINED;
 	}
 	virtual ~MCThere();
 	virtual Parse_stat parse(MCScriptPoint &, Boolean the);
     virtual void eval_ctxt(MCExecContext &ctxt, MCExecValue &r_value);
+    // HXT: stores form(u8) + mode(u8) + <chunk-expr>.
+    virtual bool hxt_serialize(MCHXTASTWriter &w) const override;
+    virtual bool hxt_deserialize_body(MCHXTASTReader &r) override;
 };
 
 class MCTimes : public MCMultiBinaryCommutativeOperatorCtxt<
@@ -465,6 +500,8 @@ class MCTimes : public MCMultiBinaryCommutativeOperatorCtxt<
         false,
         FR_MULDIV>
 {
+public:
+    HXTExprType hxt_expr_type() const override { return kHXTExpr_Mul; }
 };
 
 class MCXorBits : public MCBinaryOperatorCtxt<uinteger_t, uinteger_t, MCMathEvalBitwiseXor, EE_XORBITS_BADLEFT, EE_XORBITS_BADRIGHT, FR_XOR_BITS>

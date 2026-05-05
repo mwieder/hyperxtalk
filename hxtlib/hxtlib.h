@@ -67,26 +67,10 @@ struct Meta {
     std::string min_engine;     // minimum engine version, e.g. "0.9.13"
 };
 
-// ------------------------------------------------------------------ AST node
-
-// One node in the pre-order flat serialisation of the script AST.
-//
-// Pre-order layout: the root is at index 0.  Its child_count direct children
-// follow recursively in depth-first order.  A reader can reconstruct the tree
-// with a simple recursive descent over the flat array:
-//
-//   function read_subtree(nodes, i) -> (node_with_children, next_i)
-//       n = nodes[i]; i++
-//       for _ in range(n.child_count): child, i = read_subtree(nodes, i)
-//       return n, i
-//
-// At this stage the payload is an opaque byte blob whose interpretation is
-// owned by the engine's AST serialisation layer.
-struct ASTNode {
-    uint16_t             type        = 0;
-    uint16_t             child_count = 0;
-    std::vector<uint8_t> payload;    // node-type-specific data
-};
+// (ASTNode — removed in format version 1.1.  The ASTN section now contains
+//  the raw output of MCHXTASTWriter::finalise(), identifiable by the 8-byte
+//  magic "HXTASTN\0" at the start of the section data.  An empty astn_bytes
+//  field means no pre-parsed AST is stored; the loader falls back to SRCS.)
 
 // ------------------------------------------------------------------ document
 
@@ -102,13 +86,19 @@ struct Document {
 
     // --- sections ---
     Meta                     meta;
-    std::vector<std::string> string_table;  // STRT: all string literals / identifiers
-    std::vector<ASTNode>     nodes;         // ASTN: flat pre-order AST
+    std::vector<std::string> string_table;  // STRT: high-level identifier strings
 
-    // SRCS: raw UTF-8 source script stored verbatim.
-    // Interim field — used by the engine loader to call SetScript() and
-    // populate the handler list until full AST serialisation is implemented.
-    // Leave empty when shipping a library without source (obfuscated mode).
+    // ASTN: raw MCHXTASTWriter output (starts with "HXTASTN\0" when present).
+    // Populate via MCHandlerlist::hxt_serialize() before calling write().
+    // Empty means "no pre-parsed AST"; the loader falls back to SRCS.
+    std::vector<uint8_t> astn_bytes;
+
+    // SRCS: raw UTF-8 source script — legacy fallback only.
+    // The IDE's "Save as Library" leaves this empty; source is never stored
+    // in IDE-produced libraries.  Populated only by the standalone hxtc tool
+    // (which cannot link against the engine to produce ASTN bytes) and by any
+    // older .hxtlib files already in the field.  The loader uses it only when
+    // astn_bytes is absent or fails to deserialise.
     std::string source_script;
 
     // Intern a string into the string table and return its index.
@@ -126,7 +116,7 @@ struct Document {
 Error write(const Document &doc, const std::string &path);
 
 // Deserialise path into doc_out, fully reconstructing meta, string table,
-// and AST nodes.  engine_{major,minor,patch} are the running engine's version;
+// and ASTN bytes.  engine_{major,minor,patch} are the running engine's version;
 // if the file's min_engine metadata exceeds them, EngineVersionTooOld is
 // returned and doc_out is left in an unspecified state.
 Error read(const std::string  &path,

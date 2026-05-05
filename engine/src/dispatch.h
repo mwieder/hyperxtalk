@@ -33,6 +33,10 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 
 #include "object.h"
 
+// Forward declarations for HXT ASTN helper.
+namespace hxtlib { struct Document; }
+class MCHandlerlist;
+
 typedef bool (*MCStackForEachCallback)(MCStack *p_stack, void *p_context);
 
 class MCDispatch : public MCObject
@@ -275,6 +279,12 @@ public:
                                  MCObject* p_parent,
                                  MCStack* &r_stack,
                                  const char* &r_result);
+
+    // HXT: Serialize p_hlist into doc.astn_bytes using MCHXTASTWriter.
+    // Returns false if serialization fails; caller should leave astn_bytes
+    // empty and rely on the SRCS fallback in the loader.
+    static bool hxtlib_serialize_hlist(const MCHandlerlist *p_hlist,
+                                       hxtlib::Document    &doc);
 
     // Try to read a binary stack from the stream. If the return value is
     // IO_ERROR, a reason is returned in r_result. If the return value is

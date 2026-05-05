@@ -69,6 +69,8 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "stackfileformat.h"
 #include "revbuild.h"
 #include "hxtlib.h"
+#include "hxtast.h"      // MCHXTASTWriter (used in hxtlib_serialize_hlist)
+#include "hndlrlst.h"    // MCHandlerlist::hxt_serialize / hxt_deserialize
 
 #define UNLICENSED_TIME 6.0
 #ifdef _DEBUG_MALLOC_INC
@@ -960,6 +962,26 @@ void MCDispatch::processstack(MCStringRef p_openpath, MCStack* &x_stack)
     }
 }
 
+// HXT: Serialize p_hlist into doc.astn_bytes using MCHXTASTWriter.
+//
+// Call this before hxtlib::write() to embed a pre-parsed AST in the ASTN
+// section.  Returns false if serialization fails (e.g. out of memory);
+// the caller should then leave doc.astn_bytes empty and rely on the SRCS
+// fallback path in the loader.
+bool MCDispatch::hxtlib_serialize_hlist(const MCHandlerlist *p_hlist,
+                                         hxtlib::Document    &doc)
+{
+    if (p_hlist == nullptr)
+        return false;
+
+    MCHXTASTWriter t_writer;
+    if (!p_hlist->hxt_serialize(t_writer))
+        return false;
+
+    doc.astn_bytes = t_writer.finalise();
+    return true;
+}
+
 // HXT: Attempt to load p_openpath as a .hxtlib compiled library.
 //
 // Returns IO_ERROR (and sets r_result) only if the file was recognised as a
@@ -1054,36 +1076,49 @@ IO_stat MCDispatch::trytoreadhxtlibstack(MCStringRef p_openpath,
 
     t_stack->setfilename(p_openpath);
 
-    // Populate hlist from the SRCS source text and mark the stack immutable.
-    // setascompiledlib() calls SetScript() internally (before setting the
-    // compiled-lib flag) so handlers are dispatachable, but the source text
-    // is invisible to scripts via get/set the script of.
-    if (!t_doc.source_script.empty())
+    // ── Populate hlist ───────────────────────────────────────────────────────
+    //
+    // Prefer the binary ASTN section (MCHXTASTWriter output) which allows
+    // the library to ship without source text.  Fall back to the SRCS source
+    // text if ASTN is absent, empty, or fails to deserialise.
+
+    bool t_astn_ok = false;
+
+    if (!t_doc.astn_bytes.empty())
     {
-        MCAutoStringRef t_srcs;
-        if (MCStringCreateWithBytes(
-                reinterpret_cast<const byte_t *>(t_doc.source_script.data()),
-                t_doc.source_script.size(),
-                kMCStringEncodingUTF8,
-                false,
-                &t_srcs))
+        // setascompiledlib_from_astn() validates the HXTASTN magic, reads the
+        // handler list, attaches it to the stack, and sets the compiled-lib /
+        // script-only flags — same as setascompiledlib() on the SRCS path.
+        t_astn_ok = t_stack->setascompiledlib_from_astn(
+            t_doc.astn_bytes.data(), t_doc.astn_bytes.size());
+    }
+
+    if (!t_astn_ok)
+    {
+        // ASTN was empty or failed — fall back to re-parsing the source text.
+        if (!t_doc.source_script.empty())
         {
-            t_stack->setascompiledlib(*t_srcs);
+            MCAutoStringRef t_srcs;
+            if (MCStringCreateWithBytes(
+                    reinterpret_cast<const byte_t *>(t_doc.source_script.data()),
+                    t_doc.source_script.size(),
+                    kMCStringEncodingUTF8,
+                    false,
+                    &t_srcs))
+            {
+                t_stack->setascompiledlib(*t_srcs);
+            }
+            else
+            {
+                t_stack->setascompiledlib(kMCEmptyString);
+            }
         }
         else
         {
+            // Neither ASTN nor SRCS present — compiled library with no handlers.
             t_stack->setascompiledlib(kMCEmptyString);
         }
     }
-    else
-    {
-        t_stack->setascompiledlib(kMCEmptyString);
-    }
-
-    // TODO: When the engine AST serialisation layer is defined, reconstruct
-    // the handler list (hlist) from t_doc.nodes here instead of leaving it
-    // empty.  Until then, .hxtlib stacks load successfully and are immutable
-    // but have no callable handlers.
 
     t_stack->setflag(False, F_VISIBLE);
 

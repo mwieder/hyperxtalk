@@ -8220,6 +8220,51 @@ on revIDESaveAsProject pStackID, pFolderPath
    revUpdateRecentFiles the short name of pStackID
 end revIDESaveAsProject
 
+-- ---------------------------------------------------------------------------
+-- .hxtlib compiled library save handlers ("Save as Library...")
+-- ---------------------------------------------------------------------------
+
+on revIDEActionSaveAsLibrary pStackID
+   local tShortName
+   put the short name of pStackID into tShortName
+
+   -- Prompt for save location.
+   ask file revIDELocalise("Save library as:") with tShortName & ".hxtlib"
+   if it is empty then exit revIDEActionSaveAsLibrary
+
+   local tFilePath
+   put it into tFilePath
+   if not (tFilePath ends with ".hxtlib") then
+      put ".hxtlib" after tFilePath
+   end if
+
+   -- Confirm overwrite if file already exists.
+   if there is a file tFilePath then
+      answer revIDELocalise("A library named '%1' already exists. Replace it?", tShortName) \
+            with revIDELocalise("Replace") and revIDELocalise("Cancel")
+      if it is revIDELocalise("Cancel") then exit revIDEActionSaveAsLibrary
+   end if
+
+   set the cursor to watch
+   revIDESaveAsLibrary pStackID, tFilePath
+end revIDEActionSaveAsLibrary
+
+on revIDESaveAsLibrary pStackID, pFilePath
+   -- pFilePath is the full path to the output .hxtlib file.
+   -- The engine command "save stack as library to <path>" handles:
+   --   • serializing the handler list (ASTN section via MCHXTASTWriter)
+   --   • embedding the source script (SRCS section as fallback)
+   --   • writing the binary container with CRC32/SHA-256 integrity checks
+
+   save pStackID as library to pFilePath
+   if the result is not empty then
+      answer error revIDELocalise("Could not save library:") & return & the result
+      exit revIDESaveAsLibrary
+   end if
+
+   answer revIDELocalise("Library saved to:") & return & pFilePath
+end revIDESaveAsLibrary
+
 on revIDEProjectBuildTree pStackID, pMediaFolder, @rTree
    put "hyperxtalk-project" into rTree["format"]
    put 1 into rTree["version"]

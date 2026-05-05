@@ -83,6 +83,10 @@ public:
      * list. This is the number of expressions which have a root var-ref. */
     unsigned count_containers(void);
 
+    // HXT: access the parse-time expression slot.
+    MCExpression *getexp(void) const { return exp; }
+    void          setexp(MCExpression *e) { exp = e; }
+
 private:
 	// Parameter as syntax (i.e. location of the expression
 	// being passed to a function/command).
