@@ -431,6 +431,7 @@ const LT command_table[] =
         {"send", TT_STATEMENT, S_SEND},
         {"set", TT_STATEMENT, S_SET},
         {"setprop", TT_STATEMENT, S_SCRIPT_ERROR},
+        {"share", TT_STATEMENT, S_SHARE},
         {"sheet", TT_STATEMENT, S_SHEET},
         {"show", TT_STATEMENT, S_SHOW},
         {"shownotification", TT_STATEMENT, S_SHOW_NOTIFICATION},
