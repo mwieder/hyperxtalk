@@ -1317,6 +1317,50 @@ void MCPlatformBeep(void)
     NSBeep();
 }
 
+void MCPlatformSpellCheckText(MCStringRef p_text, MCRange*& r_errors, uindex_t& r_count)
+{
+    r_errors = nil;
+    r_count  = 0;
+
+    if (!p_text || MCStringIsEmpty(p_text))
+        return;
+
+    NSString *t_ns_text = MCStringConvertToAutoreleasedNSString(p_text);
+    if (!t_ns_text)
+        return;
+
+    NSSpellChecker *t_checker = [NSSpellChecker sharedSpellChecker];
+    NSUInteger      t_length  = [t_ns_text length];
+
+    // checkString:range:types:options:inSpellDocumentWithTag:orthography:wordCount:
+    // is the modern API and compiles cleanly against macOS 26 SDK.
+    NSArray<NSTextCheckingResult *> *t_results =
+        [t_checker checkString: t_ns_text
+                         range: NSMakeRange(0, t_length)
+                         types: NSTextCheckingTypeSpelling
+                       options: nil
+       inSpellDocumentWithTag: 0
+                   orthography: nil
+                    wordCount: NULL];
+
+    uindex_t t_count = (uindex_t)[t_results count];
+    if (t_count == 0)
+        return;
+
+    MCRange *t_errors = new (nothrow) MCRange[t_count];
+    if (!t_errors)
+        return;
+
+    for (uindex_t i = 0; i < t_count; i++)
+    {
+        NSRange t_r = [[t_results objectAtIndex: (NSUInteger)i] range];
+        t_errors[i].offset = (uindex_t)t_r.location;
+        t_errors[i].length = (uindex_t)t_r.length;
+    }
+    r_errors = t_errors;
+    r_count  = t_count;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void MCPlatformGetScreenCount(uindex_t& r_count)

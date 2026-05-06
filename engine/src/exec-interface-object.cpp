@@ -389,6 +389,7 @@ static const PropList fieldprops[] =
         {"shadowOffset", P_SHADOW_OFFSET},
         {"shadowPattern", P_SHADOW_PATTERN},
         {"sharedText", P_SHARED_TEXT},
+        {"spellCheck", P_SPELL_CHECK},
         {"showBorder", P_SHOW_BORDER},
         {"showFocusBorder", P_SHOW_FOCUS_BORDER},
         {"showLines", P_SHOW_LINES},

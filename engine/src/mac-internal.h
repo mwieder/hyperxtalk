@@ -255,8 +255,24 @@ NSWindow *MCMacPlatformApplicationPseudoModalFor(void);
 	NSEvent *m_input_method_event;
     // Whether to pass events through the IME or not.
     bool m_use_input_method : 1;
-    
+
 	NSDragOperation m_allowed_drag_operations;
+
+    // --- Text substitution (user text replacements via NSSpellChecker) ---
+    // When the user finishes typing a known abbreviation (e.g. "omw"), we show
+    // a lightweight custom panel with the proposed replacement ("On my way! ×").
+    // Space (or another boundary char) confirms; × cancels.
+    //
+    // We use our own NSPanel rather than NSSpellChecker's correction indicator
+    // because showCorrectionIndicatorOfType: calls setMarkedText: internally,
+    // which in our implementation commits text immediately and interferes with
+    // both field content and AppKit's rendering pipeline in ways that cannot be
+    // cleanly suppressed.
+    //
+    // m_pending_subst_range.location == NSNotFound means no substitution pending.
+    NSRange    m_pending_subst_range;   // field range of the matched abbreviation
+    NSString  *m_pending_subst_string;  // replacement string (e.g. "On my way!")
+    NSPanel   *m_subst_panel;           // the floating suggestion panel (nil if hidden)
 }
 
 - (id)initWithPlatformWindow:(MCMacPlatformWindow *)window;

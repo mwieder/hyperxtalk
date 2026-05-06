@@ -467,6 +467,23 @@ void MCField::SetSharedText(MCExecContext& ctxt, bool setting)
 	}
 }
 
+void MCField::GetSpellCheck(MCExecContext& ctxt, bool& r_setting)
+{
+    r_setting = m_spell_check;
+}
+
+void MCField::SetSpellCheck(MCExecContext& ctxt, bool setting)
+{
+    if ((bool)m_spell_check == setting)
+        return;
+    m_spell_check = setting;
+    if (setting)
+        updateSpellingErrors();
+    else
+        clearSpellingErrors();
+    Redraw();
+}
+
 void MCField::GetShowLines(MCExecContext& ctxt, bool& r_setting)
 {
 	r_setting = getflag(F_SHOW_LINES);

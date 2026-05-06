@@ -251,9 +251,17 @@ private:
     // When true, renders a clear (×) icon in the right margin whenever the field
     // has content.  Clicking the icon clears the field and sends cancelButtonClicked.
     bool m_cancel_button : 1;
+    // When true, misspelled words are underlined with a red squiggly.
+    bool m_spell_check : 1;
 
     // MM-2014-08-11: [[ Bug 13149 ]] Used to flag if a recompute is required during the next draw.
     bool m_recompute : 1;
+
+    // Spell checking: array of misspelled word ranges in field character coords.
+    // Rebuilt by updateSpellingErrors() whenever text changes and m_spell_check is true.
+    struct MCSpellError { findex_t start; findex_t end; };
+    MCSpellError *m_spell_errors;
+    uindex_t      m_spell_error_count;
 	
 	static int2 clickx;
 	static int2 clicky;
@@ -653,6 +661,11 @@ public:
     virtual void SetTraversalOn(MCExecContext& ctxt, bool setting);
 	void GetSharedText(MCExecContext& ctxt, bool& r_flag);
 	void SetSharedText(MCExecContext& ctxt, bool flag);
+	void GetSpellCheck(MCExecContext& ctxt, bool& r_flag);
+	void SetSpellCheck(MCExecContext& ctxt, bool flag);
+    void updateSpellingErrors(void);
+    void clearSpellingErrors(void);
+    void drawSpellingErrors(MCDC *dc, const MCRectangle& dirty);
 	void GetShowLines(MCExecContext& ctxt, bool& r_flag);
 	void SetShowLines(MCExecContext& ctxt, bool flag);
 	void GetHGrid(MCExecContext& ctxt, bool& r_flag);

@@ -1677,6 +1677,7 @@ const LT factor_table[] =
 		// MW-2011-01-25: [[ ParaStyles ]] The spaceBelow paragraph property.
 		{"spacebelow", TT_PROPERTY, P_SPACE_BELOW},
         {"specialfolderpath", TT_FUNCTION, F_SPECIAL_FOLDER_PATH},
+        {"spellcheck", TT_PROPERTY, P_SPELL_CHECK},
         {"spray", TT_PROPERTY, P_SPRAY},
         {"sql", TT_PROPERTY, P_SQL},
         {"sqrt", TT_FUNCTION, F_SQRT},

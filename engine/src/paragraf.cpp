@@ -3992,10 +3992,12 @@ void MCParagraph::restricttoline(findex_t& si, findex_t& ei)
 	{
 		findex_t i, l;
 		t_line -> GetRange(i, l);
-		if (i >= si && si < (i + l))
+		if (si >= i && si < (i + l))
 		{
-			si = i;
-			ei = i + l;
+			// Keep si as-is (it's on this line).
+			// Clip ei to the line end if it extends beyond.
+			if (ei > i + l)
+				ei = i + l;
 			return;
 		}
 		t_line = t_line -> next();

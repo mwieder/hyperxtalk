@@ -18,6 +18,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 
 #include "globals.h"
 #include "uidc.h"
+#include "platform.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // MCPlatform* compatability functions
@@ -26,6 +27,13 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 void MCPlatformBreakWait(void)
 {
 	MCscreen->pingwait();
+}
+
+// Spell checking: Windows ISpellChecker support is planned for a future update.
+void MCPlatformSpellCheckText(MCStringRef p_text, MCRange*& r_errors, uindex_t& r_count)
+{
+    r_errors = nil;
+    r_count  = 0;
 }
 
 bool MCPlatformWaitForEvent(double duration, bool blocking)

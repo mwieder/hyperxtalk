@@ -20,6 +20,13 @@ void MCPlatformBreakWait(void)
     MCscreen->pingwait();
 }
 
+// Spell checking: enchant/hunspell support is planned for a future update.
+void MCPlatformSpellCheckText(MCStringRef p_text, MCRange*& r_errors, uindex_t& r_count)
+{
+    r_errors = nil;
+    r_count  = 0;
+}
+
 bool MCPlatformWaitForEvent(double duration, bool blocking)
 {
     bool t_dispatch = !blocking;

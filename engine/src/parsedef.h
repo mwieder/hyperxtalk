@@ -1522,6 +1522,7 @@ enum Properties {
     P_FIRST_INDENT,
     P_LOCK_TEXT,
     P_SHARED_TEXT,
+    P_SPELL_CHECK,
     P_SHOW_LINES,
     P_FORMATTED_LEFT,
     P_FORMATTED_TOP,

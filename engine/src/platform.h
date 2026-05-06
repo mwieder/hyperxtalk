@@ -563,6 +563,11 @@ void MCPlatformFlushEvents(MCPlatformEventMask mask);
 // Produce a system beep.
 void MCPlatformBeep(void);
 
+// Spell-check p_text using the platform's spell checker.
+// r_errors receives a newly-allocated array of MCRange (caller must delete[]).
+// r_count receives the number of entries; 0 means no errors / not supported.
+void MCPlatformSpellCheckText(MCStringRef p_text, MCRange*& r_errors, uindex_t& r_count);
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void MCPlatformGetScreenCount(uindex_t& r_count);
