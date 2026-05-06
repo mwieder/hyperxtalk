@@ -20,6 +20,11 @@ void MCPlatformBreakWait(void)
     MCscreen->pingwait();
 }
 
+void MCPlatformSetTaskbarProgress(void * /*p_hwnd*/, double /*p_value*/)
+{
+    // Not applicable on Linux.
+}
+
 // Spell checking: enchant/hunspell support is planned for a future update.
 void MCPlatformSpellCheckText(MCStringRef p_text, MCRange*& r_errors, uindex_t& r_count)
 {

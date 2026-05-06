@@ -218,6 +218,7 @@ void MCMenuItem::assignFrom(MCMenuItem *p_other)
 	modifiers = p_other->modifiers;
 	mnemonic = p_other->mnemonic;
 	MCValueAssign(tag, p_other->tag);
+	MCValueAssign(icon, p_other->icon);
 	menumode = p_other->menumode;
     // SN-2014-07-29: [[ Bug 12998 ]] has_tag member put back
     has_tag = p_other->has_tag;
@@ -327,9 +328,20 @@ void ParseMenuItemSwitches(MCStringRef p_string, uindex_t &x_offset, MCStringRef
 				break;
 				
 			case '!':
-				if (p_menuitem->is_hilited || p_menuitem->is_radio || p_menuitem->menumode == WM_OPTION)
+			{
+				// Peek ahead to detect the icon flag !i: before applying the
+				// guard that stops processing after !c / !r / !n.  This allows
+				// the icon flag to be combined with check / radio flags in any
+				// order, e.g. "!c!i:square.and.arrow.down Save" or
+				// "!i:square.and.arrow.down!c Save".
+				bool t_is_icon = (t_length - x_offset > 2 &&
+				                  MCStringGetCharAtIndex(p_string, x_offset + 1) == 'i' &&
+				                  MCStringGetCharAtIndex(p_string, x_offset + 2) == ':');
+
+				if (!t_is_icon &&
+				    (p_menuitem->is_hilited || p_menuitem->is_radio || p_menuitem->menumode == WM_OPTION))
 					t_done = true;
-				else if (t_length - x_offset == 2)
+				else if (!t_is_icon && t_length - x_offset == 2)
 					t_done = true;
 				else
 				{
@@ -340,6 +352,33 @@ void ParseMenuItemSwitches(MCStringRef p_string, uindex_t &x_offset, MCStringRef
 						// Emit a literal '!'
 						x_offset += 2;
 						/* UNCHECKED */ MCStringAppendFormat(p_mutable, "!");
+					}
+					else if (t_is_icon)
+					{
+						// Icon flag: !i:<sfSymbolName>
+						// The symbol name ends at whitespace or at another flag
+						// character ('!' or '(') so that flags can be combined
+						// in any order, e.g. "!i:doc.on.doc!c".
+						// A single space immediately after the name is treated
+						// as a separator and consumed so the label starts cleanly.
+						x_offset += 3; // skip '!', 'i', ':'
+						uindex_t t_icon_start = x_offset;
+						while (x_offset < t_length)
+						{
+							unichar_t t_ic = MCStringGetCharAtIndex(p_string, x_offset);
+							if (t_ic == ' ' || t_ic == '\t' || t_ic == '!' || t_ic == '(')
+								break;
+							x_offset++;
+						}
+						MCAutoStringRef t_icon_name;
+						/* UNCHECKED */ MCStringCopySubstring(p_string,
+						    MCRangeMake(t_icon_start, x_offset - t_icon_start),
+						    &t_icon_name);
+						MCValueAssign(p_menuitem->icon, *t_icon_name);
+						// Consume the separator space, if any.
+						if (x_offset < t_length &&
+						    MCStringGetCharAtIndex(p_string, x_offset) == ' ')
+							x_offset++;
 					}
 					else
 					{
@@ -354,7 +393,8 @@ void ParseMenuItemSwitches(MCStringRef p_string, uindex_t &x_offset, MCStringRef
 						x_offset += 2;
 					}
 				}
-				break;
+			}
+			break;
 				
 			case '\t':
 				if (p_menuitem->depth == 0 && p_menuitem->menumode != WM_OPTION && p_menuitem->menumode != WM_COMBO)

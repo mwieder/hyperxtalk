@@ -1430,6 +1430,11 @@ void MCPlatformShareContent(MCPlatformWindowRef p_window,
                    preferredEdge: NSRectEdgeMinY];
 }
 
+void MCPlatformSetTaskbarProgress(void * /*p_hwnd*/, double /*p_value*/)
+{
+    // Not applicable on macOS.
+}
+
 void MCPlatformSpellCheckText(MCStringRef p_text, MCRange*& r_errors, uindex_t& r_count)
 {
     r_errors = nil;

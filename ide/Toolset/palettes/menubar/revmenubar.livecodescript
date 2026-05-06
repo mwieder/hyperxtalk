@@ -2453,6 +2453,10 @@ function markMenuItem pItem, pMarked
    return "!u" & pItem
 end markMenuItem
 
+function menuItemIcon pItem, pIcon
+   return "!i:"& pIcon && pItem
+end menuItemIcon
+
 ################################################################################
 
 # OK-2007-05-03: Bug 4833.

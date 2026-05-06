@@ -1734,6 +1734,7 @@ const LT factor_table[] =
 		{"tabwidths", TT_PROPERTY, P_TAB_WIDTHS},
         {"tan", TT_FUNCTION, F_TAN},
         {"target", TT_FUNCTION, F_TARGET},
+        {"taskbarprogress", TT_PROPERTY, P_TASKBAR_PROGRESS},
         {"templateaudioclip", TT_FUNCTION, F_TEMPLATE_AUDIO_CLIP},
         {"templatebutton", TT_FUNCTION, F_TEMPLATE_BUTTON},
         {"templatecard", TT_FUNCTION, F_TEMPLATE_CARD},

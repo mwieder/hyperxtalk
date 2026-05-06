@@ -563,6 +563,13 @@ void MCPlatformFlushEvents(MCPlatformEventMask mask);
 // Produce a system beep.
 void MCPlatformBeep(void);
 
+// Set the taskbar button progress indicator for the given native window.
+// p_hwnd:  on Windows, the HWND cast to void*.  Ignored on other platforms.
+// p_value: 0.0  = hide the progress bar (TBPF_NOPROGRESS)
+//          >0.0 = fill fraction 0..1 (TBPF_NORMAL); values >1.0 are clamped.
+//          <0.0 = indeterminate spinner (TBPF_INDETERMINATE).
+void MCPlatformSetTaskbarProgress(void *p_hwnd, double p_value);
+
 // Spell-check p_text using the platform's spell checker.
 // r_errors receives a newly-allocated array of MCRange (caller must delete[]).
 // r_count receives the number of entries; 0 means no errors / not supported.
@@ -642,6 +649,8 @@ enum MCPlatformMenuItemProperty
 	kMCPlatformMenuItemPropertyEnabled,
 	kMCPlatformMenuItemPropertySubmenu,
 	kMCPlatformMenuItemPropertyHighlight,
+	// SF Symbol name for the menu item icon (macOS 11+; no-op on other platforms).
+	kMCPlatformMenuItemPropertyIcon,
 };
 
 enum MCPlatformMenuItemHighlight

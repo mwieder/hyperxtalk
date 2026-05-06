@@ -1924,6 +1924,23 @@ void MCPlatformSetMenuItemProperty(MCPlatformMenuRef p_menu, uindex_t p_index, M
 		}
 		break;
 			
+		case kMCPlatformMenuItemPropertyIcon:
+		{
+			// Set the menu item image from an SF Symbol name (macOS 11+).
+			// The icon is stored as a plain symbol name, e.g. "doc.on.doc".
+			if (@available(macOS 11.0, *))
+			{
+				MCAutoStringRefAsCFString t_cf_icon;
+				/* UNCHECKED */ t_cf_icon . Lock(*(MCStringRef *)p_value);
+				NSString *t_name = (NSString *)*t_cf_icon;
+				NSImage  *t_image = [NSImage imageWithSystemSymbolName: t_name
+				                              accessibilityDescription: @""];
+				if (t_image != nil)
+					[t_item setImage: t_image];
+			}
+		}
+		break;
+
 		case kMCPlatformMenuItemPropertyUnknown:
 			MCUnreachable();
 	}

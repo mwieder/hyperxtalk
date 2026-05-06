@@ -1783,6 +1783,8 @@ enum Properties {
 
 	P_SYSTEM_TEXT_COLOR,
 
+    P_TASKBAR_PROGRESS,
+
     __P_LAST,
 };
 

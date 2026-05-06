@@ -49,6 +49,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "osspec.h"
 #include "stackfileformat.h"
 #include "mcerror.h"
+#include "platform.h"
 
 //////////
 
@@ -376,6 +377,27 @@ void MCStack::SetFullscreenMode(MCExecContext& ctxt, intenum_t p_mode)
     
     if ((t_ideal_layout != getuseideallayout()) && opened)
         purgefonts();
+}
+
+void MCStack::GetTaskbarProgress(MCExecContext& ctxt, double& r_value)
+{
+    r_value = m_taskbar_progress;
+}
+
+void MCStack::SetTaskbarProgress(MCExecContext& ctxt, double p_value)
+{
+    m_taskbar_progress = p_value;
+
+    // Obtain the native window handle and forward to the platform layer.
+    // On Windows, getwindow() returns _Drawable* and handle.window is the HWND.
+    // On all other platforms the platform function is a no-op.
+    void *t_hwnd = nil;
+    Window t_win = getwindow();
+#ifdef TARGET_PLATFORM_WINDOWS
+    if (t_win != nil)
+        t_hwnd = (void *)t_win->handle.window;
+#endif
+    MCPlatformSetTaskbarProgress(t_hwnd, p_value);
 }
 
 void MCStack::GetScaleFactor(MCExecContext& ctxt, double& r_scale)

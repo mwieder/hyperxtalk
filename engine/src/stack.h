@@ -323,7 +323,10 @@ protected:
 	
 	// IM-2016-02-26: [[ Bug 16244 ]] Determines whether or not to show hidden objects.
 	MCStackObjectVisibility m_hidden_object_visibility;
-    
+
+    // Taskbar progress fraction: 0 = hidden, >0..1 = normal, <0 = indeterminate.
+    double m_taskbar_progress;
+
 public:
     
 	Boolean menuwindow;
@@ -1129,6 +1132,8 @@ public:
     void SetFullscreenMode(MCExecContext& ctxt, intenum_t p_mode);
     void GetScaleFactor(MCExecContext& ctxt, double& r_scale);
     void SetScaleFactor(MCExecContext& ctxt, double p_scale);
+    void GetTaskbarProgress(MCExecContext& ctxt, double& r_value);
+    void SetTaskbarProgress(MCExecContext& ctxt, double p_value);
 	virtual void SetName(MCExecContext& ctxt, MCStringRef p_name);
 	virtual void SetId(MCExecContext& ctxt, uinteger_t p_new_id);
 	virtual void SetVisible(MCExecContext& ctxt, uint32_t part, bool setting);

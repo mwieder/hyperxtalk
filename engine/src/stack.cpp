@@ -208,6 +208,8 @@ MCPropertyInfo MCStack::kProperties[] =
 	DEFINE_RO_OBJ_EFFECTIVE_PROPERTY(P_SHOW_INVISIBLES, Bool, MCStack, ShowInvisibleObjects)
     
     DEFINE_RO_OBJ_PROPERTY(P_MIN_STACK_FILE_VERSION, String, MCStack, MinStackFileVersion)
+
+    DEFINE_RW_OBJ_PROPERTY(P_TASKBAR_PROGRESS, Double, MCStack, TaskbarProgress)
 };
 
 MCObjectPropertyTable MCStack::kPropertyTable =
@@ -326,9 +328,11 @@ MCStack::MCStack()
 	old_rect.x = old_rect.y = old_rect.width = old_rect.height = 0 ;
 
     m_attachments = nil;
-    
+
+    m_taskbar_progress = 0.0;
+
 	view_init();
-    
+
     m_is_ide_stack = false;
 }
 
@@ -544,9 +548,12 @@ MCStack::MCStack(const MCStack &sref)
     
     // MERG-2015-10-12: [[ DocumentFilename ]] No document filename to begin with
     m_document_filename = MCValueRetain(kMCEmptyString);
-    
+
+    // Taskbar progress is not copied — new window starts hidden.
+    m_taskbar_progress = 0.0;
+
 	view_copy(sref);
-    
+
     m_is_ide_stack = sref.m_is_ide_stack;
 }
 

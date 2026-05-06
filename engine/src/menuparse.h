@@ -32,8 +32,10 @@ struct MCMenuItem
 	uint1 modifiers;
 	uint4 mnemonic;
 	MCStringRef tag;
+	// SF Symbol name set via the !i:<name> flag (empty string = no icon).
+	MCStringRef icon;
 	uint1 menumode;
-	
+
 	MCMenuItem()
 	{
 		depth = 0;
@@ -48,14 +50,16 @@ struct MCMenuItem
 		tag = MCValueRetain(kMCEmptyString);
         // SN-2014-07-29: [[ Bug 12998 ]] has_tag member put back
         has_tag = false;
+		icon = MCValueRetain(kMCEmptyString);
 		menumode = 0;
 	}
-	
+
 	~MCMenuItem()
 	{
 		MCValueRelease(label);
 		MCValueRelease(accelerator_name);
 		MCValueRelease(tag);
+		MCValueRelease(icon);
 	}
 	
 	void assignFrom(MCMenuItem *p_from);

@@ -66,7 +66,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(IntDir)src;$(IntDir)include;$(OutDir)obj\global_intermediate\src;$(OutDir)obj\global_intermediate\include;..\..\..\engine\include;..\..\..\engine\src;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\libfoundation\include;..\..\..\libgraphics\include;..\..\..\libscript\include;..\..\..\libbrowser\include;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\thirdparty\libpcre\include;..\..\..\thirdparty\libjpeg\include;..\..\..\thirdparty\libgif\include;..\..\..\thirdparty\libpng\include;..\..\..\thirdparty\libz\include;$(obj)\..\shared_intermediate\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir)src;$(IntDir)include;$(OutDir)obj\global_intermediate\src;$(OutDir)obj\global_intermediate\include;..\..\..\hxtlib;..\..\..\engine\include;..\..\..\engine\src;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\libfoundation\include;..\..\..\libgraphics\include;..\..\..\libscript\include;..\..\..\libbrowser\include;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\thirdparty\libpcre\include;..\..\..\thirdparty\libjpeg\include;..\..\..\thirdparty\libgif\include;..\..\..\thirdparty\libpng\include;..\..\..\thirdparty\libz\include;$(obj)\..\shared_intermediate\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
@@ -95,13 +95,13 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(IntDir)src;$(IntDir)include;$(OutDir)obj\global_intermediate\src;$(OutDir)obj\global_intermediate\include;..\..\..\engine\include;..\..\..\engine\src;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\libfoundation\include;..\..\..\libgraphics\include;..\..\..\libscript\include;..\..\..\libbrowser\include;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\thirdparty\libpcre\include;..\..\..\thirdparty\libjpeg\include;..\..\..\thirdparty\libgif\include;..\..\..\thirdparty\libpng\include;..\..\..\thirdparty\libz\include;$(obj)\..\shared_intermediate\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir)src;$(IntDir)include;$(OutDir)obj\global_intermediate\src;$(OutDir)obj\global_intermediate\include;..\..\..\hxtlib;..\..\..\engine\include;..\..\..\engine\src;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\libfoundation\include;..\..\..\libgraphics\include;..\..\..\libscript\include;..\..\..\libbrowser\include;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\thirdparty\libpcre\include;..\..\..\thirdparty\libjpeg\include;..\..\..\thirdparty\libgif\include;..\..\..\thirdparty\libpng\include;..\..\..\thirdparty\libz\include;$(obj)\..\shared_intermediate\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;U_STATIC_IMPLEMENTATION=1;OPENSSL_API_COMPAT=0x10100000L;PCRE_STATIC=1;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;OPENSSL_API_COMPAT=0x10100000L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(IntDir)src;$(IntDir)include;$(OutDir)obj\global_intermediate\src;$(OutDir)obj\global_intermediate\include;..\..\..\engine\include;..\..\..\engine\src;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\libfoundation\include;..\..\..\libgraphics\include;..\..\..\libscript\include;..\..\..\libbrowser\include;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\thirdparty\libpcre\include;..\..\..\thirdparty\libjpeg\include;..\..\..\thirdparty\libgif\include;..\..\..\thirdparty\libpng\include;..\..\..\thirdparty\libz\include;$(obj)\..\shared_intermediate\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir)src;$(IntDir)include;$(OutDir)obj\global_intermediate\src;$(OutDir)obj\global_intermediate\include;..\..\..\hxtlib;..\..\..\engine\include;..\..\..\engine\src;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\libfoundation\include;..\..\..\libgraphics\include;..\..\..\libscript\include;..\..\..\libbrowser\include;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\thirdparty\libpcre\include;..\..\..\thirdparty\libjpeg\include;..\..\..\thirdparty\libgif\include;..\..\..\thirdparty\libpng\include;..\..\..\thirdparty\libz\include;$(obj)\..\shared_intermediate\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
@@ -130,13 +130,13 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(IntDir)src;$(IntDir)include;$(OutDir)obj\global_intermediate\src;$(OutDir)obj\global_intermediate\include;..\..\..\engine\include;..\..\..\engine\src;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\libfoundation\include;..\..\..\libgraphics\include;..\..\..\libscript\include;..\..\..\libbrowser\include;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\thirdparty\libpcre\include;..\..\..\thirdparty\libjpeg\include;..\..\..\thirdparty\libgif\include;..\..\..\thirdparty\libpng\include;..\..\..\thirdparty\libz\include;$(obj)\..\shared_intermediate\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir)src;$(IntDir)include;$(OutDir)obj\global_intermediate\src;$(OutDir)obj\global_intermediate\include;..\..\..\hxtlib;..\..\..\engine\include;..\..\..\engine\src;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\libfoundation\include;..\..\..\libgraphics\include;..\..\..\libscript\include;..\..\..\libbrowser\include;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\thirdparty\libpcre\include;..\..\..\thirdparty\libjpeg\include;..\..\..\thirdparty\libgif\include;..\..\..\thirdparty\libpng\include;..\..\..\thirdparty\libz\include;$(obj)\..\shared_intermediate\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;U_STATIC_IMPLEMENTATION=1;OPENSSL_API_COMPAT=0x10100000L;PCRE_STATIC=1;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;OPENSSL_API_COMPAT=0x10100000L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Fast|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(IntDir)src;$(IntDir)include;$(OutDir)obj\global_intermediate\src;$(OutDir)obj\global_intermediate\include;..\..\..\engine\include;..\..\..\engine\src;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\libfoundation\include;..\..\..\libgraphics\include;..\..\..\libscript\include;..\..\..\libbrowser\include;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\thirdparty\libpcre\include;..\..\..\thirdparty\libjpeg\include;..\..\..\thirdparty\libgif\include;..\..\..\thirdparty\libpng\include;..\..\..\thirdparty\libz\include;$(obj)\..\shared_intermediate\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir)src;$(IntDir)include;$(OutDir)obj\global_intermediate\src;$(OutDir)obj\global_intermediate\include;..\..\..\hxtlib;..\..\..\engine\include;..\..\..\engine\src;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\libfoundation\include;..\..\..\libgraphics\include;..\..\..\libscript\include;..\..\..\libbrowser\include;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\thirdparty\libpcre\include;..\..\..\thirdparty\libjpeg\include;..\..\..\thirdparty\libgif\include;..\..\..\thirdparty\libpng\include;..\..\..\thirdparty\libz\include;$(obj)\..\shared_intermediate\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat></DebugInformationFormat>
@@ -165,13 +165,13 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(IntDir)src;$(IntDir)include;$(OutDir)obj\global_intermediate\src;$(OutDir)obj\global_intermediate\include;..\..\..\engine\include;..\..\..\engine\src;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\libfoundation\include;..\..\..\libgraphics\include;..\..\..\libscript\include;..\..\..\libbrowser\include;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\thirdparty\libpcre\include;..\..\..\thirdparty\libjpeg\include;..\..\..\thirdparty\libgif\include;..\..\..\thirdparty\libpng\include;..\..\..\thirdparty\libz\include;$(obj)\..\shared_intermediate\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir)src;$(IntDir)include;$(OutDir)obj\global_intermediate\src;$(OutDir)obj\global_intermediate\include;..\..\..\hxtlib;..\..\..\engine\include;..\..\..\engine\src;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\libfoundation\include;..\..\..\libgraphics\include;..\..\..\libscript\include;..\..\..\libbrowser\include;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\thirdparty\libpcre\include;..\..\..\thirdparty\libjpeg\include;..\..\..\thirdparty\libgif\include;..\..\..\thirdparty\libpng\include;..\..\..\thirdparty\libz\include;$(obj)\..\shared_intermediate\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;U_STATIC_IMPLEMENTATION=1;OPENSSL_API_COMPAT=0x10100000L;PCRE_STATIC=1;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;OPENSSL_API_COMPAT=0x10100000L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Fast|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(IntDir)src;$(IntDir)include;$(OutDir)obj\global_intermediate\src;$(OutDir)obj\global_intermediate\include;..\..\..\engine\include;..\..\..\engine\src;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\libfoundation\include;..\..\..\libgraphics\include;..\..\..\libscript\include;..\..\..\libbrowser\include;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\thirdparty\libpcre\include;..\..\..\thirdparty\libjpeg\include;..\..\..\thirdparty\libgif\include;..\..\..\thirdparty\libpng\include;..\..\..\thirdparty\libz\include;$(obj)\..\shared_intermediate\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir)src;$(IntDir)include;$(OutDir)obj\global_intermediate\src;$(OutDir)obj\global_intermediate\include;..\..\..\hxtlib;..\..\..\engine\include;..\..\..\engine\src;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\libfoundation\include;..\..\..\libgraphics\include;..\..\..\libscript\include;..\..\..\libbrowser\include;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\thirdparty\libpcre\include;..\..\..\thirdparty\libjpeg\include;..\..\..\thirdparty\libgif\include;..\..\..\thirdparty\libpng\include;..\..\..\thirdparty\libz\include;$(obj)\..\shared_intermediate\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat></DebugInformationFormat>
@@ -200,13 +200,13 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(IntDir)src;$(IntDir)include;$(OutDir)obj\global_intermediate\src;$(OutDir)obj\global_intermediate\include;..\..\..\engine\include;..\..\..\engine\src;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\libfoundation\include;..\..\..\libgraphics\include;..\..\..\libscript\include;..\..\..\libbrowser\include;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\thirdparty\libpcre\include;..\..\..\thirdparty\libjpeg\include;..\..\..\thirdparty\libgif\include;..\..\..\thirdparty\libpng\include;..\..\..\thirdparty\libz\include;$(obj)\..\shared_intermediate\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir)src;$(IntDir)include;$(OutDir)obj\global_intermediate\src;$(OutDir)obj\global_intermediate\include;..\..\..\hxtlib;..\..\..\engine\include;..\..\..\engine\src;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\libfoundation\include;..\..\..\libgraphics\include;..\..\..\libscript\include;..\..\..\libbrowser\include;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\thirdparty\libpcre\include;..\..\..\thirdparty\libjpeg\include;..\..\..\thirdparty\libgif\include;..\..\..\thirdparty\libpng\include;..\..\..\thirdparty\libz\include;$(obj)\..\shared_intermediate\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;U_STATIC_IMPLEMENTATION=1;OPENSSL_API_COMPAT=0x10100000L;PCRE_STATIC=1;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;OPENSSL_API_COMPAT=0x10100000L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(IntDir)src;$(IntDir)include;$(OutDir)obj\global_intermediate\src;$(OutDir)obj\global_intermediate\include;..\..\..\engine\include;..\..\..\engine\src;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\libfoundation\include;..\..\..\libgraphics\include;..\..\..\libscript\include;..\..\..\libbrowser\include;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\thirdparty\libpcre\include;..\..\..\thirdparty\libjpeg\include;..\..\..\thirdparty\libgif\include;..\..\..\thirdparty\libpng\include;..\..\..\thirdparty\libz\include;$(obj)\..\shared_intermediate\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir)src;$(IntDir)include;$(OutDir)obj\global_intermediate\src;$(OutDir)obj\global_intermediate\include;..\..\..\hxtlib;..\..\..\engine\include;..\..\..\engine\src;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\libfoundation\include;..\..\..\libgraphics\include;..\..\..\libscript\include;..\..\..\libbrowser\include;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\thirdparty\libpcre\include;..\..\..\thirdparty\libjpeg\include;..\..\..\thirdparty\libgif\include;..\..\..\thirdparty\libpng\include;..\..\..\thirdparty\libz\include;$(obj)\..\shared_intermediate\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -235,13 +235,13 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(IntDir)src;$(IntDir)include;$(OutDir)obj\global_intermediate\src;$(OutDir)obj\global_intermediate\include;..\..\..\engine\include;..\..\..\engine\src;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\libfoundation\include;..\..\..\libgraphics\include;..\..\..\libscript\include;..\..\..\libbrowser\include;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\thirdparty\libpcre\include;..\..\..\thirdparty\libjpeg\include;..\..\..\thirdparty\libgif\include;..\..\..\thirdparty\libpng\include;..\..\..\thirdparty\libz\include;$(obj)\..\shared_intermediate\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir)src;$(IntDir)include;$(OutDir)obj\global_intermediate\src;$(OutDir)obj\global_intermediate\include;..\..\..\hxtlib;..\..\..\engine\include;..\..\..\engine\src;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\libfoundation\include;..\..\..\libgraphics\include;..\..\..\libscript\include;..\..\..\libbrowser\include;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\thirdparty\libpcre\include;..\..\..\thirdparty\libjpeg\include;..\..\..\thirdparty\libgif\include;..\..\..\thirdparty\libpng\include;..\..\..\thirdparty\libz\include;$(obj)\..\shared_intermediate\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;U_STATIC_IMPLEMENTATION=1;OPENSSL_API_COMPAT=0x10100000L;PCRE_STATIC=1;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;OPENSSL_API_COMPAT=0x10100000L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(IntDir)src;$(IntDir)include;$(OutDir)obj\global_intermediate\src;$(OutDir)obj\global_intermediate\include;..\..\..\engine\include;..\..\..\engine\src;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\libfoundation\include;..\..\..\libgraphics\include;..\..\..\libscript\include;..\..\..\libbrowser\include;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\thirdparty\libpcre\include;..\..\..\thirdparty\libjpeg\include;..\..\..\thirdparty\libgif\include;..\..\..\thirdparty\libpng\include;..\..\..\thirdparty\libz\include;$(obj)\..\shared_intermediate\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir)src;$(IntDir)include;$(OutDir)obj\global_intermediate\src;$(OutDir)obj\global_intermediate\include;..\..\..\hxtlib;..\..\..\engine\include;..\..\..\engine\src;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\libfoundation\include;..\..\..\libgraphics\include;..\..\..\libscript\include;..\..\..\libbrowser\include;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\thirdparty\libpcre\include;..\..\..\thirdparty\libjpeg\include;..\..\..\thirdparty\libgif\include;..\..\..\thirdparty\libpng\include;..\..\..\thirdparty\libz\include;$(obj)\..\shared_intermediate\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -270,7 +270,7 @@
       <SubSystem>Windows</SubSystem>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(IntDir)src;$(IntDir)include;$(OutDir)obj\global_intermediate\src;$(OutDir)obj\global_intermediate\include;..\..\..\engine\include;..\..\..\engine\src;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\libfoundation\include;..\..\..\libgraphics\include;..\..\..\libscript\include;..\..\..\libbrowser\include;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\thirdparty\libpcre\include;..\..\..\thirdparty\libjpeg\include;..\..\..\thirdparty\libgif\include;..\..\..\thirdparty\libpng\include;..\..\..\thirdparty\libz\include;$(obj)\..\shared_intermediate\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IntDir)src;$(IntDir)include;$(OutDir)obj\global_intermediate\src;$(OutDir)obj\global_intermediate\include;..\..\..\hxtlib;..\..\..\engine\include;..\..\..\engine\src;..\..\..\prebuilt\unpacked\icu\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\libfoundation\include;..\..\..\libgraphics\include;..\..\..\libscript\include;..\..\..\libbrowser\include;..\..\..\prebuilt\unpacked\openssl3\x86_64-win32-$(PlatformToolset)_static_$(Configuration)\include;..\..\..\thirdparty\libpcre\include;..\..\..\thirdparty\libjpeg\include;..\..\..\thirdparty\libgif\include;..\..\..\thirdparty\libpng\include;..\..\..\thirdparty\libz\include;$(obj)\..\shared_intermediate\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_NONSTDC_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;_CRT_DISABLE_PERFCRIT_LOCKS;__LITTLE_ENDIAN__;WINVER=0x0601;_WIN32_WINNT=0x0601;U_STATIC_IMPLEMENTATION=1;OPENSSL_API_COMPAT=0x10100000L;PCRE_STATIC=1;CROSS_COMPILE_TARGET;_WINDOWS;WIN32;TARGET_PLATFORM_WINDOWS;OPENSSL_API_COMPAT=0x10100000L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
@@ -403,6 +403,7 @@
     <ClInclude Include="..\..\..\engine\src\funcs.h"/>
     <ClInclude Include="..\..\..\engine\src\handler.h"/>
     <ClInclude Include="..\..\..\engine\src\hndlrlst.h"/>
+    <ClInclude Include="..\..\..\hxtlib\hxtlib.h"/>
     <ClInclude Include="..\..\..\engine\src\internal.h"/>
     <ClInclude Include="..\..\..\engine\src\keywords.h"/>
     <ClInclude Include="..\..\..\engine\src\literal.h"/>
@@ -610,6 +611,15 @@
     <ClCompile Include="..\..\..\engine\src\funcsm.cpp"/>
     <ClCompile Include="..\..\..\engine\src\handler.cpp"/>
     <ClCompile Include="..\..\..\engine\src\hndlrlst.cpp"/>
+    <ClCompile Include="..\..\..\engine\src\hxt-cmds.cpp"/>
+    <ClCompile Include="..\..\..\engine\src\hxtast-base.cpp"/>
+    <ClCompile Include="..\..\..\engine\src\hxtast-exprs.cpp"/>
+    <ClCompile Include="..\..\..\engine\src\hxtast-hlist.cpp"/>
+    <ClCompile Include="..\..\..\engine\src\hxtast-stmts.cpp"/>
+    <ClCompile Include="..\..\..\engine\src\hxtast.cpp"/>
+    <ClCompile Include="..\..\..\hxtlib\hxtlib.cpp">
+      <AdditionalIncludeDirectories>..\..\..\hxtlib</AdditionalIncludeDirectories>
+    </ClCompile>
     <ClCompile Include="..\..\..\engine\src\keywords.cpp"/>
     <ClCompile Include="..\..\..\engine\src\literal.cpp"/>
     <ClCompile Include="..\..\..\engine\src\mcmessagedigest.cpp"/>
@@ -643,6 +653,7 @@
     <ClCompile Include="..\..\..\engine\src\sha256.cpp"/>
     <ClCompile Include="..\..\..\engine\src\sha512.cpp"/>
     <ClCompile Include="..\..\..\engine\src\sha3.cpp"/>
+    <ClCompile Include="..\..\..\engine\src\share.cpp"/>
     <ClCompile Include="..\..\..\engine\src\text.cpp"/>
     <ClCompile Include="..\..\..\engine\src\uidc.cpp"/>
     <ClCompile Include="..\..\..\engine\src\unicode.cpp"/>
