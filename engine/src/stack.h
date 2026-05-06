@@ -324,8 +324,18 @@ protected:
 	// IM-2016-02-26: [[ Bug 16244 ]] Determines whether or not to show hidden objects.
 	MCStackObjectVisibility m_hidden_object_visibility;
 
+    // Badge count shown on the app icon (Dock on macOS, taskbar overlay on Windows).
+    uinteger_t m_badge;
+
+    // Overlay icon path shown in the taskbar button corner (Windows only).
+    MCStringRef m_taskbar_overlay_icon;
+
     // Taskbar progress fraction: 0 = hidden, >0..1 = normal, <0 = indeterminate.
     double m_taskbar_progress;
+
+    // Jump List tasks string ("Label|tag,-,Label|tag") and optional category name.
+    MCStringRef m_jump_list_tasks;
+    MCStringRef m_jump_list_category;
 
 public:
     
@@ -1132,8 +1142,16 @@ public:
     void SetFullscreenMode(MCExecContext& ctxt, intenum_t p_mode);
     void GetScaleFactor(MCExecContext& ctxt, double& r_scale);
     void SetScaleFactor(MCExecContext& ctxt, double p_scale);
+    void GetBadge(MCExecContext& ctxt, uinteger_t& r_value);
+    void SetBadge(MCExecContext& ctxt, uinteger_t p_value);
+    void GetTaskbarOverlayIcon(MCExecContext& ctxt, MCStringRef& r_value);
+    void SetTaskbarOverlayIcon(MCExecContext& ctxt, MCStringRef p_value);
     void GetTaskbarProgress(MCExecContext& ctxt, double& r_value);
     void SetTaskbarProgress(MCExecContext& ctxt, double p_value);
+    void GetJumpListTasks(MCExecContext& ctxt, MCStringRef& r_value);
+    void SetJumpListTasks(MCExecContext& ctxt, MCStringRef p_value);
+    void GetJumpListCategory(MCExecContext& ctxt, MCStringRef& r_value);
+    void SetJumpListCategory(MCExecContext& ctxt, MCStringRef p_value);
 	virtual void SetName(MCExecContext& ctxt, MCStringRef p_name);
 	virtual void SetId(MCExecContext& ctxt, uinteger_t p_new_id);
 	virtual void SetVisible(MCExecContext& ctxt, uint32_t part, bool setting);

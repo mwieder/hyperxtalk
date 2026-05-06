@@ -1430,9 +1430,29 @@ void MCPlatformShareContent(MCPlatformWindowRef p_window,
                    preferredEdge: NSRectEdgeMinY];
 }
 
+void MCPlatformSetJumpList(MCStringRef /*p_tasks*/, MCStringRef /*p_category*/)
+{
+    // Not applicable on macOS.
+}
+
 void MCPlatformSetTaskbarProgress(void * /*p_hwnd*/, double /*p_value*/)
 {
     // Not applicable on macOS.
+}
+
+void MCPlatformSetTaskbarOverlayIcon(void * /*p_hwnd*/, MCStringRef /*p_icon_path*/)
+{
+    // Not applicable on macOS.
+}
+
+void MCPlatformSetBadge(void * /*p_hwnd*/, uinteger_t p_count)
+{
+    // macOS: update the Dock tile badge label.
+    NSDockTile *t_tile = [NSApp dockTile];
+    if (p_count == 0)
+        [t_tile setBadgeLabel:nil];
+    else
+        [t_tile setBadgeLabel:[NSString stringWithFormat:@"%u", (unsigned)p_count]];
 }
 
 void MCPlatformSpellCheckText(MCStringRef p_text, MCRange*& r_errors, uindex_t& r_count)

@@ -1783,7 +1783,12 @@ enum Properties {
 
 	P_SYSTEM_TEXT_COLOR,
 
+    P_BADGE,
+    P_TASKBAR_OVERLAY_ICON,
     P_TASKBAR_PROGRESS,
+
+    P_JUMP_LIST_TASKS,
+    P_JUMP_LIST_CATEGORY,
 
     __P_LAST,
 };

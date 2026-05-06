@@ -209,7 +209,11 @@ MCPropertyInfo MCStack::kProperties[] =
     
     DEFINE_RO_OBJ_PROPERTY(P_MIN_STACK_FILE_VERSION, String, MCStack, MinStackFileVersion)
 
+    DEFINE_RW_OBJ_PROPERTY(P_BADGE, UInt16, MCStack, Badge)
+    DEFINE_RW_OBJ_PROPERTY(P_TASKBAR_OVERLAY_ICON, String, MCStack, TaskbarOverlayIcon)
     DEFINE_RW_OBJ_PROPERTY(P_TASKBAR_PROGRESS, Double, MCStack, TaskbarProgress)
+    DEFINE_RW_OBJ_PROPERTY(P_JUMP_LIST_TASKS, String, MCStack, JumpListTasks)
+    DEFINE_RW_OBJ_PROPERTY(P_JUMP_LIST_CATEGORY, String, MCStack, JumpListCategory)
 };
 
 MCObjectPropertyTable MCStack::kPropertyTable =
@@ -329,7 +333,11 @@ MCStack::MCStack()
 
     m_attachments = nil;
 
+    m_badge = 0;
+    m_taskbar_overlay_icon = MCValueRetain(kMCEmptyString);
     m_taskbar_progress = 0.0;
+    m_jump_list_tasks    = MCValueRetain(kMCEmptyString);
+    m_jump_list_category = MCValueRetain(kMCEmptyString);
 
 	view_init();
 
@@ -549,8 +557,12 @@ MCStack::MCStack(const MCStack &sref)
     // MERG-2015-10-12: [[ DocumentFilename ]] No document filename to begin with
     m_document_filename = MCValueRetain(kMCEmptyString);
 
-    // Taskbar progress is not copied — new window starts hidden.
-    m_taskbar_progress = 0.0;
+    // Badge, overlay, progress, and jump list are not copied — new window starts clean.
+    m_badge = 0;
+    m_taskbar_overlay_icon = MCValueRetain(kMCEmptyString);
+    m_taskbar_progress     = 0.0;
+    m_jump_list_tasks      = MCValueRetain(kMCEmptyString);
+    m_jump_list_category   = MCValueRetain(kMCEmptyString);
 
 	view_copy(sref);
 

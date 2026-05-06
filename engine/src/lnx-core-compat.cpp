@@ -20,7 +20,22 @@ void MCPlatformBreakWait(void)
     MCscreen->pingwait();
 }
 
+void MCPlatformSetJumpList(MCStringRef /*p_tasks*/, MCStringRef /*p_category*/)
+{
+    // Not applicable on Linux.
+}
+
 void MCPlatformSetTaskbarProgress(void * /*p_hwnd*/, double /*p_value*/)
+{
+    // Not applicable on Linux.
+}
+
+void MCPlatformSetTaskbarOverlayIcon(void * /*p_hwnd*/, MCStringRef /*p_icon_path*/)
+{
+    // Not applicable on Linux.
+}
+
+void MCPlatformSetBadge(void * /*p_hwnd*/, uinteger_t /*p_count*/)
 {
     // Not applicable on Linux.
 }
