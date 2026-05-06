@@ -1317,6 +1317,119 @@ void MCPlatformBeep(void)
     NSBeep();
 }
 
+void MCPlatformShareContent(MCPlatformWindowRef p_window,
+                            MCPlatformShareType p_type,
+                            MCValueRef p_data,
+                            bool p_has_rect,
+                            MCRectangle p_anchor,
+                            MCStringRef p_toolbar_item)
+{
+    NSArray *t_items = nil;
+
+    switch (p_type)
+    {
+        case kMCPlatformShareFile:
+        {
+            // Share a file by URL.
+            MCAutoStringRef t_path((MCStringRef)MCValueRetain(p_data));
+            NSString *t_ns_path = MCStringConvertToAutoreleasedNSString(*t_path);
+            NSURL   *t_url      = [NSURL fileURLWithPath: t_ns_path];
+            if (t_url != nil)
+                t_items = @[t_url];
+            break;
+        }
+
+        case kMCPlatformShareImage:
+        {
+            // Share encoded image bytes (PNG/JPEG/GIF) as an NSImage.
+            MCDataRef t_img = (MCDataRef)p_data;
+            NSData   *t_ns_data = [NSData dataWithBytes: MCDataGetBytePtr(t_img)
+                                                 length: MCDataGetLength(t_img)];
+            NSImage  *t_image   = [[NSImage alloc] initWithData: t_ns_data];
+            if (t_image != nil)
+                t_items = @[t_image];
+            break;
+        }
+
+        case kMCPlatformShareText:
+        default:
+        {
+            // Share plain text or a URL string.
+            MCAutoStringRef t_str((MCStringRef)MCValueRetain(p_data));
+            NSString *t_ns_str = MCStringConvertToAutoreleasedNSString(*t_str);
+            if (t_ns_str != nil)
+                t_items = @[t_ns_str];
+            break;
+        }
+    }
+
+    if (t_items == nil || [t_items count] == 0)
+        return;
+
+    NSSharingServicePicker *t_picker =
+        [[NSSharingServicePicker alloc] initWithItems: t_items];
+
+    // Get the NSWindow to anchor the popover to.
+    NSWindow *t_ns_window = nil;
+    if (p_window != nil)
+        t_ns_window = (NSWindow *)((MCMacPlatformWindow *)p_window)->GetHandle();
+    if (t_ns_window == nil)
+        return;
+
+    // Prefer toolbar-item anchoring when a name was supplied.
+    if (p_toolbar_item != nil)
+    {
+        NSString  *t_ident   = MCStringConvertToAutoreleasedNSString(p_toolbar_item);
+        NSToolbar *t_toolbar = [t_ns_window toolbar];
+        if (t_toolbar != nil && t_ident != nil)
+        {
+            for (NSToolbarItem *t_item in [t_toolbar visibleItems])
+            {
+                if ([[t_item itemIdentifier] isEqualToString: t_ident])
+                {
+                    NSView *t_item_view = [t_item view];
+                    if (t_item_view == nil)
+                        break; // No custom view — fall through to centred positioning.
+
+                    NSRect t_btn_rect = [t_item_view bounds];
+                    if (NSIsEmptyRect(t_btn_rect))
+                        break;
+
+                    [t_picker showRelativeToRect: t_btn_rect
+                                         ofView: t_item_view
+                                  preferredEdge: NSRectEdgeMinY];
+                    return;
+                }
+            }
+        }
+        // Named item not found — fall through to rect-based anchoring.
+    }
+
+    // Rect-based or centred anchoring.
+    NSView *t_view = [t_ns_window contentView];
+    NSRect  t_anchor_rect;
+    if (p_has_rect)
+    {
+        // Convert card coordinates (top-left origin) to view coordinates
+        // (bottom-left origin).
+        CGFloat t_height = [t_view bounds].size.height;
+        t_anchor_rect = NSMakeRect((CGFloat)p_anchor.x,
+                                   t_height - (CGFloat)(p_anchor.y + p_anchor.height),
+                                   (CGFloat)p_anchor.width,
+                                   (CGFloat)p_anchor.height);
+    }
+    else
+    {
+        // Default: centre of the window.
+        NSRect t_bounds = [t_view bounds];
+        t_anchor_rect   = NSMakeRect(NSMidX(t_bounds) - 1, NSMidY(t_bounds) - 1, 2, 2);
+    }
+
+    [t_picker showRelativeToRect: t_anchor_rect
+                          ofView: t_view
+                   preferredEdge: NSRectEdgeMinY];
+}
+
 void MCPlatformSpellCheckText(MCStringRef p_text, MCRange*& r_errors, uindex_t& r_count)
 {
     r_errors = nil;

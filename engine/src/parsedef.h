@@ -2141,6 +2141,7 @@ enum Statements {
     S_SEEK,
     S_SELECT,
     S_SEND,
+    S_SHARE,
     S_SET,
     S_SHEET,
     S_SHOW,

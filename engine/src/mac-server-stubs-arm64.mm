@@ -12,3 +12,8 @@ void MCPlatformSpellCheckText(MCStringRef p_text, MCRange*& r_errors, uindex_t& 
     r_errors = nil;
     r_count  = 0;
 }
+
+// Sharing is not available in the server engine.
+void MCPlatformShareContent(MCPlatformWindowRef, MCPlatformShareType, MCValueRef, bool, MCRectangle, MCStringRef)
+{
+}

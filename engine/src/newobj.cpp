@@ -30,6 +30,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "ask.h"
 #include "internal.h"
 #include "notification.h"
+#include "share.h"
 
 #include "mode.h"
 
@@ -262,6 +263,8 @@ MCStatement *MCN_new_statement(int2 which)
 		return new MCSelect;
 	case S_SEND:
 		return new MCSend;
+	case S_SHARE:
+		return new MCShare;
 	case S_SET:
 		return new MCSet;
 	case S_SHEET:

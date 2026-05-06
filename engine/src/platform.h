@@ -568,6 +568,27 @@ void MCPlatformBeep(void);
 // r_count receives the number of entries; 0 means no errors / not supported.
 void MCPlatformSpellCheckText(MCStringRef p_text, MCRange*& r_errors, uindex_t& r_count);
 
+// Share content using the platform's native sharing UI (macOS share sheet etc.).
+// p_window         - the platform window to anchor the popover to.
+// p_type           - kMCPlatformShareText, kMCPlatformShareFile, or kMCPlatformShareImage.
+// p_data           - text / file path (MCStringRef) or encoded image bytes (MCDataRef).
+// p_has_rect       - whether p_anchor is valid (ignored when p_toolbar_item is set).
+// p_anchor         - card-coordinate rect of the control that triggered the share.
+// p_toolbar_item   - if non-nil, anchor the picker to this toolbar item name instead
+//                    of using p_anchor (macOS 13+: showRelativeToToolbarItem:).
+enum MCPlatformShareType
+{
+    kMCPlatformShareText,
+    kMCPlatformShareFile,
+    kMCPlatformShareImage,
+};
+void MCPlatformShareContent(MCPlatformWindowRef p_window,
+                            MCPlatformShareType p_type,
+                            MCValueRef p_data,
+                            bool p_has_rect,
+                            MCRectangle p_anchor,
+                            MCStringRef p_toolbar_item = nil);
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void MCPlatformGetScreenCount(uindex_t& r_count);

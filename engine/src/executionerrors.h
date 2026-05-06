@@ -1627,7 +1627,16 @@ enum Exec_errors
 	
 	// {EE-0533} send: no permission to send that
 	EE_SEND_NOPERM,
-	
+
+	// share: error evaluating data expression
+	EE_SHARE_BADDATA,
+
+	// share: error evaluating from rect expression
+	EE_SHARE_BADRECT,
+
+	// share: named image not found
+	EE_SHARE_BADIMAGE,
+
 	// {EE-0534} set: error in source expression
 	EE_SET_BADEXP,
 	

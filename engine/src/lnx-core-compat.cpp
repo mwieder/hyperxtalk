@@ -27,6 +27,11 @@ void MCPlatformSpellCheckText(MCStringRef p_text, MCRange*& r_errors, uindex_t& 
     r_count  = 0;
 }
 
+void MCPlatformShareContent(MCPlatformWindowRef, MCPlatformShareType, MCValueRef, bool, MCRectangle, MCStringRef)
+{
+    // Not supported on Linux.
+}
+
 bool MCPlatformWaitForEvent(double duration, bool blocking)
 {
     bool t_dispatch = !blocking;

@@ -1147,7 +1147,13 @@ enum Parse_errors
 	
 	// {PE-0371} send: bad target chunk or program expression
 	PE_SEND_BADTARGET,
-	
+
+	// share: bad data expression
+	PE_SHARE_BADDATA,
+
+	// share: bad rect expression after 'from'
+	PE_SHARE_BADRECT,
+
 	// {PE-0372} set: error in expression
 	PE_SET_BADEXP,
 	
