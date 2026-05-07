@@ -752,6 +752,8 @@
     <ClCompile Include="..\..\..\engine\src\exec-engine.cpp"/>
     <ClCompile Include="..\..\..\engine\src\exec-extension.cpp"/>
     <ClCompile Include="..\..\..\engine\src\exec-files.cpp"/>
+    <ClCompile Include="..\..\..\engine\src\exec-fileicon.cpp"/>
+    <ClCompile Include="..\..\..\engine\src\w32-fileicon.cpp"/>
     <ClCompile Include="..\..\..\engine\src\exec-filters.cpp"/>
     <ClCompile Include="..\..\..\engine\src\exec-graphics.cpp"/>
     <ClCompile Include="..\..\..\engine\src\exec-ide.cpp"/>

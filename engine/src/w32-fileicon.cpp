@@ -26,7 +26,8 @@ Software Foundation. */
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <shellapi.h>
-#include <commctrl.h>   // IImageList / SHGetImageList
+#include <commctrl.h>
+#include <commoncontrols.h> // Full IImageList COM definition + SHGetImageList
 #include <shlobj.h>
 
 #pragma comment(lib, "shell32.lib")
@@ -159,10 +160,20 @@ static int s_best_shil(uinteger_t p_size)
     return SHIL_JUMBO;                         // 256
 }
 
+// Normalize forward slashes to backslashes in-place.
+// SHGetFileInfoW is a shell namespace API and requires Win32 backslash paths.
+static void s_normalize_slashes(wchar_t *p_path)
+{
+    for (wchar_t *p = p_path; *p; p++)
+        if (*p == L'/') *p = L'\\';
+}
+
 // Retrieve an HICON for a file path using SHGetFileInfo.
 // The returned HICON must be destroyed with DestroyIcon by the caller.
-static HICON s_icon_for_path(const wchar_t *p_path, uinteger_t p_size)
+static HICON s_icon_for_path(wchar_t *p_path, uinteger_t p_size)
 {
+    s_normalize_slashes(p_path);
+
     // Ask SHGetFileInfo for the system image-list index.
     SHFILEINFOW t_sfi = {};
     DWORD_PTR t_ret = SHGetFileInfoW(
@@ -174,18 +185,20 @@ static HICON s_icon_for_path(const wchar_t *p_path, uinteger_t p_size)
 
     // Fetch the correctly-sized icon from the system image list.
     IImageList *t_iml = NULL;
-    HRESULT hr = SHGetImageList(s_best_shil(p_size), IID_IImageList,
+    HRESULT hr = SHGetImageList(s_best_shil(p_size), __uuidof(IImageList),
                                 (void **)&t_iml);
     if (FAILED(hr) || t_iml == NULL)
         return NULL;
 
     HICON t_icon = NULL;
-    t_iml->GetIcon(t_sfi.iIcon, ILD_TRANSPARENT, &t_icon);
+    if (FAILED(t_iml->GetIcon(t_sfi.iIcon, ILD_TRANSPARENT, &t_icon)))
+        t_icon = NULL;
     t_iml->Release();
     return t_icon;
 }
 
 // Retrieve an HICON for a file extension (no file needs to exist).
+// Extensions are short strings like ".txt" — no slash normalization needed.
 static HICON s_icon_for_ext(const wchar_t *p_ext_with_dot, uinteger_t p_size)
 {
     SHFILEINFOW t_sfi = {};
@@ -199,13 +212,14 @@ static HICON s_icon_for_ext(const wchar_t *p_ext_with_dot, uinteger_t p_size)
         return NULL;
 
     IImageList *t_iml = NULL;
-    HRESULT hr = SHGetImageList(s_best_shil(p_size), IID_IImageList,
+    HRESULT hr = SHGetImageList(s_best_shil(p_size), __uuidof(IImageList),
                                 (void **)&t_iml);
     if (FAILED(hr) || t_iml == NULL)
         return NULL;
 
     HICON t_icon = NULL;
-    t_iml->GetIcon(t_sfi.iIcon, ILD_TRANSPARENT, &t_icon);
+    if (FAILED(t_iml->GetIcon(t_sfi.iIcon, ILD_TRANSPARENT, &t_icon)))
+        t_icon = NULL;
     t_iml->Release();
     return t_icon;
 }
@@ -225,7 +239,7 @@ bool MCFileIconGetForFile(MCStringRef p_path,
     MCStringGetChars(p_path, MCRangeMake(0, t_len), t_buf.Ptr());
     t_buf[t_len] = 0;
 
-    HICON t_icon = s_icon_for_path((const wchar_t *)t_buf.Ptr(), p_size);
+    HICON t_icon = s_icon_for_path((wchar_t *)t_buf.Ptr(), p_size);
     if (t_icon == NULL)
         return false;
 
