@@ -23,12 +23,12 @@ Stack:
 The name or ID of the stack.
 
 Description:
-Use the acceleratedRendering property to put OpenXTalk into accelerated
+Use the acceleratedRendering property to put HyperXTalk into accelerated
 rendering mode and set the compositor properties to recommended
 defaults. 
 
 The <acceleratedRendering> property has been added to help simplify the
-use of the accelerated rendering features. When set to true, OpenXTalk
+use of the accelerated rendering features. When set to true, HyperXTalk
 automatically configures the compositor properties to the best defaults
 for the current platform.
 

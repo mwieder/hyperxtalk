@@ -40,7 +40,7 @@ The <size> <property> of a <stack> is always 10000. For <stacks>, this
 
 References: heapSpace (function), hasMemory (function), stacks (function),
 files (function), diskSpace (function), object (glossary),
-property (glossary), OpenXTalk (glossary), audio clip (glossary),
+property (glossary), HyperXTalk (glossary), audio clip (glossary),
 EPS (glossary), HyperCard (glossary), video clip (glossary),
 byte (glossary), image (keyword), integer (keyword), stack (object),
 filename (property)

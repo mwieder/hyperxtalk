@@ -34,6 +34,14 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "mcstring.h"
 #include "notification.h"
 
+// ── C++ standard library (must precede WRL headers on SDK 26100) ──────────────
+// wrl/implements.h in Windows SDK 10.0.26100.0 uses 'string' as a template
+// parameter name; including <string> first ensures the identifier is in scope
+// and not misinterpreted by the compiler.
+#include <string>
+#include <mutex>
+#include <unordered_map>
+
 // ── WRL / WinRT headers ───────────────────────────────────────────────────────
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -48,10 +56,6 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include <shlobj.h>
 // Link WinRT bootstrap library (RoInitialize, RoGetActivationFactory, etc.)
 #pragma comment(lib, "runtimeobject.lib")
-
-#include <string>
-#include <mutex>
-#include <unordered_map>
 
 using namespace Microsoft::WRL;
 using namespace Microsoft::WRL::Wrappers;

@@ -36,7 +36,7 @@ variableName:
 
 Description:
 Use the <revZipAddUncompressedItemWithData> command to put data from a
-OpenXTalk variable into a file in a zip archive without compressing the
+HyperXTalk variable into a file in a zip archive without compressing the
 data. The archive must have first been opened with <revZipOpenArchive>.
 This command is useful if data is being placed into an archive simply to
 package it up neatly, rather than to reduce the size of the data. Using

@@ -34,6 +34,7 @@ jobs:
       - name: Install Homebrew dependencies
         run: |
           brew install openssl@3 libpq mysql-client pixman meson ninja pkg-config
+          brew install --cask vlc
 
       - name: Set up Java (Temurin — required by libfoundation JNI bindings)
         uses: actions/setup-java@v4

@@ -24,7 +24,7 @@ end errorDialog
 
 Parameters:
 pExecutionError: Describes the error that occurred in the form of a 
-standard OpenXTalk error backtrace: error-code,line-number,column-number[,
+standard HyperXTalk error backtrace: error-code,line-number,column-number[,
 hint] 
 
 pParseError: Deprecated

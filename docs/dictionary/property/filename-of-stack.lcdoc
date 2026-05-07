@@ -24,10 +24,10 @@ local savedName
 if the effective filename of this stack is savedName then beep
 
 Example:
-set the filename of this stack to "Test.OpenXTalk"
+set the filename of this stack to "Test.HyperXTalk"
 
 Example:
-set the filename of this stack to "/Volumes/Lizards/Godzilla.OpenXTalk"
+set the filename of this stack to "/Volumes/Lizards/Godzilla.HyperXTalk"
 
 Example:
 # set the defaultFolder to the folder containing the stackfile

@@ -17,3 +17,16 @@ void MCPlatformSpellCheckText(MCStringRef p_text, MCRange*& r_errors, uindex_t& 
 void MCPlatformShareContent(MCPlatformWindowRef, MCPlatformShareType, MCValueRef, bool, MCRectangle, MCStringRef)
 {
 }
+
+// Taskbar / badge / jump-list features are desktop-only; no-ops in the server engine.
+void MCPlatformSetBadge(void * /*p_hwnd*/, uinteger_t /*p_count*/)
+{
+}
+
+void MCPlatformSetTaskbarProgress(void * /*p_hwnd*/, double /*p_value*/)
+{
+}
+
+void MCPlatformSetJumpList(MCStringRef /*p_tasks*/, MCStringRef /*p_category*/)
+{
+}

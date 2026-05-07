@@ -124,7 +124,7 @@ separated by the <columnDelimiter>.
 Changes: 
 Starting with version 7.0, you can pass a string of 
 <character|characters> as a column and row delimiter (it is no longer
-restricted to a single character). Starting with OpenXTalk 8.0, you can 
+restricted to a single character). Starting with HyperXTalk 8.0, you can 
 split by empty delimiters, which are treated as never appearing in the 
 input string.
 

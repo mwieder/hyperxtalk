@@ -140,7 +140,7 @@ create the <resource fork>.
 
 
 >*Note:* <upload|Uploading> a <URL> by putting a <value> into it is a
-> <blocking> operation: that is, the <handler> pauses until OpenXTalk is
+> <blocking> operation: that is, the <handler> pauses until HyperXTalk is
 > finished <upload|Uploading> the <value>. Since contacting a <server>
 > may take some time due to network lag, <URL> operations may take long
 > enough to be noticeable to the user. To <upload> without <blocking>,

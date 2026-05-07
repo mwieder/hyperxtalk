@@ -37,7 +37,7 @@ encounters an error then the result will be set to an error code
 beginning with "ziperr", otherwise the result will be empty.
 
 Description:
-Use the <revZipAddItemWithData> command to put data from a OpenXTalk
+Use the <revZipAddItemWithData> command to put data from a HyperXTalk
 variable into a file in a zip archive. The archive must have first been
 opened with <revZipOpenArchive>.
 

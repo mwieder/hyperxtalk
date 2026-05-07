@@ -21,7 +21,7 @@ put specialFolderPath("engine") & "/intro_movie.mp4" into tVideoFile
 play video tVideoFile
 
 Example:
-play video "http://www.OpenXTalk.org/buildanapp.mp4"
+play video "http://www.HyperXTalk.com/buildanapp.mp4"
 
 Returns:
 The <play video> command will not return until it is complete or the

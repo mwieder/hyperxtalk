@@ -379,6 +379,40 @@ void MCStack::SetFullscreenMode(MCExecContext& ctxt, intenum_t p_mode)
         purgefonts();
 }
 
+void MCStack::GetBadge(MCExecContext& ctxt, uinteger_t& r_value)
+{
+    r_value = m_badge;
+}
+
+void MCStack::SetBadge(MCExecContext& ctxt, uinteger_t p_value)
+{
+    m_badge = p_value;
+    void *t_hwnd = nil;
+#ifdef TARGET_PLATFORM_WINDOWS
+    Window t_win = getwindow();
+    if (t_win != nil)
+        t_hwnd = (void *)t_win->handle.window;
+#endif
+    MCPlatformSetBadge(t_hwnd, p_value);
+}
+
+void MCStack::GetTaskbarOverlayIcon(MCExecContext& ctxt, MCStringRef& r_value)
+{
+    r_value = MCValueRetain(m_taskbar_overlay_icon);
+}
+
+void MCStack::SetTaskbarOverlayIcon(MCExecContext& ctxt, MCStringRef p_value)
+{
+    MCValueAssign(m_taskbar_overlay_icon, p_value);
+#ifdef TARGET_PLATFORM_WINDOWS
+    void *t_hwnd = nil;
+    Window t_win = getwindow();
+    if (t_win != nil)
+        t_hwnd = (void *)t_win->handle.window;
+    MCPlatformSetTaskbarOverlayIcon(t_hwnd, p_value);
+#endif
+}
+
 void MCStack::GetTaskbarProgress(MCExecContext& ctxt, double& r_value)
 {
     r_value = m_taskbar_progress;
@@ -398,6 +432,29 @@ void MCStack::SetTaskbarProgress(MCExecContext& ctxt, double p_value)
         t_hwnd = (void *)t_win->handle.window;
 #endif
     MCPlatformSetTaskbarProgress(t_hwnd, p_value);
+}
+
+void MCStack::GetJumpListTasks(MCExecContext& ctxt, MCStringRef& r_value)
+{
+    r_value = MCValueRetain(m_jump_list_tasks);
+}
+
+void MCStack::SetJumpListTasks(MCExecContext& ctxt, MCStringRef p_value)
+{
+    MCValueAssign(m_jump_list_tasks, p_value);
+    MCPlatformSetJumpList(m_jump_list_tasks, m_jump_list_category);
+}
+
+void MCStack::GetJumpListCategory(MCExecContext& ctxt, MCStringRef& r_value)
+{
+    r_value = MCValueRetain(m_jump_list_category);
+}
+
+void MCStack::SetJumpListCategory(MCExecContext& ctxt, MCStringRef p_value)
+{
+    MCValueAssign(m_jump_list_category, p_value);
+    // Re-apply the jump list so the new category name takes effect immediately.
+    MCPlatformSetJumpList(m_jump_list_tasks, m_jump_list_category);
 }
 
 void MCStack::GetScaleFactor(MCExecContext& ctxt, double& r_scale)

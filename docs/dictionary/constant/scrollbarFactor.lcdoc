@@ -17,7 +17,7 @@ Example:
 get scrollbarFactor
 
 Description:
-This constant is obsolete and no longer used in OpenXTalk.
+This constant is obsolete and no longer used in HyperXTalk.
 
 References: endValue (property), vScroll (property),
 startValue (property), hScroll (property)

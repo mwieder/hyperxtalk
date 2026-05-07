@@ -165,15 +165,23 @@ public:
     virtual HRESULT STDMETHODCALLTYPE MarkFullscreenWindow(HWND hwnd, BOOL fFullscreen) = 0;
 };
 
-// ITaskbarList3 — the two methods we actually call are SetProgressState [7]
-// and SetProgressValue [8] (0-indexed from IUnknown base).
+// ITaskbarList3 — full vtable through SetOverlayIcon (method index 9 within
+// ITaskbarList3's own methods; 0-indexed from the start of ITaskbarList3).
+// Placeholder signatures for unused slots use void* to avoid header deps.
 MIDL_INTERFACE("EA1AFB91-9E28-4B86-90E9-9E9F8A5EEFAF")
 ITaskbarList3 : public ITaskbarList2
 {
 public:
     virtual HRESULT STDMETHODCALLTYPE SetProgressValue(HWND hwnd, ULONGLONG ullCompleted, ULONGLONG ullTotal) = 0;
     virtual HRESULT STDMETHODCALLTYPE SetProgressState(HWND hwnd, TBPFLAG tbpFlags) = 0;
-    // Remaining methods not needed; vtable slots above are correct.
+    virtual HRESULT STDMETHODCALLTYPE RegisterTab(HWND hwndTab, HWND hwndMDI) = 0;
+    virtual HRESULT STDMETHODCALLTYPE UnregisterTab(HWND hwndTab) = 0;
+    virtual HRESULT STDMETHODCALLTYPE SetTabOrder(HWND hwndTab, HWND hwndInsertBefore) = 0;
+    virtual HRESULT STDMETHODCALLTYPE SetTabActiveThumb(HWND hwndTab, HWND hwndMDI) = 0;
+    virtual HRESULT STDMETHODCALLTYPE ThumbBarAddButtons(HWND hwnd, UINT cButtons, void *pButton) = 0;
+    virtual HRESULT STDMETHODCALLTYPE ThumbBarUpdateButtons(HWND hwnd, UINT cButtons, void *pButton) = 0;
+    virtual HRESULT STDMETHODCALLTYPE ThumbBarSetImageList(HWND hwnd, void *himl) = 0;
+    virtual HRESULT STDMETHODCALLTYPE SetOverlayIcon(HWND hwnd, HICON hIcon, LPCWSTR pszDescription) = 0;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -358,6 +366,207 @@ void MCPlatformSetTaskbarProgress(void *p_hwnd, double p_value)
                                     (ULONGLONG)(t_clamped * 10000.0),
                                     (ULONGLONG)10000);
     }
+}
+
+// ── Taskbar overlay icon (ITaskbarList3::SetOverlayIcon) ─────────────────────
+
+void MCPlatformSetTaskbarOverlayIcon(void *p_hwnd, MCStringRef p_icon_path)
+{
+    if (p_hwnd == nil)
+        return;
+
+    HWND t_hwnd = (HWND)p_hwnd;
+
+    // Lazy-init: create one ITaskbarList3 for the process lifetime.
+    static ITaskbarList3 *s_taskbar   = NULL;
+    static bool           s_init_done = false;
+
+    if (!s_init_done)
+    {
+        s_init_done = true;
+        ITaskbarList3 *t_tbl = NULL;
+        HRESULT t_hr = CoCreateInstance(s_CLSID_TaskbarList, NULL,
+                                        CLSCTX_INPROC_SERVER,
+                                        __uuidof(ITaskbarList3),
+                                        (void **)&t_tbl);
+        if (SUCCEEDED(t_hr) && t_tbl != NULL)
+        {
+            if (SUCCEEDED(t_tbl->HrInit()))
+                s_taskbar = t_tbl;
+            else
+                t_tbl->Release();
+        }
+    }
+
+    if (s_taskbar == NULL)
+        return;
+
+    // Empty path — clear the overlay icon.
+    if (p_icon_path == nil || MCStringIsEmpty(p_icon_path))
+    {
+        s_taskbar->SetOverlayIcon(t_hwnd, NULL, NULL);
+        return;
+    }
+
+    // Load the icon from the file path.
+    unichar_t *t_wpath = NULL;
+    if (!MCStringConvertToWString(p_icon_path, t_wpath))
+        return;
+
+    HICON t_icon = (HICON)LoadImageW(NULL,
+                                     reinterpret_cast<LPCWSTR>(t_wpath),
+                                     IMAGE_ICON, 0, 0,
+                                     LR_LOADFROMFILE | LR_DEFAULTSIZE);
+    MCMemoryDeallocate(t_wpath);
+
+    if (t_icon == NULL)
+        return;
+
+    s_taskbar->SetOverlayIcon(t_hwnd, t_icon, NULL);
+    DestroyIcon(t_icon);
+}
+
+// ── Taskbar badge (ITaskbarList3::SetOverlayIcon + GDI) ───────────────────────
+//
+// Dynamically paints a red circle with white count text onto a 16×16 HICON,
+// then sets it as the taskbar button's overlay icon.
+//
+// Icon layout:
+//   Colour plane : red circle (RGB CC 00 00) with white text.
+//   Mask plane   : 1-bit monochrome; 0 = opaque, 1 = transparent.
+//   Both planes use the same bounding ellipse so edges align exactly.
+
+static HICON CreateBadgeIcon(UINT p_count)
+{
+    const int W = 16, H = 16;
+
+    // ── Colour plane ─────────────────────────────────────────────────────────
+    HDC     t_screen  = GetDC(NULL);
+    HDC     t_col_dc  = CreateCompatibleDC(t_screen);
+    HBITMAP t_col_bmp = CreateCompatibleBitmap(t_screen, W, H);
+    ReleaseDC(NULL, t_screen);
+
+    if (t_col_dc == NULL || t_col_bmp == NULL)
+    {
+        if (t_col_dc)  DeleteDC(t_col_dc);
+        if (t_col_bmp) DeleteObject(t_col_bmp);
+        return NULL;
+    }
+
+    HBITMAP t_old_col = (HBITMAP)SelectObject(t_col_dc, t_col_bmp);
+    RECT    t_all     = {0, 0, W, H};
+    HPEN    t_no_pen  = (HPEN)GetStockObject(NULL_PEN);
+
+    // Black background (masked transparent outside the circle).
+    FillRect(t_col_dc, &t_all, (HBRUSH)GetStockObject(BLACK_BRUSH));
+
+    // Red filled circle.
+    HBRUSH t_red = CreateSolidBrush(RGB(0xCC, 0x00, 0x00));
+    SelectObject(t_col_dc, t_no_pen);
+    SelectObject(t_col_dc, t_red);
+    Ellipse(t_col_dc, 0, 0, W, H);
+    DeleteObject(t_red);
+
+    // White count text — shrink font for three-character strings ("99+").
+    wchar_t t_text[5] = {};
+    if (p_count > 99)
+        wcscpy_s(t_text, L"99+");
+    else
+        swprintf_s(t_text, 5, L"%u", p_count);
+
+    int   t_fh   = (wcslen(t_text) >= 3) ? -6 : -9;
+    HFONT t_font = CreateFontW(t_fh, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE,
+                                DEFAULT_CHARSET, OUT_DEFAULT_PRECIS,
+                                CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+                                DEFAULT_PITCH | FF_SWISS, L"Segoe UI");
+    SetBkMode(t_col_dc, TRANSPARENT);
+    SetTextColor(t_col_dc, RGB(0xFF, 0xFF, 0xFF));
+    HFONT t_old_font = (HFONT)SelectObject(t_col_dc, t_font);
+    DrawTextW(t_col_dc, t_text, -1, &t_all, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+    SelectObject(t_col_dc, t_old_font);
+    DeleteObject(t_font);
+
+    SelectObject(t_col_dc, t_old_col);
+    DeleteDC(t_col_dc);
+
+    // ── Mask plane (1-bit): 0 = opaque, 1 = transparent ──────────────────────
+    HDC     t_mask_dc  = CreateCompatibleDC(NULL);
+    HBITMAP t_mask_bmp = CreateBitmap(W, H, 1, 1, NULL);
+
+    if (t_mask_dc == NULL || t_mask_bmp == NULL)
+    {
+        if (t_mask_dc)  DeleteDC(t_mask_dc);
+        if (t_mask_bmp) DeleteObject(t_mask_bmp);
+        DeleteObject(t_col_bmp);
+        return NULL;
+    }
+
+    HBITMAP t_old_mask = (HBITMAP)SelectObject(t_mask_dc, t_mask_bmp);
+
+    // White fill (transparent) then black ellipse (opaque circle region).
+    FillRect(t_mask_dc, &t_all, (HBRUSH)GetStockObject(WHITE_BRUSH));
+    SelectObject(t_mask_dc, t_no_pen);
+    SelectObject(t_mask_dc, (HBRUSH)GetStockObject(BLACK_BRUSH));
+    Ellipse(t_mask_dc, 0, 0, W, H);
+
+    SelectObject(t_mask_dc, t_old_mask);
+    DeleteDC(t_mask_dc);
+
+    // ── Assemble HICON ────────────────────────────────────────────────────────
+    ICONINFO t_ii = {};
+    t_ii.fIcon    = TRUE;
+    t_ii.hbmColor = t_col_bmp;
+    t_ii.hbmMask  = t_mask_bmp;
+    HICON t_icon  = CreateIconIndirect(&t_ii);
+
+    DeleteObject(t_col_bmp);
+    DeleteObject(t_mask_bmp);
+    return t_icon;
+}
+
+void MCPlatformSetBadge(void *p_hwnd, uinteger_t p_count)
+{
+    if (p_hwnd == nil)
+        return;
+
+    HWND t_hwnd = (HWND)p_hwnd;
+
+    static ITaskbarList3 *s_taskbar   = NULL;
+    static bool           s_init_done = false;
+
+    if (!s_init_done)
+    {
+        s_init_done = true;
+        ITaskbarList3 *t_tbl = NULL;
+        HRESULT t_hr = CoCreateInstance(s_CLSID_TaskbarList, NULL,
+                                        CLSCTX_INPROC_SERVER,
+                                        __uuidof(ITaskbarList3),
+                                        (void **)&t_tbl);
+        if (SUCCEEDED(t_hr) && t_tbl != NULL)
+        {
+            if (SUCCEEDED(t_tbl->HrInit()))
+                s_taskbar = t_tbl;
+            else
+                t_tbl->Release();
+        }
+    }
+
+    if (s_taskbar == NULL)
+        return;
+
+    if (p_count == 0)
+    {
+        // Zero clears the badge.
+        s_taskbar->SetOverlayIcon(t_hwnd, NULL, NULL);
+        return;
+    }
+
+    HICON t_icon = CreateBadgeIcon((UINT)p_count);
+    if (t_icon == NULL)
+        return;
+
+    s_taskbar->SetOverlayIcon(t_hwnd, t_icon, NULL);
+    DestroyIcon(t_icon);
 }
 
 void MCPlatformShareContent(MCPlatformWindowRef, MCPlatformShareType, MCValueRef, bool, MCRectangle, MCStringRef)

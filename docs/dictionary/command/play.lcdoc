@@ -92,7 +92,7 @@ the <current card>. You cannot play two sounds at the same time, nor can
 you queue a sound while another sound is playing.
 
 On Unix systems, the "xanim" program must be located in a directory in
-the PATH <environment variable>. You can set the PATH from within OpenXTalk
+the PATH <environment variable>. You can set the PATH from within HyperXTalk
 by using the put <command> :
 
     put newPath into $PATH

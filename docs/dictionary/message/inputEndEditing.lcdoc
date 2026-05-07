@@ -23,7 +23,7 @@ Description:
 The <inputEndEditing> message is sent when a mobile text input control
 has lost focus and editing has ceased.
 
-Handle the <inputEndEditing> message if you want to move OpenXTalk
+Handle the <inputEndEditing> message if you want to move HyperXTalk
 controls, make changes to the interface or perform an action when the
 user stops editing text in an iosTextInput, iosMultiline,
 androidTextInput or androidMultiline control.

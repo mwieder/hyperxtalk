@@ -19,8 +19,8 @@ Example:
 put the loadedExtensions
 
 Example:
-if "com.livecodeextensions.OpenXTalk.switchButton" is among the lines of the loadedExtensions then
-    create widget as "com.livecodeextensions.OpenXTalk.switchButton"
+if "com.livecodeextensions.HyperXTalk.switchButton" is among the lines of the loadedExtensions then
+    create widget as "com.livecodeextensions.HyperXTalk.switchButton"
 end if    
 
 Returns:
@@ -35,12 +35,12 @@ in the message path, or (for <widget|widgets>) if it is available to
 create with the <create widget> <command>.
 
 Each line of the list returned by the <loadedExtensions> <function> is
-the <kind> of the corresponding <OpenXTalk Builder extension|extension>.
+the <kind> of the corresponding <HyperXTalk Builder extension|extension>.
 
 References: create widget (command), load extension (command),
 unload extension (command), function (glossary), return (glossary),
-OpenXTalk Builder extension (glossary),
-OpenXTalk Builder extension (glossary), command (glossary), 
+HyperXTalk Builder extension (glossary),
+HyperXTalk Builder extension (glossary), command (glossary), 
 line (keyword), widget (object), kind (property)
 
 Tags: extensions

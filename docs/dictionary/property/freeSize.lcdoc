@@ -18,9 +18,9 @@ Platforms: desktop, server, mobile
 
 Description:
 In HyperCard, the <freeSize> <property> reports the amount of wasted
-space in a <stack>. In OpenXTalk, this <property> always reports zero.
+space in a <stack>. In HyperXTalk, this <property> always reports zero.
 
 References: stacks (function), diskSpace (function), hasMemory (function),
-property (glossary), OpenXTalk (glossary), HyperCard (glossary),
+property (glossary), HyperXTalk (glossary), HyperCard (glossary),
 stack (object)
 

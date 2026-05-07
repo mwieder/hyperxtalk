@@ -5,7 +5,7 @@ Type: object
 Syntax: widget
 
 Summary:
-A custom <control> written in OpenXTalk Builder
+A custom <control> written in HyperXTalk Builder
 
 Introduced: 8.0
 
@@ -26,13 +26,13 @@ end newWidget
 Description:
 Use the <widget> <object type> to create a <widget> control. 
 <widget|Widgets> are created from 
-<OpenXTalk Builder extension|OpenXTalk Builder extensions> that have 
+<HyperXTalk Builder extension|HyperXTalk Builder extensions> that have 
 previously been loaded into memory using the <load extension>
 <command>. For more details on how to create widgets, please consult the
-*Extending OpenXTalk* guide.
+*Extending HyperXTalk* guide.
 
 References: load extension (command), object type (glossary),
-OpenXTalk Builder extension (glossary), command (glossary),
+HyperXTalk Builder extension (glossary), command (glossary),
 control (keyword)
 
 Tags: objects, extensions

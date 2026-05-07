@@ -40,7 +40,7 @@ during the execution of an <XML-RPC> request.
 
 
 References: revXMLRPC_GetResponse (function),
-OpenXTalk custom library (glossary),
+HyperXTalk custom library (glossary),
 Standalone Application Settings (glossary),
 standalone application (glossary), function (glossary),
 XML-RPC (glossary), XML-RPC library (library)
