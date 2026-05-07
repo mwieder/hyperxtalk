@@ -78,11 +78,13 @@ static bool s_pixbuf_to_bitmap(GdkPixbuf   *p_pixbuf,
             uint8_t b = t_row[x * t_n_channels + 2];
             uint8_t a = (t_n_channels == 4) ? t_row[x * 4 + 3] : 0xFF;
 
+            // kMCGPixelFormatNative on Linux = kMCGPixelFormatRGBA:
+            // pack as R | (G<<8) | (B<<16) | (A<<24) = 0xAABBGGRR.
             t_dst[y * p_size + x] =
                 ((uint32_t)a << 24) |
-                ((uint32_t)r << 16) |
+                ((uint32_t)b << 16) |
                 ((uint32_t)g <<  8) |
-                 (uint32_t)b;
+                 (uint32_t)r;
         }
     }
 

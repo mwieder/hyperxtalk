@@ -76,8 +76,18 @@ static bool s_render_nsimage(NSImage *p_icon,
         return false;
     }
 
-    // Copy and unpremultiply: CGBitmapContext gives 0xAARRGGBB (premultiplied).
-    // MCImageBitmap wants non-premultiplied ARGB in the same uint32 layout.
+    // Copy, unpremultiply, and convert pixel format.
+    //
+    // CGBitmapContext with kCGBitmapByteOrder32Host | kCGImageAlphaPremultipliedFirst
+    // delivers pixels as 0xAARRGGBB in host uint32_t on little-endian ARM64
+    // (bytes in memory: B G R A).
+    //
+    // MCImageBitmap on macOS uses kMCGPixelFormatRGBA, which packs as
+    // R | (G<<8) | (B<<16) | (A<<24) = 0xAABBGGRR in host uint32_t
+    // (bytes in memory: R G B A).
+    //
+    // We extract R from bits 23-16 and B from bits 7-0 of the CG source,
+    // then place them at bits 7-0 and bits 23-16 respectively in the dest.
     const uint32_t *t_src =
         (const uint32_t *)CGBitmapContextGetData(t_ctx);
     uint32_t *t_dst = t_bitmap->data;
@@ -93,18 +103,21 @@ static bool s_render_nsimage(NSImage *p_icon,
         }
         else if (a == 255)
         {
-            t_dst[i] = p;
+            // Swap R (bits 23-16) and B (bits 7-0): 0xAARRGGBB → 0xAABBGGRR.
+            t_dst[i] = (p & 0xFF00FF00u)
+                     | ((p >> 16) & 0xFFu)
+                     | ((p & 0xFFu) << 16);
         }
         else
         {
-            // Undo premultiplication
+            // Undo premultiplication, then write as 0xAABBGGRR.
             uint8_t r = (uint8_t)(((p >> 16) & 0xFF) * 255u / a);
             uint8_t g = (uint8_t)(((p >>  8) & 0xFF) * 255u / a);
             uint8_t b = (uint8_t)(((p      ) & 0xFF) * 255u / a);
             t_dst[i] = ((uint32_t)a << 24)
-                     | ((uint32_t)r << 16)
+                     | ((uint32_t)b << 16)
                      | ((uint32_t)g <<  8)
-                     |  (uint32_t)b;
+                     |  (uint32_t)r;
         }
     }
 
