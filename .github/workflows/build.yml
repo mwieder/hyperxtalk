@@ -89,6 +89,7 @@ jobs:
             libx11-dev libxext-dev libxrender-dev \
             libxinerama-dev libxrandr-dev libxcb1-dev libxv-dev libdbus-1-dev libcups2-dev \
             libgif-dev libpcre3-dev zlib1g-dev \
+            libvlc-dev \
             default-jdk \
             fuse libfuse2
 
