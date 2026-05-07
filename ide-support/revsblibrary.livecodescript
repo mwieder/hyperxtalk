@@ -2146,13 +2146,15 @@ command revSBResolveCopyFilesList pBaseFolder, pTarget, pSettings, @rFileData
    
    set the itemDelimiter to slash
    repeat for each line tFile in pSettings["files"]
+      if tFile is empty then next repeat
       local tResolvedFile, tHasResources
       __ResolveIncludedExternal pTarget, tFile, tHasResources
-      
+
       -- tFile may now list multiple files if it was an external with a resources directory
       repeat for each line tResolvedFile in tFile
          local tDataA, tFlattenStructure
-         
+         if tResolvedFile is empty then next repeat
+
          if tResolvedFile ends with "/" then
             delete char -1 of tResolvedFile
          end if
@@ -3341,44 +3343,65 @@ command revSBCopyVLCToStandalone pPlatform, pStandaloneDir, pEnginePath, pCopyPl
       -- Add @executable_path to the binary's rpath so @rpath/libvlc.dylib resolves
       put shell("install_name_tool -add_rpath @executable_path " & QUOTE & pEnginePath & QUOTE) into tMacVLCR
    else if pPlatform begins with "Windows" then
-      put "C:\Program Files\VideoLAN\VLC" into tVLCWin
-      if there is not a folder tVLCWin then
-         -- Not on Windows (e.g. building from Mac): fall back to the pre-staged
-         -- VLC runtime in ide/Runtime/Windows/x86-64/vlc/
+      -- Determine VLC source location.
+      -- On a real Windows host, look for VLC in Program Files first.
+      -- When cross-building on macOS/Linux, fall back to the pre-staged Runtime tree.
+      local tOnWindows
+      put (the platform begins with "Win") into tOnWindows
+
+      if tOnWindows then
+         put "C:\Program Files\VideoLAN\VLC" into tVLCWin
+         if there is not a folder tVLCWin then
+            revStandaloneProgress "VLC not found at C:\Program Files\VideoLAN\VLC - skipping VLC bundle."
+            exit revSBCopyVLCToStandalone
+         end if
+      else
+         -- macOS / Linux host cross-building for Windows.
+         -- Use the VLC tree pre-staged by build-release-x64.bat into the Runtime folder.
          put revEnvironmentRuntimePath() & "/Windows/x86-64/vlc" into tVLCWin
          if there is not a folder tVLCWin then
-            revStandaloneProgress "VLC not found locally or in Runtime - skipping VLC bundle."
+            revStandaloneProgress "VLC not found in Runtime - skipping VLC bundle."
             exit revSBCopyVLCToStandalone
          end if
          revStandaloneProgress "Using pre-staged VLC runtime from " & tVLCWin
       end if
-      -- Normalise the standalone dir to backslashes for cmd.exe/xcopy.
-      -- LiveCode paths use forward slashes on all platforms; xcopy needs backslashes.
-      local tWinDir, tVLCR
-      put pStandaloneDir into tWinDir
-      replace "/" with "\" in tWinDir
-      -- Ensure the destination directory exists before copying into it.
-      create folder tWinDir
-      -- Suppress the xcopy console window on Windows.
-      set the hideConsoleWindows to true
-      -- Always copy the two load-time DLLs.
-      put tVLCWin & "\libvlc.dll" into tSrc
-      put tWinDir & "\" into tDest
-      put shell("xcopy /Y /Q " & QUOTE & tSrc & QUOTE & " " & QUOTE & tDest & QUOTE) into tVLCR
-      put tVLCWin & "\libvlccore.dll" into tSrc
-      put shell("xcopy /Y /Q " & QUOTE & tSrc & QUOTE & " " & QUOTE & tDest & QUOTE) into tVLCR
-      -- Copy the plugins tree only when the project contains a player control.
-      -- Destination is plugins\ next to libvlc.dll (the default VLC search path).
-      -- Delete plugins.dat after copying: the standalone folder may be in Program Files
-      -- where VLC cannot write, so the cache can never be updated. Leaving a stale
-      -- plugins.dat causes VLC to waste time parsing it before rescanning anyway.
-      if pCopyPlugins then
-         put tVLCWin & "\plugins" into tSrc
-         put tWinDir & "\vlc-plugins\plugins" into tDest
-         put shell("xcopy /E /I /Y /Q " & QUOTE & tSrc & QUOTE & " " & QUOTE & tDest & QUOTE) into tVLCR
-         delete file (tWinDir & "\vlc-plugins\plugins\plugins.dat")
+
+      if tOnWindows then
+         -- ── Windows host: use xcopy with backslash separators ───────────────────
+         local tWinDir, tVLCR
+         put pStandaloneDir into tWinDir
+         replace "/" with "\" in tWinDir
+         create folder tWinDir
+         set the hideConsoleWindows to true
+         put tVLCWin & "\libvlc.dll" into tSrc
+         put tWinDir & "\" into tDest
+         put shell("xcopy /Y /Q " & QUOTE & tSrc & QUOTE & " " & QUOTE & tDest & QUOTE) into tVLCR
+         put tVLCWin & "\libvlccore.dll" into tSrc
+         put shell("xcopy /Y /Q " & QUOTE & tSrc & QUOTE & " " & QUOTE & tDest & QUOTE) into tVLCR
+         -- Copy plugins tree only when the project contains a player control.
+         -- Delete plugins.dat: standalone folder may not be writable by VLC so the
+         -- cache can never update; a stale dat just adds startup delay anyway.
+         if pCopyPlugins then
+            put tVLCWin & "\plugins" into tSrc
+            put tWinDir & "\vlc-plugins\plugins" into tDest
+            put shell("xcopy /E /I /Y /Q " & QUOTE & tSrc & QUOTE & " " & QUOTE & tDest & QUOTE) into tVLCR
+            delete file (tWinDir & "\vlc-plugins\plugins\plugins.dat")
+         end if
+         set the hideConsoleWindows to false
+      else
+         -- ── macOS / Linux host cross-building for Windows: use cp ────────────────
+         -- pStandaloneDir and tVLCWin are already forward-slash macOS/Linux paths.
+         local tMacWinVLCR
+         create folder pStandaloneDir
+         put shell("cp -f " & QUOTE & tVLCWin & "/libvlc.dll" & QUOTE & " " & QUOTE & pStandaloneDir & "/" & QUOTE) into tMacWinVLCR
+         put shell("cp -f " & QUOTE & tVLCWin & "/libvlccore.dll" & QUOTE & " " & QUOTE & pStandaloneDir & "/" & QUOTE) into tMacWinVLCR
+         if pCopyPlugins then
+            create folder (pStandaloneDir & "/vlc-plugins")
+            create folder (pStandaloneDir & "/vlc-plugins/plugins")
+            put shell("cp -rn " & QUOTE & tVLCWin & "/plugins/." & QUOTE & " " & QUOTE & pStandaloneDir & "/vlc-plugins/plugins/" & QUOTE) into tMacWinVLCR
+            delete file (pStandaloneDir & "/vlc-plugins/plugins/plugins.dat")
+         end if
       end if
-      set the hideConsoleWindows to false
       revStandaloneProgress "VLC runtime bundled."
    else if pPlatform begins with "Linux" then
       -- Use 'get shell(...)' so a non-zero exit (e.g. no matching .so) is a warning, not a fatal throw.

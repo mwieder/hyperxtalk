@@ -956,14 +956,16 @@ command revSaveAsWindowsStandalone pStack, pRestoreFileName, pFolder, @xStandalo
    put the effective filename of stack pStack into tOriginalFileName
    put item 1 to -2 of tOriginalFileName into tStackPath
    
-   -- In installed mode the generic icons live in Resources/Sample Icons (which is
-   -- always present on all platforms).  In dev/repo mode they are expected under
-   -- Runtime/Windows/x86-32/Support/Sample Icons; a separate guard below
-   -- substitutes engine/rsrc/standalone.ico for the repo case anyway.
-   if revEnvironmentIsInstalled() then
-      put revEnvironmentResourcesPath() & "/Sample Icons" into tName
-   else
+   -- Generic Windows icons live in the Runtime folder under the appropriate arch.
+   -- Prefer x86-64 (the current primary Windows target), fall back to x86-32 for
+   -- older/alternate builds, and finally try the Resources/Sample Icons path that
+   -- some LiveCode installer builds use.
+   put revEnvironmentRuntimePath() & "/Windows/x86-64/Support/Sample Icons" into tName
+   if there is not a folder tName then
       put revEnvironmentRuntimePath() & "/Windows/x86-32/Support/Sample Icons" into tName
+   end if
+   if there is not a folder tName and revEnvironmentIsInstalled() then
+      put revEnvironmentResourcesPath() & "/Sample Icons" into tName
    end if
    if sStandaloneSettingsA["Windows,iconFile"] = "" then
       put tName & "/genericapp.ico" into sStandaloneSettingsA["Windows,iconFile"]
@@ -2680,13 +2682,18 @@ private command revCopyExternals pPlatform, pStackFilePath, pEnginePath, pStanda
    
    -- sanitise raw list of externals from inclusions pane
    revSBSanitiseExternalsList pPlatform, sStandaloneSettingsA["externals"]
-   
+
    -- create list of externals and paths
+   -- NOTE: This loop handles user-installed third-party externals from the Ext folder only.
+   -- Built-in engine externals (XML, Database, Zip, Speech) are handled below via the
+   -- scriptLibraries loop, which uses revExternalPath with the display name from Externals.txt.
+   -- Built-in externals should NOT be added to sStandaloneSettingsA["externals"]; they should
+   -- be enabled via sStandaloneSettingsA["scriptLibraries"] instead.
    local tExternalPathsA
    repeat for each line tExternalName in sStandaloneSettingsA["externals"]
       put revSBIncludedExternalPath(pPlatform, tExternalName) into tExternalPathsA[tExternalName]
    end repeat
-   
+
    -- check externals that are added to the 'scriptLibraries' key
    repeat for each line tExternalName in revExternalsList()
       -- check this item is selected for installation
