@@ -35,7 +35,7 @@ util/perfect/perfect.linux-*
 *.class
 *.dll
 # Allow the Windows Runtime DLLs needed for building standalones on Mac
-!ide/Runtime/Windows/**/**.dll
+!ide/Runtime/Windows/**/*.dll
 *.exe
 *.o
 *.so
