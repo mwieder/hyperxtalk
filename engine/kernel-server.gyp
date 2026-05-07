@@ -93,6 +93,28 @@
 			'conditions':
 			[
 				[
+					'OS == "mac"',
+					{
+						'sources':
+						[
+							# mac-fileicon.mm lives in engine_desktop_source_files but the
+							# server needs it too so that MCFileIconGetForFile/ForExtension
+							# are defined.  NSWorkspace works fine in a server (CLI) process.
+							'src/mac-fileicon.mm',
+						],
+					},
+				],
+				[
+					'OS == "win"',
+					{
+						'sources':
+						[
+							# w32-fileicon.cpp lives in engine_desktop_source_files.
+							'src/w32-fileicon.cpp',
+						],
+					},
+				],
+				[
 					'OS == "linux"',
 					{
 						'sources':
@@ -101,6 +123,8 @@
 							# These symbols (MCPlatformSetBadge, MCPlatformShareContent, etc.)
 							# are only in engine_desktop_source_files, so we add the file here.
 							'src/lnx-core-compat.cpp',
+							# lnx-fileicon.cpp also lives in engine_desktop_source_files.
+							'src/lnx-fileicon.cpp',
 						],
 
 						'dependencies':
