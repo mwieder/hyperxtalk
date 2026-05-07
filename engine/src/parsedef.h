@@ -411,6 +411,8 @@ enum Functions {
     F_HN,
     F_HNTOA,
     F_INTERRUPT,
+    F_ICON_DATA_FOR_EXTENSION,
+    F_ICON_DATA_FOR_FILE,
     F_IFF,
     F_INTERSECT,
     F_IS_NUMBER,

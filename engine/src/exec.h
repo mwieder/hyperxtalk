@@ -3184,6 +3184,8 @@ void MCFilesEvalSpecialFolderPath(MCExecContext& ctxt, MCStringRef p_folder, MCS
 void MCFilesEvalLongFilePath(MCExecContext& ctxt, MCStringRef p_path, MCStringRef& r_long_path);
 void MCFilesEvalShortFilePath(MCExecContext& ctxt, MCStringRef p_path, MCStringRef& r_short_path);
 void MCFilesEvalOpenProcesses(MCExecContext& ctxt, MCStringRef& r_string);
+void MCFilesEvalIconDataForFile(MCExecContext& ctxt, MCStringRef p_path, uinteger_t p_size, MCDataRef& r_data);
+void MCFilesEvalIconDataForExtension(MCExecContext& ctxt, MCStringRef p_extension, uinteger_t p_size, MCDataRef& r_data);
 void MCFilesEvalOpenProcessesIds(MCExecContext& ctxt, MCStringRef& r_string);
 void MCFilesEvalProcessId(MCExecContext& ctxt, integer_t& r_pid);
 void MCFilesEvalDeleteRegistry(MCExecContext& ctxt, MCStringRef p_key, bool& r_deleted);

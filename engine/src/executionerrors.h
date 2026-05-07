@@ -2808,7 +2808,19 @@ enum Exec_errors
     EE_IFF_BADCONDITION,
 
     // {EE-0918} iff: error evaluating result expression
-    EE_IFF_BADRESULT
+    EE_IFF_BADRESULT,
+
+    // {EE-0919} iconDataForFile: error evaluating path
+    EE_ICONDATAFORFILE_BADPATH,
+
+    // {EE-0920} iconDataForFile: error evaluating size
+    EE_ICONDATAFORFILE_BADSIZE,
+
+    // {EE-0921} iconDataForExtension: error evaluating extension
+    EE_ICONDATAFOREXTENSION_BADEXT,
+
+    // {EE-0922} iconDataForExtension: error evaluating size
+    EE_ICONDATAFOREXTENSION_BADSIZE
 
 };
 

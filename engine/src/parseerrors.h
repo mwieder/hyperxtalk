@@ -1822,6 +1822,12 @@ enum Parse_errors
 
     // {PE-0586} iff: requires exactly 3 parameters
     PE_IFF_BADPARAM,
+
+    // {PE-0587} iconDataForFile: bad parameter
+    PE_ICONDATAFORFILE_BADPARAM,
+
+    // {PE-0588} iconDataForExtension: bad parameter
+    PE_ICONDATAFOREXTENSION_BADPARAM,
 };
 
 extern const char *MCparsingerrors;
