@@ -1279,7 +1279,6 @@
 					[
 						'src/player-legacy.cpp',
 						'src/lnxmplayer.cpp',
-						'src/lnx-core-compat.cpp',
 						'src/tilecachegl.cpp',
 						'src/tilecachegl3.x.cpp',
 						'src/glcontext.cpp',
