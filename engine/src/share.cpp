@@ -161,12 +161,11 @@ void MCShare::exec_ctxt(MCExecContext &ctxt)
     }
 
     // Get the platform window for anchoring the popover.
-    // On Windows, Window != MCPlatformWindowRef (different typedefs), so the
-    // assignment only compiles on platforms where they alias each other (Mac).
-    // Windows has no share-sheet UI, so MCPlatformShareContent is a stub there
-    // and nil is the correct value.
+    // Only Mac uses MCPlatformWindowRef meaningfully; on Windows and Linux
+    // getwindow() returns a platform-native type that is not compatible, and
+    // MCPlatformShareContent is a stub on those platforms so nil is correct.
     MCPlatformWindowRef t_window = nil;
-#ifndef TARGET_PLATFORM_WINDOWS
+#ifdef TARGET_PLATFORM_MACOS_X
     if (MCdefaultstackptr)
         t_window = MCdefaultstackptr->getwindow();
     if (t_window == nil && MCtopstackptr)
