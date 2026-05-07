@@ -580,8 +580,11 @@ private command revStandaloneCopyInclusions pStack, pStackFileList, pStackSource
    -- copy database drivers
    revCopyDatabaseDrivers pTarget, pStackSourceFile, pStandalonePath, pEngineSourceFile
    -- copy externals
-   // HXT
-   if (revEnvironmentIsInstalled()) AND (the platform = "macOS") then
+   // HXT: revdb.bundle is a macOS-only external; only copy it when actually building
+   // a Mac target. Running this block for Windows/Linux targets incorrectly injects
+   // "Externals/revdb.bundle" into the standalone's externals list and tries to copy
+   // the bundle from a mangled path derived from the Windows engine file.
+   if (revEnvironmentIsInstalled()) AND (the platform = "macOS") AND (pTarget begins with "MacOSX") then
       local tExternalsFolder
       set the itemDelimiter to "/"
       put item 1 to -5 of pEngineSourceFile & "/Externals" into tExternalsFolder
@@ -879,8 +882,13 @@ command revSaveAsMacStandalone pStack, pRestoreFileName, pFolder, @xStandalonePa
       set the itemDel to slash
       put item 1 to -4 of tStandalonepath into tAppBundle
       set the itemDel to comma
-      clearExtendedAttributes tAppBundle
-      performAdHocCodesign tAppBundle
+      -- Guard: if no Mac target was actually built (e.g. engine missing → loop never ran),
+      -- tStandalonepath is empty and tAppBundle will be empty too.  Skip codesign in that case
+      -- to avoid "chmod: : No such file or directory" from clearExtendedAttributes.
+      if tAppBundle is not empty then
+         clearExtendedAttributes tAppBundle
+         performAdHocCodesign tAppBundle
+      end if
    end if
    
    revStandalonePostBuild pStack, pFolder
