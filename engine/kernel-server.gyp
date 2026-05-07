@@ -95,6 +95,14 @@
 				[
 					'OS == "linux"',
 					{
+						'sources':
+						[
+							# Linux server needs the same platform stubs as the desktop build.
+							# These symbols (MCPlatformSetBadge, MCPlatformShareContent, etc.)
+							# are only in engine_desktop_source_files, so we add the file here.
+							'src/lnx-core-compat.cpp',
+						],
+
 						'dependencies':
 						[
 							'../thirdparty/libcairo/libcairo.gyp:libcairo',
