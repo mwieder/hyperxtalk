@@ -14,6 +14,10 @@ local sUpdateTimer
 local sPendingEditorId
 local sPendingObjectId
 
+-- Index of the currently selected completion (1-based).
+-- Replaces hilitedLine so we don't depend on list-field style.
+local sSelectedLine
+
 constant kPopupName = "ideAutoCompletePopup"
 constant kMinChars = 2
 constant kMaxCompletions = 15
@@ -224,24 +228,28 @@ private command ideAutocomplete_CreatePopup
    if there is a stack kPopupName then
       delete stack kPopupName
    end if
-
+   
    create invisible stack kPopupName
    set the style of stack kPopupName to "palette"
    set the decorations of stack kPopupName to empty
    set the resizable of stack kPopupName to false
    set the width of stack kPopupName to kPopupWidth
    set the height of stack kPopupName to kItemHeight
-
+   
    create field "completions" in card 1 of stack kPopupName
-   set the style of field "completions" of stack kPopupName to "list"
+   --   set the style of field "completions" of stack kPopupName to "list"
    set the lockText of field "completions" of stack kPopupName to true
-   set the traversalOn of field "completions" of stack kPopupName to false
+   try
+      set the traversalOn of field "completions" of stack kPopupName to false
+   catch tErr
+      -- traversalOn may not be supported on this platform; non-fatal
+   end try
    set the showBorder of field "completions" of stack kPopupName to true
    set the vScrollbar of field "completions" of stack kPopupName to false
    set the hScrollbar of field "completions" of stack kPopupName to false
    set the textSize of field "completions" of stack kPopupName to 12
    set the fixedLineHeight of field "completions" of stack kPopupName to true
-
+   
    -- Wire up click-to-accept on the popup field
    set the script of field "completions" of stack kPopupName to \
          "on mouseUp" & return & \
@@ -276,7 +284,8 @@ private command ideAutocomplete_ShowPopup pEditorId, pMatches
          0, 0, kPopupWidth, tPopupHeight
 
    set the text of field "completions" of stack kPopupName to pMatches
-   set the hilitedLine of field "completions" of stack kPopupName to 1
+   put 1 into sSelectedLine
+   ideAutocomplete_HighlightSelection
 
    -- Calculate screen position below the current caret line
    local tX, tY
@@ -308,6 +317,19 @@ private command ideAutocomplete_HidePopup
    end if
    put empty into sCurrentEditorId
 end ideAutocomplete_HidePopup
+
+--------------------------------------------------------------------------------
+-- Private: selection highlighting (replaces hilitedLine for non-list fields)
+--------------------------------------------------------------------------------
+
+-- Highlights sSelectedLine in the popup by setting its backgroundColor and
+-- clearing the backgroundColor of all other lines.
+private command ideAutocomplete_HighlightSelection
+   -- Clear all char-level background color, then paint the selected line.
+   set the backgroundColor of char 1 to -1 of field "completions" of stack kPopupName to empty
+   set the backgroundColor of line sSelectedLine of field "completions" of stack kPopupName \
+         to the hiliteColor
+end ideAutocomplete_HighlightSelection
 
 --------------------------------------------------------------------------------
 -- Private: caret screen position
@@ -352,22 +374,31 @@ private command ideAutocomplete_GetCaretScreenPos pEditorId, @rX, @rY
    end if
 
    -- Convert card-space coordinates to screen coordinates.
-   -- The long id of the field encodes the owning stack reference after
-   -- the last " of stack " substring; the rect of that stack is its
-   -- content-area rect in screen coordinates.
-   local tLongId, tStackPos, tWindowRect
+   -- Extract the enclosing stack reference from the field's long id
+   -- (everything from " of stack " to the end of the string) and
+   -- use its rect as the window's screen origin.  Fall back to raw
+   -- card coordinates (origin 0,0) if the lookup fails for any reason.
+   local tWinX, tWinY
+   put 0 into tWinX
+   put 0 into tWinY
+   local tLongId, tStackPos
    put the long id of tField into tLongId
    put offset(" of stack ", tLongId) into tStackPos
    if tStackPos > 0 then
       local tStackRef
       put char (tStackPos + 4) to -1 of tLongId into tStackRef
-      put the rect of tStackRef into tWindowRect
-   else
-      put "0,0,0,0" into tWindowRect
+      try
+         local tWRect
+         put the rect of tStackRef into tWRect
+         put item 1 of tWRect into tWinX
+         put item 2 of tWRect into tWinY
+      catch tErr
+         -- leave tWinX/tWinY as 0 — card coords become the fallback
+      end try
    end if
 
-   put item 1 of tWindowRect + item 1 of tFieldRect + 4 into rX
-   put item 2 of tWindowRect + item 2 of tFieldRect + tAboveHeight + tLineHeight - tVScroll into rY
+   put tWinX + item 1 of tFieldRect + 4 into rX
+   put tWinY + item 2 of tFieldRect + tAboveHeight + tLineHeight - tVScroll into rY
 end ideAutocomplete_GetCaretScreenPos
 
 --------------------------------------------------------------------------------
@@ -376,8 +407,7 @@ end ideAutocomplete_GetCaretScreenPos
 
 private command ideAutocomplete_AcceptCompletion pEditorId
    local tCompletion
-   put line (the hilitedLine of field "completions" of stack kPopupName) \
-         of the text of field "completions" of stack kPopupName into tCompletion
+   put line sSelectedLine of the text of field "completions" of stack kPopupName into tCompletion
 
    if tCompletion is empty then
       ideAutocomplete_HidePopup
@@ -416,18 +446,14 @@ end ideAutocomplete_AcceptCompletion
 --------------------------------------------------------------------------------
 
 private command ideAutocomplete_Navigate pDelta
-   local tField
-   put field "completions" of stack kPopupName into tField
-   local tCurrent
-   put the hilitedLine of tField into tCurrent
    local tCount
-   put the number of lines of the text of tField into tCount
-   set the hilitedLine of tField to max(1, min(tCount, tCurrent + pDelta))
+   put the number of lines of the text of field "completions" of stack kPopupName into tCount
+   put max(1, min(tCount, sSelectedLine + pDelta)) into sSelectedLine
+   ideAutocomplete_HighlightSelection
 end ideAutocomplete_Navigate
 
 private function ideAutocomplete_SelectedWord
-   return line (the hilitedLine of field "completions" of stack kPopupName) \
-         of the text of field "completions" of stack kPopupName
+   return line sSelectedLine of the text of field "completions" of stack kPopupName
 end ideAutocomplete_SelectedWord
 
 --------------------------------------------------------------------------------
@@ -435,6 +461,6 @@ end ideAutocomplete_SelectedWord
 --------------------------------------------------------------------------------
 
 on ideAutocomplete_PopupClicked
-   set the hilitedLine of field "completions" of stack kPopupName to the clickLine
+   put the clickLine into sSelectedLine
    ideAutocomplete_AcceptCompletion sCurrentEditorId
 end ideAutocomplete_PopupClicked
