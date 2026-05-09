@@ -75,7 +75,7 @@ command setObjectID pObjectID
       if tRuggedID is not sObjectID then
          put tRuggedID into sObjectID
          if exists(sObjectId) and \
-               revEnvironmentEditionProperty("autocomplete") then
+               ideAutocompleteIsEnabled() then
             ideAutocompleteIntrospectMessagePath sObjectId
          end if
       end if
@@ -127,7 +127,7 @@ command clearCache pObject, pDontCheckId
    end if
    delete variable sScriptCache[tObject]
 
-   if revEnvironmentEditionProperty("autocomplete") then
+   if ideAutocompleteIsEnabled() then
       ideAutocompleteClearObjectCache tObject
    end if
 end clearCache
@@ -1405,35 +1405,35 @@ on selectionUpdate
 end selectionUpdate
 
 on mouseMove
-   if revEnvironmentEditionProperty("autocomplete") then
+   if ideAutocompleteIsEnabled() then
       ideAutocompleteCancelFind the long id of me
    end if
    pass mouseMove
 end mouseMove
 
 on closeField
-   if revEnvironmentEditionProperty("autocomplete") then
+   if ideAutocompleteIsEnabled() then
       ideAutocompleteCancelFind the long id of me
    end if
    pass closeField
 end closeField
 
 on exitField
-   if revEnvironmentEditionProperty("autocomplete") then
+   if ideAutocompleteIsEnabled() then
       ideAutocompleteCancelFind the long id of me
    end if
    pass exitField
 end exitField
 
 on escapeKey
-   if revEnvironmentEditionProperty("autocomplete") then
+   if ideAutocompleteIsEnabled() then
       ideAutocompleteCancelFind the long id of me
    end if
    pass escapeKey
 end escapeKey
 
 on help
-   if revEnvironmentEditionProperty("autocomplete") then
+   if ideAutocompleteIsEnabled() then
       ideAutocompleteHandleHelp the long id of me, sObjectId
       if the result then
          pass help
@@ -1621,7 +1621,7 @@ on returnInField
       exit returnInField
    end if
    
-   if revEnvironmentEditionProperty("autocomplete") then
+   if ideAutocompleteIsEnabled() then
       ideAutocompleteCancelFind the long id of me
    end if
    
@@ -2565,7 +2565,7 @@ on tabKey
    local tDoTab = true
    
    if tProviderCompletion and \
-         revEnvironmentEditionProperty("autocomplete") then
+         ideAutocompleteIsEnabled() then
       ideAutocompleteHandleTab the long id of me, sObjectId, sPlaceholders, sEditPlaceholder, sEditChunks
       put the result into tDoTab
    end if
@@ -2834,7 +2834,7 @@ on rawKeyDown pKey
    end switch
    
    local tPass = true
-   if revEnvironmentEditionProperty("autocomplete") then
+   if ideAutocompleteIsEnabled() then
       ideAutocompleteHandleArrow the long id of me, tKeyName, sObjectId, sPlaceholders, sEditPlaceholder, sEditChunks
       put the result into tPass
    end if
@@ -3803,7 +3803,7 @@ end __LookForPair
 private command __UpdateAutoCompleteList pUUID
    local tProviderCompletion
    put __GetPreference("editor,providercompletion", true) into tProviderCompletion
-   if tProviderCompletion and revEnvironmentEditionProperty("autocomplete") then
+   if tProviderCompletion and ideAutocompleteIsEnabled() then
       ideAutocompleteUpdate the long id of me, sObjectID, sPlaceholders[pUUID]["classes"]
    end if
 end __UpdateAutoCompleteList
