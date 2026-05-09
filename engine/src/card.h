@@ -176,6 +176,9 @@ public:
 	}
 	MCControl *getkfocused();
 	MCControl *getmfocused();
+	// Returns the top-level mouse-focused control without drilling into groups.
+	// Use this when you need the group itself rather than its deepest child.
+	MCControl *getrawmfocused();
 
 	MCControl *getmousecontrol(void);
 	

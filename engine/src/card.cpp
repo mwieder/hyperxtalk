@@ -2785,6 +2785,17 @@ MCControl *MCCard::getmfocused()
 	return cptr;
 }
 
+// Returns the top-level mouse-focused control without drilling into groups.
+// When the mouse is over empty space inside a group, getmfocused() drills
+// through and returns NULL (falling back to the card). This method returns
+// the group itself in that case, so scroll events can be routed to it.
+MCControl *MCCard::getrawmfocused()
+{
+	if (mfocused == NULL)
+		return NULL;
+	return mfocused->getref();
+}
+
 bool MCCard::selectedbutton(integer_t p_family, bool p_background, MCStringRef& r_string)
 {
 	Chunk_term ptype = p_background ? CT_BACKGROUND : CT_CARD;

@@ -1558,7 +1558,14 @@ static void map_key_event(NSEvent *event, MCPlatformKeyCode& r_key_code, codepoi
 	if (t_window == nil)
 		return;
 	
-	t_window -> ProcessMouseScroll([event deltaX], [event deltaY]);
+	// scrollingDeltaX/Y is the modern API (10.7+): it handles trackpad
+	// momentum scrolling and correctly reflects the system Natural Scrolling
+	// preference.  Fall back to the legacy deltaX/Y only for non-trackpad
+	// devices (mice) where hasPreciseScrollingDeltas is NO.
+	if ([event hasPreciseScrollingDeltas])
+		t_window -> ProcessMouseScroll([event scrollingDeltaX], [event scrollingDeltaY]);
+	else
+		t_window -> ProcessMouseScroll([event deltaX], [event deltaY]);
 }
 
 //////////

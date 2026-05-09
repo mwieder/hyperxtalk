@@ -476,6 +476,7 @@ extern MCNameRef MCM_scrollbar_line_dec;
 extern MCNameRef MCM_scrollbar_line_inc;
 extern MCNameRef MCM_scrollbar_page_dec;
 extern MCNameRef MCM_scrollbar_page_inc;
+extern MCNameRef MCM_scroll_wheel;
 extern MCNameRef MCM_selected_object_changed;
 extern MCNameRef MCM_selection_changed;
 extern MCNameRef MCM_signal;

@@ -30,6 +30,7 @@
 #include "util.h"
 #include "stack.h"
 #include "card.h"
+#include "objptr.h"
 #include "debug.h"
 #include "dispatch.h"
 #include "mccontrol.h"
@@ -675,33 +676,79 @@ void MCPlatformHandleMouseRelease(MCPlatformWindowRef p_window, uint32_t p_butto
 	}
 }
 
+// Find the topmost group whose rect contains (x, y) among a card's top-level
+// controls. Used by MCPlatformHandleMouseScroll when getmfocused() returns NULL
+// (mouse is over empty space inside a group that has no focused child).
+// MCmousex/MCmousey and getrect() are both in stack-space coordinates.
+static MCObject *FindGroupUnderMouse(MCCard *p_card, int2 x, int2 y)
+{
+	MCObjptr *t_objptrs = p_card->getobjptrs();
+	if (t_objptrs == nil)
+		return nil;
+
+	// Iterate front-to-back (objptrs->prev() is the frontmost control).
+	MCObjptr *t_ptr = t_objptrs->prev();
+	do
+	{
+		MCControl *t_ctrl = t_ptr->getref();
+		if (t_ctrl->gettype() == CT_GROUP &&
+		    MCU_point_in_rect(t_ctrl->getrect(), x, y))
+			return t_ctrl;
+		t_ptr = t_ptr->prev();
+	}
+	while (t_ptr != t_objptrs->prev());
+
+	return nil;
+}
+
 void MCPlatformHandleMouseScroll(MCPlatformWindowRef p_window, int p_dx, int p_dy)
 {
 	MCStack *t_stack;
 	t_stack = MCdispatcher -> findstackd(p_window);
 	if (t_stack == nil)
 		return;
-	
+
 	if (!MCmousestackptr.IsBoundTo(t_stack))
 		return;
-	
+
 	MCObject *mfocused;
-	
+
+	// getmfocused() drills through groups to the deepest child under the mouse.
+	// When the mouse is over empty space inside a group (no focused child),
+	// it returns NULL. In that case, do a direct bounds check to find the
+	// frontmost group whose rect contains the current mouse position.
 	mfocused = MCmousestackptr->getcard()->getmfocused();
+	if (mfocused == NULL)
+		mfocused = FindGroupUnderMouse(MCmousestackptr->getcard(), MCmousex, MCmousey);
 	if (mfocused == NULL)
 		mfocused = MCmousestackptr -> getcard();
 	if (mfocused == NULL)
 		mfocused = MCmousestackptr;
-	
+
+	// First offer the scroll event to script via the scrollWheel message.
+	// It bubbles naturally up the object hierarchy, so a group script or behavior
+	// will receive it whether the mouse is over a child control or empty space.
+	// pDeltaX/pDeltaY: negative = left/up, positive = right/down.
+	if (p_dx != 0 || p_dy != 0)
+	{
+		Exec_stat t_stat = mfocused->message_with_args(MCM_scroll_wheel, p_dx, p_dy);
+		if (t_stat != ES_PASS && t_stat != ES_NOT_HANDLED)
+			return;
+	}
+
+	// Not handled by script — fall through to the built-in kdown behavior
+	// (fields scroll themselves, scrollbars respond, etc.).
 	if (p_dy != 0)
 		mfocused -> kdown(kMCEmptyString, p_dy < 0 ? XK_WheelUp : XK_WheelDown);
-	
+
 	mfocused = MCmousestackptr->getcard()->getmfocused();
+	if (mfocused == NULL)
+		mfocused = FindGroupUnderMouse(MCmousestackptr->getcard(), MCmousex, MCmousey);
 	if (mfocused == NULL)
 		mfocused = MCmousestackptr -> getcard();
 	if (mfocused == NULL)
 		mfocused = MCmousestackptr;
-	
+
 	if (p_dx != 0)
 		mfocused -> kdown(kMCEmptyString, p_dx < 0 ? XK_WheelLeft : XK_WheelRight);
 }
