@@ -403,7 +403,7 @@ private command ideAutocomplete_RefocusEditor pEditorId
             -- dismisses the popup, so defer it.  On macOS the deferred form
             -- doesn't work, so call directly.
             if the platform contains "win" then
-               send "FocusOnField tField" to me in 100 milliseconds
+               send "FocusOnField tField" to me in 1 milliseconds
             else
                focus on tField
             end if
