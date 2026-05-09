@@ -20,7 +20,8 @@ local sSelectedLine
 
 constant kPopupName = "ideAutoCompletePopup"
 constant kMinChars = 2
-constant kMaxCompletions = 15
+constant kMaxCompletions = 50
+constant kMaxVisible = 10
 constant kPopupWidth = 220
 constant kItemHeight = 18
 
@@ -73,6 +74,11 @@ end ideAutocompleteUpdate
 -- Called on mouseMove, closeField, exitField, escapeKey, returnInField.
 command ideAutocompleteCancelFind pEditorId
    cancel sUpdateTimer
+   -- Don't dismiss the popup while the mouse is hovering over it —
+   -- the user may be moving to click an item.
+   if sPopupShowing and the mouseStack is kPopupName then
+      exit ideAutocompleteCancelFind
+   end if
    ideAutocomplete_HidePopup
 end ideAutocompleteCancelFind
 
@@ -275,8 +281,14 @@ private command ideAutocomplete_ShowPopup pEditorId, pMatches
    local tCount
    put the number of lines of pMatches into tCount
 
+   local tVisibleRows
+   put min(tCount, kMaxVisible) into tVisibleRows
+
    local tPopupHeight
-   put min(tCount, kMaxCompletions) * kItemHeight into tPopupHeight
+   put tVisibleRows * kItemHeight into tPopupHeight
+
+   -- Show scrollbar only when there are more items than fit in the visible rows
+   set the vScrollbar of field "completions" of stack kPopupName to (tCount > kMaxVisible)
 
    -- Resize stack and field together
    set the height of stack kPopupName to tPopupHeight
@@ -312,6 +324,10 @@ private command ideAutocomplete_ShowPopup pEditorId, pMatches
       show stack kPopupName
       put true into sPopupShowing
    end if
+
+   -- Return keyboard focus to the script editor so the user can keep typing.
+   -- The popup is purely a visual overlay; it must not own the keyboard.
+   ideAutocomplete_RefocusEditor pEditorId
 end ideAutocomplete_ShowPopup
 
 private command ideAutocomplete_HidePopup
@@ -321,6 +337,23 @@ private command ideAutocomplete_HidePopup
    end if
    put empty into sCurrentEditorId
 end ideAutocomplete_HidePopup
+
+--------------------------------------------------------------------------------
+-- Private: focus management
+--------------------------------------------------------------------------------
+
+-- Returns keyboard focus to the script editor field so the popup acts as a
+-- passive overlay and the user can continue typing without interruption.
+private command ideAutocomplete_RefocusEditor pEditorId
+   dispatch function "getScriptField" to pEditorId
+   if it is "handled" then
+      local tField
+      put the result into tField
+      if tField is not empty and there is a tField then
+         focus on tField
+      end if
+   end if
+end ideAutocomplete_RefocusEditor
 
 --------------------------------------------------------------------------------
 -- Private: caret screen position
