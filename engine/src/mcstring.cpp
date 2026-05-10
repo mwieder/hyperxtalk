@@ -486,6 +486,7 @@ MCNameRef MCM_scrollbar_line_dec;
 MCNameRef MCM_scrollbar_line_inc;
 MCNameRef MCM_scrollbar_page_dec;
 MCNameRef MCM_scrollbar_page_inc;
+MCNameRef MCM_scroll_wheel;
 MCNameRef MCM_selected_object_changed;
 MCNameRef MCM_selection_changed;
 MCNameRef MCM_signal;
@@ -932,6 +933,7 @@ const struct { const char *cstring; MCNameRef *name_var; } kInitialNames[] =
 	{ "scrollbarLineInc", &MCM_scrollbar_line_inc },
 	{ "scrollbarPageDec", &MCM_scrollbar_page_dec },
 	{ "scrollbarPageInc", &MCM_scrollbar_page_inc },
+	{ "scrollWheel", &MCM_scroll_wheel },
 	{ "selectedObjectChanged", &MCM_selected_object_changed },
 	{ "selectionChanged", &MCM_selection_changed },
 	{ "shell", &MCM_shell },

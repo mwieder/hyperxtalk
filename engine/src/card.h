@@ -160,6 +160,13 @@ public:
 	}
 	MCControl *getkfocused();
 	MCControl *getmfocused();
+	// Returns the top-level mouse-focused control without drilling into groups.
+	// Use this when you need the group itself rather than its deepest child.
+	MCControl *getrawmfocused();
+	// Returns the frontmost top-level group whose rect contains (x, y), or nil.
+	// Used to route scroll events to a group when the mouse is over empty space
+	// inside it (getmfocused() returns NULL in that case).
+	MCObject *findGroupUnderPoint(int2 x, int2 y);
 
 	MCControl *getmousecontrol(void);
 	

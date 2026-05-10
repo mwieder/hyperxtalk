@@ -1304,6 +1304,7 @@ const LT factor_table[] =
         {"multispace", TT_PROPERTY, P_MULTI_SPACE},
         {"name", TT_PROPERTY, P_NAME},
         {"nativechartonum", TT_FUNCTION, F_NATIVE_CHAR_TO_NUM},
+        {"naturalscrolling", TT_FUNCTION, F_NATURAL_SCROLLING},
         {"navigationarrows", TT_PROPERTY, P_NAVIGATION_ARROWS},
 		{"networkinterfaces", TT_PROPERTY, P_NETWORK_INTERFACES},
         {"newest", TT_PREP, PT_NEWEST},

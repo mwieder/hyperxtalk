@@ -2252,6 +2252,7 @@ void MCInterfaceEvalSelectedObject(MCExecContext& ctxt, MCStringRef& r_string);
 
 void MCInterfaceEvalCapsLockKey(MCExecContext& ctxt, MCNameRef& r_result);
 void MCInterfaceEvalCommandKey(MCExecContext& ctxt, MCNameRef& r_result);
+void MCInterfaceEvalNaturalScrolling(MCExecContext& ctxt, MCStringRef& r_result);
 void MCInterfaceEvalControlKey(MCExecContext& ctxt, MCNameRef& r_result);
 void MCInterfaceEvalOptionKey(MCExecContext& ctxt, MCNameRef& r_result);
 void MCInterfaceEvalShiftKey(MCExecContext& ctxt, MCNameRef& r_result);

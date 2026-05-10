@@ -748,8 +748,16 @@ Boolean MCGroup::mfocus(int2 x, int2 y)
 			//   sadness as empty groups wouldn't be resizable :o(
             if (mfocus_control(x, y, false))
                 return true;
-            
+
 			if (state & CS_SELECTED)
+				return True;
+
+			// In browse (and help) mode, the mouse is inside the group's bounds
+			// but not over any child control. Return True so the group itself
+			// registers as mouse-focused. This allows scroll events and other
+			// mouse messages to be routed to the group's script/behaviors rather
+			// than falling back to the card when the pointer is over empty space.
+			if (tool == T_BROWSE || tool == T_HELP)
 				return True;
 		}
 		else

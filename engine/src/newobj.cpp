@@ -651,6 +651,8 @@ MCExpression *MCN_new_function(int2 which)
 		t_new_function = new MCMovingControls; break;
     case F_NATIVE_CHAR_TO_NUM:
         t_new_function = new MCNativeCharToNum; break;
+    case F_NATURAL_SCROLLING:
+        t_new_function = new MCNaturalScrolling; break;
 	case F_NUM_TO_CHAR:
 		t_new_function = new MCNumToChar; break;
     case F_NUM_TO_NATIVE_CHAR:

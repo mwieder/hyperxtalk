@@ -586,31 +586,33 @@ Boolean MCScreenDC::handle(Boolean dispatch, Boolean anyevent, Boolean& abort, B
                         // Is this a mouse scroll event?
                         if (MCmousestackptr && t_event->type == GDK_SCROLL)
                         {
-                            // Find the object that should receive the scroll
+                            // GDK direction names reflect the natural-scrolling convention;
+                            // map to signed deltas matching the scrollWheel message contract.
+                            int t_dx = 0, t_dy = 0;
+                            switch (t_event->scroll.direction)
+                            {
+                                case GDK_SCROLL_UP:    t_dy = -1; break;
+                                case GDK_SCROLL_DOWN:  t_dy =  1; break;
+                                case GDK_SCROLL_LEFT:  t_dx = -1; break;
+                                case GDK_SCROLL_RIGHT: t_dx =  1; break;
+                                default: break;
+                            }
+
                             MCObject *mfocused = MCmousestackptr->getcard()->getmfocused();
                             if (mfocused == NULL)
+                                mfocused = MCmousestackptr->getcard()->findGroupUnderPoint(MCmousex, MCmousey);
+                            if (mfocused == NULL)
                                 mfocused = MCmousestackptr->getcard();
-                            
-                            if (mfocused != NULL)
+
+                            if (mfocused != NULL && (t_dx != 0 || t_dy != 0))
                             {
-                                switch (t_event->scroll.direction)
+                                Exec_stat t_stat = mfocused->message_with_args(MCM_scroll_wheel, t_dx, t_dy);
+                                if (t_stat == ES_PASS || t_stat == ES_NOT_HANDLED)
                                 {
-                                    // GDK events are named for the 'natural scrolling' version and interpreted according to system settings
-                                    case GDK_SCROLL_UP:
-                                        mfocused->kdown(kMCEmptyString, XK_WheelDown);
-                                        break;
-                                        
-                                    case GDK_SCROLL_DOWN:
-                                        mfocused->kdown(kMCEmptyString, XK_WheelUp);
-                                        break;
-                                        
-                                    case GDK_SCROLL_LEFT:
-                                        mfocused->kdown(kMCEmptyString, XK_WheelRight);
-                                        break;
-                                        
-                                    case GDK_SCROLL_RIGHT:
-                                        mfocused->kdown(kMCEmptyString, XK_WheelLeft);
-                                        break;
+                                    if (t_dy != 0)
+                                        mfocused->kdown(kMCEmptyString, t_dy < 0 ? XK_WheelUp : XK_WheelDown);
+                                    if (t_dx != 0)
+                                        mfocused->kdown(kMCEmptyString, t_dx < 0 ? XK_WheelLeft : XK_WheelRight);
                                 }
                             }
                         }

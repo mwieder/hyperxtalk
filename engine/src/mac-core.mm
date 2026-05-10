@@ -2144,11 +2144,17 @@ void MCMacPlatformHandleMouseMove(MCPoint p_screen_loc)
 	}
 }
 
+bool MCMacPlatformGetNaturalScrolling(void)
+{
+	return [[NSUserDefaults standardUserDefaults]
+	        boolForKey:@"com.apple.swipescrolldirection"];
+}
+
 void MCMacPlatformHandleMouseScroll(CGFloat dx, CGFloat dy)
 {
 	if (s_mouse_window == nil)
 		return;
-	
+
 	if (dx != 0.0 || dy != 0.0)
 		MCPlatformCallbackSendMouseScroll(s_mouse_window, dx < 0.0 ? -1 : (dx > 0.0 ? 1 : 0), dy < 0.0 ? -1 : (dy > 0.0 ? 1 : 0));
 }

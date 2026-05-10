@@ -549,6 +549,22 @@ bool MCS_getmachine(MCStringRef& r_string)
 	return MCsystem->GetMachine(r_string);
 }
 
+// Returns true when the system's "natural scrolling" (aka reverse scrolling)
+// preference is enabled.  On macOS this is the Trackpad → Natural Scrolling
+// setting; on other platforms natural scrolling is not a system-level concept
+// so the function always returns false.
+#if defined(_MAC_DESKTOP)
+extern bool MCMacPlatformGetNaturalScrolling(void);
+#endif
+bool MCS_getnaturalscrolling(void)
+{
+#if defined(_MAC_DESKTOP)
+    return MCMacPlatformGetNaturalScrolling();
+#else
+    return false;
+#endif
+}
+
 bool MCS_getaddress(MCStringRef& r_address)
 {
 	return MCsystem -> GetAddress(r_address);

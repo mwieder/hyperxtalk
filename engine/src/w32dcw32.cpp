@@ -1720,26 +1720,28 @@ LRESULT CALLBACK MCWindowProc(HWND hwnd, UINT msg, WPARAM wParam,
 	case WM_MOUSEHWHEEL:
 		if (MCmousestackptr)
 		{
+			int4 val = (short)HIWORD(wParam);
+			int t_dx = 0, t_dy = 0;
+			if (msg == WM_MOUSEWHEEL)
+				t_dy = val < 0 ? -1 : 1;
+			else
+				t_dx = val < 0 ? -1 : 1;
+
 			MCObject *mfocused = MCmousestackptr->getcard()->getmfocused();
 			if (mfocused == NULL)
-				mfocused = MCmousestackptr -> getcard();
+				mfocused = MCmousestackptr->getcard()->findGroupUnderPoint(MCmousex, MCmousey);
+			if (mfocused == NULL)
+				mfocused = MCmousestackptr->getcard();
 
 			if (mfocused != NULL)
 			{
-				int4 val = (short)HIWORD(wParam);
-				if (msg == WM_MOUSEWHEEL)
+				Exec_stat t_stat = mfocused->message_with_args(MCM_scroll_wheel, t_dx, t_dy);
+				if (t_stat == ES_PASS || t_stat == ES_NOT_HANDLED)
 				{
-					if (val < 0)
-						mfocused->kdown(kMCEmptyString, XK_WheelUp);
-					else
-						mfocused->kdown(kMCEmptyString, XK_WheelDown);
-				}
-				else if (msg == WM_MOUSEHWHEEL)
-				{
-					if (val < 0)
-						mfocused->kdown(kMCEmptyString, XK_WheelLeft);
-					else
-						mfocused->kdown(kMCEmptyString, XK_WheelRight);
+					if (t_dy != 0)
+						mfocused->kdown(kMCEmptyString, t_dy < 0 ? XK_WheelUp : XK_WheelDown);
+					if (t_dx != 0)
+						mfocused->kdown(kMCEmptyString, t_dx < 0 ? XK_WheelLeft : XK_WheelRight);
 				}
 			}
 		}

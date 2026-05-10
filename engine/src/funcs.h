@@ -1171,6 +1171,13 @@ public:
     virtual ~MCNativeCharToNum(){}
 };
 
+class MCNaturalScrolling : public MCConstantFunctionCtxt<MCStringRef, MCInterfaceEvalNaturalScrolling>
+{
+public:
+    MCNaturalScrolling(){}
+    virtual ~MCNaturalScrolling(){}
+};
+
 class MCNumToChar: public MCUnaryFunctionCtxt<uinteger_t, MCValueRef, MCStringsEvalNumToChar, EE_NUMTOCHAR_BADSOURCE, PE_NUMTOCHAR_BADPARAM>
 {
 public:
