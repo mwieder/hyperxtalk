@@ -56,8 +56,12 @@ end extensionInitialize
 
 on extensionFinalize
    cancel sUpdateTimer
+   cancel sHideTimer
+   -- Hide rather than delete: explicitly destroying a GTK window during engine
+   -- shutdown causes a segfault on Linux.  The engine will clean up all stacks
+   -- when it exits, so hiding is sufficient here.
    if there is a stack kPopupName then
-      delete stack kPopupName
+      hide stack kPopupName
    end if
    remove the script of me from back
 end extensionFinalize
