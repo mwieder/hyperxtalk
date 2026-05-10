@@ -31,7 +31,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 
 void MCLinuxActivateApplication(void)
 {
-    if (MCdefaultstackptr == nullptr)
+    if (MCdefaultstackptr == (MCStackHandle)nullptr)
         return;
 
     Window t_window = MCdefaultstackptr->getwindow();
