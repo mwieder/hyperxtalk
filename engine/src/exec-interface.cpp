@@ -982,6 +982,22 @@ void MCInterfaceEvalCapsLockKey(MCExecContext& ctxt, MCNameRef& r_result)
 	MCValueRetain(r_result);
 }
 
+// Returns "true" if the system Natural Scrolling preference is enabled,
+// "false" otherwise.  On non-macOS platforms this always returns "false".
+// Scripts can use this to adapt scroll-wheel handlers to the user's preference:
+//   if the naturalScrolling then
+//     set the vScroll of me to the vScroll of me - pDeltaY * 10
+//   else
+//     set the vScroll of me to the vScroll of me + pDeltaY * 10
+//   end if
+// Note: the scrollWheel engine message already normalises pDeltaY to
+// content-scroll convention (negative = scroll up), so the above is only
+// needed if you want to override that normalised behaviour.
+void MCInterfaceEvalNaturalScrolling(MCExecContext& ctxt, MCStringRef& r_result)
+{
+	r_result = MCValueRetain(MCS_getnaturalscrolling() ? kMCTrueString : kMCFalseString);
+}
+
 void MCInterfaceEvalCommandKey(MCExecContext& ctxt, MCNameRef& r_result)
 {
 	r_result = MCInterfaceKeyConditionToName((MCscreen->querymods() & MS_CONTROL) != 0);
