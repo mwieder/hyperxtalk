@@ -1542,27 +1542,11 @@ static void map_key_event(NSEvent *event, MCPlatformKeyCode& r_key_code, codepoi
 	if (t_window == nil)
 		return;
 	
-	// scrollingDeltaX/Y is the modern trackpad API (10.7+) that gives
-	// sub-pixel continuous deltas including momentum.  However, macOS inverts
-	// the sign of scrollingDeltaX/Y (and deltaX/Y) when the "Natural
-	// Scrolling" preference is enabled (System Settings → Trackpad → Scroll &
-	// Zoom → Natural Scrolling).  The rest of the engine expects content-scroll
-	// convention: negative = scroll content up/left, positive = down/right.
-	// Normalise here so the scrollWheel script message and the kdown fallback
-	// both receive the correct sign regardless of the system preference.
 	CGFloat t_dx, t_dy;
 	if ([event hasPreciseScrollingDeltas])
 	{
 		t_dx = [event scrollingDeltaX];
 		t_dy = [event scrollingDeltaY];
-		// com.apple.swipescrolldirection: 1 = Natural Scrolling ON.
-		BOOL t_natural = [[NSUserDefaults standardUserDefaults]
-		                  boolForKey:@"com.apple.swipescrolldirection"];
-		if (t_natural)
-		{
-			t_dx = -t_dx;
-			t_dy = -t_dy;
-		}
 	}
 	else
 	{
