@@ -402,7 +402,9 @@ void MCScreenDC::openwindow(Window w, Boolean override)
 	if (t_stack != nil)
 		t_parent = t_stack -> getparentwindow();
 		
-	if (t_stack -> getmode() != WM_SHEET)
+	if (t_stack->getmode() == WM_POPOVER)
+		MCPlatformShowWindowAsPopover(w, MCpopoveranchor, (MCPlatformWindowEdge)MCpopoveredge);
+	else if (t_stack->getmode() != WM_SHEET)
 		MCPlatformShowWindow(w);
 	else
 		MCPlatformShowWindowAsSheet(w, t_parent);

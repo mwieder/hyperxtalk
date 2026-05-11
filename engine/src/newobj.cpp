@@ -188,6 +188,8 @@ MCStatement *MCN_new_statement(int2 which)
 		return new MCPop;
 	case S_POPUP:
 		return new MCPopup;
+	case S_POPOVER:
+		return new MCPopover;
 	case S_POST:
 		return new MCPost;
 	case S_PREPARE:

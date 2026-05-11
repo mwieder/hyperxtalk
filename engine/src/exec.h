@@ -2392,6 +2392,8 @@ void MCInterfaceExecOpenStack(MCExecContext& ctxt, MCStack *p_target, int p_mode
 void MCInterfaceExecOpenStackByName(MCExecContext& ctxt, MCNameRef p_target, int p_mode);
 void MCInterfaceExecPopupStack(MCExecContext& ctxt, MCStack *p_target, MCPoint *p_at, int p_mode);
 void MCInterfaceExecPopupStackByName(MCExecContext& ctxt, MCNameRef p_target, MCPoint *p_at, int p_mode);
+void MCInterfaceExecPopoverStack(MCExecContext& ctxt, MCStack *p_target, MCRectangle *p_anchor_rect, int p_edge);
+void MCInterfaceExecPopoverStackByName(MCExecContext& ctxt, MCNameRef p_target, MCRectangle *p_anchor_rect, int p_edge);
 
 void MCInterfaceExecCreateStack(MCExecContext& ctxt, MCStack *p_owner, MCStringRef p_new_name, bool p_force_invisible);
 void MCInterfaceExecCreateScriptOnlyStack(MCExecContext& ctxt, MCStringRef p_new_name);

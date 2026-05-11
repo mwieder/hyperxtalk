@@ -65,6 +65,7 @@ enum Window_mode {
     WM_COMBO,
     WM_ICONIC,
     WM_DRAWER,
+    WM_POPOVER,
     WM_TOOLTIP,
     WM_LICENSE,
     WM_LAST

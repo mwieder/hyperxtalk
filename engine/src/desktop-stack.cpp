@@ -84,6 +84,8 @@ void MCStack::realize(void)
 			t_window_style = kMCPlatformWindowStyleDialog;
 		else if (mode == WM_PULLDOWN || mode == WM_OPTION || mode == WM_COMBO || mode == WM_POPUP)
 			t_window_style = kMCPlatformWindowStylePopUp;
+		else if (mode == WM_POPOVER)
+			t_window_style = kMCPlatformWindowStylePopOver;
 		else if (mode == WM_CASCADE)
 			t_window_style = kMCPlatformWindowStylePopUp;
 		else if (mode == WM_TOOLTIP)
@@ -155,9 +157,10 @@ void MCStack::realize(void)
 			t_window_style != kMCPlatformWindowStyleDialog)
 			t_has_sizebox = false;
 		
-		// If the window is a tooltip or popup, we want no decorations.
+		// If the window is a tooltip, popup, or popover, we want no decorations.
 		if (t_window_style == kMCPlatformWindowStyleToolTip ||
-			t_window_style == kMCPlatformWindowStylePopUp)
+			t_window_style == kMCPlatformWindowStylePopUp ||
+			t_window_style == kMCPlatformWindowStylePopOver)
 		{
 			t_has_titlebox = false;
 			t_has_closebox = false;

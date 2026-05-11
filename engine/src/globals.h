@@ -93,6 +93,10 @@ extern int2 MCclicklocx;
 extern int2 MCclicklocy;
 extern int2 MCmousex;
 extern int2 MCmousey;
+// Anchor rect (screen coords) and preferred edge for the next WM_POPOVER show.
+// Set by MCInterfaceExecPopoverStack; read by openwindow() in desktop-dc.cpp.
+extern MCRectangle MCpopoveranchor;
+extern int MCpopoveredge; // MCPlatformWindowEdge value
 extern uint2 MCsiguser1;
 extern uint2 MCsiguser2;
 extern int4 MCinputfd;

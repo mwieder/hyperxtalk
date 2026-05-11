@@ -1221,6 +1221,13 @@ void MCPlatformGetWindowAtPoint(MCPoint p_loc, MCPlatformWindowRef& r_window)
 		[[t_window delegate] isKindOfClass: [MCWindowDelegate class]] &&
 		t_is_in_frame)
 		r_window = [(MCWindowDelegate *)[t_window delegate] platformWindow];
+	else if (t_window != nil && t_is_in_frame)
+	{
+		// The topmost window may be an NSPopover's private _NSPopoverWindow whose
+		// delegate is Apple's own popover machinery, not MCWindowDelegate. Look it
+		// up in the popover-window registry instead.
+		r_window = MCMacPlatformFindPopoverWindow(t_number);
+	}
 	else
 		r_window = nil;
 }
@@ -1832,6 +1839,39 @@ extern uint2 MCdragdelta;
 // MW-2014-06-11: [[ Bug 12436 ]] This is used to temporarily turn off cursor setting
 //   when doing an user-import snapshot.
 static bool s_mouse_cursor_locked = false;
+
+// Maps windowNumber → MCMacPlatformWindow* for NSPopover-hosted windows.
+// NSPopover creates a private _NSPopoverWindow whose delegate is Apple's own
+// machinery, not MCWindowDelegate, so MCPlatformGetWindowAtPoint cannot find
+// it through the normal delegate check. We register the popover window here
+// after showRelativeToRect: and look it up as a fallback.
+static NSMutableDictionary *s_popover_window_map = nil;
+
+void MCMacPlatformRegisterPopoverWindow(NSWindow *p_ns_window, MCMacPlatformWindow *p_platform_window)
+{
+    if (s_popover_window_map == nil)
+        s_popover_window_map = [[NSMutableDictionary alloc] init];
+    NSNumber *t_key = [NSNumber numberWithInteger: [p_ns_window windowNumber]];
+    s_popover_window_map[t_key] = [NSValue valueWithPointer: p_platform_window];
+}
+
+void MCMacPlatformUnregisterPopoverWindow(NSWindow *p_ns_window)
+{
+    if (s_popover_window_map == nil)
+        return;
+    NSNumber *t_key = [NSNumber numberWithInteger: [p_ns_window windowNumber]];
+    [s_popover_window_map removeObjectForKey: t_key];
+}
+
+MCMacPlatformWindow *MCMacPlatformFindPopoverWindow(NSInteger p_window_number)
+{
+    if (s_popover_window_map == nil)
+        return nil;
+    NSValue *t_val = s_popover_window_map[[NSNumber numberWithInteger: p_window_number]];
+    if (t_val == nil)
+        return nil;
+    return (MCMacPlatformWindow *)[t_val pointerValue];
+}
 
 void MCMacPlatformLockCursor(void)
 {

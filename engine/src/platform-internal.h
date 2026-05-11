@@ -60,6 +60,7 @@ public:
 	// Make the window visible as the given class.
 	void Show(void);
 	void ShowAsSheet(MCPlatformWindowRef parent);
+	void ShowAsPopover(MCRectangle anchor_rect, MCPlatformWindowEdge edge);
 	
 	// Make the window invisible.
 	void Hide(void);
@@ -126,6 +127,7 @@ public:
 	
 	virtual void DoShow(void) = 0;
 	virtual void DoShowAsSheet(MCPlatformWindowRef parent) = 0;
+	virtual void DoShowAsPopover(MCRectangle anchor_rect, MCPlatformWindowEdge edge) { }
 	virtual void DoHide(void) = 0;
 	virtual void DoFocus(void) = 0;
 	virtual void DoRaise(void) = 0;
