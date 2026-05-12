@@ -1,5 +1,6 @@
 #include <Cocoa/Cocoa.h>
 #include <Carbon/Carbon.h>
+#include <QuartzCore/QuartzCore.h>
 
 #include "typedefs.h"
 #include "platform.h"
