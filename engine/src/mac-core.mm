@@ -1593,10 +1593,10 @@ void MCPlatformConfigureBackdrop(MCPlatformWindowRef p_backdrop_window)
         // The backdrop must never become the key window — if it does, menu
         // actions route through its responder chain and find no handler,
         // so menu items like "New Stack" silently do nothing.
+        // This must be set before MCPlatformShowWindow is called so that
+        // makeKeyAndOrderFront: brings the window to front without making it key.
         NSWindow *t_new = ((MCMacPlatformWindow *)s_backdrop_window) -> GetHandle();
         [t_new setCanBecomeKeyWindow: NO];
-        if ([t_new isKeyWindow])
-            [t_new resignKeyWindow];
     }
 
 	MCMacPlatformSyncBackdrop();
