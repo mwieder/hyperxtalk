@@ -1523,12 +1523,20 @@ void MCMacPlatformSyncBackdrop(void)
     
     NSWindow *t_backdrop;
     t_backdrop = ((MCMacPlatformWindow *)s_backdrop_window) -> GetHandle();
-    
-    NSDisableScreenUpdates();
-    [t_backdrop orderOut: nil];
-    
-    // Loop from front to back on our windows, making sure the backdrop window is
-    // at the back.
+
+    // Use a CATransaction to batch all window-order changes into a single
+    // composited frame with no animation.  NSDisableScreenUpdates /
+    // NSEnableScreenUpdates were the historic approach but are deprecated
+    // since macOS 14 and are now effectively no-ops, causing a visible
+    // flash when the backdrop was ordered out and back in.
+    [CATransaction begin];
+    [CATransaction setDisableActions: YES];
+
+    // Loop from front to back over our own windows and preserve their
+    // relative order, then slot the backdrop in below all of them.
+    // We no longer call orderOut: first — repositioning via
+    // orderWindow:relativeTo: is sufficient and avoids the flicker caused
+    // by the backdrop briefly disappearing from the screen.
     NSInteger t_window_above_id;
     t_window_above_id = -1;
     for(NSNumber *t_window_id in [NSWindow windowNumbersWithOptions: 0])
@@ -1558,8 +1566,8 @@ void MCMacPlatformSyncBackdrop(void)
         [t_backdrop orderWindow: NSWindowBelow relativeTo: t_window_above_id];
     else
         [t_backdrop orderBack: nil];
-    
-    NSEnableScreenUpdates();
+
+    [CATransaction commit];
 }
 
 void MCPlatformConfigureBackdrop(MCPlatformWindowRef p_backdrop_window)
