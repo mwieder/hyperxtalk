@@ -1575,15 +1575,30 @@ void MCPlatformConfigureBackdrop(MCPlatformWindowRef p_backdrop_window)
 {
 	if (s_backdrop_window != nil)
 	{
+        // Restore key-eligibility on the outgoing backdrop window so it
+        // behaves normally if it is ever repurposed.
+        NSWindow *t_old = ((MCMacPlatformWindow *)s_backdrop_window) -> GetHandle();
+        [t_old setCanBecomeKeyWindow: YES];
+
 		MCPlatformReleaseWindow(s_backdrop_window);
 		s_backdrop_window = nil;
 	}
-	
+
 	s_backdrop_window = p_backdrop_window;
-	
+
 	if (s_backdrop_window != nil)
+    {
 		MCPlatformRetainWindow(s_backdrop_window);
-	
+
+        // The backdrop must never become the key window — if it does, menu
+        // actions route through its responder chain and find no handler,
+        // so menu items like "New Stack" silently do nothing.
+        NSWindow *t_new = ((MCMacPlatformWindow *)s_backdrop_window) -> GetHandle();
+        [t_new setCanBecomeKeyWindow: NO];
+        if ([t_new isKeyWindow])
+            [t_new resignKeyWindow];
+    }
+
 	MCMacPlatformSyncBackdrop();
 }
 
