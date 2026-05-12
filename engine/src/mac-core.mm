@@ -1535,17 +1535,29 @@ void MCMacPlatformSyncBackdrop(void)
     {
         NSWindow *t_window;
         t_window = [NSApp windowWithWindowNumber: [t_window_id longValue]];
-        
+
+        // Skip windows belonging to other applications — [NSApp windowWithWindowNumber:]
+        // returns nil for foreign windows.  Passing a foreign window ID to
+        // orderWindow:relativeTo: activates that foreign app, which is what caused
+        // other apps' windows to come to the foreground when Background mode was toggled.
+        if (t_window == nil)
+            continue;
+
         if (t_window == t_backdrop)
             continue;
-        
+
         if (t_window_above_id != -1)
             [t_window orderWindow: NSWindowBelow relativeTo: t_window_above_id];
-        
+
         t_window_above_id = [t_window_id longValue];
     }
-    
-    [t_backdrop orderWindow: NSWindowBelow relativeTo: t_window_above_id];
+
+    // Place the backdrop below the lowest own-app window, or send it to the
+    // back entirely if no own windows are currently on screen.
+    if (t_window_above_id != -1)
+        [t_backdrop orderWindow: NSWindowBelow relativeTo: t_window_above_id];
+    else
+        [t_backdrop orderBack: nil];
     
     NSEnableScreenUpdates();
 }
