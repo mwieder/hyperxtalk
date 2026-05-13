@@ -699,6 +699,19 @@ on mouseDown pButton
             __hiliteRemove
          end if
       end if
+      ## test if another stack at the screenmouseLoc is more relevant e.g. overlapping stacks
+      local tTestID
+      repeat with x = 1 to the number of elements in tValidDropStacks
+         put tValidDropStacks[x]["long id"] into tStackID
+         if tScreenmouseloc is within tValidDropStacks[x]["rect"] then
+            put tStackID into tTestID
+            if tTestID <> tTargetStack then
+               put empty into tTargetStack
+            end if
+            exit repeat
+         end if
+      end repeat
+      ## End test if another stack at the screenmouseLoc is more relevant
    end repeat
    
    # Change the cursor back
