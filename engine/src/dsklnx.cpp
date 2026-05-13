@@ -1253,7 +1253,28 @@ virtual real64_t GetCurrentMicroseconds(void)
     // NOTE: 'GetTemporaryFileName' returns a standard (not native) path.
     virtual bool GetTemporaryFileName(MCStringRef& r_tmp_name)
     {
-        return MCStringCreateWithSysString(tmpnam(NULL), r_tmp_name);
+		// mdw 2023.09.08 tmpnam has been deprecated
+		int t_fd;
+		bool t_success;
+
+ 		char filename[] = "/tmp/prefXXXXXX";
+		/* UNCHECKED */ t_fd = mkstemp(filename);
+		t_success = t_fd != -1;
+
+		if (t_success)
+		{
+			close(t_fd);
+			t_success = unlink(filename) == 0;
+		}
+
+		if (t_success)
+			t_success = MCStringCreateWithSysString(filename, r_tmp_name);
+
+		if (!t_success)
+            r_tmp_name = MCValueRetain(kMCEmptyString);
+
+ //        return MCStringCreateWithSysString(tmpnam(NULL), r_tmp_name);
++		return t_success;
     }
 
     virtual bool ListFolderEntries(MCStringRef p_folder, MCSystemListFolderEntriesCallback p_callback, void *x_context)
