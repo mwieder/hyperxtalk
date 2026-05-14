@@ -56,7 +56,9 @@
 		'configurations':
 		{
 			'Debug':
-			{	
+			{
+				'msvs_configuration_platform': 'x64',
+	
 				'variables':
 				{
 					'msvs_crt_mode': 'mtd',
@@ -99,6 +101,8 @@
 			
 			'Release':
 			{
+				'msvs_configuration_platform': 'x64',
+
 				'variables':
 				{
 					'msvs_crt_mode': 'mt',
@@ -127,6 +131,8 @@
 			
 			'Fast':
 			{
+				'msvs_configuration_platform': 'x64',
+
 			
 				'variables':
 				{
@@ -234,7 +240,7 @@
 			{
 				'AdditionalOptions':
 				[
-					'/MACHINE:<(target_arch)',
+					'/MACHINE:X64',
 				],
 			},
 
@@ -245,7 +251,7 @@
 				'ImageHasSafeExceptionHandlers': 'false',
 				'AdditionalOptions':
 				[
-					'/MACHINE:<(target_arch)',
+					'/MACHINE:X64',
 				],
 			},
 		},

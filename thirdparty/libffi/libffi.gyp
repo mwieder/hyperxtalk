@@ -188,6 +188,11 @@
 					],
 				],
 
+				# Default empty value so <@(platform_include_dirs) is always
+				# defined even if no platform condition fires.  The conditions
+				# block below overwrites this with the real header path.
+				'platform_include_dirs%': [],
+
 				'silence_warnings': 1,
 			},
 			
@@ -197,14 +202,14 @@
 			
 			'include_dirs':
 			[
-				'<@(_platform_include_dirs)',
+				'<@(platform_include_dirs)',
 			],
 			
 			'direct_dependent_settings':
 			{
 				'include_dirs':
 				[
-					'<@(_platform_include_dirs)',
+					'<@(platform_include_dirs)',
 				],
 
 				'defines':
@@ -303,13 +308,26 @@
 					},
 				],
 				[
-					'toolset_os == "win" and toolset_arch == "x64"',
+					'toolset_os == "win" and (toolset_arch == "x64" or toolset_arch == "x86_64")',
 					{
 						'platform_include_dirs':
 						[
 							'<@(libffi_public_headers_win64_dir)',
 						],
-						
+
+						'include_dirs':
+						[
+							'<@(libffi_public_headers_win64_dir)',
+						],
+
+						'direct_dependent_settings':
+						{
+							'include_dirs':
+							[
+								'<@(libffi_public_headers_win64_dir)',
+							],
+						},
+
 						'sources':
 						[
 							'<@(libffi_win64_source_files)',
