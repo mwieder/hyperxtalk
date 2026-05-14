@@ -1722,10 +1722,13 @@ LRESULT CALLBACK MCWindowProc(HWND hwnd, UINT msg, WPARAM wParam,
 		{
 			int4 val = (short)HIWORD(wParam);
 			int t_dx = 0, t_dy = 0;
+			// WM_MOUSEWHEEL: positive val = wheel up, negative = wheel down.
+			// scrollWheel message convention (matches macOS desktop.cpp):
+			//   pDeltaY negative = up, positive = down  — so invert the sign.
 			if (msg == WM_MOUSEWHEEL)
-				t_dy = val < 0 ? -1 : 1;
+				t_dy = val < 0 ? 1 : -1;
 			else
-				t_dx = val < 0 ? -1 : 1;
+				t_dx = val < 0 ? 1 : -1;
 
 			MCObject *mfocused = MCmousestackptr->getcard()->getmfocused();
 			if (mfocused == NULL)
