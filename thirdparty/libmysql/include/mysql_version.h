@@ -20,8 +20,8 @@
 #define MYSQL_UNIX_ADDR            "/tmp/mysql.sock"
 #define MYSQL_CONFIG_NAME          "my"
 #define MYSQL_PERSIST_CONFIG_NAME  "mysqld-auto"
-#define MYSQL_COMPILATION_COMMENT  "Homebrew"
-#define MYSQL_COMPILATION_COMMENT_SERVER  "Homebrew"
+#define MYSQL_COMPILATION_COMMENT  "MySQL Community - GPL"
+#define MYSQL_COMPILATION_COMMENT_SERVER  "MySQL Community Server - GPL"
 #define LIBMYSQL_VERSION           "9.6.0"
 #define LIBMYSQL_VERSION_ID         90600
 
