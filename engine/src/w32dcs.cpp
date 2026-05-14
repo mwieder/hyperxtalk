@@ -502,6 +502,12 @@ void MCScreenDC::openwindow(Window w, Boolean override)
 		else
 			ShowWindow((HWND)w->handle.window, SW_SHOW);
 
+	// Give popover windows foreground focus immediately on open so that
+	// WM_ACTIVATE/WA_INACTIVE fires when the user clicks elsewhere — without
+	// requiring an initial click on the popover first.
+	if (t_stack != NULL && t_stack->getmode() == WM_POPOVER)
+		SetForegroundWindow((HWND)w->handle.window);
+
 	if (t_stack != NULL)
 	{
 		if (t_stack -> getmode() == WM_SHEET || t_stack -> getmode() == WM_MODAL)
