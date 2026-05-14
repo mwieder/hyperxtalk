@@ -126,6 +126,12 @@ Boolean MCScreenDC::open()
 	}
 	if (RegisterClassA(&wc) == 0)
 		return FALSE;
+	// Wide version of the menu/popup class — used by CreateWindowExW for
+	// popovers, pulldowns, and tooltips so they get the CS_DROPSHADOW style.
+	wwc.style = wc.style; // inherits CS_DROPSHADOW if UxTheme was loaded
+	wwc.lpszClassName = MC_MENU_WIN_CLASS_NAME_W;
+	if (RegisterClassW(&wwc) == 0)
+		return FALSE;
 	// Define the VIDEO CLIP window. Has its own DC
 	wc.style         = /*CS_OWNDC | */CS_VREDRAW | CS_HREDRAW;
 	wc.lpfnWndProc   = (WNDPROC)MCPlayerWindowProc;
