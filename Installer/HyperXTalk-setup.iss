@@ -199,6 +199,8 @@ Source: "{#SourceDir}\revdb.dll";      DestDir: "{app}\Externals";              
 Source: "{#SourceDir}\revdb.dll";      DestDir: "{app}\Runtime\Windows\x86-64\Externals";  Flags: ignoreversion
 Source: "{#SourceDir}\revxml.dll";     DestDir: "{app}\Externals";                         Flags: ignoreversion
 Source: "{#SourceDir}\revxml.dll";     DestDir: "{app}\Runtime\Windows\x86-64\Externals";  Flags: ignoreversion
+Source: "{#SourceDir}\revspeech.dll";  DestDir: "{app}\Externals";                         Flags: ignoreversion
+Source: "{#SourceDir}\revspeech.dll";  DestDir: "{app}\Runtime\Windows\x86-64\Externals";  Flags: ignoreversion
 Source: "{#SourceDir}\revzip.dll";     DestDir: "{app}\Externals";                         Flags: ignoreversion skipifsourcedoesntexist
 Source: "{#SourceDir}\revzip.dll";     DestDir: "{app}\Runtime\Windows\x86-64\Externals";  Flags: ignoreversion skipifsourcedoesntexist
 
