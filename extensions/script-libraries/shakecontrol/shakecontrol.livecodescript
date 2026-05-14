@@ -7,6 +7,10 @@ on extensionInitialize
    if the target is me then
       insert the script of me into back
    end if
+   
+   if the environment contains "development" then
+      set the _ideoverride of me to true
+   end if
 end extensionInitialize
 
 on extensionFinalize
