@@ -8,7 +8,7 @@ Summary:
 Removes the named handler from the 'HyperXTalk' object within the current
 JavaScript context of the browser.
 
-Introduced: 6.7
+Introduced: 1.0.0
 
 OS: mac, windows
 

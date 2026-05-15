@@ -10,7 +10,7 @@ Stops a <video capture> that was started with the <revRecordVideo>
 
 Associations: video library
 
-Introduced: 2.0
+Introduced: 1.0.0
 
 OS: windows
 

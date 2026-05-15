@@ -7,11 +7,11 @@ Syntax: textDecode(<binaryData>, <encoding>)
 Summary:
 Converts from binary data to text.
 
-Introduced: 7.0
+Introduced: 1.0.0
 
-OS: mac, windows, linux, ios, android
+OS: mac, windows, linux
 
-Platforms: desktop, server, mobile
+Platforms: desktop, server
 
 Example:
 textDecode("A","UTF8")

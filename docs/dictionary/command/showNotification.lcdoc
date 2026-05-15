@@ -8,11 +8,11 @@ Summary:
 Displays an OS-level notification with a title, optional body text, and an
 optional tag that can be used to update or cancel the notification later.
 
-Introduced: 10.0
+Introduced: 1.0.0
 
-OS: mac, windows, linux, ios, android
+OS: mac, windows, linux
 
-Platforms: desktop, mobile
+Platforms: desktop
 
 Example:
 -- Simple notification with a title only

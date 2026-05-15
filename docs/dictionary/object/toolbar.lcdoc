@@ -7,7 +7,7 @@ Syntax: toolbar
 Summary:
 A native platform toolbar displayed at the top of a stack window.
 
-Introduced: 10.0
+Introduced: 1.0.0
 
 OS: mac, windows, linux
 

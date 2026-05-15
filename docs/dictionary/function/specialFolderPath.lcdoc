@@ -9,11 +9,11 @@ Syntax: specialFolderPath(<folderIdentifier>)
 Summary:
 Returns the names and locations of system-related <folders>.
 
-Introduced: 1.1
+Introduced: 1.0.0
 
-OS: mac, windows, linux, ios, android, html5
+OS: mac, windows, linux, html5
 
-Platforms: desktop, server, mobile
+Platforms: desktop, server
 
 Security: disk
 

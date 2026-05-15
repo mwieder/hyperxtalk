@@ -9,7 +9,7 @@ Puts the current <frame> in the <video grabber> into a <variable>.
 
 Associations: video library
 
-Introduced: 2.0
+Introduced: 1.0.0
 
 OS: windows
 

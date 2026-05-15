@@ -7,7 +7,7 @@ Syntax: set the scriptTextSize to <pointSize>
 Summary:
 Get as a property or use as a command in OpenXtalk
 
-Introduced: 1.0
+Introduced: 1.0.0
 
 Example:
 Get the scriptTextSize -- should match the script editing text size preference.

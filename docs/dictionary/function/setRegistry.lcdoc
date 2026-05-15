@@ -7,7 +7,7 @@ Syntax: setRegistry(<keyPath>, <value> [, <type>])
 Summary:
 Sets an entry in the <registry|Windows system registry>.
 
-Introduced: 1.0
+Introduced: 1.0.0
 
 OS: windows
 

@@ -9,7 +9,7 @@ Syntax: set the dragData[<dataType>] to <dataToDrag>
 Summary:
 Specifies what data is being dragged during a drag and drop.
 
-Introduced: 2.0
+Introduced: 1.0.0
 
 OS: mac, windows, linux
 

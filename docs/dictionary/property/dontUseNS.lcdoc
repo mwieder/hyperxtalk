@@ -9,7 +9,7 @@ Specifies whether HyperXTalk uses old-style <file dialog box|file dialog
 boxes> or Navigation Services <file dialog box|file dialog boxes> on
 <Mac OS|Mac OS systems>.
 
-Introduced: 1.0
+Introduced: 1.0.0
 
 Platforms: desktop, server
 

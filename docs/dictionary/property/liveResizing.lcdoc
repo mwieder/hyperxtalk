@@ -10,7 +10,7 @@ resizing, instead of redrawing the contents after the window is resized.
 
 Associations: stack
 
-Introduced: 2.1
+Introduced: 1.0.0
 
 Deprecated:
 8.0

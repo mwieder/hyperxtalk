@@ -12,7 +12,7 @@ certificates to authenticate secure socket connections.
 
 Associations: ssl & encryption
 
-Introduced: 2.5
+Introduced: 1.0.0
 
 OS: mac, windows, linux
 

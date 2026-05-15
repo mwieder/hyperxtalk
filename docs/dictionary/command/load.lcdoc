@@ -10,11 +10,11 @@ it can be used by another <handler>.
 
 Associations: internet library
 
-Introduced: 1.0
+Introduced: 1.0.0
 
-OS: mac, windows, linux, ios, android, html5
+OS: mac, windows, linux, html5
 
-Platforms: desktop, server, mobile
+Platforms: desktop, server
 
 Security: network
 

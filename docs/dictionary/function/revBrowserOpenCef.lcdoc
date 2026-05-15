@@ -7,7 +7,7 @@ Syntax: revBrowserOpenCef( <windowId> [, <url> ] )
 Summary:
 Opens and initialises a new Chrome-based browser.
 
-Introduced: 6.7
+Introduced: 1.0.0
 
 OS: windows
 

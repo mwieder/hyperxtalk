@@ -8,7 +8,7 @@ Summary:
 Used as a URL type with such commands as <load> and <get> to designate
 the resource fork of a Mac OS file.
 
-Introduced: 1.0
+Introduced: 1.0.0
 
 OS: mac
 

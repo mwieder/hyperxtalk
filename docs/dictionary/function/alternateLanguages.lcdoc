@@ -10,7 +10,7 @@ Summary:
 Returns the list of 'active scripting' languages that are installed on
 the system.
 
-Introduced: 1.1
+Introduced: 1.0.0
 
 Changes:
 - Support for running JavaScript on HTML5 systems was added in version

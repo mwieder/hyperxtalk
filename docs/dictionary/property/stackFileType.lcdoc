@@ -8,7 +8,7 @@ Summary:
 Specifies the <creator signature> and <type signature|file type> for
 saved <stack file|stack files>.
 
-Introduced: 1.0
+Introduced: 1.0.0
 
 OS: mac
 

@@ -9,7 +9,7 @@ Syntax: clipboard()
 Summary:
 <return|Returns> the type of information on the <clipboard>.
 
-Introduced: 1.0
+Introduced: 1.0.0
 
 OS: mac, windows, linux
 

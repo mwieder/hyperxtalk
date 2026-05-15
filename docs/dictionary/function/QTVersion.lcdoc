@@ -9,7 +9,7 @@ Syntax: qtVersion()
 Summary:
 <return|Returns> the version of <QuickTime> installed on the system.
 
-Introduced: 1.0
+Introduced: 1.0.0
 
 OS: mac
 

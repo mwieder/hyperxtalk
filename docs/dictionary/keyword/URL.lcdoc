@@ -8,11 +8,11 @@ Summary:
 Designates a <container> consisting of an Internet <resource> or 
 <local file> in the form of a <URL(glossary)>.
 
-Introduced: 1.0
+Introduced: 1.0.0
 
-OS: mac, windows, linux, ios, android
+OS: mac, windows, linux
 
-Platforms: desktop, server, mobile
+Platforms: desktop, server
 
 Security: network
 
