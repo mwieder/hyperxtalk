@@ -949,6 +949,7 @@ Boolean MCNativeTheme::drawwidget(MCDC *dc, const MCWidgetInfo &winfo, const MCR
 		case WTHEME_TYPE_PULLDOWN:
 		case WTHEME_TYPE_COMBOBUTTON:
 		case WTHEME_TYPE_OPTIONBUTTONARROW:
+		case WTHEME_TYPE_OPTIONBUTTONTEXT:
 		{
 			MCColor t_bg;
 			if (winfo.state & WTHEME_STATE_DISABLED)
