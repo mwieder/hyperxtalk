@@ -423,13 +423,25 @@ set VCXPROJ_LCBOOTSTRAP=build-win-x86_64\livecode\toolchain\lc-compile\src\lc-bo
 "%MSBUILD%" %VCXPROJ_LCBOOTSTRAP% /p:Configuration=Debug /p:Platform=x64 /p:BuildProjectReferences=false /p:SolutionDir=%SOLDIR% /p:RuntimeLibrary=MultiThreadedDebug /v:minimal /nologo
 if errorlevel 1 ( echo lc-bootstrap-compile FAILED & exit /b 1 )
 
-:: Copy ICU DLLs from Release to Debug so toolchain executables can load them at runtime
+:: Copy ICU DLLs to Debug so toolchain executables can load them at runtime.
+:: sicudt.lib is an import lib for icudt58.dll, so lc-bootstrap-compile.exe
+:: requires icudt58.dll to be present in the same directory when it runs.
+:: On a fresh CI checkout there is no Release\ yet, so we source the DLLs
+:: from ide\Runtime\Windows\x86-64\ (always present) and fall back to
+:: Release\ for developer machines that already have a Release build.
 echo Copying ICU DLLs to Debug output dir ...
 if not exist "%~dp0build-win-x86_64\livecode\Debug" mkdir "%~dp0build-win-x86_64\livecode\Debug"
-copy /Y "%~dp0build-win-x86_64\livecode\Release\icudt58.dll" "%~dp0build-win-x86_64\livecode\Debug" >nul
-copy /Y "%~dp0build-win-x86_64\livecode\Release\icuin58.dll" "%~dp0build-win-x86_64\livecode\Debug" >nul
-copy /Y "%~dp0build-win-x86_64\livecode\Release\icutu58.dll" "%~dp0build-win-x86_64\livecode\Debug" >nul
-copy /Y "%~dp0build-win-x86_64\livecode\Release\icuuc58.dll" "%~dp0build-win-x86_64\livecode\Debug" >nul
+set "ICU_RT_DIR=%~dp0ide\Runtime\Windows\x86-64"
+set "ICU_REL_DIR=%~dp0build-win-x86_64\livecode\Release"
+for %%F in (icudt58.dll icuin58.dll icutu58.dll icuuc58.dll) do (
+    if exist "%ICU_REL_DIR%\%%F" (
+        copy /Y "%ICU_REL_DIR%\%%F" "%~dp0build-win-x86_64\livecode\Debug\" >nul
+    ) else if exist "%ICU_RT_DIR%\%%F" (
+        copy /Y "%ICU_RT_DIR%\%%F" "%~dp0build-win-x86_64\livecode\Debug\" >nul
+    ) else (
+        echo WARNING: %%F not found in Release or ide\Runtime\Windows\x86-64
+    )
+)
 echo ICU DLLs copied.
 
 echo Building lc-compile-stage2 ...
