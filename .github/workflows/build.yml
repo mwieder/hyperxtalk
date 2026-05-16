@@ -152,7 +152,7 @@ jobs:
   # ─────────────────────────────────────────────────────────────────────────────
   build-windows:
     name: Windows x86_64
-    runs-on: windows-latest   # Windows Server 2022 + Visual Studio 2022
+    runs-on: windows-2022     # Pinned to VS 2022 (v143 toolset); migrate to windows-2025-vs2026 when ready
 
     steps:
       - name: Checkout
