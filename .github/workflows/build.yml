@@ -42,13 +42,13 @@ jobs:
           distribution: temurin
           java-version: '21'
 
+      - name: Configure (GYP → Xcode projects)
+        run: make config-mac
+
       - name: Build prebuilt third-party libraries
         run: make prebuilt-mac
         env:
           BUILDTYPE: ${{ inputs.build_type || 'Release' }}
-
-      - name: Configure (GYP → Xcode projects)
-        run: make config-mac
 
       - name: Compile
         run: make compile-mac CODESIGN_IDENTITY="-"
