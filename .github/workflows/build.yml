@@ -276,6 +276,10 @@ jobs:
           Write-Host "Props file written to: $propsPath"
           echo "ForceImportBeforeCppTargets=$propsPath" >> $env:GITHUB_ENV
 
+      - name: Install flex and bison (winflexbison3)
+        shell: cmd
+        run: choco install winflexbison3 -y
+
       - name: Configure (GYP → Visual Studio projects)
         shell: cmd
         run: configure.bat
@@ -300,33 +304,6 @@ jobs:
               Write-Warning "Source not found: $($p.Src)"
             }
           }
-
-      - name: Install flex and bison (Cygwin)
-        shell: pwsh
-        run: |
-          # flex and bison are needed by lc-bootstrap-compile via invoke-unix.bat,
-          # which routes /usr/bin/flex through Cygwin bash.  The windows-2022 runner
-          # ships Cygwin but does not pre-install the flex or bison packages.
-          # Use Start-Process -Wait so PowerShell blocks until the installer exits.
-          Invoke-WebRequest -Uri 'https://cygwin.com/setup-x86_64.exe' `
-            -OutFile 'C:\cygwin-setup.exe' -UseBasicParsing
-          $proc = Start-Process -FilePath 'C:\cygwin-setup.exe' `
-            -ArgumentList '--quiet-mode', '--no-desktop', '--no-startmenu',
-                          '--root', 'C:\cygwin64',
-                          '--site', 'https://mirrors.kernel.org/sourceware/cygwin/',
-                          '--local-package-dir', 'C:\cygwin-packages',
-                          '--packages', 'flex,bison' `
-            -Wait -PassThru -NoNewWindow
-          Write-Host "Cygwin setup exited with code $($proc.ExitCode)"
-          if (-not (Test-Path 'C:\cygwin64\usr\bin\flex.exe')) {
-            Write-Error "flex.exe not found at C:\cygwin64\usr\bin\flex.exe after setup"
-            exit 1
-          }
-          if (-not (Test-Path 'C:\cygwin64\usr\bin\bison.exe')) {
-            Write-Error "bison.exe not found at C:\cygwin64\usr\bin\bison.exe after setup"
-            exit 1
-          }
-          Write-Host "flex and bison installed OK"
 
       - name: Build thirdparty libraries
         shell: cmd
