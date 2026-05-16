@@ -37,6 +37,7 @@
 				'src/cefbrowser.cpp',
 				'src/cefbrowser_lnx.cpp',
 				'src/cefbrowser_w32.cpp',
+				'src/cefbrowser_webview2_stubs.cpp',
 				'src/lnxbrowser.cpp',
 				'src/osxbrowser.mm',
 				'src/revbrowser.cpp',
@@ -54,7 +55,7 @@
 						'type': 'none',
 					},
 				],
-				# CEF only supported on Windows & Linux
+				# CEF only supported on Linux x86/x86_64; Windows uses WebView2 stubs instead
 				[
 					'not toolset_os in ("win", "linux") or (toolset_os == "linux" and not toolset_arch in ("x86", "x86_64"))',
 					{
@@ -66,6 +67,31 @@
 							'src/cefbrowser.cpp',
 							'src/cefbrowser_lnx.cpp',
 							'src/cefbrowser_w32.cpp',
+							'src/cefbrowser_webview2_stubs.cpp',
+						],
+					},
+				],
+				# Windows uses WebView2 stubs instead of real CEF sources
+				[
+					'toolset_os == "win"',
+					{
+						'sources!':
+						[
+							'src/cefbrowser.h',
+							'src/cefbrowser_msg.h',
+							'src/cefbrowser.cpp',
+							'src/cefbrowser_lnx.cpp',
+							'src/cefbrowser_w32.cpp',
+						],
+					},
+				],
+				# WebView2 stubs are Windows-only
+				[
+					'toolset_os != "win"',
+					{
+						'sources!':
+						[
+							'src/cefbrowser_webview2_stubs.cpp',
 						],
 					},
 				],
@@ -87,17 +113,6 @@
 				[
 					'toolset_os == "win"',
 					{
-						'copies':
-						[
-							{
-								'destination':'<(PRODUCT_DIR)/Externals/CEF/',
-								'files':
-								[
-									'<(PRODUCT_DIR)/revbrowser-cefprocess.exe',
-								],
-							},
-						],
-						
 						'defines':
 						[
 							'__EXCEPTIONS',
@@ -130,8 +145,8 @@
 			'conditions':
 			[
 				[
-					# Only the CEF platforms need revbrowser-cefprocess
-					'OS in ("linux", "win") or host_os in ("linux", "win")',
+					# Only Linux uses CEF; Windows uses WebView2 instead
+					'OS == "linux" or host_os == "linux"',
 					{
 						'dependencies':
 						[
@@ -204,7 +219,7 @@
     'conditions':
     [
         [
-            'OS in ("linux", "win") or host_os in ("linux", "win")',
+            'OS == "linux" or host_os == "linux"',
             {
                 'targets':
                 [

@@ -183,7 +183,7 @@ set LIBBROWSER_ERR=%ERRORLEVEL%
 type "%LIBBROWSER_LOG%"
 type "%LIBBROWSER_LOG%" >> "%LOGFILE%"
 if %LIBBROWSER_ERR% NEQ 0 (
-    echo ERROR: libbrowser (WebView2) build failed. See %LIBBROWSER_LOG%
+    echo ERROR: libbrowser WebView2 build failed. See %LIBBROWSER_LOG%
     exit /b 1
 )
 echo libbrowser OK.
