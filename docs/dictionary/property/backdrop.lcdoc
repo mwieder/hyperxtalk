@@ -8,7 +8,7 @@ Summary:
 Places a solid or patterned <background> behind the
 <application|application's> windows, hiding any other applications.
 
-Introduced: 1.0
+Introduced: 1.0.0
 
 OS: mac, windows, linux
 

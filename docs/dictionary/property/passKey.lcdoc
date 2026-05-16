@@ -10,13 +10,13 @@ Enters a <password> for a locked <stack>, letting the user modify the
 
 Associations: stack
 
-Introduced: 1.0
+Introduced: 1.0.0
 
 Edition: indy
 
-OS: mac, windows, linux, ios, android
+OS: mac, windows, linux
 
-Platforms: desktop, server, mobile
+Platforms: desktop, server
 
 Example:
 set the passKey of this stack to field "Challenge"

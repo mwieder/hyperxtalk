@@ -8,7 +8,7 @@ Summary:
 Starts up an application, optionally opening a document in the
 application. 
 
-Introduced: 1.0
+Introduced: 1.0.0
 
 OS: mac, windows, linux
 

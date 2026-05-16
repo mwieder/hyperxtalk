@@ -31,11 +31,11 @@ end repeat
 Summary:
 <execute|Executes> a set of <statement|statements> repeatedly.
 
-Introduced: 1.0
+Introduced: 1.0.0
 
-OS: mac, windows, linux, ios, android
+OS: mac, windows, linux
 
-Platforms: desktop, server, mobile
+Platforms: desktop, server
 
 Example:
 -- counter variables in repeat with loops may use 0

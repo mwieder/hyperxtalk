@@ -999,6 +999,10 @@ void MCScreenDC::updatesystemcolors(void)
     MCColor t_txt_color;
     if (MCParseHexColor(t_txt_buf, t_txt_color))
         system_fore_pixel = t_txt_color;
+
+    // Keep the selection highlight colour current so dark-mode switches are
+    // reflected immediately (e.g. in combo-box list popups).
+    MCPlatformGetSystemProperty(kMCPlatformSystemPropertyHiliteColor, kMCPlatformPropertyTypeColor, &MChilitecolor);
 #endif
 }
 

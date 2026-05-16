@@ -7,7 +7,7 @@ Syntax: set the cursor to {<cursorName> | <imageID>}
 Summary:
 Specifies the shape of the <cursor>.
 
-Introduced: 1.0
+Introduced: 1.0.0
 
 OS: mac, windows, linux
 

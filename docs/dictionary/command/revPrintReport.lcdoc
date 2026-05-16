@@ -7,7 +7,7 @@ Syntax: revPrintReport
 Summary:
 Prints a report from the report viewers on the <current card>. 
 
-Introduced: 2.0
+Introduced: 1.0.0
 
 OS: mac, windows, linux
 

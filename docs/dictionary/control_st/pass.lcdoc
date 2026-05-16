@@ -8,11 +8,11 @@ Summary:
 Stops the current <handler> and <pass|passes> the <message> to the next
 <object(glossary)> in the <message path>.
 
-Introduced: 1.0
+Introduced: 1.0.0
 
-OS: mac, windows, linux, ios, android
+OS: mac, windows, linux
 
-Platforms: desktop, server, mobile
+Platforms: desktop, server
 
 Parameters:
 messageName:

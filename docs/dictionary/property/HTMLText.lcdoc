@@ -13,11 +13,11 @@ Specifies the contents of a <field>, including all text
 
 Associations: field
 
-Introduced: 1.0
+Introduced: 1.0.0
 
-OS: mac, windows, linux, ios, android
+OS: mac, windows, linux
 
-Platforms: desktop, server, mobile
+Platforms: desktop, server
 
 Example:
 set the HTMLText of field "White Paper" to "&lt;b&gt;&lt;i&gt;Click here!&lt;/i&gt;&lt;/b&gt;"

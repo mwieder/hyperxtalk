@@ -7,11 +7,11 @@ Syntax: get the editionType
 Summary:
 Returns the edition type of the running engine.
 
-Introduced: 6.7
+Introduced: 1.0.0
 
-OS: mac, windows, linux, ios, android
+OS: mac, windows, linux
 
-Platforms: desktop, server, mobile
+Platforms: desktop, server
 
 Example:
 if the editionType is "community" then

@@ -11,7 +11,7 @@ Syntax: XBrowser_Set <propertyName>, <propertyValue> ,[<instanceid>]
 Summary:
 Sets a given property of a specified browser.
 
-Introduced: 2.8.1
+Introduced: 1.0.0
 
 OS: mac, windows
 

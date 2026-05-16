@@ -8,7 +8,7 @@ Summary:
 Clears pending <event|events> from the event queue so they will not
 <trigger> <handler|handlers>.
 
-Introduced: 1.0
+Introduced: 1.0.0
 
 OS: mac, windows, linux
 

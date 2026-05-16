@@ -8,7 +8,7 @@ Summary:
 Accepts the output of a <process> that was opened with the <open
 process> <command>, placing the data in the <it> <variable>.
 
-Introduced: 1.0
+Introduced: 1.0.0
 
 OS: mac, windows, linux
 

@@ -9,7 +9,7 @@ Syntax: naturalScrolling()
 Summary:
 <return|Returns> whether the system's natural scrolling preference is enabled.
 
-Introduced: 10.0
+Introduced: 1.0.0
 
 OS: mac
 

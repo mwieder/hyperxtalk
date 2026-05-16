@@ -7,7 +7,7 @@ Syntax: copyResource(<file>, <destinationFile>, <resType>,{<resID> | <resName>}[
 Summary:
 Copies a <resource> from one <Mac OS> <file> to another.
 
-Introduced: 1.0
+Introduced: 1.0.0
 
 Deprecated: 8.1
 

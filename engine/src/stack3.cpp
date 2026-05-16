@@ -50,6 +50,10 @@
 #include "exec.h"
 #include "graphics_util.h"
 
+// Platform dark-mode query.  A weak stub returning false is provided by
+// buttondraw.cpp for platforms that do not implement the strong version.
+extern "C" bool MCplatformIsDarkMode(void);
+
 #include "stackfileformat.h"
 
 #define STACK_EXTRA_ORIGININFO (1U << 0)
@@ -1693,8 +1697,23 @@ void MCStack::createmenu(MCControl *nc, uint2 width, uint2 height)
 		curcard->setsprop(P_BORDER_WIDTH, MCSTR("0"));
 		uint2 i;
 		MCObject *tparent = getparent();
+		bool t_dark = MCplatformIsDarkMode();
 		if  (!tparent->getcindex(DI_BACK, i) && !tparent->getpindex(DI_BACK,i))
-			setsprop(P_BACK_COLOR,  MCSTR("255,255,255"));
+			setsprop(P_BACK_COLOR, t_dark ? MCSTR("30,30,30") : MCSTR("255,255,255"));
+		if  (!tparent->getcindex(DI_FORE, i) && !tparent->getpindex(DI_FORE,i))
+			setsprop(P_FORE_COLOR, t_dark ? MCSTR("255,255,255") : MCSTR("0,0,0"));
+		if  (!tparent->getcindex(DI_HILITE, i) && !tparent->getpindex(DI_HILITE,i))
+		{
+			// Seed the highlight colour from the current system value so the
+			// initial appearance is correct.  It will be refreshed on each open
+			// by the colour-sync block in MCButton::openmenu().
+			MCAutoStringRef t_hilite;
+			/* UNCHECKED */ MCStringFormat(&t_hilite, "%d,%d,%d",
+			                               MChilitecolor.red   >> 8,
+			                               MChilitecolor.green >> 8,
+			                               MChilitecolor.blue  >> 8);
+			setsprop(P_HILITE_COLOR, *t_hilite);
+		}
 	}
 	else
 		if ((nc->gettype() == CT_FIELD && MClook != LF_MOTIF)

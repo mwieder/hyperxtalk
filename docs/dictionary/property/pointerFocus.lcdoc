@@ -8,7 +8,7 @@ Summary:
 Specifies whether typed text is sent to the window under the 
 <mouse pointer> or to the frontmost window.
 
-Introduced: 1.0
+Introduced: 1.0.0
 
 OS: mac, windows, linux
 

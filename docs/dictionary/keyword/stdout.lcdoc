@@ -8,7 +8,7 @@ Summary:
 Used with the <write to file> <command> to designate the 
 <standard output>. 
 
-Introduced: 1.0
+Introduced: 1.0.0
 
 OS: mac, windows, linux
 

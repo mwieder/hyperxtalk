@@ -7,7 +7,7 @@ Syntax: reset cursors
 Summary:
 Reloads the standard set of <cursor|cursors>.
 
-Introduced: 1.0
+Introduced: 1.0.0
 
 OS: mac, windows, linux
 

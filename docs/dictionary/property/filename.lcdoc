@@ -9,11 +9,11 @@ Specifies the file associated with a player or image.
 
 Associations: player, image
 
-Introduced: 1.0
+Introduced: 1.0.0
 
-OS: mac, windows, linux, ios, android
+OS: mac, windows, linux
 
-Platforms: desktop, server, mobile
+Platforms: desktop, server
 
 Example:
 set the filename of image "Animation" to "/HD/Projects/blipvert.gif"

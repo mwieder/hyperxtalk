@@ -10,7 +10,7 @@ Summary:
 The global property <qtIdleRate> specifies how frequently to idle
 QuickTime movies.
 
-Introduced: 2.7
+Introduced: 1.0.0
 
 OS: mac, windows
 

@@ -38,6 +38,10 @@
 
 #include "stackfileformat.h"
 
+// Platform dark-mode query.  A weak stub returning false is provided by
+// buttondraw.cpp for platforms that do not implement the strong version.
+extern "C" bool MCplatformIsDarkMode(void);
+
 uint2 MCButton::mnemonicoffset = 1;
 MCRectangle MCButton::optionrect = {0, 0, 12, 8};
 uint4 MCButton::clicktime;
@@ -2839,6 +2843,23 @@ void MCButton::openmenu(Boolean grab)
 			menu->menuset(menuhistory, rect.height >> 1);
 		}
 
+		// Re-apply dark-mode-sensitive colours on every open so that switching
+		// the system appearance is reflected without recreating the menu stack.
+		if (menumode == WM_COMBO && IsMacLFAM() && MCaqua)
+		{
+			bool t_dark = MCplatformIsDarkMode();
+			menu->setsprop(P_BACK_COLOR, t_dark ? MCSTR("30,30,30") : MCSTR("255,255,255"));
+			menu->setsprop(P_FORE_COLOR, t_dark ? MCSTR("255,255,255") : MCSTR("0,0,0"));
+			// Keep the selection highlight colour in sync with the current system
+			// value (MChilitecolor is refreshed by updatesystemcolors() on every
+			// appearance change).
+			MCAutoStringRef t_hilite;
+			/* UNCHECKED */ MCStringFormat(&t_hilite, "%d,%d,%d",
+			                               MChilitecolor.red   >> 8,
+			                               MChilitecolor.green >> 8,
+			                               MChilitecolor.blue  >> 8);
+			menu->setsprop(P_HILITE_COLOR, *t_hilite);
+		}
 		menu->openrect(rel, (Window_mode)menumode, NULL, WP_DEFAULT, OP_NONE);
 		menu->mode_openasmenu(t_did_grab ? sptr : NULL);
 		

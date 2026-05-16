@@ -8,7 +8,7 @@ Summary:
 Converts a Unix-style <file path|pathname> to a <Mac OS>-style <file
 path|pathname>. 
 
-Introduced: 1.0
+Introduced: 1.0.0
 
 OS: mac, windows, linux
 

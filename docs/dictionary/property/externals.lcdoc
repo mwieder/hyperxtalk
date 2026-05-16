@@ -10,7 +10,7 @@ Specifies a list of <files> containing external code that are to be
 
 Associations: stack
 
-Introduced: 1.0
+Introduced: 1.0.0
 
 OS: mac, windows, linux
 

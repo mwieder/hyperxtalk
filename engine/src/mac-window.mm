@@ -2163,6 +2163,9 @@ void MCMacPlatformWindow::DoRealize(void)
     {
 		m_panel_handle = [[com_hyperxtalk_hyperxtalk_MCPanel alloc] initWithContentRect: t_cocoa_content styleMask: t_window_style backing: NSBackingStoreBuffered defer: NO];
         [m_panel_handle setWorksWhenModal: YES];
+        // Inherit the app appearance so the combo box dropdown renders correctly
+        // in dark mode — NSPanel does not automatically adopt effectiveAppearance.
+        [m_panel_handle setAppearance: [NSApp effectiveAppearance]];
     }
 	else
 		m_window_handle = [[com_hyperxtalk_hyperxtalk_MCWindow alloc] initWithContentRect: t_cocoa_content styleMask: t_window_style backing: NSBackingStoreBuffered defer: NO];
