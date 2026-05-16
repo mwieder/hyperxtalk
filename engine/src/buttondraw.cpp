@@ -36,6 +36,8 @@
 // wins over a weak one, so server/non-GUI targets silently use this stub
 // while the GUI target uses the real implementation.
 extern "C" __attribute__((weak)) bool MCplatformIsDarkMode(void) { return false; }
+#else if defined(_LINUX)
+extern "C" __attribute__((weak)) bool MCplatformIsDarkMode(void) { return false; }
 #endif
 
 // MW-2011-09-06: [[ Redraw ]] Added 'sprite' option - if true, ink and opacity are not set.
