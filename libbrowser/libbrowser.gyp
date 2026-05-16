@@ -22,6 +22,20 @@
 				'include',
 				'../libcore/include',
 			],
+
+			'conditions':
+			[
+				[
+					'OS == "win"',
+					{
+						'include_dirs':
+						[
+							# WebView2 NuGet SDK headers (restored by the CI workflow)
+							'../packages/Microsoft.Web.WebView2.1.0.3912.50/build/native/include',
+						],
+					},
+				],
+			],
 			
 			'sources':
 			[
@@ -36,7 +50,11 @@
 				'src/libbrowser_cef.h',
 				'src/libbrowser_cef_lnx.cpp',
 				'src/libbrowser_cef_win.cpp',
-				
+
+				'src/libbrowser_webview2.cpp',
+				'src/libbrowser_webview2.h',
+				'src/libbrowser_webview2_win.cpp',
+
 				'src/libbrowser_win.rc.h',
 				'src/libbrowser_win.rc',
 				
@@ -62,13 +80,24 @@
 			'target_conditions':
 			[
 				## Exclusions
-				# Only use CEF on desktop platforms
+				# CEF is only used on Linux x86/x86_64; Windows uses WebView2 instead
 				[
-					'not (toolset_os == "win" or (toolset_os == "linux" and toolset_arch in ("x86", "x86_64")))',
+					'not (toolset_os == "linux" and toolset_arch in ("x86", "x86_64"))',
 					{
 						'sources!':
 						[
 							'src/libbrowser_cef.cpp',
+						],
+					},
+				],
+
+				# libbrowser_cef_win.cpp is legacy CEF-Win code; Windows now uses WebView2
+				[
+					'toolset_os == "win"',
+					{
+						'sources!':
+						[
+							'src/libbrowser_cef_win.cpp',
 						],
 					},
 				],
@@ -106,7 +135,11 @@
 							'src/libbrowser_cef_win.cpp',
 							'src/libbrowser_win.rc.h',
 							'src/libbrowser_win.rc',
-							
+
+							'src/libbrowser_webview2.cpp',
+							'src/libbrowser_webview2.h',
+							'src/libbrowser_webview2_win.cpp',
+
 							'src/libbrowser_win_factories.cpp',
 						],
 					},

@@ -280,6 +280,27 @@ jobs:
         shell: cmd
         run: configure.bat
 
+      - name: Alias prebuilt directories for v143 toolset
+        shell: pwsh
+        run: |
+          # The prebuilt libraries ship with directory names keyed on $(PlatformToolset).
+          # The repo contains v142 and v145 variants; copy the v145 ones to v143 so that
+          # MSBuild (running with the VS 2022 v143 toolset) can resolve them.
+          $pairs = @(
+            @{ Src = "prebuilt\unpacked\Thirdparty\x86_64-win32-v145_static_Debug";   Dst = "prebuilt\unpacked\Thirdparty\x86_64-win32-v143_static_Debug" },
+            @{ Src = "prebuilt\unpacked\Thirdparty\x86_64-win32-v145_static_Release"; Dst = "prebuilt\unpacked\Thirdparty\x86_64-win32-v143_static_Release" },
+            @{ Src = "prebuilt\unpacked\icu\x86_64-win32-v145_static_Debug";          Dst = "prebuilt\unpacked\icu\x86_64-win32-v143_static_Debug" },
+            @{ Src = "prebuilt\unpacked\icu\x86_64-win32-v145_static_Release";        Dst = "prebuilt\unpacked\icu\x86_64-win32-v143_static_Release" }
+          )
+          foreach ($p in $pairs) {
+            if (Test-Path $p.Src) {
+              Copy-Item -Path $p.Src -Destination $p.Dst -Recurse -Force
+              Write-Host "Created: $($p.Dst)"
+            } else {
+              Write-Warning "Source not found: $($p.Src)"
+            }
+          }
+
       - name: Build thirdparty libraries
         shell: cmd
         run: build-thirdparty-x64.bat

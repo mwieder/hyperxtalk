@@ -241,6 +241,7 @@ echo libffi OK.
 :: their AdditionalLibraryDirectories (they point to the prebuilt dir, not
 :: the build output dir).
 copy /y "build-win-x86_64\livecode\Debug\lib\libffi.lib" "prebuilt\unpacked\Thirdparty\x86_64-win32-v145_static_Debug\lib\libffi.lib"
+copy /y "build-win-x86_64\livecode\Debug\lib\libffi.lib" "prebuilt\unpacked\Thirdparty\x86_64-win32-v143_static_Debug\lib\libffi.lib"
 copy /y "build-win-x86_64\livecode\Debug\lib\libffi.lib" "prebuilt\unpacked\Thirdparty\x86_64-win32-v142_static_Debug\lib\libffi.lib"
 echo libffi.lib copied to Thirdparty prebuilt dirs.
 
