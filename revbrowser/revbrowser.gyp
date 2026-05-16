@@ -38,6 +38,7 @@
 				'src/cefbrowser_lnx.cpp',
 				'src/cefbrowser_w32.cpp',
 				'src/cefbrowser_webview2_stubs.cpp',
+				'src/cefbrowser_lnx_stubs.cpp',
 				'src/lnxbrowser.cpp',
 				'src/osxbrowser.mm',
 				'src/revbrowser.cpp',
@@ -55,25 +56,9 @@
 						'type': 'none',
 					},
 				],
-				# CEF only supported on Linux x86/x86_64; Windows uses WebView2 stubs instead
+				# Real CEF sources not used on any platform; exclude everywhere
 				[
-					'not toolset_os in ("win", "linux") or (toolset_os == "linux" and not toolset_arch in ("x86", "x86_64"))',
-					{
-						'sources!':
-						[
-							'src/cefbrowser.h',
-							'src/cefbrowser_msg.h',
-
-							'src/cefbrowser.cpp',
-							'src/cefbrowser_lnx.cpp',
-							'src/cefbrowser_w32.cpp',
-							'src/cefbrowser_webview2_stubs.cpp',
-						],
-					},
-				],
-				# Windows uses WebView2 stubs instead of real CEF sources
-				[
-					'toolset_os == "win"',
+					'toolset_os != "never_exists"',
 					{
 						'sources!':
 						[
@@ -82,6 +67,8 @@
 							'src/cefbrowser.cpp',
 							'src/cefbrowser_lnx.cpp',
 							'src/cefbrowser_w32.cpp',
+							'src/signal_restore_posix.h',
+							'src/signal_restore_posix.cpp',
 						],
 					},
 				],
@@ -92,6 +79,16 @@
 						'sources!':
 						[
 							'src/cefbrowser_webview2_stubs.cpp',
+						],
+					},
+				],
+				# Linux stubs are Linux-only
+				[
+					'toolset_os != "linux"',
+					{
+						'sources!':
+						[
+							'src/cefbrowser_lnx_stubs.cpp',
 						],
 					},
 				],
@@ -120,19 +117,8 @@
 					},
 				],
 				[
-					'toolset_os == "linux" and toolset_arch in ("x86", "x86_64")',
+					'toolset_os == "linux"',
 					{
-                        'copies':
-                        [
-                            {
-                                'destination':'<(PRODUCT_DIR)/',
-                                'files':
-                                [
-                                    '<(PRODUCT_DIR)/revbrowser-cefprocess',
-                                ],
-                            },
-                        ],
-                        
 						'libraries':
 						[
 							'-ldl',
@@ -142,23 +128,6 @@
 				],
 			],
 			
-			'conditions':
-			[
-				[
-					# Only Linux uses CEF; Windows uses WebView2 instead
-					'OS == "linux" or host_os == "linux"',
-					{
-						'dependencies':
-						[
-							'../prebuilt/libcef.gyp:libcef',
-							'../thirdparty/libcef/libcef.gyp:libcef_library_wrapper',
-							'../thirdparty/libcef/libcef.gyp:libcef_stubs',
-
-							'revbrowser-cefprocess',
-						],
-					},
-				],
-			],
 						
 			'all_dependent_settings':
 			{
@@ -216,101 +185,5 @@
 		},
 	],
 		
-    'conditions':
-    [
-        [
-            'OS == "linux" or host_os == "linux"',
-            {
-                'targets':
-                [
-					{
-						'target_name': 'revbrowser-cefprocess',
-						'type': 'executable',
-						'product_name': 'revbrowser-cefprocess',
-			
-						# Windows and Linux only
-						'target_conditions':
-						[
-							[
-								'not toolset_os in ("win", "linux") or (toolset_os == "linux" and not toolset_arch in ("x86", "x86_64"))',
-								{
-									'type': 'none',
-								},
-							],
-				
-							[
-								'toolset_os == "win"',
-								{	
-									'library_dirs':
-									[
-										'../prebuilt/unpacked/cef/<(uniform_arch)-win32-$(PlatformToolset)_static_$(ConfigurationName)/lib/CEF/',
-									],
-
-									'libraries':
-									[
-										'-llibcef.lib',
-									],
-								},
-							],
-				
-							[
-								'toolset_os == "linux"',
-								{
-									'library_dirs':
-									[
-										'../prebuilt/lib/linux/<(target_arch)/CEF/',
-									],
-						
-									'libraries':
-									[
-										'-lcef',
-									],
-					   
-									'ldflags':
-									[
-										'-Wl,--allow-shlib-undefined',
-										'-Wl,-rpath=\\$$ORIGIN',
-									],
-								},
-							],
-				
-						],
-			
-						'all_dependent_settings':
-						{
-							'conditions':
-							[
-								[
-									'OS == "win" or (OS == "linux" and target_arch in ("x86", "x86_64"))',
-									{
-										# Distributing the OSX version is done separately
-										'variables':
-										{
-											'dist_files': [ '<(PRODUCT_DIR)/<(_product_name)>(exe_suffix)' ],
-										},
-									}
-								],
-							],
-						},
-			
-						'dependencies':
-						[
-							'../libcore/libcore.gyp:libCore',
-							'../libfoundation/libfoundation.gyp:libFoundation',
-							'../thirdparty/libcef/libcef.gyp:libcef_library_wrapper',
-							'../prebuilt/libcef.gyp:libcef',
-							'../prebuilt/libicu.gyp:libicu',
-						],
-			
-						'sources':
-						[
-							'src/cefprocess.cpp',
-							'src/cefprocess_lnx.cpp',
-							'src/cefprocess_w32.cpp',
-						],
-					},
-                ],
-            },
-        ],
-	],
 }
+

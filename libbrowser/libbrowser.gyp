@@ -66,9 +66,9 @@
 			'target_conditions':
 			[
 				## Exclusions
-				# CEF is only used on Linux x86/x86_64; Windows uses WebView2 instead
+				# CEF is not used on any platform; exclude everywhere
 				[
-					'not (toolset_os == "linux" and toolset_arch in ("x86", "x86_64"))',
+					'toolset_os != "never_exists"',
 					{
 						'sources!':
 						[
@@ -131,25 +131,24 @@
 					},
 				],
 				
+				# CEF Linux files not used; excluded everywhere
 				[
-					'toolset_os != "linux"',
+					'toolset_os != "never_exists"',
 					{
 						'sources!':
 						[
 							'src/libbrowser_cef_lnx.cpp',
 							'src/signal_restore_posix.cpp',
-							
-							'src/libbrowser_lnx_factories.cpp',
 						],
 					},
 				],
 
 				[
-					'toolset_os == "linux" and not toolset_arch in ("x86", "x86_64")',
+					'toolset_os != "linux"',
 					{
 						'sources!':
 						[
-							'src/libbrowser_cef_lnx.cpp',
+							'src/libbrowser_lnx_factories.cpp',
 						],
 					},
 				],
@@ -217,21 +216,6 @@
 			'conditions':
 			[
 				[
-					# Only Linux uses CEF; Windows uses WebView2 instead
-					'OS == "linux" or host_os == "linux"',
-					{
-						'dependencies':
-						[
-							'libbrowser-cefprocess',
-							'../prebuilt/libcef.gyp:libcef',
-							'../prebuilt/libicu.gyp:libicu',
-							'../thirdparty/libcef/libcef.gyp:libcef_library_wrapper',
-							'../thirdparty/libcef/libcef.gyp:libcef_stubs',
-						],
-					},
-				],
-
-				[
 					'OS == "win"',
 					{
 						'include_dirs':
@@ -273,134 +257,5 @@
 			},
 		},
     ],
-    
-    'conditions':
-    [
-        [
-            'OS == "linux" or host_os == "linux"',
-            {
-                'targets':
-                [
-                    {
-                        'target_name': 'libbrowser-cefprocess',
-                        'type': 'executable',
-                        'mac_bundle': 1,
-                        'product_name': 'libbrowser-cefprocess',
-                        
-			'toolsets': ['host', 'target'],
-
-                        'dependencies':
-                        [
-                            '../libcore/libcore.gyp:libCore',
-                            '../libfoundation/libfoundation.gyp:libFoundation',
-                            '../thirdparty/libcef/libcef.gyp:libcef_library_wrapper',
-                            '../prebuilt/libcef.gyp:libcef',
-                        ],
-
-                        'include_dirs':
-                        [
-                            'include',
-                        ],
-                        
-                        'sources':
-                        [
-                            'src/libbrowser_memory.cpp',
-                            'src/libbrowser_cefprocess.cpp',
-                            'src/libbrowser_cefprocess_lnx.cpp',
-                            'src/libbrowser_cefprocess_win.cpp',
-                        ],
-                        
-                        'target_conditions':
-                        [
-                            [
-								'toolset_os not in ("win", "linux")',
-								{
-									'type': 'none',
-								},
-							],
-							## Exclusions
-                            [
-                                'toolset_os != "win"',
-                                {
-                                    'sources!':
-                                    [
-                                        'src/libbrowser_cefprocess_win.cpp',
-                                    ],
-                                },
-                            ],
-                            
-                            [
-                                'toolset_os != "linux"',
-                                {
-                                    'sources!':
-                                    [
-                                        'src/libbrowser_cefprocess_lnx.cpp',
-                                    ],
-                                },
-                            ],
-                            
-                            [
-                                'toolset_os == "win"',
-                                {	
-                                    'library_dirs':
-                                    [
-                                        '../prebuilt/unpacked/cef/<(uniform_arch)-win32-$(PlatformToolset)_static_$(ConfigurationName)/lib/CEF/',
-                                    ],
-
-                                    'libraries':
-                                    [
-                                        '-llibcef.lib',
-                                    ],
-                                },
-                            ],
-                            
-                            [
-                                'toolset_os == "linux"',
-                                {
-                                    'library_dirs':
-                                    [
-                                        '../prebuilt/lib/linux/>(toolset_arch)/CEF/',
-                                    ],
-                    
-                                    'libraries':
-                                    [
-                                        '-lcef',
-                                    ],
-                                   
-                                    'ldflags':
-                                    [
-                                        '-Wl,--allow-shlib-undefined',
-                                        '-Wl,-rpath=\\$$ORIGIN/Externals/CEF',
-                                    ],
-                                },
-                            ],
-
-                            [
-                                'toolset_os == "linux" and not toolset_arch in ("x86", "x86_64")',
-                                {
-                                    'type': 'none',
-                                },
-                            ],
-                        ],
-
-			'all_dependent_settings':
-			{
-				'conditions':
-				[
-					[
-						'OS == "win" or (OS == "linux" and target_arch in ("x86", "x86_64"))',
-						{
-							'variables':
-							{
-								'dist_files': [ '<(PRODUCT_DIR)/<(_product_name)>(exe_suffix)' ],
-							},
-						},
-					],
-				],
-			},
-                    },
-                ],
-            },
-        ],
-    ],
 }
+
