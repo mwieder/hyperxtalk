@@ -307,21 +307,23 @@ jobs:
           # flex and bison are needed by lc-bootstrap-compile via invoke-unix.bat,
           # which routes /usr/bin/flex through Cygwin bash.  The windows-2022 runner
           # ships Cygwin but does not pre-install the flex or bison packages.
+          # Use Start-Process -Wait so PowerShell blocks until the installer exits.
           Invoke-WebRequest -Uri 'https://cygwin.com/setup-x86_64.exe' `
             -OutFile 'C:\cygwin-setup.exe' -UseBasicParsing
-          # Use & operator so we see output and get the real exit code
-          & 'C:\cygwin-setup.exe' `
-            --quiet-mode --no-desktop --no-startmenu `
-            --root 'C:\cygwin64' `
-            --site 'https://mirrors.kernel.org/sourceware/cygwin/' `
-            --local-package-dir 'C:\cygwin-packages' `
-            --packages 'flex,bison'
-          if ($LASTEXITCODE -ne 0) {
-            Write-Error "Cygwin setup failed (exit $LASTEXITCODE)"
-            exit 1
-          }
+          $proc = Start-Process -FilePath 'C:\cygwin-setup.exe' `
+            -ArgumentList '--quiet-mode', '--no-desktop', '--no-startmenu',
+                          '--root', 'C:\cygwin64',
+                          '--site', 'https://mirrors.kernel.org/sourceware/cygwin/',
+                          '--local-package-dir', 'C:\cygwin-packages',
+                          '--packages', 'flex,bison' `
+            -Wait -PassThru -NoNewWindow
+          Write-Host "Cygwin setup exited with code $($proc.ExitCode)"
           if (-not (Test-Path 'C:\cygwin64\usr\bin\flex.exe')) {
             Write-Error "flex.exe not found at C:\cygwin64\usr\bin\flex.exe after setup"
+            exit 1
+          }
+          if (-not (Test-Path 'C:\cygwin64\usr\bin\bison.exe')) {
+            Write-Error "bison.exe not found at C:\cygwin64\usr\bin\bison.exe after setup"
             exit 1
           }
           Write-Host "flex and bison installed OK"
