@@ -2193,6 +2193,13 @@ void MCButton::unlockshape(MCObjectShape& p_shape)
 
 int16_t MCButton::GetCheckSize() const
 {
-    // If we aren't using GTK at the theming engine, return the fixed size
+    // If we aren't using GTK as the theming engine, return the fixed size
     if (!IsNativeGTK())
-     
+        return CHECK_SIZE;
+
+    // For GTK, ask the theme for the actual indicator size
+    if (MCcurtheme != NULL)
+        return (int16_t)MCcurtheme->getmetric(WTHEME_METRIC_CHECKBUTTON_INDICATORSIZE);
+
+    return CHECK_SIZE;
+}
