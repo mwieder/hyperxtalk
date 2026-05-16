@@ -1,19 +1,3 @@
-/* Copyright (C) 2003-2015 LiveCode Ltd.
-
-This file is part of LiveCode.
-
-LiveCode is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License v3 as published by the Free
-Software Foundation.
-
-LiveCode is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-for more details.
-
-You should have received a copy of the GNU General Public License
-along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
-
 #include "prefix.h"
 
 #include "globdefs.h"
@@ -307,6 +291,7 @@ const LT command_table[] =
         {"beep", TT_STATEMENT, S_BEEP},
         {"break", TT_STATEMENT, S_BREAK},
         {"breakpoint", TT_STATEMENT, S_BREAKPOINT},
+        {"bringApplicationToFront", TT_STATEMENT, S_BRING_APPLICATION_TO_FRONT},
         {"call", TT_STATEMENT, S_CALL},
         {"caller", TT_CHUNK, CT_CALLER},
         {"cancel", TT_STATEMENT, S_CANCEL},
@@ -431,6 +416,7 @@ const LT command_table[] =
         {"send", TT_STATEMENT, S_SEND},
         {"set", TT_STATEMENT, S_SET},
         {"setprop", TT_STATEMENT, S_SCRIPT_ERROR},
+        {"share", TT_STATEMENT, S_SHARE},
         {"sheet", TT_STATEMENT, S_SHEET},
         {"show", TT_STATEMENT, S_SHOW},
         {"shownotification", TT_STATEMENT, S_SHOW_NOTIFICATION},
@@ -650,9 +636,11 @@ const LT factor_table[] =
         {"backpixel", TT_PROPERTY, P_BACK_PIXEL},
         {"backscripts", TT_FUNCTION, F_BACK_SCRIPTS},
         {"backsize", TT_PROPERTY, P_BACK_SIZE},
+        {"badge", TT_PROPERTY, P_BADGE},
         {"base64decode", TT_FUNCTION, F_BASE64_DECODE},
         {"base64encode", TT_FUNCTION, F_BASE64_ENCODE},
         {"baseconvert", TT_FUNCTION, F_BASE_CONVERT},
+        {"batterylevel", TT_FUNCTION, F_BATTERY_LEVEL},
         {"beepduration", TT_PROPERTY, P_BEEP_DURATION},
         {"beeploudness", TT_PROPERTY, P_BEEP_LOUDNESS},
         {"beeppitch", TT_PROPERTY, P_BEEP_PITCH},
@@ -840,6 +828,7 @@ const LT factor_table[] =
         {"defaultstack", TT_PROPERTY, P_DEFAULT_STACK},
 		// MW-2011-11-24: [[ UpdateScreen ]] Property controlling whether screen updates are coalesced.
 		{"deferscreenupdates", TT_PROPERTY, P_DEFER_SCREEN_UPDATES},
+        {"deletecredential", TT_FUNCTION, F_DELETE_CREDENTIAL},
         {"deleteregistry", TT_FUNCTION, F_DELETE_REGISTRY},
         {"deleteresource", TT_FUNCTION, F_DELETE_RESOURCE},
 		// MW-2011-11-24: [[ Nice Folders ]] The adjective for 'the desktop folder'.
@@ -1095,6 +1084,7 @@ const LT factor_table[] =
         {"id", TT_PROPERTY, P_ID},
         {"idlerate", TT_PROPERTY, P_IDLE_RATE},
         {"idleticks", TT_PROPERTY, P_IDLE_TICKS},
+        {"iff", TT_FUNCTION, F_IFF},
         // MERG-2014-06-02: [[ IgnoreMouseEvents ]] ignoreMouseEvents stack property
         {"ignoremouseevents", TT_PROPERTY, P_IGNORE_MOUSE_EVENTS},
         {"image", TT_CHUNK, CT_IMAGE},
@@ -1132,6 +1122,8 @@ const LT factor_table[] =
         {"itemTooltip", TT_PROPERTY, P_TOOLBAR_ITEM_TOOLTIP},
 		{"joinstyle", TT_PROPERTY, P_JOIN_STYLE},
         {"jpegquality", TT_PROPERTY, P_JPEG_QUALITY},
+        {"jumplistcategory", TT_PROPERTY, P_JUMP_LIST_CATEGORY},
+        {"jumplisttasks", TT_PROPERTY, P_JUMP_LIST_TASKS},
         {"keyboardtype", TT_PROPERTY, P_KEYBOARD_TYPE},
         {"keys", TT_FUNCTION, F_KEYS},
         {"keysdown", TT_FUNCTION, F_KEYS_DOWN},
@@ -1229,6 +1221,7 @@ const LT factor_table[] =
         {"maskdata", TT_PROPERTY, P_MASK_DATA},
         {"maskpixmapid", TT_PROPERTY, P_MASK_PIXMAP_ID},
         {"matchchunk", TT_FUNCTION, F_MATCH_CHUNK},
+        {"matches", TT_BINOP, O_MATCHES},
         {"matchtext", TT_FUNCTION, F_MATCH_TEXT},
         {"matrixmultiply", TT_FUNCTION, F_MATRIX_MULTIPLY},
         {"max", TT_FUNCTION, F_MAX},
@@ -1311,6 +1304,7 @@ const LT factor_table[] =
         {"multispace", TT_PROPERTY, P_MULTI_SPACE},
         {"name", TT_PROPERTY, P_NAME},
         {"nativechartonum", TT_FUNCTION, F_NATIVE_CHAR_TO_NUM},
+        {"naturalscrolling", TT_FUNCTION, F_NATURAL_SCROLLING},
         {"navigationarrows", TT_PROPERTY, P_NAVIGATION_ARROWS},
 		{"networkinterfaces", TT_PROPERTY, P_NETWORK_INTERFACES},
         {"newest", TT_PREP, PT_NEWEST},
@@ -1409,6 +1403,7 @@ const LT factor_table[] =
         {"popvariance", TT_FUNCTION, F_POP_VARIANCE},
         {"postscript", TT_PROPERTY, P_POSTSCRIPT},
         {"powerkeys", TT_PROPERTY, P_POWER_KEYS},
+        {"powersource", TT_FUNCTION, F_POWER_SOURCE},
 		{"preservevariables", TT_PROPERTY, P_PRESERVE_VARIABLES},
 		{"preservevars", TT_PROPERTY, P_PRESERVE_VARIABLES},
         {"prev", TT_CHUNK, CT_PREV},
@@ -1509,6 +1504,7 @@ const LT factor_table[] =
         {"result", TT_FUNCTION, F_RESULT},
         {"retainimage", TT_PROPERTY, P_RETAIN_IMAGE},
         {"retainpostscript", TT_PROPERTY, P_RETAIN_POSTSCRIPT},
+        {"retrievecredential", TT_FUNCTION, F_RETRIEVE_CREDENTIAL},
         {"returnkeytype", TT_PROPERTY, P_RETURN_KEY_TYPE},
         {"revavailablehandlers", TT_PROPERTY, P_REV_AVAILABLE_HANDLERS},
 		{"revavailablevariables", TT_PROPERTY, P_REV_AVAILABLE_VARIABLES},
@@ -1675,6 +1671,7 @@ const LT factor_table[] =
 		// MW-2011-01-25: [[ ParaStyles ]] The spaceBelow paragraph property.
 		{"spacebelow", TT_PROPERTY, P_SPACE_BELOW},
         {"specialfolderpath", TT_FUNCTION, F_SPECIAL_FOLDER_PATH},
+        {"spellcheck", TT_PROPERTY, P_SPELL_CHECK},
         {"spray", TT_PROPERTY, P_SPRAY},
         {"sql", TT_PROPERTY, P_SQL},
         {"sqrt", TT_FUNCTION, F_SQRT},
@@ -1703,6 +1700,7 @@ const LT factor_table[] =
 		{"statusicontooltip", TT_PROPERTY, P_STATUS_ICON_TOOLTIP},
 		// JS-2013-06-19: [[ StatsFunctions ]] Token for 'sampleStandardDeviation' (aka stdDev / standardDeviation)
         {"stddev", TT_FUNCTION, F_SMP_STD_DEV},
+        {"storecredential", TT_FUNCTION, F_STORE_CREDENTIAL},
 		{"strokegradient", TT_PROPERTY, P_GRADIENT_STROKE},
         {"style", TT_PROPERTY, P_STYLE},
 		// MW-2011-12-08: [[ StyledText ]] Keyword for 'styledText' reserved word.
@@ -1730,6 +1728,8 @@ const LT factor_table[] =
 		{"tabwidths", TT_PROPERTY, P_TAB_WIDTHS},
         {"tan", TT_FUNCTION, F_TAN},
         {"target", TT_FUNCTION, F_TARGET},
+        {"taskbaroverlayicon", TT_PROPERTY, P_TASKBAR_OVERLAY_ICON},
+        {"taskbarprogress", TT_PROPERTY, P_TASKBAR_PROGRESS},
         {"templateaudioclip", TT_FUNCTION, F_TEMPLATE_AUDIO_CLIP},
         {"templatebutton", TT_FUNCTION, F_TEMPLATE_BUTTON},
         {"templatecard", TT_FUNCTION, F_TEMPLATE_CARD},

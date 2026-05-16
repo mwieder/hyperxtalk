@@ -3581,6 +3581,7 @@ on revIDEUngroup pGroup
    end if
    revIDESelectObjects pGroup
    ungroup
+   revIDEMessageSend "ideControlDeleted", pGroup
 end revIDEUngroup
 
 /*
@@ -5170,7 +5171,10 @@ private on __setPropertyOfObject pObject, pProperty, pValue
    if tProperties["properties"][pProperty]["setter"] is not empty then
       dispatch tProperties["properties"][pProperty]["setter"] with pObject, pProperty, pValue
    else
-      set the pProperty of pObject to pValue
+      try
+         set the pProperty of pObject to pValue
+      catch tError
+      end try
    end if
    
 end __setPropertyOfObject
@@ -6524,9 +6528,13 @@ on revIDEStandaloneSettingsSet pStack, pProperty, pValue
    set the cRevStandaloneSettings[pProperty] of pStack to pValue
 end revIDEStandaloneSettingsSet
 
+function revIDEStandaloneSettingsGet pStack, pProperty
+   return the cRevStandaloneSettings[pProperty] of pStack
+end revIDEStandaloneSettingsGet
+
 function revIDEStandaloneSections
 	// AL-2015-03-03: [[ Bug 14769 ]] Add 'Table' section to the property inspector
-   return "General,Stacks,Copy Files,Mac,Windows,Linux,iOS,Android,Bug Reports"
+   return "General,Stacks,Copy Files,Mac,Windows,Linux,Bug Reports"
 end revIDEStandaloneSections
 
 function revIDEStandaloneSectionNameToIconName pName
@@ -8217,6 +8225,51 @@ on revIDESaveAsProject pStackID, pFolderPath
    revUpdateRecentFiles the short name of pStackID
 end revIDESaveAsProject
 
+-- ---------------------------------------------------------------------------
+-- .hxtlib compiled library save handlers ("Save as Library...")
+-- ---------------------------------------------------------------------------
+
+on revIDEActionSaveAsLibrary pStackID
+   local tShortName
+   put the short name of pStackID into tShortName
+
+   -- Prompt for save location.
+   ask file revIDELocalise("Save library as:") with tShortName & ".hxtlib"
+   if it is empty then exit revIDEActionSaveAsLibrary
+
+   local tFilePath
+   put it into tFilePath
+   if not (tFilePath ends with ".hxtlib") then
+      put ".hxtlib" after tFilePath
+   end if
+
+   -- Confirm overwrite if file already exists.
+   if there is a file tFilePath then
+      answer revIDELocalise("A library named '%1' already exists. Replace it?", tShortName) \
+            with revIDELocalise("Replace") and revIDELocalise("Cancel")
+      if it is revIDELocalise("Cancel") then exit revIDEActionSaveAsLibrary
+   end if
+
+   set the cursor to watch
+   revIDESaveAsLibrary pStackID, tFilePath
+end revIDEActionSaveAsLibrary
+
+on revIDESaveAsLibrary pStackID, pFilePath
+   -- pFilePath is the full path to the output .hxtlib file.
+   -- The engine command "save stack as library to <path>" handles:
+   --   • serializing the handler list (ASTN section via MCHXTASTWriter)
+   --   • embedding the source script (SRCS section as fallback)
+   --   • writing the binary container with CRC32/SHA-256 integrity checks
+
+   save pStackID as library to pFilePath
+   if the result is not empty then
+      answer error revIDELocalise("Could not save library:") & return & the result
+      exit revIDESaveAsLibrary
+   end if
+
+   answer revIDELocalise("Library saved to:") & return & pFilePath
+end revIDESaveAsLibrary
+
 on revIDEProjectBuildTree pStackID, pMediaFolder, @rTree
    put "hyperxtalk-project" into rTree["format"]
    put 1 into rTree["version"]
@@ -8495,7 +8548,13 @@ on revIDELoadFromProject pFilePath
       set the cRevProjectFilePath of stack tNewStackName to tFolderPath
       revIDEAddRecentStack pFilePath
       unlock screen
+      lock error dialogs
+      send "preOpenStack" to card 1 of stack tNewStackName
+      send "preOpenCard" to card 1 of stack tNewStackName
       go stack tNewStackName
+      send "openStack" to card 1 of stack tNewStackName
+      send "openCard" to card 1 of stack tNewStackName
+      unlock error dialogs
    else
       unlock screen
    end if

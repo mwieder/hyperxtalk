@@ -1,7 +1,13 @@
 #!/bin/bash
-# Build the seven vendored thirdparty libraries that have working xcodeprojs
-# (libskia libsqlite libxml libzip libcairo libxslt libiodbc) and copy their
+# Build the vendored thirdparty libraries that have working xcodeprojs
+# (libskia libsqlite libxml libzip libxslt libiodbc) and copy their
 # .a outputs from _build/mac/Debug/ into prebuilt/lib/mac/.
+#
+# libcairo is intentionally excluded here — it is built by
+# build-libcairo-mac-arm64.sh (meson) earlier in the prebuilt-mac pass
+# and is already present in prebuilt/lib/mac/libcairo.a.  The xcodeproj
+# for libcairo uses an older build system that no longer works, so we
+# skip it to avoid a spurious BUILD FAILED in the log.
 #
 # Extracted from BUILD1.md steps 2 + 4 so `make prebuilt-mac` can call a
 # single script instead of embedding the loop in the Makefile.
@@ -19,7 +25,8 @@ PREBUILT_LIB="${REPO_ROOT}/prebuilt/lib/mac"
 
 mkdir -p "${PREBUILT_LIB}"
 
-LIBS="libskia libsqlite libxml libzip libcairo libxslt libiodbc"
+# libcairo is excluded — already built via meson in build-libcairo-mac-arm64.sh
+LIBS="libskia libsqlite libxml libzip libxslt libiodbc"
 
 FAILED_LIBS=""
 for LIB in ${LIBS}; do

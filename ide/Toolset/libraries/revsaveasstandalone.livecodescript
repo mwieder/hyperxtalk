@@ -705,6 +705,7 @@ command revSaveAsMacStandalone pStack, pRestoreFileName, pFolder, @xStandalonePa
    local tStackFileList, tEngineSourceFile, tCount, tStackName, tStandalonePath
    local tDirectory, tStackSourceFile, tName, tOriginalFileName, tStackPath
    local tTargetDir
+   revStandaloneAddWarning "DBG: entered revSaveAsMacStandalone"
    
    set the itemDelimiter to slash
    put the effective filename of stack pStack into tOriginalFileName
@@ -811,18 +812,39 @@ command revSaveAsMacStandalone pStack, pRestoreFileName, pFolder, @xStandalonePa
       --Restore stack to its post-savingStandalone message state
       __RestoreStackFromTemporaryLocation pStack, pRestoreFileName, tOriginalFileName
    end repeat
-   
-   if the platform is "MacOS" then
-      local tAppBundle
+   revStandaloneAddWarning "DBG: past end repeat"
+
+   if the platform begins with "Mac" then
+      local tAppBundle, tCertificate, tEntitlementsFile
       set the itemDel to slash
       put item 1 to -4 of tStandalonepath into tAppBundle
       set the itemDel to comma
       clearExtendedAttributes tAppBundle
-      performAdHocCodesign tAppBundle
+      put sStandaloneSettingsA["OSX,codeSignIdentity"] into tCertificate
+      put sStandaloneSettingsA["OSX,entitlementsFile"] into tEntitlementsFile
+      if tCertificate is not empty then
+         revStandaloneAddWarning "Code signing with certificate:" && tCertificate
+         performDeveloperCodesign tAppBundle, tCertificate, tEntitlementsFile
+         if sStandaloneSettingsA["OSX,notarize"] is true then
+            local tAppleID, tTeamID, tPassword
+            put sStandaloneSettingsA["OSX,appleID"] into tAppleID
+            put sStandaloneSettingsA["OSX,teamID"] into tTeamID
+            put retrieveKeychainPassword("HyperXTalk-Notarization", tAppleID) into tPassword
+            if tPassword is not empty then
+               revStandaloneAddWarning "Notarizing as" && tAppleID
+               performNotarization tAppBundle, tAppleID, tTeamID, tPassword
+            else
+               revStandaloneAddWarning "Notarization skipped: no password found in keychain for" && tAppleID
+            end if
+         end if
+      else
+         revStandaloneAddWarning "No signing certificate set, using ad-hoc signature"
+         performAdHocCodesign tAppBundle
+      end if
    end if
-   
+
    revStandalonePostBuild pStack, pFolder
-   
+
    return empty
 end revSaveAsMacStandalone
 
@@ -834,6 +856,130 @@ private command performAdHocCodesign pAppBundle
       throw "Adding ad-hoc signature failed with error:" && it
    end if
 end performAdHocCodesign
+
+private command performDeveloperCodesign pAppBundle, pCertificate, pEntitlementsFile
+   local tSignBase, tShell, tMergedFile
+
+   -- Build a merged entitlements file: engine baseline cs.* entries + developer additions.
+   -- This ensures the app retains the runtime exception entitlements the engine needs
+   -- (JIT, unsigned memory, dyld env vars, etc.) even when the developer only selected
+   -- a few user-facing entitlements in the settings UI.
+   put buildMergedEntitlements(pEntitlementsFile) into tMergedFile
+
+   -- Base codesign args for nested components (no entitlements on these)
+   put "codesign --force --options runtime -s" && quote & pCertificate & quote into tSignBase
+
+   -- Step 1: Sign all dylibs and shared objects (leaf-level, no sub-components)
+   put "find" && quote & pAppBundle & quote into tShell
+   put tShell && "-type f \( -name '*.dylib' -o -name '*.so' \)" into tShell
+   put tShell && "-exec" && tSignBase && "{} \; 2>/dev/null" into tShell
+   get shell(tShell)
+
+   -- Step 2: Sign nested .framework / .bundle / .appex bundles, deepest path first.
+   -- awk -F/ uses slash as field separator; NF = field count = depth indicator.
+   -- sort -rn puts deepest (highest NF) first so inner bundles are signed before
+   -- the outer bundle that contains them.
+   put "find" && quote & pAppBundle & quote into tShell
+   put tShell && "-type d \( -name '*.framework' -o -name '*.bundle' -o -name '*.appex' \)" into tShell
+   put tShell && "| awk -F/ '{ print NF, $0 }' | sort -rn | cut -d' ' -f2-" into tShell
+   put tShell && "| while IFS= read -r item; do" && tSignBase && quote & "$item" & quote & "; done 2>/dev/null" into tShell
+   get shell(tShell)
+
+   -- Step 3: Sign the outer .app last with the merged entitlements
+   put tSignBase && "--entitlements" && quote & tMergedFile & quote into tShell
+   put tShell && quote & pAppBundle & quote into tShell
+   get shell(tShell)
+   delete file tMergedFile
+   if the result is not zero then
+      throw "Developer code signing failed with error:" && it
+   end if
+end performDeveloperCodesign
+
+-- Writes a temp entitlements plist that merges the engine's required cs.* baseline
+-- with whatever the developer selected in the standalone settings UI.
+-- Returns the path to the temp file (caller must delete it after use).
+private function buildMergedEntitlements pDeveloperFile
+   local tPlist, tDevEntries, tTempPath
+
+   -- Engine baseline: these cs.* runtime exception entitlements are always required
+   -- for HyperXTalk standalones to function correctly with the hardened runtime.
+   put "<?xml version=" & quote & "1.0" & quote & " encoding=" & quote & "UTF-8" & quote & "?>" & return into tPlist
+   put "<!DOCTYPE plist PUBLIC " & quote & "-//Apple//DTD PLIST 1.0//EN" & quote & " " & quote & "http://www.apple.com/DTDs/PropertyList-1.0.dtd" & quote & ">" & return after tPlist
+   put "<plist version=" & quote & "1.0" & quote & ">" & return after tPlist
+   put "<dict>" & return after tPlist
+   put tab & "<key>com.apple.security.cs.allow-jit</key>" & return & tab & "<true/>" & return after tPlist
+   put tab & "<key>com.apple.security.cs.allow-unsigned-executable-memory</key>" & return & tab & "<true/>" & return after tPlist
+   put tab & "<key>com.apple.security.cs.allow-dyld-environment-variables</key>" & return & tab & "<true/>" & return after tPlist
+   put tab & "<key>com.apple.security.cs.disable-library-validation</key>" & return & tab & "<true/>" & return after tPlist
+   put tab & "<key>com.apple.security.cs.disable-executable-page-protection</key>" & return & tab & "<true/>" & return after tPlist
+
+   -- Append developer-selected entitlements, extracting just the key/value pairs
+   -- from between the <dict> and </dict> tags of their file.
+   if pDeveloperFile is not empty and there is a file pDeveloperFile then
+      put URL ("file:" & pDeveloperFile) into tDevEntries
+      -- Strip everything up to and including the opening <dict>, and the closing </dict></plist>
+      put char (offset("<dict>", tDevEntries) + 6) to \
+            (offset("</dict>", tDevEntries) - 1) of tDevEntries into tDevEntries
+      -- Exclude any cs.* entries the developer may have added — we already have them
+      local tLine
+      repeat for each line tLine in tDevEntries
+         if tLine does not contain "com.apple.security.cs." then
+            put tLine & return after tPlist
+         end if
+      end repeat
+   end if
+
+   put "</dict>" & return & "</plist>" after tPlist
+
+   put specialFolderPath("temp") & "/hxt_merged_entitlements.plist" into tTempPath
+   put tPlist into URL ("file:" & tTempPath)
+   return tTempPath
+end buildMergedEntitlements
+
+private command performNotarization pAppBundle, pAppleID, pTeamID, pPassword
+   local tShell, tZipPath
+
+   -- Zip the bundle for submission (notarytool requires a zip, dmg, or pkg)
+   set the itemDelimiter to "/"
+   put item 1 to -2 of pAppBundle & "/" & item -1 of pAppBundle & ".zip" into tZipPath
+   set the itemDelimiter to ","
+   put "ditto -c -k --keepParent" && quote & pAppBundle & quote && quote & tZipPath & quote into tShell
+   get shell(tShell)
+   if the result is not zero then
+      throw "Creating zip for notarization failed:" && it
+   end if
+
+   -- Submit and wait for Apple's response
+   put "xcrun notarytool submit" && quote & tZipPath & quote into tShell
+   put tShell && "--apple-id" && quote & pAppleID & quote into tShell
+   put tShell && "--team-id" && quote & pTeamID & quote into tShell
+   put tShell && "--password" && quote & pPassword & quote into tShell
+   put tShell && "--wait" into tShell
+   get shell(tShell)
+   delete file tZipPath
+   if the result is not zero then
+      throw "Notarization failed:" && it
+   end if
+
+   -- Staple the ticket so the app works offline
+   put "xcrun stapler staple" && quote & pAppBundle & quote into tShell
+   get shell(tShell)
+   if the result is not zero then
+      throw "Stapling notarization ticket failed:" && it
+   end if
+end performNotarization
+
+private function retrieveKeychainPassword pService, pAccount
+   local tShell, tPassword
+   put "security find-generic-password -a" && quote & pAccount & quote into tShell
+   put tShell && "-s" && quote & pService & quote && "-w" into tShell
+   put shell(tShell) into tPassword
+   -- Trim trailing newline from shell output
+   repeat while the last char of tPassword is in (return & LF)
+      delete the last char of tPassword
+   end repeat
+   return tPassword
+end retrieveKeychainPassword
 
 private command clearExtendedAttributes pAppBundle
    local tShell
@@ -859,14 +1005,16 @@ command revSaveAsWindowsStandalone pStack, pRestoreFileName, pFolder, @xStandalo
    put the effective filename of stack pStack into tOriginalFileName
    put item 1 to -2 of tOriginalFileName into tStackPath
    
-   -- In installed mode the generic icons live in Resources/Sample Icons (which is
-   -- always present on all platforms).  In dev/repo mode they are expected under
-   -- Runtime/Windows/x86-32/Support/Sample Icons; a separate guard below
-   -- substitutes engine/rsrc/standalone.ico for the repo case anyway.
-   if revEnvironmentIsInstalled() then
-      put revEnvironmentResourcesPath() & "/Sample Icons" into tName
-   else
+   -- Generic Windows icons live in the Runtime folder under the appropriate arch.
+   -- Prefer x86-64 (the current primary Windows target), fall back to x86-32 for
+   -- older/alternate builds, and finally try the Resources/Sample Icons path that
+   -- some LiveCode installer builds use.
+   put revEnvironmentRuntimePath() & "/Windows/x86-64/Support/Sample Icons" into tName
+   if there is not a folder tName then
       put revEnvironmentRuntimePath() & "/Windows/x86-32/Support/Sample Icons" into tName
+   end if
+   if there is not a folder tName and revEnvironmentIsInstalled() then
+      put revEnvironmentResourcesPath() & "/Sample Icons" into tName
    end if
    if sStandaloneSettingsA["Windows,iconFile"] = "" then
       put tName & "/genericapp.ico" into sStandaloneSettingsA["Windows,iconFile"]
@@ -2555,13 +2703,18 @@ private command revCopyExternals pPlatform, pStackFilePath, pEnginePath, pStanda
    
    -- sanitise raw list of externals from inclusions pane
    revSBSanitiseExternalsList pPlatform, sStandaloneSettingsA["externals"]
-   
+
    -- create list of externals and paths
+   -- NOTE: This loop handles user-installed third-party externals from the Ext folder only.
+   -- Built-in engine externals (XML, Database, Zip, Speech) are handled below via the
+   -- scriptLibraries loop, which uses revExternalPath with the display name from Externals.txt.
+   -- Built-in externals should NOT be added to sStandaloneSettingsA["externals"]; they should
+   -- be enabled via sStandaloneSettingsA["scriptLibraries"] instead.
    local tExternalPathsA
    repeat for each line tExternalName in sStandaloneSettingsA["externals"]
       put revSBIncludedExternalPath(pPlatform, tExternalName) into tExternalPathsA[tExternalName]
    end repeat
-   
+
    -- check externals that are added to the 'scriptLibraries' key
    repeat for each line tExternalName in revExternalsList()
       -- check this item is selected for installation

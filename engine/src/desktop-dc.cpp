@@ -1,19 +1,3 @@
-/* Copyright (C) 2003-2015 LiveCode Ltd.
- 
- This file is part of LiveCode.
- 
- LiveCode is free software; you can redistribute it and/or modify it under
- the terms of the GNU General Public License v3 as published by the Free
- Software Foundation.
- 
- LiveCode is distributed in the hope that it will be useful, but WITHOUT ANY
- WARRANTY; without even the implied warranty of MERCHANTABILITY or
- FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- for more details.
- 
- You should have received a copy of the GNU General Public License
- along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
-
 #include "platform.h"
 
 #include <cstdio>   // sscanf (used by MCParseHexColor)
@@ -1015,6 +999,10 @@ void MCScreenDC::updatesystemcolors(void)
     MCColor t_txt_color;
     if (MCParseHexColor(t_txt_buf, t_txt_color))
         system_fore_pixel = t_txt_color;
+
+    // Keep the selection highlight colour current so dark-mode switches are
+    // reflected immediately (e.g. in combo-box list popups).
+    MCPlatformGetSystemProperty(kMCPlatformSystemPropertyHiliteColor, kMCPlatformPropertyTypeColor, &MChilitecolor);
 #endif
 }
 

@@ -1,19 +1,3 @@
-/* Copyright (C) 2003-2015 LiveCode Ltd.
-
-This file is part of LiveCode.
-
-LiveCode is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License v3 as published by the Free
-Software Foundation.
-
-LiveCode is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-for more details.
-
-You should have received a copy of the GNU General Public License
-along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
-
 #include "prefix.h"
 
 #include "globdefs.h"
@@ -1115,6 +1099,7 @@ MCSave::~MCSave()
 	delete target;
 	delete filename;
     delete format;
+    delete library_path;
 }
 
 Parse_stat MCSave::parse(MCScriptPoint &sp)
@@ -1131,6 +1116,24 @@ Parse_stat MCSave::parse(MCScriptPoint &sp)
 	/* Parse optional "as _" clause */
 	if (sp.skip_token(SP_FACTOR, TT_PREP, PT_AS) == PS_NORMAL)
 	{
+        // HXT: "save <stack> as library [to <path>]"
+        // S_LIBRARY is the token for the "library" keyword.
+        if (sp.skip_token(SP_COMMAND, TT_STATEMENT, S_LIBRARY) == PS_NORMAL)
+        {
+            as_library = true;
+            // Optional "to <path>" — if absent the caller must pass a path
+            // via the result and the IDE handler will supply it.
+            if (sp.skip_token(SP_FACTOR, TT_TO, PT_TO) == PS_NORMAL)
+            {
+                if (sp.parseexp(False, True, &library_path) != PS_NORMAL)
+                {
+                    MCperror->add(PE_SAVE_BADFILEEXP, sp);
+                    return PS_ERROR;
+                }
+            }
+            return PS_NORMAL;
+        }
+
 		if (sp.parseexp(False, True, &filename) != PS_NORMAL)
 		{
 			MCperror->add(PE_SAVE_BADFILEEXP, sp);
@@ -1168,6 +1171,10 @@ Parse_stat MCSave::parse(MCScriptPoint &sp)
 	return PS_NORMAL;
 }
 
+// Forward declaration — implemented in hxt-cmds.cpp.
+void MCExecSaveStackAsLibrary(MCExecContext &ctxt, MCStack *stack,
+                              MCStringRef path);
+
 void MCSave::exec_ctxt(MCExecContext &ctxt)
 {
     MCObject *optr;
@@ -1185,6 +1192,20 @@ void MCSave::exec_ctxt(MCExecContext &ctxt)
 	}
 
 	MCStack *t_stack = static_cast<MCStack *>(optr);
+
+    // HXT: "save <stack> as library [to <path>]"
+    if (as_library)
+    {
+        MCAutoStringRef t_lib_path;
+        if (library_path != NULL)
+        {
+            if (!ctxt.EvalExprAsStringRef(library_path, EE_SAVE_BADNOFILEEXP, &t_lib_path))
+                return;
+        }
+        MCExecSaveStackAsLibrary(ctxt, t_stack,
+                                 library_path != NULL ? *t_lib_path : kMCEmptyString);
+        return;
+    }
 
 	MCAutoStringRef t_filename;
 	if (filename != NULL)

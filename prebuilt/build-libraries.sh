@@ -41,7 +41,7 @@ echo "PLATFORM=" ${PLATFORM}
 # a fresh clone without the prebuilt binaries.
 PREBUILT_LIB_DIR="${OUTPUT_DIR}/lib/${PLATFORM}"
 if [ "${PLATFORM}" == "mac" ] || [ "${PLATFORM}" == "ios" ]; then
-    if [ -f "${PREBUILT_LIB_DIR}/libz.a" ] && [ -f "${PREBUILT_LIB_DIR}/libiodbc.a" ] && [ -f "${PREBUILT_LIB_DIR}/libpng.a" ]; then
+    if [ -f "${PREBUILT_LIB_DIR}/libcustomcrypto.a" ] && [ -f "${PREBUILT_LIB_DIR}/libiodbc.a" ] && [ -f "${PREBUILT_LIB_DIR}/libpng.a" ]; then
         echo "Prebuilt libraries already present in ${PREBUILT_LIB_DIR} — skipping fetch."
         exit 0
     fi

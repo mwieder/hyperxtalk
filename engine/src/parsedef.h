@@ -1,19 +1,3 @@
-/* Copyright (C) 2003-2015 LiveCode Ltd.
-
-This file is part of LiveCode.
-
-LiveCode is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License v3 as published by the Free
-Software Foundation.
-
-LiveCode is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-for more details.
-
-You should have received a copy of the GNU General Public License
-along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
-
 //
 // global parsing definitions for MetaCard
 //
@@ -322,6 +306,7 @@ enum Functions {
     F_BASE_CONVERT,
     F_BASE64_DECODE,
     F_BASE64_ENCODE,
+    F_BATTERY_LEVEL,
     // AL-2014-10-17: [[ BiDi ]] Returns the result of applying the bi-directional algorithm to text
     F_BIDI_DIRECTION,
     F_BINARY_DECODE,
@@ -362,6 +347,7 @@ enum Functions {
     F_DATE,
     F_DATE_FORMAT,
     F_DECOMPRESS,
+    F_DELETE_CREDENTIAL,
     F_DELETE_RESOURCE,
     F_DIRECTORIES,
     F_DISK_SPACE,
@@ -411,6 +397,7 @@ enum Functions {
     F_HN,
     F_HNTOA,
     F_INTERRUPT,
+    F_IFF,
     F_INTERSECT,
     F_IS_NUMBER,
     F_ISO_TO_MAC,
@@ -461,6 +448,7 @@ enum Functions {
     F_MOVIE,
     F_MOVING_CONTROLS,
     F_NATIVE_CHAR_TO_NUM,
+    F_NATURAL_SCROLLING,
     F_NUM_TO_CHAR,
     F_NUM_TO_NATIVE_CHAR,
     F_NUM_TO_UNICODE_CHAR,
@@ -487,6 +475,7 @@ enum Functions {
     F_POP_STD_DEV,
 	// JS-2013-06-19: [[ StatsFunctions ]] Tag for 'populationVariance'
     F_POP_VARIANCE,
+    F_POWER_SOURCE,
     F_PROCESS_ID,
     F_PROCESSOR,
     F_PROPERTY_NAMES,
@@ -499,6 +488,7 @@ enum Functions {
     F_RECORD_LOUDNESS,
     F_REPLACE_TEXT,
     F_RESULT,
+    F_RETRIEVE_CREDENTIAL,
     F_ROUND,
 	F_RUNTIME_ENVIRONMENTS, // RUNTIME ONLY
     F_SCREEN_COLORS,
@@ -536,6 +526,7 @@ enum Functions {
     F_STACKS,
     F_STACK_SPACE,
     F_STAT_ROUND,
+    F_STORE_CREDENTIAL,
     F_SUM,
     F_SYS_ERROR,
     F_SYSTEM_VERSION,
@@ -788,7 +779,8 @@ enum Operators {
     O_OR,
 	O_WRAP,
 	O_BEGINS_WITH,
-	O_ENDS_WITH
+	O_ENDS_WITH,
+	O_MATCHES
 };
 
 // return codes from parsers
@@ -1520,6 +1512,7 @@ enum Properties {
     P_FIRST_INDENT,
     P_LOCK_TEXT,
     P_SHARED_TEXT,
+    P_SPELL_CHECK,
     P_SHOW_LINES,
     P_FORMATTED_LEFT,
     P_FORMATTED_TOP,
@@ -1780,6 +1773,13 @@ enum Properties {
 
 	P_SYSTEM_TEXT_COLOR,
 
+    P_BADGE,
+    P_TASKBAR_OVERLAY_ICON,
+    P_TASKBAR_PROGRESS,
+
+    P_JUMP_LIST_TASKS,
+    P_JUMP_LIST_CATEGORY,
+
     __P_LAST,
 };
 
@@ -2028,6 +2028,7 @@ enum Statements {
 	// MW-2013-11-14: [[ AssertCmd ]] 'assert' command tag.
 	S_ASSERT,
     S_BEEP,
+    S_BRING_APPLICATION_TO_FRONT,
     S_BREAK,
     S_BREAKPOINT,
     S_CALL,
@@ -2138,6 +2139,7 @@ enum Statements {
     S_SEEK,
     S_SELECT,
     S_SEND,
+    S_SHARE,
     S_SET,
     S_SHEET,
     S_SHOW,

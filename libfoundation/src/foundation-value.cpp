@@ -1,19 +1,3 @@
-/* Copyright (C) 2003-2015 LiveCode Ltd.
-
-This file is part of LiveCode.
-
-LiveCode is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License v3 as published by the Free
-Software Foundation.
-
-LiveCode is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-for more details.
-
-You should have received a copy of the GNU General Public License
-along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
-
 #include <foundation.h>
 #include <foundation-auto.h>
 
@@ -530,9 +514,12 @@ struct MCValuePool
     __MCFreedValue *values;
     uindex_t count;
 };
-static MCValuePool *s_value_pools;
+// Each thread gets its own independent pool so that concurrent allocate/free
+// operations from worker threads never race with the main thread's pool.
+// The array is zero-initialised automatically (thread_local static storage).
+static thread_local MCValuePool s_value_pools[kMCValueTypeCodeList + 1];
 
-// Stores the number of pools that we have.
+// Stores the number of pools that we have (kept for ABI compat).
 uindex_t kMCValuePoolCount = kMCValueTypeCodeList + 1;
 
 bool __MCValueCreate(MCValueTypeCode p_type_code, size_t p_size, __MCValue*& r_value)
@@ -1155,9 +1142,9 @@ MC_DLLEXPORT_DEF MCBooleanRef kMCFalse;
 
 bool __MCValueInitialize(void)
 {
-    if (!MCMemoryNewArray(kMCValuePoolCount, s_value_pools))
-        return false;
-    
+    // s_value_pools is thread_local and zero-initialised at thread startup;
+    // no dynamic allocation is needed.
+
 	if (!__MCValueCreate(kMCValueTypeCodeNull, kMCNull))
 		return false;
 
@@ -1171,6 +1158,24 @@ bool __MCValueInitialize(void)
 		return false;
     
 	return true;
+}
+
+void __MCValueDrainPoolForThread(void)
+{
+    // Drain (and heap-free) every pooled value slot on the calling thread.
+    // Safe to call from any thread; only touches that thread's thread_local pool.
+    for (uindex_t i = 0; i < kMCValueTypeCodeList + 1; i++)
+        while (s_value_pools[i] . count > 0)
+        {
+            __MCFreedValue *t_value = s_value_pools[i] . values;
+
+#ifdef HAVE_VALGRIND
+            VALGRIND_MAKE_MEM_DEFINED(t_value, sizeof (__MCFreedValue));
+#endif
+            s_value_pools[i] . values = t_value -> next;
+            s_value_pools[i] . count -= 1;
+            MCMemoryDelete(t_value);
+        }
 }
 
 void __MCValueFinalize(void)
@@ -1192,26 +1197,26 @@ void __MCValueFinalize(void)
     s_unique_value_capacity_idx = 0;
     
     // Make sure to delete the value pools last, as they need to be around until
-    // all other valuerefs have been deleted.
-    for(uindex_t i = 0; i < kMCValuePoolCount; i++)
+    // all other valuerefs have been deleted.  Drain the calling thread's pool
+    // (main thread at shutdown, or a worker thread's own pool when it exits).
+    for(uindex_t i = 0; i < kMCValueTypeCodeList + 1; i++)
         while(s_value_pools[i] . count > 0)
         {
             __MCFreedValue *t_value;
             t_value = s_value_pools[i] . values;
-            
+
 #ifdef HAVE_VALGRIND
 			/* Valgrind support */
 			/* The first few bytes of the buffer actually contain the
 			 * address of the following buffer. */
 			VALGRIND_MAKE_MEM_DEFINED(t_value, sizeof (__MCFreedValue));
 #endif /* HAVE_VALGRIND */
-            
+
 			s_value_pools[i] . values = t_value -> next;
 			s_value_pools[i] . count -= 1;
             MCMemoryDelete(t_value);
         }
-	MCMemoryDeleteArray(s_value_pools);
-    s_value_pools = nil;
+    // s_value_pools is thread_local stack storage — no MCMemoryDeleteArray needed.
 }
 
 ////////////////////////////////////////////////////////////////////////////////

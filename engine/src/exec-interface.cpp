@@ -1,19 +1,3 @@
-/* Copyright (C) 2003-2015 LiveCode Ltd.
-
-This file is part of LiveCode.
-
-LiveCode is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License v3 as published by the Free
-Software Foundation.
-
-LiveCode is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-for more details.
-
-You should have received a copy of the GNU General Public License
-along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
-
 #include "prefix.h"
 
 #include "globdefs.h"
@@ -64,6 +48,10 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "stacksecurity.h"
 
 #include "exec-interface.h"
+
+#if defined(_WINDOWS_DESKTOP)
+#include "w32dc.h"
+#endif
 #include "graphics_util.h"
 #include "mcerror.h"
 
@@ -978,6 +966,22 @@ void MCInterfaceEvalCapsLockKey(MCExecContext& ctxt, MCNameRef& r_result)
 	MCValueRetain(r_result);
 }
 
+// Returns "true" if the system Natural Scrolling preference is enabled,
+// "false" otherwise.  On non-macOS platforms this always returns "false".
+// Scripts can use this to adapt scroll-wheel handlers to the user's preference:
+//   if the naturalScrolling then
+//     set the vScroll of me to the vScroll of me - pDeltaY * 10
+//   else
+//     set the vScroll of me to the vScroll of me + pDeltaY * 10
+//   end if
+// Note: the scrollWheel engine message already normalises pDeltaY to
+// content-scroll convention (negative = scroll up), so the above is only
+// needed if you want to override that normalised behaviour.
+void MCInterfaceEvalNaturalScrolling(MCExecContext& ctxt, MCStringRef& r_result)
+{
+	r_result = MCValueRetain(MCS_getnaturalscrolling() ? kMCTrueString : kMCFalseString);
+}
+
 void MCInterfaceEvalCommandKey(MCExecContext& ctxt, MCNameRef& r_result)
 {
 	r_result = MCInterfaceKeyConditionToName((MCscreen->querymods() & MS_CONTROL) != 0);
@@ -1289,6 +1293,49 @@ void MCInterfaceExecBeep(MCExecContext& ctxt, integer_t p_count)
 			}
 		}
 	}
+}
+
+void MCInterfaceExecBringApplicationToFront(MCExecContext& ctxt)
+{
+#if defined(_MAC_DESKTOP)
+    extern void MCMacActivateApplication(void);
+    MCMacActivateApplication();
+#elif defined(_WINDOWS_DESKTOP)
+    // Bring the default stack's window to the foreground, restoring it first
+    // if it is minimised.  SetForegroundWindow on the invisible helper window
+    // (the old code) has no visible effect — we need the real stack window.
+    if (MCdefaultstackptr)
+    {
+        // getrealwindow() returns MCSysWindowHandle; cast to HWND for Win32 API.
+        HWND t_hwnd = (HWND)MCdefaultstackptr->getrealwindow();
+        {
+            if (t_hwnd != NULL)
+            {
+                if (IsIconic(t_hwnd))
+                    ShowWindow(t_hwnd, SW_RESTORE);
+
+                // SetForegroundWindow fails silently when our process doesn't own
+                // the foreground lock.  Temporarily attaching our thread's input
+                // to the current foreground thread grants us that permission.
+                HWND  t_fg     = GetForegroundWindow();
+                DWORD t_fg_tid = t_fg ? GetWindowThreadProcessId(t_fg, nullptr) : 0;
+                DWORD t_my_tid = GetCurrentThreadId();
+                if (t_fg_tid && t_fg_tid != t_my_tid)
+                    AttachThreadInput(t_my_tid, t_fg_tid, TRUE);
+
+                SetForegroundWindow(t_hwnd);
+                BringWindowToTop(t_hwnd);
+
+                if (t_fg_tid && t_fg_tid != t_my_tid)
+                    AttachThreadInput(t_my_tid, t_fg_tid, FALSE);
+            }
+        }
+    }
+#elif defined(_LINUX_DESKTOP)
+    extern void MCLinuxActivateApplication(void);
+    MCLinuxActivateApplication();
+#endif
+    // Server and non-desktop builds: no GUI to bring forward.
 }
 
 ////////////////////////////////////////////////////////////////////////////////

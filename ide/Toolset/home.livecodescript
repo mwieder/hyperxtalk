@@ -1212,16 +1212,17 @@ command revInternal__InitialiseLibraries
    put return & "revProfilesLibrary" after tLoadList 
    put return & "revTableLibrary" after tLoadList 
    // HXT put return & "revhtml5urllibrary" after tLoadList
-
-
+   
+   
    if revEnvironmentEditionProperty("autocomplete_pro") then
       put cr & "autocomplete-pro" after tLoadList
    end if
    
+   put return & "ideAutoCompleteLibrary" after tLoadList
    if revEnvironmentEditionProperty("autocomplete") then
       put cr & "autocomplete" after tLoadList
    end if
-
+   
    
    local tBackList
    put "revidedeveloperextensionlibrary" into tBackList
@@ -1241,9 +1242,9 @@ command revInternal__InitialiseLibraries
    repeat for each line tLib in tLoadList	 
       revInternal__Log "Message", "Loading library" && tLib	
       revInternal__LoadLibrary tLib
-	  if the result is not empty then
-	     revInternal__Log "Error", the result 
-	  end if
+      if the result is not empty then
+         revInternal__Log "Error", the result 
+      end if
    end repeat
    
    try	
