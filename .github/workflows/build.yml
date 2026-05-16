@@ -309,14 +309,22 @@ jobs:
           # ships Cygwin but does not pre-install the flex or bison packages.
           Invoke-WebRequest -Uri 'https://cygwin.com/setup-x86_64.exe' `
             -OutFile 'C:\cygwin-setup.exe' -UseBasicParsing
-          Start-Process -Wait 'C:\cygwin-setup.exe' -ArgumentList `
-            '--quiet-mode', '--no-desktop', '--no-startmenu', `
-            '--root', 'C:\cygwin64', `
-            '--site', 'https://mirrors.kernel.org/sourceware/cygwin/', `
-            '--local-package-dir', 'C:\cygwin-packages', `
-            '--packages', 'flex,bison'
-          Write-Host "flex: $(& 'C:\cygwin64\usr\bin\flex.exe' --version 2>&1 | Select-Object -First 1)"
-          Write-Host "bison: $(& 'C:\cygwin64\usr\bin\bison.exe' --version 2>&1 | Select-Object -First 1)"
+          # Use & operator so we see output and get the real exit code
+          & 'C:\cygwin-setup.exe' `
+            --quiet-mode --no-desktop --no-startmenu `
+            --root 'C:\cygwin64' `
+            --site 'https://mirrors.kernel.org/sourceware/cygwin/' `
+            --local-package-dir 'C:\cygwin-packages' `
+            --packages 'flex,bison'
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Cygwin setup failed (exit $LASTEXITCODE)"
+            exit 1
+          }
+          if (-not (Test-Path 'C:\cygwin64\usr\bin\flex.exe')) {
+            Write-Error "flex.exe not found at C:\cygwin64\usr\bin\flex.exe after setup"
+            exit 1
+          }
+          Write-Host "flex and bison installed OK"
 
       - name: Build thirdparty libraries
         shell: cmd
