@@ -511,47 +511,39 @@ set "BOOTSTRAP_STARTUP=%~dp0engine\src\bootstrap-startupstack.cpp"
 set "STARTUP_CPP=%SHARED_INT%\src\startupstack.cpp"
 
 :: Prefer the live descriptify path if server-community.exe is available.
+:: (Variables inside parenthesised blocks expand at parse time in cmd.exe,
+::  so all error checks must be at the top level — use goto for branching.)
 set "SERVER_EXE=%~dp0build-win-x86_64\livecode\Release\server-community.exe"
 if not exist "%~dp0build-win-x86_64\livecode\Debug" mkdir "%~dp0build-win-x86_64\livecode\Debug"
-if exist "%SERVER_EXE%" (
-    copy /Y "%SERVER_EXE%" "%~dp0build-win-x86_64\livecode\Debug\" >nul
-)
+if exist "%SERVER_EXE%" copy /Y "%SERVER_EXE%" "%~dp0build-win-x86_64\livecode\Debug\" >nul
+if not exist "%~dp0build-win-x86_64\livecode\Debug\server-community.exe" goto use_bootstrap_startup
 
-if exist "%~dp0build-win-x86_64\livecode\Debug\server-community.exe" (
-    echo Generating environment_descriptified.livecode (descriptify_environment_stack) ...
-    echo Generating environment_descriptified.livecode ... >> "%LOGFILE%"
-    set "VCXPROJ_DESCRIPTIFY=build-win-x86_64\livecode\engine\descriptify_environment_stack.vcxproj"
-    set "DESCRIPTIFY_LOG=%~dp0build-descriptify-stack.log"
-    "%MSBUILD%" %VCXPROJ_DESCRIPTIFY% /p:Configuration=Debug /p:Platform=x64 /p:BuildProjectReferences=false "/p:SolutionDir=%~dp0build-win-x86_64\livecode\\" /v:minimal /nologo > "%DESCRIPTIFY_LOG%" 2>&1
-    set DESCRIPTIFY_ERR=%ERRORLEVEL%
-    type "%DESCRIPTIFY_LOG%"
-    type "%DESCRIPTIFY_LOG%" >> "%LOGFILE%"
-    if %DESCRIPTIFY_ERR% NEQ 0 (
-        echo WARNING: descriptify_environment_stack failed — falling back to bootstrap-startupstack.cpp
-        goto use_bootstrap_startup
-    )
+echo Generating environment_descriptified.livecode (descriptify_environment_stack) ...
+echo Generating environment_descriptified.livecode ... >> "%LOGFILE%"
+set "VCXPROJ_DESCRIPTIFY=build-win-x86_64\livecode\engine\descriptify_environment_stack.vcxproj"
+set "DESCRIPTIFY_LOG=%~dp0build-descriptify-stack.log"
+"%MSBUILD%" %VCXPROJ_DESCRIPTIFY% /p:Configuration=Debug /p:Platform=x64 /p:BuildProjectReferences=false "/p:SolutionDir=%~dp0build-win-x86_64\livecode\\" /v:minimal /nologo > "%DESCRIPTIFY_LOG%" 2>&1
+set DESCRIPTIFY_ERR=%ERRORLEVEL%
+type "%DESCRIPTIFY_LOG%"
+type "%DESCRIPTIFY_LOG%" >> "%LOGFILE%"
+if %DESCRIPTIFY_ERR% NEQ 0 goto use_bootstrap_startup
 
-    echo Generating startupstack.cpp (encode_environment_stack) ...
-    echo Generating startupstack.cpp ... >> "%LOGFILE%"
-    set "VCXPROJ_ENCODE=build-win-x86_64\livecode\engine\encode_environment_stack.vcxproj"
-    set "ENCODE_LOG=%~dp0build-encode-stack.log"
-    "%MSBUILD%" %VCXPROJ_ENCODE%  "/p:SolutionDir=%~dp0build-win-x86_64\livecode\\" /p:Configuration=Debug /p:Platform=x64 /p:BuildProjectReferences=false /v:minimal /nologo > "%ENCODE_LOG%" 2>&1
-    set ENCODE_ERR=%ERRORLEVEL%
-    type "%ENCODE_LOG%"
-    type "%ENCODE_LOG%" >> "%LOGFILE%"
-    if %ENCODE_ERR% NEQ 0 (
-        echo WARNING: encode_environment_stack failed — falling back to bootstrap-startupstack.cpp
-        goto use_bootstrap_startup
-    )
-    echo startupstack.cpp OK.
-    goto startup_done
-) else (
-    echo server-community.exe not found — using bootstrap-startupstack.cpp.
-)
+echo Generating startupstack.cpp (encode_environment_stack) ...
+echo Generating startupstack.cpp ... >> "%LOGFILE%"
+set "VCXPROJ_ENCODE=build-win-x86_64\livecode\engine\encode_environment_stack.vcxproj"
+set "ENCODE_LOG=%~dp0build-encode-stack.log"
+"%MSBUILD%" %VCXPROJ_ENCODE%  "/p:SolutionDir=%~dp0build-win-x86_64\livecode\\" /p:Configuration=Debug /p:Platform=x64 /p:BuildProjectReferences=false /v:minimal /nologo > "%ENCODE_LOG%" 2>&1
+set ENCODE_ERR=%ERRORLEVEL%
+type "%ENCODE_LOG%"
+type "%ENCODE_LOG%" >> "%LOGFILE%"
+if %ENCODE_ERR% NEQ 0 goto use_bootstrap_startup
+echo startupstack.cpp OK.
+goto startup_done
 
 :use_bootstrap_startup
+echo server-community.exe not available or descriptify failed -- using bootstrap-startupstack.cpp
 if not exist "%BOOTSTRAP_STARTUP%" (
-    echo ERROR: engine\src\bootstrap-startupstack.cpp not found and server-community.exe unavailable.
+    echo ERROR: engine\src\bootstrap-startupstack.cpp not found.
     exit /b 1
 )
 if not exist "%SHARED_INT%\src" mkdir "%SHARED_INT%\src"
@@ -560,7 +552,7 @@ if not exist "%STARTUP_CPP%" (
     echo ERROR: Failed to copy bootstrap-startupstack.cpp to %STARTUP_CPP%
     exit /b 1
 )
-echo Using bootstrap-startupstack.cpp as startupstack.cpp.
+echo bootstrap-startupstack.cpp copied OK.
 :startup_done
 
 echo.
