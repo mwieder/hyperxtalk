@@ -168,11 +168,16 @@
 			'dependencies':
 			[
 				'kernel-server.gyp:kernel-server',
-				
+
 				'../libfoundation/libfoundation.gyp:libFoundation',
 				'../libgraphics/libgraphics.gyp:libGraphics',
 
 				'lcb-modules.gyp:engine_lcb_modules',
+
+				# libcurl link_settings do not reliably propagate transitively
+				# through static libraries on Windows; list it here directly so
+				# the server.vcxproj linker can find libcurl_a.lib.
+				'../prebuilt/libcurl.gyp:libcurl',
 			],
 			
 			'sources':

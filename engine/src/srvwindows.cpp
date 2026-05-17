@@ -1282,18 +1282,59 @@ bool MCSystemLockFile(MCSystemFileHandle *p_file, bool p_shared, bool p_wait)
 	if (!p_shared)
 	{
 		DWORD t_flags = 0;
-	
+
 		if (!p_shared)
 			t_flags |= LOCKFILE_EXCLUSIVE_LOCK;
 		if (!p_wait)
 			t_flags |= LOCKFILE_FAIL_IMMEDIATELY;
-	
+
 		OVERLAPPED t_range;
 		ZeroMemory(&t_range, sizeof(t_range));
 		t_success = FALSE != LockFileEx(t_fhandle, t_flags, 0, MAXDWORD, MAXDWORD, &t_range);
 	}
-	
+
 	return t_success;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Windows server stubs for desktop-only platform functions.
+// The desktop implementations live in w32dcs.cpp, w32-jumplist.cpp, and
+// w32-core-compat.cpp which are not compiled for server builds.
+// These stubs satisfy the linker without pulling in any GUI dependencies.
+////////////////////////////////////////////////////////////////////////////////
+
+#include "platform.h"
+
+extern "C" bool MCplatformIsDarkMode(void)
+{
+	// No UI in server mode; always report light mode.
+	return false;
+}
+
+void MCPlatformSetJumpList(MCStringRef /*p_tasks*/, MCStringRef /*p_category*/)
+{
+	// Not applicable in server mode.
+}
+
+void MCPlatformSetTaskbarProgress(void * /*p_hwnd*/, double /*p_value*/)
+{
+	// Not applicable in server mode.
+}
+
+void MCPlatformSetBadge(void * /*p_hwnd*/, uinteger_t /*p_count*/)
+{
+	// Not applicable in server mode.
+}
+
+void MCPlatformSpellCheckText(MCStringRef /*p_text*/, MCRange *&r_errors, uindex_t &r_count)
+{
+	r_errors = nil;
+	r_count  = 0;
+}
+
+void MCPlatformShareContent(MCPlatformWindowRef, MCPlatformShareType, MCValueRef, bool, MCRectangle, MCStringRef)
+{
+	// Not applicable in server mode.
 }
 
 
