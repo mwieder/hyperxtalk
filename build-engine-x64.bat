@@ -423,13 +423,25 @@ set VCXPROJ_LCBOOTSTRAP=build-win-x86_64\livecode\toolchain\lc-compile\src\lc-bo
 "%MSBUILD%" %VCXPROJ_LCBOOTSTRAP% /p:Configuration=Debug /p:Platform=x64 /p:BuildProjectReferences=false /p:SolutionDir=%SOLDIR% /p:RuntimeLibrary=MultiThreadedDebug /v:minimal /nologo
 if errorlevel 1 ( echo lc-bootstrap-compile FAILED & exit /b 1 )
 
-:: Copy ICU DLLs from Release to Debug so toolchain executables can load them at runtime
+:: Copy ICU DLLs to Debug so toolchain executables can load them at runtime.
+:: sicudt.lib is an import lib for icudt58.dll, so lc-bootstrap-compile.exe
+:: requires icudt58.dll to be present in the same directory when it runs.
+:: On a fresh CI checkout there is no Release\ yet, so we source the DLLs
+:: from ide\Runtime\Windows\x86-64\ (always present) and fall back to
+:: Release\ for developer machines that already have a Release build.
 echo Copying ICU DLLs to Debug output dir ...
 if not exist "%~dp0build-win-x86_64\livecode\Debug" mkdir "%~dp0build-win-x86_64\livecode\Debug"
-copy /Y "%~dp0build-win-x86_64\livecode\Release\icudt58.dll" "%~dp0build-win-x86_64\livecode\Debug" >nul
-copy /Y "%~dp0build-win-x86_64\livecode\Release\icuin58.dll" "%~dp0build-win-x86_64\livecode\Debug" >nul
-copy /Y "%~dp0build-win-x86_64\livecode\Release\icutu58.dll" "%~dp0build-win-x86_64\livecode\Debug" >nul
-copy /Y "%~dp0build-win-x86_64\livecode\Release\icuuc58.dll" "%~dp0build-win-x86_64\livecode\Debug" >nul
+set "ICU_RT_DIR=%~dp0ide\Runtime\Windows\x86-64"
+set "ICU_REL_DIR=%~dp0build-win-x86_64\livecode\Release"
+for %%F in (icudt58.dll icuin58.dll icutu58.dll icuuc58.dll) do (
+    if exist "%ICU_REL_DIR%\%%F" (
+        copy /Y "%ICU_REL_DIR%\%%F" "%~dp0build-win-x86_64\livecode\Debug\" >nul
+    ) else if exist "%ICU_RT_DIR%\%%F" (
+        copy /Y "%ICU_RT_DIR%\%%F" "%~dp0build-win-x86_64\livecode\Debug\" >nul
+    ) else (
+        echo WARNING: %%F not found in Release or ide\Runtime\Windows\x86-64
+    )
+)
 echo ICU DLLs copied.
 
 echo Building lc-compile-stage2 ...
@@ -483,16 +495,28 @@ echo.
 :: We build encode_environment_stack with BuildProjectReferences=true so
 :: MSBuild automatically chains descriptify_environment_stack first.
 :: ----------------------------------------------------------
-:: Step 1: descriptify_environment_stack — runs the committed server-community.exe
-:: to produce environment_descriptified.livecode.
-:: Built with BuildProjectReferences=false to avoid chaining into host-server →
-:: server → libicu → fetch → fetch-win, which aborts because prebuilt/lib/win32/
-:: icudt.lib is not in the repo.  server-community.exe is already committed.
-:: Copy server-community.exe (committed Release bootstrap) to Debug so $(OutDir) finds it
-echo Copying server-community.exe to Debug output dir ...
+:: Step 1: descriptify_environment_stack — runs server-community.exe to produce
+:: environment_descriptified.livecode, then encode_environment_stack encodes
+:: it into startupstack.cpp.
+::
+:: server-community.exe is not committed to the repo.  On developer machines it
+:: is present in Release\ from a prior build.  On a clean CI checkout it does
+:: not exist, so we fall back to engine\src\bootstrap-startupstack.cpp — a
+:: pre-generated version committed to the repo.  The bootstrap file is
+:: regenerated whenever the environment stack changes by running:
+::   make compile-mac  (macOS)
+:: and committing the updated engine\src\bootstrap-startupstack.cpp.
+:: ----------------------------------------------------------
+set "BOOTSTRAP_STARTUP=%~dp0engine\src\bootstrap-startupstack.cpp"
+set "STARTUP_CPP=%SHARED_INT%\src\startupstack.cpp"
+
+:: Prefer the live descriptify path if server-community.exe is available.
+:: (Variables inside parenthesised blocks expand at parse time in cmd.exe,
+::  so all error checks must be at the top level — use goto for branching.)
+set "SERVER_EXE=%~dp0build-win-x86_64\livecode\Release\server-community.exe"
 if not exist "%~dp0build-win-x86_64\livecode\Debug" mkdir "%~dp0build-win-x86_64\livecode\Debug"
-copy /Y "%~dp0build-win-x86_64\livecode\Release\server-community.exe" "%~dp0build-win-x86_64\livecode\Debug" >nul
-echo server-community.exe copied.
+if exist "%SERVER_EXE%" copy /Y "%SERVER_EXE%" "%~dp0build-win-x86_64\livecode\Debug\" >nul
+if not exist "%~dp0build-win-x86_64\livecode\Debug\server-community.exe" goto use_bootstrap_startup
 
 echo Generating environment_descriptified.livecode (descriptify_environment_stack) ...
 echo Generating environment_descriptified.livecode ... >> "%LOGFILE%"
@@ -502,16 +526,8 @@ set "DESCRIPTIFY_LOG=%~dp0build-descriptify-stack.log"
 set DESCRIPTIFY_ERR=%ERRORLEVEL%
 type "%DESCRIPTIFY_LOG%"
 type "%DESCRIPTIFY_LOG%" >> "%LOGFILE%"
-if %DESCRIPTIFY_ERR% NEQ 0 (
-    echo.
-    echo DESCRIPTIFY_ENVIRONMENT_STACK FAILED. See %DESCRIPTIFY_LOG% for details.
-    exit /b 1
-)
-echo descriptify_environment_stack OK.
+if %DESCRIPTIFY_ERR% NEQ 0 goto use_bootstrap_startup
 
-echo.
-:: Step 2: encode_environment_stack — runs util/compress_data.py on the
-:: .livecode file to produce startupstack.cpp.
 echo Generating startupstack.cpp (encode_environment_stack) ...
 echo Generating startupstack.cpp ... >> "%LOGFILE%"
 set "VCXPROJ_ENCODE=build-win-x86_64\livecode\engine\encode_environment_stack.vcxproj"
@@ -520,12 +536,24 @@ set "ENCODE_LOG=%~dp0build-encode-stack.log"
 set ENCODE_ERR=%ERRORLEVEL%
 type "%ENCODE_LOG%"
 type "%ENCODE_LOG%" >> "%LOGFILE%"
-if %ENCODE_ERR% NEQ 0 (
-    echo.
-    echo ENCODE_ENVIRONMENT_STACK FAILED. See %ENCODE_LOG% for details.
+if %ENCODE_ERR% NEQ 0 goto use_bootstrap_startup
+echo startupstack.cpp OK.
+goto startup_done
+
+:use_bootstrap_startup
+echo server-community.exe not available or descriptify failed -- using bootstrap-startupstack.cpp
+if not exist "%BOOTSTRAP_STARTUP%" (
+    echo ERROR: engine\src\bootstrap-startupstack.cpp not found.
     exit /b 1
 )
-echo encode_environment_stack OK.
+if not exist "%SHARED_INT%\src" mkdir "%SHARED_INT%\src"
+copy /Y "%BOOTSTRAP_STARTUP%" "%STARTUP_CPP%" >nul
+if not exist "%STARTUP_CPP%" (
+    echo ERROR: Failed to copy bootstrap-startupstack.cpp to %STARTUP_CPP%
+    exit /b 1
+)
+echo bootstrap-startupstack.cpp copied OK.
+:startup_done
 
 echo.
 :: ----------------------------------------------------------
@@ -534,6 +562,29 @@ echo.
 :: Must be explicit because development.vcxproj uses
 :: BuildProjectReferences=false.
 :: ----------------------------------------------------------
+:: ----------------------------------------------------------
+:: Generate revbuild.h — contains build version defines required by the
+:: precompiled header (w32prefix.h).  Without it every translation unit
+:: fails with "Cannot open include file: revbuild.h" and cascades into
+:: hundreds of undefined-type errors.
+:: encode_version.vcxproj runs util/encode_version.pl (Perl) to produce
+:: shared_intermediate/include/revbuild.h from engine/include/revbuild.h.in.
+:: ----------------------------------------------------------
+echo Generating revbuild.h (encode_version) ...
+echo Generating revbuild.h ... >> "%LOGFILE%"
+set "VCXPROJ_ENCODE_VER=build-win-x86_64\livecode\engine\encode_version.vcxproj"
+set "ENCVER_LOG=%~dp0build-encode-version.log"
+"%MSBUILD%" %VCXPROJ_ENCODE_VER% /p:Configuration=Debug /p:Platform=x64 /p:BuildProjectReferences=false "/p:SolutionDir=%~dp0build-win-x86_64\livecode\\" /v:minimal /nologo > "%ENCVER_LOG%" 2>&1
+set ENCVER_ERR=%ERRORLEVEL%
+type "%ENCVER_LOG%"
+type "%ENCVER_LOG%" >> "%LOGFILE%"
+if %ENCVER_ERR% NEQ 0 (
+    echo ERROR: encode_version failed. See %ENCVER_LOG%
+    exit /b 1
+)
+echo revbuild.h OK.
+
+echo.
 echo Building security-community ...
 echo Building security-community ... >> "%LOGFILE%"
 set "SECCOM_LOG=%~dp0build-security-community.log"
@@ -600,11 +651,10 @@ echo.
 :: ----------------------------------------------------------
 echo Patching kernel.lib with printer objects ...
 echo Patching kernel.lib with printer objects ... >> "%LOGFILE%"
-set "PRINTER_LOG=%~dp0compile-printer.log"
-call "%~dp0compile-printer.bat" Debug >> "%LOGFILE%" 2>&1
+call "%~dp0compile-printer.bat" Debug
 if errorlevel 1 (
     echo.
-    echo PRINTER PATCH FAILED. See %PRINTER_LOG% for details.
+    echo PRINTER PATCH FAILED.
     exit /b 1
 )
 echo Printer patch OK.
@@ -781,21 +831,90 @@ echo.
 :: ----------------------------------------------------------
 echo Building libxml2 (2.15.3) ...
 echo Building libxml2 ... >> "%LOGFILE%"
-"%MSBUILD%" %VCXPROJ_LIBXML% /t:Rebuild  "/p:SolutionDir=%~dp0build-win-x86_64\livecode\\" /p:Configuration=Debug /p:Platform=x64 /p:BuildProjectReferences=false /v:minimal /nologo >> "%LOGFILE%" 2>&1
+"%MSBUILD%" %VCXPROJ_LIBXML% /t:Rebuild  "/p:SolutionDir=%~dp0build-win-x86_64\livecode\\" /p:Configuration=Debug /p:Platform=x64 /p:BuildProjectReferences=false /v:minimal /nologo
 if %ERRORLEVEL% NEQ 0 (
-    echo ERROR: libxml2 build failed. See %LOGFILE%
+    echo ERROR: libxml2 build failed.
     exit /b 1
 )
 echo libxml2 OK.
 
 echo Building libxslt ...
 echo Building libxslt ... >> "%LOGFILE%"
-"%MSBUILD%" %VCXPROJ_LIBXSLT% /t:Rebuild  "/p:SolutionDir=%~dp0build-win-x86_64\livecode\\" /p:Configuration=Debug /p:Platform=x64 /p:BuildProjectReferences=false /v:minimal /nologo >> "%LOGFILE%" 2>&1
+"%MSBUILD%" %VCXPROJ_LIBXSLT% /t:Rebuild  "/p:SolutionDir=%~dp0build-win-x86_64\livecode\\" /p:Configuration=Debug /p:Platform=x64 /p:BuildProjectReferences=false /v:minimal /nologo
 if %ERRORLEVEL% NEQ 0 (
-    echo ERROR: libxslt build failed. See %LOGFILE%
+    echo ERROR: libxslt build failed.
     exit /b 1
 )
 echo libxslt OK.
+
+echo.
+:: ----------------------------------------------------------
+:: Create stub libvlc.lib (import library for delay-loaded libvlc.dll)
+::
+:: VLC is not installed on CI runners.  The engine delay-loads libvlc.dll
+:: (DelayLoadDLLs in kernel.gyp) so no VLC installation is required at
+:: runtime — EnsureVLCInstance() returns false gracefully when the DLL is
+:: absent.  However the MSVC linker still requires an import library at
+:: link time in order to resolve the symbol references.
+::
+:: We generate a minimal stub import library from a .def file that lists
+:: every libvlc symbol imported by the engine (vlc-player.cpp).
+:: lib.exe /DEF creates the import library without needing VLC installed.
+:: ----------------------------------------------------------
+echo Creating stub libvlc.lib for linker ...
+set "VLC_DEF=%TEMP%\hxt_libvlc.def"
+set "VLC_LIB_DIR=%~dp0build-win-x86_64\livecode\Debug\lib"
+set "VLC_LIB=%VLC_LIB_DIR%\libvlc.lib"
+
+(
+    echo LIBRARY libvlc
+    echo EXPORTS
+    echo     libvlc_new
+    echo     libvlc_release
+    echo     libvlc_get_version
+    echo     libvlc_errmsg
+    echo     libvlc_log_set
+    echo     libvlc_media_new_location
+    echo     libvlc_media_new_path
+    echo     libvlc_media_parse
+    echo     libvlc_media_parse_with_options
+    echo     libvlc_media_release
+    echo     libvlc_media_get_duration
+    echo     libvlc_media_tracks_get
+    echo     libvlc_media_tracks_release
+    echo     libvlc_media_player_new
+    echo     libvlc_media_player_release
+    echo     libvlc_media_player_set_media
+    echo     libvlc_media_player_play
+    echo     libvlc_media_player_pause
+    echo     libvlc_media_player_stop
+    echo     libvlc_media_player_set_rate
+    echo     libvlc_media_player_get_state
+    echo     libvlc_media_player_get_time
+    echo     libvlc_media_player_set_time
+    echo     libvlc_media_player_get_length
+    echo     libvlc_media_player_set_hwnd
+    echo     libvlc_media_player_set_nsobject
+    echo     libvlc_media_player_set_xwindow
+    echo     libvlc_media_player_event_manager
+    echo     libvlc_event_attach
+    echo     libvlc_audio_set_volume
+    echo     libvlc_video_get_size
+    echo     libvlc_video_set_callbacks
+    echo     libvlc_video_set_format_callbacks
+) > "%VLC_DEF%"
+
+if not exist "%VLC_LIB_DIR%" mkdir "%VLC_LIB_DIR%"
+"%LIB_EXE%" /NOLOGO /DEF:"%VLC_DEF%" /MACHINE:X64 /OUT:"%VLC_LIB%" > nul 2>&1
+del "%VLC_DEF%" 2>nul
+if not exist "%VLC_LIB%" (
+    echo ERROR: Failed to create stub libvlc.lib
+    exit /b 1
+)
+echo Stub libvlc.lib created: %VLC_LIB%
+:: The directory is added to the linker's AdditionalLibraryDirectories via the
+:: atl-include.props ForceImportBeforeCppTargets file (see CI workflow step
+:: "Inject ATL include path via MSBuild props").  No LIB env var change needed.
 
 echo.
 echo Building engine ...
@@ -900,9 +1019,9 @@ echo.
 :: ----------------------------------------------------------
 echo Building revxml (IDE XML external) ...
 echo Building revxml ... >> "%LOGFILE%"
-"%MSBUILD%" %VCXPROJ_REVXML% /t:Rebuild /p:Configuration=Debug /p:Platform=x64 /p:BuildProjectReferences=false "/p:SolutionDir=%~dp0build-win-x86_64\livecode\\" /v:minimal /nologo >> "%LOGFILE%" 2>&1
+"%MSBUILD%" %VCXPROJ_REVXML% /t:Rebuild /p:Configuration=Debug /p:Platform=x64 /p:BuildProjectReferences=false "/p:SolutionDir=%~dp0build-win-x86_64\livecode\\" /v:minimal /nologo
 if %ERRORLEVEL% NEQ 0 (
-    echo ERROR: revxml build failed. See %LOGFILE%
+    echo ERROR: revxml build failed.
     exit /b 1
 )
 echo revxml OK.
@@ -944,13 +1063,45 @@ if %REVBROWSER_ERR% NEQ 0 (
 
 echo.
 :: ----------------------------------------------------------
+:: Build kernel-server + server-community.exe (Debug).
+::
+:: server-community.exe is used below to compile LCB extensions.
+:: kernel-server is the LiveCode server mode kernel; it is built
+:: separately from kernel (IDE mode) because it defines MODE_SERVER.
+:: ----------------------------------------------------------
+echo Building kernel-server ...
+echo Building kernel-server ... >> "%LOGFILE%"
+"%MSBUILD%" build-win-x86_64\livecode\engine\kernel-server.vcxproj /t:Rebuild /p:Configuration=Debug /p:Platform=x64 /p:BuildProjectReferences=false "/p:SolutionDir=%~dp0build-win-x86_64\livecode\\" /v:minimal /nologo
+if %ERRORLEVEL% NEQ 0 (
+    echo WARNING: kernel-server build failed -- server-community.exe will not be available.
+    goto skip_server_build
+)
+echo kernel-server OK.
+
+echo.
+echo Building server-community.exe (Debug) ...
+echo Building server-community.exe ... >> "%LOGFILE%"
+"%MSBUILD%" build-win-x86_64\livecode\engine\server.vcxproj /t:Rebuild /p:Configuration=Debug /p:Platform=x64 /p:BuildProjectReferences=false "/p:SolutionDir=%~dp0build-win-x86_64\livecode\\" /v:minimal /nologo
+if %ERRORLEVEL% NEQ 0 (
+    echo WARNING: server-community.exe build failed -- LCB extension build will be skipped.
+) else (
+    echo server-community.exe OK.
+    :: Copy to Debug root so the LCB extension step can find it
+    if exist "build-win-x86_64\livecode\Debug\server-community.exe" (
+        echo server-community.exe already in Debug root.
+    )
+)
+:skip_server_build
+
+echo.
+:: ----------------------------------------------------------
 :: Build LCB extensions (module libraries + widgets) for Debug.
 ::
-:: Uses server-community.exe (bootstrapped from Release) with
-:: extension-utils.lc in buildlcbextensions mode.  The script
-:: handles dependency ordering, generates manifest.xml in each
-:: source directory, compiles .lcb → .lcm, packages and extracts
-:: to Debug\packaged_extensions\<module-id>\.
+:: Uses server-community.exe with extension-utils.lc in
+:: buildlcbextensions mode.  The script handles dependency ordering,
+:: generates manifest.xml in each source directory, compiles
+:: .lcb → .lcm, packages and extracts to
+:: Debug\packaged_extensions\<module-id>\.
 ::
 :: server-revzip.dll is bootstrapped from Release\ because the
 :: Debug bat does not build server-revzip (it's Release-only).
@@ -1027,3 +1178,4 @@ echo.
 echo Build completed: %DATE% %TIME%
 echo Build completed: %DATE% %TIME% >> "%LOGFILE%"
 echo Full log: %LOGFILE%
+exit /b 0

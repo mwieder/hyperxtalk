@@ -806,6 +806,7 @@
 			'src/w32image.cpp',
 			'src/w32misc.cpp',
 			'src/w32-ds-player.cpp',
+			'src/w32-jumplist.cpp',
 			'src/w32prefix.cpp',
 			'src/w32printer.cpp',
 			'src/w32relaunch.cpp',

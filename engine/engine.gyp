@@ -245,8 +245,11 @@
 				'kernel-standalone.gyp:kernel-standalone',
 				'engine-common.gyp:security-community',
 				'lcb-modules.gyp:engine_lcb_modules',
+				# encode_version generates revbuild.h into $(SHARED_INTERMEDIATE_DIR)/include.
+				# direct_dependent_settings do not propagate transitively.
+				'engine-common.gyp:encode_version',
 			],
-			
+
 			'sources':
 			[
 				'>@(builtin_lcb_modules)',
@@ -691,6 +694,12 @@
 				'encode_environment_stack',
 				'engine-common.gyp:security-community',
 				'lcb-modules.gyp:engine_lcb_modules',
+				# encode_version generates revbuild.h into $(SHARED_INTERMEDIATE_DIR)/include.
+				# Its direct_dependent_settings propagate that include dir to this target so
+				# both the C++ compiler and the RC compiler (for development.rc) can find
+				# revbuild.h.  Without this direct dependency the path is two hops away and
+				# GYP's direct_dependent_settings do not propagate that far.
+				'engine-common.gyp:encode_version',
 			],
 			
 			'sources':
