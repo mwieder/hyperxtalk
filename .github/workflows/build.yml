@@ -303,7 +303,10 @@ jobs:
             @{ Src = "prebuilt\unpacked\icu\x86_64-win32-v145_static_Release";        Dst = "prebuilt\unpacked\icu\x86_64-win32-v143_static_Release" },
             # curl only ships with a v142 variant; alias it to v143 for both configs
             @{ Src = "prebuilt\unpacked\curl\x86_64-win32-v142_static_Debug";         Dst = "prebuilt\unpacked\curl\x86_64-win32-v143_static_Debug" },
-            @{ Src = "prebuilt\unpacked\curl\x86_64-win32-v142_static_Debug";         Dst = "prebuilt\unpacked\curl\x86_64-win32-v143_static_Release" }
+            @{ Src = "prebuilt\unpacked\curl\x86_64-win32-v142_static_Debug";         Dst = "prebuilt\unpacked\curl\x86_64-win32-v143_static_Release" },
+            # openssl3 only ships with a v142 variant; alias it to v143 for both configs
+            @{ Src = "prebuilt\unpacked\openssl3\x86_64-win32-v142_static_Debug";     Dst = "prebuilt\unpacked\openssl3\x86_64-win32-v143_static_Debug" },
+            @{ Src = "prebuilt\unpacked\openssl3\x86_64-win32-v142_static_Release";   Dst = "prebuilt\unpacked\openssl3\x86_64-win32-v143_static_Release" }
           )
           foreach ($p in $pairs) {
             if (Test-Path $p.Src) {
