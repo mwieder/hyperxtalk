@@ -52,6 +52,15 @@ echo compile-printer.bat [%CONFIG%] started: %DATE% %TIME% > "%LOGFILE%"
 echo [Config: %CONFIG%]
 echo.
 
+:: Ensure the OBJ output directory exists (MSBuild creates it during a
+:: normal kernel build, but compile-printer.bat may run on a clean tree
+:: where kernel.vcxproj has not yet written any intermediate files).
+if not exist "%OBJDIR%" (
+    mkdir "%OBJDIR%"
+    if errorlevel 1 ( echo ERROR: Cannot create OBJ dir: %OBJDIR% & exit /b 1 )
+    echo Created OBJ dir: %OBJDIR%
+)
+
 :: ============================================================
 :: Validate inputs
 :: ============================================================
