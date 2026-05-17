@@ -4,6 +4,10 @@
 #ifndef	STATEMENT_H
 #define	STATEMENT_H
 
+// Self-contained type dependencies — allows statemnt.h to be included from
+// any translation unit without requiring the caller to include these first.
+#include "parsedef.h"    // Parse_stat, Functions; transitively: typedefs.h (uint2, uint4, Boolean)
+
 class MCScriptPoint;
 class MCParameter;
 class MCChunk;
@@ -12,6 +16,7 @@ class MCVarref;
 class MCHandler;
 class MCHXTASTWriter;
 class MCHXTASTReader;
+class MCExecContext;
 
 class MCStatement
 {

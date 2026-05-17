@@ -39,6 +39,11 @@
  * older readers.
  */
 
+// Include engine prefix first so platform type definitions (uint2, uint4,
+// Parse_stat, etc.) are available if any engine header is transitively pulled
+// in by the kernel.vcxproj compilation unit setup.
+#include "prefix.h"
+
 #include "hxtlib.h"
 
 #include <cassert>
