@@ -562,6 +562,29 @@ echo.
 :: Must be explicit because development.vcxproj uses
 :: BuildProjectReferences=false.
 :: ----------------------------------------------------------
+:: ----------------------------------------------------------
+:: Generate revbuild.h — contains build version defines required by the
+:: precompiled header (w32prefix.h).  Without it every translation unit
+:: fails with "Cannot open include file: revbuild.h" and cascades into
+:: hundreds of undefined-type errors.
+:: encode_version.vcxproj runs util/encode_version.pl (Perl) to produce
+:: shared_intermediate/include/revbuild.h from engine/include/revbuild.h.in.
+:: ----------------------------------------------------------
+echo Generating revbuild.h (encode_version) ...
+echo Generating revbuild.h ... >> "%LOGFILE%"
+set "VCXPROJ_ENCODE_VER=build-win-x86_64\livecode\engine\encode_version.vcxproj"
+set "ENCVER_LOG=%~dp0build-encode-version.log"
+"%MSBUILD%" %VCXPROJ_ENCODE_VER% /p:Configuration=Debug /p:Platform=x64 /p:BuildProjectReferences=false "/p:SolutionDir=%~dp0build-win-x86_64\livecode\\" /v:minimal /nologo > "%ENCVER_LOG%" 2>&1
+set ENCVER_ERR=%ERRORLEVEL%
+type "%ENCVER_LOG%"
+type "%ENCVER_LOG%" >> "%LOGFILE%"
+if %ENCVER_ERR% NEQ 0 (
+    echo ERROR: encode_version failed. See %ENCVER_LOG%
+    exit /b 1
+)
+echo revbuild.h OK.
+
+echo.
 echo Building security-community ...
 echo Building security-community ... >> "%LOGFILE%"
 set "SECCOM_LOG=%~dp0build-security-community.log"
