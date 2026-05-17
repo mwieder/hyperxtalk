@@ -1063,13 +1063,45 @@ if %REVBROWSER_ERR% NEQ 0 (
 
 echo.
 :: ----------------------------------------------------------
+:: Build kernel-server + server-community.exe (Debug).
+::
+:: server-community.exe is used below to compile LCB extensions.
+:: kernel-server is the LiveCode server mode kernel; it is built
+:: separately from kernel (IDE mode) because it defines MODE_SERVER.
+:: ----------------------------------------------------------
+echo Building kernel-server ...
+echo Building kernel-server ... >> "%LOGFILE%"
+"%MSBUILD%" build-win-x86_64\livecode\engine\kernel-server.vcxproj /t:Rebuild /p:Configuration=Debug /p:Platform=x64 /p:BuildProjectReferences=false "/p:SolutionDir=%~dp0build-win-x86_64\livecode\\" /v:minimal /nologo
+if %ERRORLEVEL% NEQ 0 (
+    echo WARNING: kernel-server build failed -- server-community.exe will not be available.
+    goto skip_server_build
+)
+echo kernel-server OK.
+
+echo.
+echo Building server-community.exe (Debug) ...
+echo Building server-community.exe ... >> "%LOGFILE%"
+"%MSBUILD%" build-win-x86_64\livecode\engine\server.vcxproj /t:Rebuild /p:Configuration=Debug /p:Platform=x64 /p:BuildProjectReferences=false "/p:SolutionDir=%~dp0build-win-x86_64\livecode\\" /v:minimal /nologo
+if %ERRORLEVEL% NEQ 0 (
+    echo WARNING: server-community.exe build failed -- LCB extension build will be skipped.
+) else (
+    echo server-community.exe OK.
+    :: Copy to Debug root so the LCB extension step can find it
+    if exist "build-win-x86_64\livecode\Debug\server-community.exe" (
+        echo server-community.exe already in Debug root.
+    )
+)
+:skip_server_build
+
+echo.
+:: ----------------------------------------------------------
 :: Build LCB extensions (module libraries + widgets) for Debug.
 ::
-:: Uses server-community.exe (bootstrapped from Release) with
-:: extension-utils.lc in buildlcbextensions mode.  The script
-:: handles dependency ordering, generates manifest.xml in each
-:: source directory, compiles .lcb → .lcm, packages and extracts
-:: to Debug\packaged_extensions\<module-id>\.
+:: Uses server-community.exe with extension-utils.lc in
+:: buildlcbextensions mode.  The script handles dependency ordering,
+:: generates manifest.xml in each source directory, compiles
+:: .lcb → .lcm, packages and extracts to
+:: Debug\packaged_extensions\<module-id>\.
 ::
 :: server-revzip.dll is bootstrapped from Release\ because the
 :: Debug bat does not build server-revzip (it's Release-only).
@@ -1146,3 +1178,4 @@ echo.
 echo Build completed: %DATE% %TIME%
 echo Build completed: %DATE% %TIME% >> "%LOGFILE%"
 echo Full log: %LOGFILE%
+exit /b 0
