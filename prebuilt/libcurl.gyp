@@ -101,6 +101,9 @@
 									'-lws2_32',
 									'-lwldap32',
 									'-lcrypt32',
+									# WinSSL / schannel backend (used by vcpkg's curl):
+									'-lbcrypt',   # BCryptGenRandom (rand.c)
+									'-lsecur32',  # InitSecurityInterfaceW (curl_sspi.c)
 								],
 							},
 						},
