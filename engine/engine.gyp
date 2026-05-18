@@ -221,7 +221,35 @@
 					'SubSystem': '1',	# /SUBSYSTEM:CONSOLE
 				},
 			},
-			
+
+			# libcurl's link_settings do not propagate reliably through
+			# type:'none' GYP targets on MSVC when target_conditions are used.
+			# Spell out the Windows curl link settings directly here so that
+			# server.vcxproj gets AdditionalLibraryDirectories and
+			# AdditionalDependencies for libcurl_a.lib.
+			'target_conditions':
+			[
+				[
+					'toolset_os == "win"',
+					{
+						'link_settings':
+						{
+							'library_dirs':
+							[
+								'../prebuilt/unpacked/curl/<(uniform_arch)-win32-$(PlatformToolset)_static_$(ConfigurationName)/lib',
+							],
+							'libraries':
+							[
+								'-llibcurl_a',
+								'-lws2_32',
+								'-lwldap32',
+								'-lcrypt32',
+							],
+						},
+					},
+				],
+			],
+
 			'all_dependent_settings':
 			{
 				'variables':
@@ -230,7 +258,7 @@
 				},
 			},
 		},
-		
+
 		{
 			'target_name': 'standalone',
 			'product_name': 'standalone-community',
