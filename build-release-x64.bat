@@ -445,14 +445,30 @@ echo Bootstrapping lc-compile.exe + ICU DLLs ...
 copy /Y "%LC_COMPILE_DBG%"          "%LC_COMPILE_REL%"            > nul
 :: ICU DLLs are not produced by the Debug engine build; copy directly from the
 :: prebuilt unpacked directory so server-community.exe can find them at runtime.
+:: ICU DLLs — lc-compile.exe links libScript → libFoundation → ICU and
+:: therefore needs the ICU data DLLs at runtime.  The prebuilt ICU is a
+:: static-only build with no DLLs; fall back to Debug\ (which got them from
+:: ide\Runtime\Windows\x86-64\ during build-engine-x64.bat) or directly to
+:: ide\Runtime\Windows\x86-64\ as a second fallback.
 copy /Y "%ICU_REL_BIN%\icudt58.dll" "%OUTDIR%\icudt58.dll"        > nul 2>nul
 copy /Y "%ICU_REL_BIN%\icuin58.dll" "%OUTDIR%\icuin58.dll"        > nul 2>nul
 copy /Y "%ICU_REL_BIN%\icutu58.dll" "%OUTDIR%\icutu58.dll"        > nul 2>nul
 copy /Y "%ICU_REL_BIN%\icuuc58.dll" "%OUTDIR%\icuuc58.dll"        > nul 2>nul
 if not exist "%OUTDIR%\icuuc58.dll" (
-    echo WARNING: ICU DLLs not found in prebuilt directory: %ICU_REL_BIN%
-    echo          The ICU prebuilt is a static library build -- DLLs are not expected.
-    echo          Continuing without ICU DLLs; server-community.exe links ICU statically.
+    set "ICU_RT_SRC=%~dp0ide\Runtime\Windows\x86-64"
+    for %%F in (icudt58.dll icuin58.dll icutu58.dll icuuc58.dll) do (
+        if exist "%DBG_DIR%\%%F" (
+            copy /Y "%DBG_DIR%\%%F" "%OUTDIR%\%%F" > nul
+        ) else if exist "%ICU_RT_SRC%\%%F" (
+            copy /Y "%ICU_RT_SRC%\%%F" "%OUTDIR%\%%F" > nul
+        )
+    )
+    if not exist "%OUTDIR%\icuuc58.dll" (
+        echo WARNING: ICU DLLs not found in Debug or Runtime dir.
+        echo          lc-compile.exe may fail with STATUS_DLL_NOT_FOUND.
+    ) else (
+        echo ICU DLLs copied to Release from runtime/Debug fallback.
+    )
 )
 copy /Y "%DBG_DIR%\libcrypto-3-x64.dll" "%OUTDIR%\libcrypto-3-x64.dll" > nul 2>nul
 copy /Y "%DBG_DIR%\libssl-3-x64.dll"    "%OUTDIR%\libssl-3-x64.dll"    > nul 2>nul
@@ -506,57 +522,15 @@ if exist "%DBG_SHARED_SRC%\startupstack.cpp" (
 
 echo.
 :: ----------------------------------------------------------
-:: Pre-seed Release LCB modules outputs from Debug.
+:: Build LCB engine modules (Release).
 ::
 :: The engine_lcb_modules custom build action runs lc-compile.exe
-:: from $(OutDir) (Release dir).  The Debug-built lc-compile.exe
-:: exits with STATUS_DLL_NOT_FOUND (0xC0000135) when launched
-:: from the Release directory — a Windows loader issue unrelated
-:: to CRT linkage (both configs use /MT static CRT).
-::
-:: engine_lcb_modules.cpp and the *.lci interface files are fully
-:: configuration-independent (same content in Debug and Release).
-:: We copy the Debug versions to the Release paths and update
-:: their timestamps so MSBuild's up-to-date check skips the
-:: custom build step.  If MSBuild still attempts it and fails,
-:: the pre-seeded files let the build continue normally.
+:: from $(OutDir) (Release dir).  lc-compile.exe links against
+:: libScript → libFoundation → ICU and requires the ICU data DLLs
+:: at runtime.  The ICU DLLs were copied to Release\ above (with
+:: fallback from Debug\ / ide\Runtime\Windows\x86-64\), so
+:: lc-compile.exe should find them and run correctly.
 :: ----------------------------------------------------------
-set "LCB_DBG_SHARED=%~dp0build-win-x86_64\livecode\engine\Debug\x64\obj\shared_intermediate"
-set "LCB_REL_SHARED=%~dp0build-win-x86_64\livecode\engine\Release\x64\obj\shared_intermediate"
-set "LCB_DBG_LCI=%~dp0build-win-x86_64\livecode\Debug\modules\lci"
-set "LCB_REL_LCI=%~dp0build-win-x86_64\livecode\Release\modules\lci"
-
-if not exist "%LCB_REL_SHARED%" mkdir "%LCB_REL_SHARED%"
-if not exist "%LCB_REL_LCI%"    mkdir "%LCB_REL_LCI%"
-
-if exist "%LCB_DBG_SHARED%\engine_lcb_modules.cpp" (
-    copy /Y "%LCB_DBG_SHARED%\engine_lcb_modules.cpp" "%LCB_REL_SHARED%\engine_lcb_modules.cpp" > nul
-    echo engine_lcb_modules.cpp mirrored Debug -^> Release shared_intermediate.
-) else (
-    echo ERROR: Debug engine_lcb_modules.cpp not found.
-    echo        Run build-engine-x64.bat ^(Debug build^) before this script.
-    exit /b 1
-)
-
-if exist "%LCB_DBG_LCI%" (
-    xcopy /E /I /Y /Q "%LCB_DBG_LCI%" "%LCB_REL_LCI%" > nul
-    echo LCB .lci files mirrored Debug -^> Release modules/lci.
-) else (
-    echo WARNING: Debug modules/lci not found - .lci files may be missing from Release.
-)
-
-:: Touch outputs so their mtime is newer than all .lcb source files
-:: (MSBuild compares input vs output timestamps for custom build steps).
-:: copy /Y already sets mtime to now; this is a belt-and-suspenders step.
-powershell -NoProfile -Command ^
-  "$n = Get-Date; ^
-   $cpp = '%LCB_REL_SHARED%\engine_lcb_modules.cpp'; ^
-   if (Test-Path $cpp) { (Get-Item $cpp).LastWriteTime = $n }; ^
-   if (Test-Path '%LCB_REL_LCI%') { ^
-     Get-ChildItem '%LCB_REL_LCI%' -Recurse | ForEach-Object { $_.LastWriteTime = $n } ^
-   }" > nul 2>&1
-echo LCB Release outputs pre-seeded and timestamped.
-
 echo Building LCB engine modules (Release) ...
 echo Building LCB engine modules ... >> "%LOGFILE%"
 set "LCB_MOD_LOG=%~dp0build-lcb-modules-release.log"
@@ -565,17 +539,8 @@ set LCB_MOD_ERR=%ERRORLEVEL%
 type "%LCB_MOD_LOG%"
 type "%LCB_MOD_LOG%" >> "%LOGFILE%"
 if %LCB_MOD_ERR% NEQ 0 (
-    echo LCB modules Release build failed ^(lc-compile.exe STATUS_DLL_NOT_FOUND^).
-    echo Verifying pre-seeded outputs are present ...
-    if not exist "%LCB_REL_SHARED%\engine_lcb_modules.cpp" (
-        echo ERROR: engine_lcb_modules.cpp missing - cannot continue.
-        exit /b 1
-    )
-    if not exist "%LCB_REL_LCI%\com.livecode.type.lci" (
-        echo ERROR: com.livecode.type.lci missing from Release lci dir - cannot continue.
-        exit /b 1
-    )
-    echo Pre-seeded outputs verified - continuing with Debug-sourced LCB modules.
+    echo LCB MODULES BUILD FAILED - full output above.
+    exit /b 1
 )
 echo LCB modules OK.
 
