@@ -219,20 +219,14 @@
 				'VCLinkerTool':
 				{
 					'SubSystem': '1',	# /SUBSYSTEM:CONSOLE
-
-					# GYP's all_dependent_settings does not reliably propagate
-					# library_dirs to MSVC executables through static library
-					# chains. Spell the curl library path out here directly using
-					# msvs_settings so GYP writes it verbatim into server.vcxproj.
-					# $(SolutionDir) = build-win-x86_64\livecode\  so two levels
-					# up reaches the workspace root where prebuilt\ lives.
-					# NOTE: Do NOT add AdditionalDependencies here — that would be
-					# a string, but GYP also collects link_settings.libraries as a
-					# list and tries to append the list to the string, causing a
-					# TypeError in msvs.py _ToolSetOrAppend.  The curl library
-					# names (libcurl_a.lib etc.) are declared as list entries in
-					# prebuilt/libcurl.gyp all_dependent_settings and propagate fine.
-					'AdditionalLibraryDirectories': '$(SolutionDir)..\\..\\prebuilt\\unpacked\\curl\\x86_64-win32-$(PlatformToolset)_static_$(ConfigurationName)\\lib;%(AdditionalLibraryDirectories)',
+					# Do NOT set AdditionalDependencies or AdditionalLibraryDirectories
+					# here as strings.  GYP collects link_settings.libraries and
+					# link_settings.library_dirs from all_dependent_settings as Python
+					# lists and calls _ToolAppend to merge them.  If msvs_settings
+					# already holds a string for the same key, _ToolSetOrAppend raises
+					# TypeError("Appending list to non-list").  The curl, ICU, OpenSSL
+					# and Thirdparty dirs/libs all propagate correctly through GYP's
+					# own list mechanism; no override is needed here.
 				},
 			},
 
