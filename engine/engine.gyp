@@ -222,11 +222,16 @@
 
 					# GYP's all_dependent_settings does not reliably propagate
 					# library_dirs to MSVC executables through static library
-					# chains. Spell curl out here directly using msvs_settings
-					# so GYP writes it verbatim into server.vcxproj.
+					# chains. Spell the curl library path out here directly using
+					# msvs_settings so GYP writes it verbatim into server.vcxproj.
 					# $(SolutionDir) = build-win-x86_64\livecode\  so two levels
 					# up reaches the workspace root where prebuilt\ lives.
-					'AdditionalDependencies': 'libcurl_a.lib;ws2_32.lib;wldap32.lib;crypt32.lib;%(AdditionalDependencies)',
+					# NOTE: Do NOT add AdditionalDependencies here — that would be
+					# a string, but GYP also collects link_settings.libraries as a
+					# list and tries to append the list to the string, causing a
+					# TypeError in msvs.py _ToolSetOrAppend.  The curl library
+					# names (libcurl_a.lib etc.) are declared as list entries in
+					# prebuilt/libcurl.gyp all_dependent_settings and propagate fine.
 					'AdditionalLibraryDirectories': '$(SolutionDir)..\\..\\prebuilt\\unpacked\\curl\\x86_64-win32-$(PlatformToolset)_static_$(ConfigurationName)\\lib;%(AdditionalLibraryDirectories)',
 				},
 			},
