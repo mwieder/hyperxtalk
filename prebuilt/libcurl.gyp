@@ -74,19 +74,19 @@
 				],
 			},
 
-			# On Windows, link_settings inside target_conditions is rejected by
-			# the GYP MSVS generator ("not allowed in the Debug configuration").
-			# Use all_dependent_settings instead so that the library dir and
-			# import lib name propagate correctly to every executable that links
-			# (directly or transitively) against libcurl — including server.vcxproj.
-			# ws2_32, wldap32, and crypt32 are Windows system libs required by the
-			# libcurl_a static library.
-			'all_dependent_settings':
-			{
-				'target_conditions':
+			# On Windows the GYP MSVS generator rejects link_settings inside
+			# target_conditions ("not allowed in the Debug configuration").
+			# The workaround — used by libxml.gyp for bcrypt.lib — is to place
+			# link_settings at the TOP LEVEL of all_dependent_settings, gated by
+			# a parse-time OS condition (not a per-configuration target_condition).
+			# This makes every target that (transitively) depends on libcurl
+			# inherit the library dir and the required import libs.
+			'conditions':
+			[
 				[
-					[
-						'toolset_os == "win"',
+					'OS == "win"',
+					{
+						'all_dependent_settings':
 						{
 							'link_settings':
 							{
@@ -104,9 +104,9 @@
 								],
 							},
 						},
-					],
+					},
 				],
-			},
+			],
 		},
 	],
 }
