@@ -236,7 +236,9 @@
 											# zip_random_win32.c uses CryptAcquireContext /
 											# CryptGenRandom / CryptReleaseContext from the
 											# legacy CryptoAPI, all of which live in advapi32.
-											'advapi32.lib',
+											# Use -l prefix so GYP treats this as a system
+											# library name, not a file path.
+											'-ladvapi32',
 										],
 									},
 								],
