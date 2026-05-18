@@ -225,6 +225,22 @@
 								# the static libzip.lib cannot satisfy (it has plain zip_*).
 								'ZIP_STATIC',
 							],
+
+							'conditions':
+							[
+								[
+									'OS == "win"',
+									{
+										'libraries':
+										[
+											# zip_random_win32.c uses CryptAcquireContext /
+											# CryptGenRandom / CryptReleaseContext from the
+											# legacy CryptoAPI, all of which live in advapi32.
+											'advapi32.lib',
+										],
+									},
+								],
+							],
 						},
 					},
 					{
