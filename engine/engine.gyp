@@ -219,6 +219,15 @@
 				'VCLinkerTool':
 				{
 					'SubSystem': '1',	# /SUBSYSTEM:CONSOLE
+
+					# GYP's all_dependent_settings does not reliably propagate
+					# library_dirs to MSVC executables through static library
+					# chains. Spell curl out here directly using msvs_settings
+					# so GYP writes it verbatim into server.vcxproj.
+					# $(SolutionDir) = build-win-x86_64\livecode\  so two levels
+					# up reaches the workspace root where prebuilt\ lives.
+					'AdditionalDependencies': 'libcurl_a.lib;ws2_32.lib;wldap32.lib;crypt32.lib;%(AdditionalDependencies)',
+					'AdditionalLibraryDirectories': '$(SolutionDir)..\\..\\prebuilt\\unpacked\\curl\\x86_64-win32-$(PlatformToolset)_static_$(ConfigurationName)\\lib;%(AdditionalLibraryDirectories)',
 				},
 			},
 
