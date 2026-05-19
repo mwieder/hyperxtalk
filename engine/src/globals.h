@@ -101,10 +101,8 @@ extern int MCpopoveredge; // MCPlatformWindowEdge value
 // click-outside dismiss without a native popover widget.
 extern MCStack *MCpopoverstack;
 // Stack that contains the anchor control for the open popover (nil if none).
-// On Linux, used to track parent movement and reposition the popover.
+// On Linux, used to detect when the parent moves so the popover can be dismissed.
 extern MCStack *MCpopoverparentstack;
-extern int MCpopoverparentx; // anchor stack's screen x, captured when popover opened
-extern int MCpopoverparenty; // anchor stack's screen y, captured when popover opened
 extern uint2 MCsiguser1;
 extern uint2 MCsiguser2;
 extern int4 MCinputfd;

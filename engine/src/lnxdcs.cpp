@@ -673,21 +673,11 @@ void MCScreenDC::openwindow(Window window, Boolean override)
 	MCstacks -> enableformodal(window, False);
 
     // WM_POPOVER on Linux: track the open popover stack so the
-    // GDK_BUTTON_PRESS handler in lnxdclnx.cpp can implement click-outside
-    // dismiss for clicks on other HxT windows.
+    // GDK_BUTTON_PRESS and GDK_CONFIGURE handlers in lnxdclnx.cpp can
+    // implement click-outside dismiss and dismiss-on-parent-move.
     if (target != nullptr && target->getmode() == WM_POPOVER)
     {
         MCpopoverstack = target;
-
-        // Capture the anchor stack's current screen origin so the
-        // GDK_CONFIGURE handler in lnxdclnx.cpp can compute the movement
-        // delta and translate the popover window in lock-step.
-        if (MCpopoverparentstack != nullptr &&
-            MCpopoverparentstack->getwindowalways() != nullptr)
-        {
-            gdk_window_get_origin(MCpopoverparentstack->getwindowalways(),
-                                  &MCpopoverparentx, &MCpopoverparenty);
-        }
     }
 }
 
@@ -700,7 +690,6 @@ void MCScreenDC::closewindow(Window window)
         MCStack *t_popover = MCpopoverstack;
         MCpopoverstack = nullptr;
         MCpopoverparentstack = nullptr;
-        MCpopoverparentx = MCpopoverparenty = 0;
         MCdispatcher->wclose(t_popover->getwindowalways());
     }
 
@@ -709,7 +698,6 @@ void MCScreenDC::closewindow(Window window)
     {
         MCpopoverstack = nullptr;
         MCpopoverparentstack = nullptr;
-        MCpopoverparentx = MCpopoverparenty = 0;
     }
 
 	MCStack *target = MCdispatcher->findstackd(window);
