@@ -671,10 +671,39 @@ void MCScreenDC::openwindow(Window window, Boolean override)
 	MCStack *target = MCdispatcher->findstackd(window);
     gdk_window_show(window);
 	MCstacks -> enableformodal(window, False);
+
+    // WM_POPOVER on Linux: track the open popover and grab the pointer so
+    // that button-press events from outside our windows (e.g. other apps or
+    // the desktop) are still delivered to our event loop for click-outside
+    // dismiss.  The grab is released in closewindow().
+    if (target != nullptr && target->getmode() == WM_POPOVER)
+    {
+        MCpopoverstack = target;
+        gdk_pointer_grab(window, False,
+                         GdkEventMask(GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK),
+                         NULL, NULL, GDK_CURRENT_TIME);
+    }
 }
 
 void MCScreenDC::closewindow(Window window)
 {
+    // If a popover is open and some OTHER window is being closed, dismiss the
+    // popover first so it doesn't outlive the stack it was anchored to.
+    if (MCpopoverstack != nullptr && MCpopoverstack->getwindowalways() != window)
+    {
+        MCStack *t_popover = MCpopoverstack;
+        MCpopoverstack = nullptr;
+        gdk_display_pointer_ungrab(dpy, GDK_CURRENT_TIME);
+        MCdispatcher->wclose(t_popover->getwindowalways());
+    }
+
+    // If the popover itself is being closed, clear our tracking state.
+    if (MCpopoverstack != nullptr && MCpopoverstack->getwindowalways() == window)
+    {
+        MCpopoverstack = nullptr;
+        gdk_display_pointer_ungrab(dpy, GDK_CURRENT_TIME);
+    }
+
 	MCStack *target = MCdispatcher->findstackd(window);
 	MCstacks -> enableformodal(window, True);
     gdk_window_hide(window);

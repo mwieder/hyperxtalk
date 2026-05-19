@@ -550,11 +550,12 @@ Boolean MCScreenDC::handle(Boolean dispatch, Boolean anyevent, Boolean& abort, B
                 // normally so the click is still delivered to its target.
                 if (MCpopoverstack != nullptr &&
                     t_event->type == GDK_BUTTON_PRESS &&
-                    t_event->button.window != MCpopoverstack->getw())
+                    t_event->button.window != MCpopoverstack->getwindowalways())
                 {
                     MCStack *t_closing = MCpopoverstack;
                     MCpopoverstack = nullptr; // clear before wclose to prevent re-entry
-                    MCdispatcher->wclose(t_closing->getw());
+                    gdk_display_pointer_ungrab(dpy, GDK_CURRENT_TIME);
+                    MCdispatcher->wclose(t_closing->getwindowalways());
                 }
 
                 // Update the mouse button status
@@ -760,6 +761,19 @@ Boolean MCScreenDC::handle(Boolean dispatch, Boolean anyevent, Boolean& abort, B
                 MCStack *t_stack = MCdispatcher->findstackd(t_event->configure.window);
                 if (t_stack == nil)
                     break;
+
+                // If a popover is open and its parent stack (or any other
+                // stack) has moved or resized, dismiss the popover.  We can't
+                // reposition it because we only stored the anchor rect at open
+                // time, not the anchor control; dismissing is the safest option
+                // and matches common popover UX.
+                if (MCpopoverstack != nullptr && t_stack != MCpopoverstack)
+                {
+                    MCStack *t_closing = MCpopoverstack;
+                    MCpopoverstack = nullptr;
+                    gdk_display_pointer_ungrab(dpy, GDK_CURRENT_TIME);
+                    MCdispatcher->wclose(t_closing->getwindowalways());
+                }
                 
                 GdkGeometry t_geom;
                 gint t_new_width, t_new_height;
