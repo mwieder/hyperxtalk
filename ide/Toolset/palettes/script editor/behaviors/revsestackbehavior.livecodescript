@@ -1288,12 +1288,12 @@ function seMatchingDefinitions pText, pObject, pHandler
                tDescription[tIndex]["description"]["handlers"][pText]["is_private"] then
             next repeat
          end if
-         
+
          if tDescription[tIndex]["object"] is the long id of pObject then
             put tObjectDescription into tDescription[tIndex]["description"]
          end if
       end if
-      
+
       if tDescription[tIndex]["description"]["handlers"][pText] is an array then
          local tType
          if tDescription[tIndex]["description"]["handlers"][pText]["is_private"] then
@@ -1301,7 +1301,7 @@ function seMatchingDefinitions pText, pObject, pHandler
          else
             put tDescription[tIndex]["description"]["handlers"][pText]["type"] into tType
          end if
-         
+
          put "handler", \
                tType, \
                pText, \
@@ -1309,7 +1309,42 @@ function seMatchingDefinitions pText, pObject, pHandler
                tDescription[tIndex]["object"] & return after tMatches
       end if
    end repeat
-   
+
+   # Fallback: the effective revScriptDescription only reflects the last *applied* script.
+   # If the handler exists in the editor but hasn't been applied yet, the description is
+   # stale and the loop above finds nothing. Scan the current editor script text directly
+   # to catch those cases. We only do this for the object currently being edited (pObject),
+   # since handlers in behaviors or the message path must have been applied to be callable.
+   if tMatches is empty then
+      local tCurrentScript
+      put the text of getScriptField() into tCurrentScript
+      local tLineNum, tLine, tFirstWord, tKeyword, tHandlerName, tScanType
+      repeat with tLineNum = 1 to the number of lines of tCurrentScript
+         put line tLineNum of tCurrentScript into tLine
+         put word 1 of tLine into tFirstWord
+
+         # Handle optional "private" modifier
+         if tFirstWord is "private" then
+            put word 2 of tLine into tKeyword
+            put word 3 of tLine into tHandlerName
+         else
+            put tFirstWord into tKeyword
+            put word 2 of tLine into tHandlerName
+         end if
+
+         if tKeyword is among the items of "on,command,function,getprop,setprop" and \
+               tHandlerName is pText then
+            if tFirstWord is "private" then
+               put "private " & tKeyword into tScanType
+            else
+               put tKeyword into tScanType
+            end if
+            put "handler", tScanType, pText, tLineNum, pObject & return after tMatches
+            exit repeat
+         end if
+      end repeat
+   end if
+
    delete the last char of tMatches
    return tMatches
 end seMatchingDefinitions
