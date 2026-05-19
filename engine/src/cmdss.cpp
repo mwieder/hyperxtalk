@@ -1765,9 +1765,9 @@ void MCPopover::exec_ctxt(MCExecContext &ctxt)
 	MCRectangle t_anchor_rect;
 	MCRectangle *t_anchor_rect_ptr = nil;
 
+	MCObject *t_anchor_obj = nil;
 	if (anchor != nil)
 	{
-		MCObject *t_anchor_obj = nil;
 		uint4 t_arid;
 		MCerrorlock++;
 		MCExecContext ctxt3(ctxt);
