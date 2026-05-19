@@ -1710,23 +1710,9 @@ LRESULT CALLBACK MCWindowProc(HWND hwnd, UINT msg, WPARAM wParam,
 			LONG_PTR t_mode = GetWindowLongPtrA(hwnd, GWLP_USERDATA);
 			if (t_mode == WM_POPOVER)
 			{
-				// For WA_INACTIVE, lParam is the HWND of the window gaining
-				// activation.  If that window is the popover's own parent stack,
-				// the user is clicking the title bar to drag it — don't dismiss.
-				// The popover will move with it via WM_MOVE; dismiss happens
-				// normally when focus leaves the parent+popover pair.
-				HWND t_activating = (HWND)lParam;
-				bool t_is_parent_activating =
-					MCpopoverparentstack != nullptr &&
-					MCpopoverparentstack->getwindowalways() != nullptr &&
-					t_activating == (HWND)MCpopoverparentstack->getwindowalways()->handle.window;
-
-				if (!t_is_parent_activating)
-				{
-					MCStack *sptr = MCdispatcher->findstackd(dw);
-					if (sptr != NULL)
-						sptr->close();
-				}
+				MCStack *sptr = MCdispatcher->findstackd(dw);
+				if (sptr != NULL)
+					sptr->close();
 			}
 		}
 		break;
