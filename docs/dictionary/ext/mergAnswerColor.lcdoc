@@ -1,0 +1,44 @@
+Library: mergAnswerColor
+
+type: library
+
+Description:
+mergAnswerColor is an iOS External that presents a modal color picker
+and contains Color Picker for iOS by ThinkFlood Inc. 
+
+
+Tags: Externals
+Name: mergAnswerColor
+
+Type: function
+
+Syntax: mergAnswerColor([<pColor>])
+
+Summary:  Presents a modal color picker and returns when a color is saved or the
+user cancels 
+
+Introduced: 8.0
+
+OS: ios
+
+Platforms: mobile
+
+Edition: Community
+
+
+
+
+
+
+
+Parameters:
+pColor: (optional with "FFFFFF" default)  A color in HEX format
+Returns:  One of:
+
+ * The color in HEX format
+ * If the user touches up on the cancel button the function will return
+   "mergAnswerColor: user cancelled" 
+
+
+
+

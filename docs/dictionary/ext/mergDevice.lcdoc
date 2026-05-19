@@ -1,0 +1,33 @@
+Library: mergDevice
+
+type: library
+
+Description:
+mergDevice is an iOS external to access information from the device that
+is not currently available in the engine. 
+
+
+Tags: Externals
+Name: mergDeviceName
+
+Type: function
+
+Syntax: mergDeviceName()
+
+Summary:  Get the name of the device as would appear in iTunes
+
+Introduced: 8.0
+
+OS: ios
+
+Platforms: mobile
+
+Edition: Community
+
+
+
+
+
+
+
+Returns:  The name of the device
