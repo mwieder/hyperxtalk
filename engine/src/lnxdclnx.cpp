@@ -554,7 +554,6 @@ Boolean MCScreenDC::handle(Boolean dispatch, Boolean anyevent, Boolean& abort, B
                 {
                     MCStack *t_closing = MCpopoverstack;
                     MCpopoverstack = nullptr; // clear before wclose to prevent re-entry
-                    gdk_display_pointer_ungrab(dpy, GDK_CURRENT_TIME);
                     MCdispatcher->wclose(t_closing->getwindowalways());
                 }
 
