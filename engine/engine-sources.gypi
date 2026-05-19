@@ -96,6 +96,7 @@
 			'src/cmdsm.cpp',
 			'src/cmdsp.cpp',
 			'src/cmdss.cpp',
+			'src/share.cpp',
 			'src/date.cpp',
 			'src/express.cpp',
 			'src/external.cpp',
@@ -121,7 +122,18 @@
 			'src/statemnt.cpp',
 			'src/variable.cpp',
 			'src/visual.cpp',
-			
+
+			# Group "Core - HyperXTalk AST serialization"
+			'src/hxtast.h',
+			'src/hxtast.cpp',
+			'src/hxtast-base.cpp',
+			'src/hxtast-hlist.cpp',
+			'src/hxtast-stmts.cpp',
+			'src/hxtast-exprs.cpp',
+			'src/hxt-cmds.cpp',
+			'../hxtlib/hxtlib.h',
+			'../hxtlib/hxtlib.cpp',
+
 			# Group "Core - Misc"
 			'<(SHARED_INTERMEDIATE_DIR)/include/revbuild.h',
 			'src/capsule.h',
@@ -239,6 +251,7 @@
 			'src/tooltip.h',
 			'src/undolst.h',
 			'src/vclip.h',
+			'src/toolbar.h',
 			'src/widget.h',
 			'src/widget-events.h',
             'src/widget-ref.h',
@@ -323,6 +336,8 @@
 			'src/tooltip.cpp',
 			'src/undolst.cpp',
 			'src/vclip.cpp',
+			'src/toolbar.cpp',
+			'src/exec-interface-toolbar.cpp',
 			'src/widget.cpp',
 			'src/widget-events.cpp',
             'src/widget-ref.cpp',
@@ -622,7 +637,28 @@
 			'src/w32-clipboard.cpp',
 
 			'src/mixin-refcounted.h',
-			
+
+			# Battery status
+			'src/exec-battery.h',
+			'src/exec-battery.cpp',
+			'src/lnx-battery.cpp',
+			'src/mac-battery.mm',
+			'src/w32-battery.cpp',
+
+			# Credential storage
+			'src/exec-credentials.h',
+			'src/exec-credentials.cpp',
+			'src/lnx-credentials.cpp',
+			'src/mac-credentials.mm',
+			'src/w32-credentials.cpp',
+
+			# Notifications
+			'src/notification.h',
+			'src/notification.cpp',
+			'src/lnx-notification.cpp',
+			'src/mac-notification.mm',
+			'src/w32-notification.cpp',
+
 			# Native layers
 			'src/native-layer.h',
 			'src/native-layer.cpp',
@@ -653,6 +689,10 @@
 			'src/platform-recorder.cpp',
 			'src/platform-surface.cpp',
 			'src/platform-window.cpp',
+
+			# Group "VLC Player"
+			'src/vlc-player.h',
+			'src/vlc-player.cpp',
 			
 			# Group "Native Layer"
 			'src/native-layer.cpp',
@@ -663,8 +703,8 @@
 			'src/native-layer-ios.mm',
 			'src/native-layer-mac.h',
 			'src/native-layer-mac.mm',
-			'src/native-layer-win32.cpp',
-			'src/native-layer-win32.h',
+			'src/native-layer-win32-wv2.cpp',
+			'src/native-layer-win32-wv2.h',
 			'src/native-layer-x11.cpp',
 			'src/native-layer-x11.h',
 			
@@ -695,10 +735,13 @@
 			'src/lnxkeymapping.cpp',
 			'src/lnxmisc.cpp',
 			'src/lnxmplayer.cpp',
+			'src/lnx-activate.cpp',
+			'src/lnx-core-compat.cpp',
 			'src/lnxpsprinter.cpp',
 			'src/lnxspec.cpp',
 			'src/lnxstack.cpp',
 			'src/lnxtextlayout.cpp',
+			'src/lnx-toolbar.cpp',
 			
 			# Group "Desktop - Mac"
 			'src/mac-internal.h',
@@ -710,6 +753,7 @@
 			'src/coretextlayout.mm',
 			'src/mac-abort.mm',
 			'src/mac-av-player.mm',
+			'src/vlc-player-mac.mm',
 			'src/mac-color.mm',
 			'src/mac-core.mm',
 			'src/mac-cursor.mm',
@@ -723,6 +767,7 @@
 			'src/mac-scripting.mm',
 			'src/mac-snapshot.mm',
 			'src/mac-qlpreview.mm',
+			'src/mac-toolbar.mm',
 			'src/mac-sound.mm',
 			'src/mac-surface.mm',
 			'src/mac-window.mm',
@@ -761,6 +806,7 @@
 			'src/w32image.cpp',
 			'src/w32misc.cpp',
 			'src/w32-ds-player.cpp',
+			'src/w32-jumplist.cpp',
 			'src/w32prefix.cpp',
 			'src/w32printer.cpp',
 			'src/w32relaunch.cpp',
@@ -770,6 +816,7 @@
 			'src/w32text.cpp',
 			'src/w32textlayout.cpp',
 			'src/w32theme.cpp',
+			'src/w32-toolbar.cpp',
 			'src/w32-core-compat.cpp',
 
 			# Group "Desktop - Emscripten"
@@ -994,6 +1041,8 @@
 			'src/player-platform.cpp',
 			'src/player-legacy.cpp',
 			'src/stacke.cpp',
+			'src/toolbar.cpp',
+			'src/exec-interface-toolbar.cpp',
 		],
 		
 		# Sources used to implement LCB modules in the engine
@@ -1100,10 +1149,11 @@
 						['exclude', '(^|/)linux-'],
 						['exclude', '-x11\\.cpp$'],
 					],
-					
+
 					'sources!':
 					[
 						'src/native-layer-x11.cpp',
+						'src/lnx-notification.cpp',
 					],
 				},
 			],
@@ -1117,11 +1167,12 @@
 						['exclude', '(^|/)win(dows|32)?-'],
 						['exclude', '-win32\\.cpp$'],
 					],
-					
+
 					'sources!':
 					[
 						'src/srvwindows.cpp',
-						'src/native-layer-win32.cpp',
+						'src/native-layer-win32-wv2.cpp',
+						'src/w32-notification.cpp',
 					],
 				},
 			],
@@ -1242,7 +1293,8 @@
 				{
 					'sources!':
 					[
-						'src/player-platform.cpp',
+						'src/player-legacy.cpp',
+						'src/lnxmplayer.cpp',
 						'src/tilecachegl.cpp',
 						'src/tilecachegl3.x.cpp',
 						'src/glcontext.cpp',

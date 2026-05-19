@@ -1,19 +1,3 @@
-/* Copyright (C) 2003-2015 LiveCode Ltd.
-
-This file is part of LiveCode.
-
-LiveCode is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License v3 as published by the Free
-Software Foundation.
-
-LiveCode is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-for more details.
-
-You should have received a copy of the GNU General Public License
-along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
-
 #include "prefix.h"
 
 #include "globdefs.h"
@@ -395,7 +379,8 @@ Parse_stat MCCreate::parse(MCScriptPoint &sp)
 		case CT_PLAYER:
 		case CT_GRAPHIC:
 		case CT_EPS:
-            case CT_WIDGET:
+        case CT_WIDGET:
+        case CT_TOOLBAR:
 			otype = (Chunk_term)te->which;
 			break;
 		case CT_ALIAS:
@@ -599,6 +584,38 @@ void MCCreate::exec_ctxt(MCExecContext& ctxt)
                 MCInterfaceExecCreateCard(ctxt, *t_new_name, static_cast<MCStack *>(parent), visible==False);
             }
                 break;
+            case CT_TOOLBAR:
+            {
+                MCObject *parent = nil;
+                if (container != nil)
+                {
+                    uint4 parid;
+                    MCObject *t_resolved = nil;
+                    if (!container->getobj(ctxt, t_resolved, parid, True))
+                    {
+                        ctxt . LegacyThrow(EE_CREATE_BADBGORCARD);
+                        return;
+                    }
+                    if (t_resolved->gettype() == CT_STACK)
+                    {
+                        // Toolbar is a stack-level object; use the current
+                        // card as the owning parent in the object hierarchy.
+                        parent = static_cast<MCStack *>(t_resolved)->getcurcard();
+                    }
+                    else if (t_resolved->gettype() == CT_CARD ||
+                             t_resolved->gettype() == CT_GROUP)
+                    {
+                        parent = t_resolved;
+                    }
+                    else
+                    {
+                        ctxt . LegacyThrow(EE_CREATE_BADBGORCARD);
+                        return;
+                    }
+                }
+                MCInterfaceExecCreateControl(ctxt, *t_new_name, otype, parent, visible == False);
+                break;
+            }
             case CT_WIDGET:
             {
                 MCNewAutoNameRef t_kind;

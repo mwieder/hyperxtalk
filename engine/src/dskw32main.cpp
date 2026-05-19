@@ -1,19 +1,3 @@
-/* Copyright (C) 2003-2015 LiveCode Ltd.
-
-This file is part of LiveCode.
-
-LiveCode is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License v3 as published by the Free
-Software Foundation.
-
-LiveCode is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-for more details.
-
-You should have received a copy of the GNU General Public License
-along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
-
 #include "prefix.h"
 
 #include "globdefs.h"
@@ -31,6 +15,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "libscript/script.h"
 
 #include <msctf.h>
+#include <shobjidl.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -140,6 +125,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		return MCS_windows_elevation_bootstrap_main(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 
 	MCModePreMain();
+
+    // Set the Application User Model ID so that Windows can associate toast
+    // notifications (and taskbar grouping) with this application.  This must be
+    // called before any WinRT notification APIs are used.
+    SetCurrentProcessExplicitAppUserModelID(L"HyperXTalk.Engine");
 
 	int argc = 0;
 	int envc = 0;

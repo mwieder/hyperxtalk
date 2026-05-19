@@ -1,19 +1,3 @@
-/* Copyright (C) 2003-2015 LiveCode Ltd.
-
-This file is part of LiveCode.
-
-LiveCode is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License v3 as published by the Free
-Software Foundation.
-
-LiveCode is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-for more details.
-
-You should have received a copy of the GNU General Public License
-along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
-
 //
 // MCParagraphs within a field
 //
@@ -155,6 +139,9 @@ class MCParagraph : public MCDLlist
 {
 	MCField *parent;
 	MCAutoStringRef m_text;
+    // When non-nil, GetInternalStringRef() returns this instead of m_text.
+    // Used by MCField password mode to substitute bullet characters for display.
+    MCStringRef m_password_display;
 	MCBlock *blocks;
     MCSegment *segments;
 	MCLine *lines;
@@ -271,7 +258,22 @@ public:
 	// paragraph in any way and should not be retained.
 	MCStringRef GetInternalStringRef() const
 	{
+		if (m_password_display != nil)
+			return m_password_display;
 		return *m_text;
+	}
+
+	// Set a temporary display-only string (e.g. bullet characters for password
+	// mode). The caller owns p_display and must ensure it outlives the draw call.
+	// Call ClearPasswordDisplay() when drawing is complete.
+	void SetPasswordDisplay(MCStringRef p_display)
+	{
+		m_password_display = p_display;
+	}
+
+	void ClearPasswordDisplay()
+	{
+		m_password_display = nil;
 	}
 	
 	////////// BIDIRECTIONAL SUPPORT

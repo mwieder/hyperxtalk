@@ -1,19 +1,3 @@
-/* Copyright (C) 2003-2015 LiveCode Ltd.
- 
- This file is part of LiveCode.
- 
- LiveCode is free software; you can redistribute it and/or modify it under
- the terms of the GNU General Public License v3 as published by the Free
- Software Foundation.
- 
- LiveCode is distributed in the hope that it will be useful, but WITHOUT ANY
- WARRANTY; without even the implied warranty of MERCHANTABILITY or
- FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- for more details.
- 
- You should have received a copy of the GNU General Public License
- along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
-
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "prefix.h"
@@ -652,7 +636,7 @@ extern "C" MC_DLLEXPORT_DEF void MCEngineEvalMessageWasNotHandled(bool& r_not_ha
     r_not_handled = !t_handled;
 }
 
-extern MCExecContext *MCECptr;
+extern thread_local MCExecContext *MCECptr;
 extern "C" MC_DLLEXPORT_DEF void MCEngineEvalCaller(MCScriptObjectRef& r_script_object)
 {
     if (!MCEngineScriptObjectCreate(MCECptr->GetObject(), 0, r_script_object))
@@ -943,7 +927,7 @@ extern "C" MC_DLLEXPORT_DEF void MCEngineRunloopBreakWait()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-extern MCExecContext *MCECptr;
+extern thread_local MCExecContext *MCECptr;
 
 extern "C" MC_DLLEXPORT_DEF void
 MCEngineEvalTheColumnDelimiter(MCStringRef& r_del)

@@ -1,19 +1,3 @@
-/* Copyright (C) 2003-2015 LiveCode Ltd.
-
-This file is part of LiveCode.
-
-LiveCode is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License v3 as published by the Free
-Software Foundation.
-
-LiveCode is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-for more details.
-
-You should have received a copy of the GNU General Public License
-along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
-
 //
 // MCField class declarations
 //
@@ -238,13 +222,30 @@ private:
 	MCScrollbar *vscrollbar;
 	MCScrollbar *hscrollbar;
 	MCStringRef label;
+    MCStringRef m_hint_text;
     MCTextDirection text_direction;
     MCInterfaceFieldCursorMovement cursor_movement;
     MCInterfaceKeyboardType keyboard_type : 4;
     MCInterfaceReturnKeyType return_key_type : 4;
 
+    bool m_password_field : 1;
+    // When true, renders a show/hide eye icon in the field's right margin.
+    // Clicking the icon toggles m_password_field and sends passwordToggleClicked.
+    bool m_password_toggle : 1;
+    // When true, renders a clear (×) icon in the right margin whenever the field
+    // has content.  Clicking the icon clears the field and sends cancelButtonClicked.
+    bool m_cancel_button : 1;
+    // When true, misspelled words are underlined with a red squiggly.
+    bool m_spell_check : 1;
+
     // MM-2014-08-11: [[ Bug 13149 ]] Used to flag if a recompute is required during the next draw.
     bool m_recompute : 1;
+
+    // Spell checking: array of misspelled word ranges in field character coords.
+    // Rebuilt by updateSpellingErrors() whenever text changes and m_spell_check is true.
+    struct MCSpellError { findex_t start; findex_t end; };
+    MCSpellError *m_spell_errors;
+    uindex_t      m_spell_error_count;
 	
 	static int2 clickx;
 	static int2 clicky;
@@ -644,6 +645,11 @@ public:
     virtual void SetTraversalOn(MCExecContext& ctxt, bool setting);
 	void GetSharedText(MCExecContext& ctxt, bool& r_flag);
 	void SetSharedText(MCExecContext& ctxt, bool flag);
+	void GetSpellCheck(MCExecContext& ctxt, bool& r_flag);
+	void SetSpellCheck(MCExecContext& ctxt, bool flag);
+    void updateSpellingErrors(void);
+    void clearSpellingErrors(void);
+    void drawSpellingErrors(MCDC *dc, const MCRectangle& dirty);
 	void GetShowLines(MCExecContext& ctxt, bool& r_flag);
 	void SetShowLines(MCExecContext& ctxt, bool flag);
 	void GetHGrid(MCExecContext& ctxt, bool& r_flag);
@@ -700,6 +706,21 @@ public:
 	void SetUnicodeFormattedText(MCExecContext& ctxt, uint32_t part, MCDataRef p_string);
 	void GetLabel(MCExecContext& ctxt, MCStringRef& r_string);
 	void SetLabel(MCExecContext& ctxt, MCStringRef p_string);
+	void GetPasswordField(MCExecContext& ctxt, bool& r_setting);
+	void SetPasswordField(MCExecContext& ctxt, bool setting);
+	void GetPasswordToggle(MCExecContext& ctxt, bool& r_setting);
+	void SetPasswordToggle(MCExecContext& ctxt, bool setting);
+	void GetCancelButton(MCExecContext& ctxt, bool& r_setting);
+	void SetCancelButton(MCExecContext& ctxt, bool setting);
+	void GetHintText(MCExecContext& ctxt, MCStringRef& r_string);
+	void SetHintText(MCExecContext& ctxt, MCStringRef p_string);
+
+    // Returns the bounding rect of the password-toggle eye icon in card coords.
+    // Used for both drawing (fieldf.cpp) and hit-testing (mdown).
+    MCRectangle _passwordToggleIconRect() const;
+    // Returns the bounding rect of the cancel-button × icon in card coords.
+    // Positioned to the left of the eye icon when both are enabled.
+    MCRectangle _cancelButtonIconRect() const;
 	void GetToggleHilite(MCExecContext& ctxt, bool& r_setting);
 	void SetToggleHilite(MCExecContext& ctxt, bool setting);
 	void GetThreeDHilite(MCExecContext& ctxt, bool& r_setting);

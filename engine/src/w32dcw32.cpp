@@ -1,19 +1,3 @@
-/* Copyright (C) 2003-2015 LiveCode Ltd.
-
-This file is part of LiveCode.
-
-LiveCode is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License v3 as published by the Free
-Software Foundation.
-
-LiveCode is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-for more details.
-
-You should have received a copy of the GNU General Public License
-along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
-
 #include "prefix.h"
 #include "w32dsk-legacy.h"
 
@@ -1498,6 +1482,10 @@ LRESULT CALLBACK MCWindowProc(HWND hwnd, UINT msg, WPARAM wParam,
 						MCdispatcher->wreshape(dw);
 				curinfo->handled = True;
 			}
+			// Keep the toolbar full-width and correctly positioned below the
+			// menu bar after any window resize.
+			extern void MCWin32ToolbarHandleParentResize(HWND);
+			MCWin32ToolbarHandleParentResize(hwnd);
 		}
 		break;
 	case WM_MOVE:
@@ -1732,30 +1720,51 @@ LRESULT CALLBACK MCWindowProc(HWND hwnd, UINT msg, WPARAM wParam,
 	case WM_MOUSEHWHEEL:
 		if (MCmousestackptr)
 		{
+			int4 val = (short)HIWORD(wParam);
+			int t_dx = 0, t_dy = 0;
+			// WM_MOUSEWHEEL: positive val = wheel up, negative = wheel down.
+			// scrollWheel message convention (matches macOS desktop.cpp):
+			//   pDeltaY negative = up, positive = down  — so invert the sign.
+			if (msg == WM_MOUSEWHEEL)
+				t_dy = val < 0 ? 1 : -1;
+			else
+				t_dx = val < 0 ? 1 : -1;
+
 			MCObject *mfocused = MCmousestackptr->getcard()->getmfocused();
 			if (mfocused == NULL)
-				mfocused = MCmousestackptr -> getcard();
+				mfocused = MCmousestackptr->getcard()->findGroupUnderPoint(MCmousex, MCmousey);
+			if (mfocused == NULL)
+				mfocused = MCmousestackptr->getcard();
 
 			if (mfocused != NULL)
 			{
-				int4 val = (short)HIWORD(wParam);
-				if (msg == WM_MOUSEWHEEL)
+				Exec_stat t_stat = mfocused->message_with_args(MCM_scroll_wheel, t_dx, t_dy);
+				if (t_stat == ES_PASS || t_stat == ES_NOT_HANDLED)
 				{
-					if (val < 0)
-						mfocused->kdown(kMCEmptyString, XK_WheelUp);
-					else
-						mfocused->kdown(kMCEmptyString, XK_WheelDown);
-				}
-				else if (msg == WM_MOUSEHWHEEL)
-				{
-					if (val < 0)
-						mfocused->kdown(kMCEmptyString, XK_WheelLeft);
-					else
-						mfocused->kdown(kMCEmptyString, XK_WheelRight);
+					if (t_dy != 0)
+						mfocused->kdown(kMCEmptyString, t_dy < 0 ? XK_WheelUp : XK_WheelDown);
+					if (t_dx != 0)
+						mfocused->kdown(kMCEmptyString, t_dx < 0 ? XK_WheelLeft : XK_WheelRight);
 				}
 			}
 		}
 	break;
+	case WM_COMMAND:
+	{
+		// Route toolbar button clicks to the MCToolbarWin32Backend.
+		// When a toolbar button is clicked, comctl32 sends WM_COMMAND to the
+		// parent window synchronously (via SendMessage) with:
+		//   LOWORD(wParam) = button command ID
+		//   HIWORD(wParam) = 0 (BN_CLICKED / control notification)
+		//   lParam         = toolbar HWND (non-zero for control notifications)
+		if (lParam != 0 && HIWORD(wParam) == 0)
+		{
+			extern void MCWin32ToolbarHandleParentCommand(HWND, HWND, WPARAM);
+			MCWin32ToolbarHandleParentCommand(hwnd, (HWND)lParam, wParam);
+		}
+	}
+	break;
+
 	default:
 		return IsWindowUnicode(hwnd) ? DefWindowProcW(hwnd, msg, wParam, lParam) : DefWindowProcA(hwnd, msg, wParam, lParam);
 	}

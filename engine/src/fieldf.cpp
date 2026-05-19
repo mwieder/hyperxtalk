@@ -1,19 +1,3 @@
-/* Copyright (C) 2003-2015 LiveCode Ltd.
-
-This file is part of LiveCode.
-
-LiveCode is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License v3 as published by the Free
-Software Foundation.
-
-LiveCode is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-for more details.
-
-You should have received a copy of the GNU General Public License
-along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
-
 #include "prefix.h"
 
 #include "globdefs.h"
@@ -921,6 +905,50 @@ void MCField::adjustpixmapoffset(MCContext *dc, uint2 index, int4 dy)
 	dc -> setfillstyle(t_current_style, t_current_pixmap, t_offset_x, t_offset_y);
 }
 
+void MCField::drawSpellingErrors(MCDC *dc, const MCRectangle &dirty)
+{
+    // Set up red colour for squiggly underlines.
+    MCColor t_red;
+    t_red.red   = 0xFFFF;
+    t_red.green = 0x0000;
+    t_red.blue  = 0x0000;
+    dc->setforeground(t_red);
+    dc->setlineatts(1, LineSolid, CapButt, JoinBevel);
+
+    for (uindex_t i = 0; i < m_spell_error_count; i++)
+    {
+        // firstRectForCharacterRange modifies its arguments (clips to first line),
+        // so pass copies.
+        int32_t t_si = (int32_t)m_spell_errors[i].start;
+        int32_t t_ei = (int32_t)m_spell_errors[i].end;
+        MCRectangle t_rect = firstRectForCharacterRange(t_si, t_ei);
+
+        // Skip rects that don't intersect the dirty region.
+        MCRectangle t_isect = MCU_intersect_rect(t_rect, dirty);
+        if (t_isect.width == 0 || t_isect.height == 0)
+            continue;
+
+        // Draw a zigzag underline 1px below the text baseline.
+        // Teeth are 2px wide and 2px tall.
+        int32_t t_y    = t_rect.y + t_rect.height;
+        int32_t t_x    = t_rect.x;
+        int32_t t_endx = t_rect.x + t_rect.width;
+        bool t_up = false;
+        while (t_x + 2 <= t_endx)
+        {
+            if (t_up)
+                dc->drawline(t_x, t_y - 2, t_x + 2, t_y);
+            else
+                dc->drawline(t_x, t_y, t_x + 2, t_y - 2);
+            t_x  += 2;
+            t_up  = !t_up;
+        }
+    }
+
+    // Restore default line attributes.
+    dc->setlineatts(0, LineSolid, CapButt, JoinBevel);
+}
+
 void MCField::drawrect(MCDC *dc, const MCRectangle &dirty)
 {
 	MCRectangle frect = getfrect();
@@ -1051,6 +1079,7 @@ void MCField::drawrect(MCDC *dc, const MCRectangle &dirty)
 		pgptr = curparagraph;
 		x = getcontentx();
 		y = cury + getcontenty();
+		int32_t t_content_start_y = y;
 
 		// MW-2012-01-25: [[ FieldMetrics ]] Compute the layout width.
 		int32_t t_layout_width;
@@ -1111,11 +1140,34 @@ void MCField::drawrect(MCDC *dc, const MCRectangle &dirty)
 		do
 		{
             pgheight = pgptr->getheight(fixedheight);
-			
+
 			// MW-2012-03-15: [[ Bug 10069 ]] A paragraph might render a grid line above or below
 			//   so make sure we render paragraphs above and below the apparant limits.
 			if (y + pgheight >= trect.y  && y <= trect.y + trect.height)
 			{
+				// If password mode is active, substitute each paragraph's text with
+				// bullet characters (U+2022) for display only. The real text is
+				// unaffected — only GetInternalStringRef() is overridden during draw.
+				MCStringRef t_bullet_str = nil;
+				if (m_password_field)
+				{
+					uint32_t t_len = pgptr->gettextlength();
+					if (t_len > 0)
+					{
+						unichar_t *t_chars;
+						if (MCMemoryAllocate(t_len * sizeof(unichar_t), t_chars))
+						{
+							for (uint32_t i = 0; i < t_len; i++)
+								t_chars[i] = 0x2022; // U+2022 BULLET •
+							/* UNCHECKED */ MCStringCreateWithChars(t_chars, t_len, t_bullet_str);
+							MCMemoryDeallocate(t_chars);
+						}
+					}
+					if (t_bullet_str == nil)
+						t_bullet_str = MCValueRetain(kMCEmptyString);
+					pgptr->SetPasswordDisplay(t_bullet_str);
+				}
+
 				pgptr->draw(dc, x, y, a, d,
 				            pgptr == foundpgptr ? fstart : 0,
 				            pgptr == foundpgptr ? fend : 0,
@@ -1125,11 +1177,107 @@ void MCField::drawrect(MCDC *dc, const MCRectangle &dirty)
 				            pgptr == comppgptr ? composeconvertingei : 0,
 				            t_layout_width, pgheight, sx, swidth,
 							fontstyle);
+
+				if (m_password_field)
+				{
+					pgptr->ClearPasswordDisplay();
+					MCValueRelease(t_bullet_str);
+				}
 			}
 			y += pgheight;
 			pgptr = pgptr->next();
 		}
 		while (y < trect.y + trect.height && pgptr != paragraphs);
+
+		// Draw hint text when the field is empty and a hint text string is set.
+		if (!MCStringIsEmpty(m_hint_text) &&
+		    paragraphs->next() == paragraphs && paragraphs->IsEmpty())
+		{
+			MCFontRef t_font = getfontref();
+			int32_t t_hint_y = t_content_start_y + (int32_t)MCFontGetAscent(t_font);
+			MCColor t_hint_color = {0x8888, 0x8888, 0x8888};
+			dc->setforeground(t_hint_color);
+			dc->setfillstyle(FillSolid, nil, 0, 0);
+			dc->drawtext(x, t_hint_y, m_hint_text, t_font, False);
+			// Restore the foreground colour to the normal field text colour.
+			setforeground(dc, DI_FORE, False);
+		}
+
+        // Draw the password-toggle eye icon when passwordToggle is true.
+        // Eye-open  (●) = passwordField is true  (content is hidden as bullets)
+        // Eye-slash (⊘) = passwordField is false (content is visible)
+        if (m_password_toggle)
+        {
+            MCRectangle t_icon = _passwordToggleIconRect();
+
+            // Use a medium-gray so the icon is visible on light and dark fields.
+            MCColor t_icon_color = {0x7777, 0x7777, 0x7777};
+            dc->setforeground(t_icon_color);
+            dc->setfillstyle(FillSolid, nil, 0, 0);
+
+            // Outer eye shape: horizontally stretched ellipse.
+            int16_t t_cx = t_icon.x + t_icon.width  / 2;
+            int16_t t_cy = t_icon.y + t_icon.height / 2;
+            const int16_t kEyeW = 16, kEyeH = 8;
+            MCRectangle t_eye;
+            t_eye.x      = t_cx - kEyeW / 2;
+            t_eye.y      = t_cy - kEyeH / 2;
+            t_eye.width  = kEyeW;
+            t_eye.height = kEyeH;
+            dc->drawarc(t_eye, 0, 360);
+
+            // Pupil: small filled circle.
+            const int16_t kPupil = 6;
+            MCRectangle t_pupil;
+            t_pupil.x      = t_cx - kPupil / 2;
+            t_pupil.y      = t_cy - kPupil / 2;
+            t_pupil.width  = kPupil;
+            t_pupil.height = kPupil;
+            dc->fillarc(t_pupil, 0, 360);
+
+            // When password is currently visible, draw a diagonal slash through
+            // the eye to indicate "content is showing".
+            if (!m_password_field)
+            {
+                dc->drawline(t_cx - kEyeW / 2 - 1, t_cy + kEyeH / 2 + 3,
+                             t_cx + kEyeW / 2 + 1, t_cy - kEyeH / 2 - 3);
+            }
+
+            // Restore foreground to the normal field text colour.
+            setforeground(dc, DI_FORE, False);
+        }
+
+        // Draw the cancel-button × icon when cancelButton is true and the
+        // field contains text.  Only draws when there is something to clear.
+        bool t_field_has_content = !(paragraphs->next() == paragraphs && paragraphs->IsEmpty());
+        if (m_cancel_button && t_field_has_content)
+        {
+            MCRectangle t_icon = _cancelButtonIconRect();
+
+            // Filled gray circle background.
+            MCColor t_circle_color = {0xAAAA, 0xAAAA, 0xAAAA};
+            dc->setforeground(t_circle_color);
+            dc->setfillstyle(FillSolid, nil, 0, 0);
+            dc->fillarc(t_icon, 0, 360);
+
+            // Bold white × drawn over the filled circle.
+            // Each diagonal stroke is drawn twice (1 px apart) to simulate thickness.
+            MCColor t_x_color = {0xFFFF, 0xFFFF, 0xFFFF};
+            dc->setforeground(t_x_color);
+            const int16_t kPad = 3;
+            int16_t x0 = t_icon.x + kPad;
+            int16_t y0 = t_icon.y + kPad;
+            int16_t x1 = t_icon.x + t_icon.width  - kPad;
+            int16_t y1 = t_icon.y + t_icon.height - kPad;
+            // Top-left → bottom-right (two parallel strokes)
+            dc->drawline(x0,     y0,     x1,     y1);
+            dc->drawline(x0 + 1, y0,     x1 + 1, y1);
+            // Top-right → bottom-left (two parallel strokes)
+            dc->drawline(x1,     y0,     x0,     y1);
+            dc->drawline(x1 - 1, y0,     x0 - 1, y1);
+
+            setforeground(dc, DI_FORE, False);
+        }
 
 		// MW-2012-03-15: [[ Bug 10069 ]] If we have hGrid set on the field, then render grid lines
 		//   to fill the rest of the field using the last pgheight we had.
@@ -1195,6 +1343,9 @@ void MCField::drawrect(MCDC *dc, const MCRectangle &dirty)
                     break;
 			}
 		}
+
+		if (m_spell_check && m_spell_error_count > 0)
+			drawSpellingErrors(dc, dirty);
 
 		if (cursoron && cursorfield == this)
 			drawcursor(dc, dirty);

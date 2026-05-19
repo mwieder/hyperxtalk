@@ -1,19 +1,3 @@
-/* Copyright (C) 2003-2015 LiveCode Ltd.
-
-This file is part of LiveCode.
-
-LiveCode is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License v3 as published by the Free
-Software Foundation.
-
-LiveCode is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-for more details.
-
-You should have received a copy of the GNU General Public License
-along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
-
 
 #include "typedefs.h"
 
@@ -106,6 +90,7 @@ extern const char * const MCfieldstring;
 extern const char * const MCcolorstring;
 extern const char * const MCmagnifierstring;
 extern const char * const MCwidgetstring;
+extern const char * const MCtoolbarstring;
 
 extern const char * const MCnotfoundstring;
 extern const char * const MCplatformstring;
@@ -425,6 +410,11 @@ extern MCNameRef MCM_open_card;
 extern MCNameRef MCM_open_field;
 extern MCNameRef MCM_open_stack;
 extern MCNameRef MCM_option_key_down;
+extern MCNameRef MCM_cancel_button_clicked;
+extern MCNameRef MCM_notification_clicked;
+extern MCNameRef MCM_notification_permission_denied;
+extern MCNameRef MCM_notification_permission_granted;
+extern MCNameRef MCM_password_toggle_clicked;
 extern MCNameRef MCM_paste_key;
 extern MCNameRef MCM_play_paused;
 extern MCNameRef MCM_play_rate_changed;
@@ -470,6 +460,7 @@ extern MCNameRef MCM_scrollbar_line_dec;
 extern MCNameRef MCM_scrollbar_line_inc;
 extern MCNameRef MCM_scrollbar_page_dec;
 extern MCNameRef MCM_scrollbar_page_inc;
+extern MCNameRef MCM_scroll_wheel;
 extern MCNameRef MCM_selected_object_changed;
 extern MCNameRef MCM_selection_changed;
 extern MCNameRef MCM_signal;
@@ -483,6 +474,7 @@ extern MCNameRef MCM_start_up;
 extern MCNameRef MCM_suspend;
 extern MCNameRef MCM_suspend_stack;
 extern MCNameRef MCM_tab_key;
+extern MCNameRef MCM_toolbar_item_clicked;
 extern MCNameRef MCM_text_changed;
 extern MCNameRef MCM_trace;
 extern MCNameRef MCM_trace_break;

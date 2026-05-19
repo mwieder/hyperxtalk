@@ -1,19 +1,3 @@
-/* Copyright (C) 2003-2015 LiveCode Ltd.
-
-This file is part of LiveCode.
-
-LiveCode is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License v3 as published by the Free
-Software Foundation.
-
-LiveCode is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-for more details.
-
-You should have received a copy of the GNU General Public License
-along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
-
 #include "prefix.h"
 
 #include "globdefs.h"
@@ -37,6 +21,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "debug.h"
 #include "mctheme.h"
 #include "stacklst.h"
+#include "platform.h"
 #include "dispatch.h"
 #include "mode.h"
 #include "globals.h"
@@ -86,6 +71,7 @@ MCPropertyInfo MCField::kProperties[] =
 	DEFINE_RW_OBJ_PROPERTY(P_FIXED_HEIGHT, Bool, MCField, FixedHeight)
 	DEFINE_RW_OBJ_PROPERTY(P_LOCK_TEXT, Bool, MCField, LockText)
 	DEFINE_RW_OBJ_PROPERTY(P_SHARED_TEXT, Bool, MCField, SharedText)
+	DEFINE_RW_OBJ_PROPERTY(P_SPELL_CHECK, Bool, MCField, SpellCheck)
 	DEFINE_RW_OBJ_PROPERTY(P_SHOW_LINES, Bool, MCField, ShowLines)
 	DEFINE_RW_OBJ_PROPERTY(P_HGRID, Bool, MCField, HGrid)
 	DEFINE_RW_OBJ_PROPERTY(P_VGRID, Bool, MCField, VGrid)
@@ -120,6 +106,10 @@ MCPropertyInfo MCField::kProperties[] =
 	DEFINE_RW_OBJ_PART_PROPERTY(P_FORMATTED_TEXT, String, MCField, FormattedText)
 	DEFINE_RW_OBJ_PART_PROPERTY(P_UNICODE_FORMATTED_TEXT, BinaryString, MCField, UnicodeFormattedText)
 	DEFINE_RW_OBJ_PROPERTY(P_LABEL, String, MCField, Label)
+	DEFINE_RW_OBJ_PROPERTY(P_PASSWORD_FIELD, Bool, MCField, PasswordField)
+	DEFINE_RW_OBJ_PROPERTY(P_PASSWORD_TOGGLE, Bool, MCField, PasswordToggle)
+	DEFINE_RW_OBJ_PROPERTY(P_CANCEL_BUTTON, Bool, MCField, CancelButton)
+	DEFINE_RW_OBJ_PROPERTY(P_HINT_TEXT, String, MCField, HintText)
 	DEFINE_RW_OBJ_PROPERTY(P_TOGGLE_HILITE, Bool, MCField, ToggleHilite)
 	DEFINE_RW_OBJ_PROPERTY(P_3D_HILITE, Bool, MCField, ThreeDHilite)
 	DEFINE_RO_OBJ_PART_ENUM_PROPERTY(P_ENCODING, InterfaceEncoding, MCField, Encoding)
@@ -257,10 +247,19 @@ MCField::MCField()
     cursor_movement = kMCFieldCursorMovementDefault;
     text_direction = kMCTextDirectionAuto;
 	label = MCValueRetain(kMCEmptyString);
-    
+    m_password_field = false;
+    m_password_toggle = false;
+    m_cancel_button = false;
+    m_spell_check = false;
+    m_hint_text = MCValueRetain(kMCEmptyString);
+
     // MM-2014-08-11: [[ Bug 13149 ]] Used to flag if a recompute is required during the next draw.
     m_recompute = false;
-    
+
+    // Spell checking.
+    m_spell_errors = nil;
+    m_spell_error_count = 0;
+
     keyboard_type = kMCInterfaceKeyboardTypeNone;
     return_key_type = kMCInterfaceReturnKeyTypeNone;
 }
@@ -341,10 +340,20 @@ MCField::MCField(const MCField &fref) : MCControl(fref)
 	}
 	MCValueRetain(fref.label);
 	label = fref.label;
+	m_password_field = fref.m_password_field;
+    m_password_toggle = fref.m_password_toggle;
+    m_cancel_button = fref.m_cancel_button;
+    m_spell_check = false;   // spell errors are not copied; will re-check if needed
+	MCValueRetain(fref.m_hint_text);
+	m_hint_text = fref.m_hint_text;
 	state &= ~CS_KFOCUSED;
-    
+
     // MM-2014-08-11: [[ Bug 13149 ]] Used to flag if a recompute is required during the next draw.
     m_recompute = false;
+
+    // Spell checking — copy constructor does not inherit error state.
+    m_spell_errors = nil;
+    m_spell_error_count = 0;
 }
 
 MCField::~MCField()
@@ -388,6 +397,8 @@ MCField::~MCField()
     MCMemoryDeallocate(alignments);
 
 	MCValueRelease(label);
+	MCValueRelease(m_hint_text);
+    delete[] m_spell_errors;
 }
 
 Chunk_term MCField::gettype() const
@@ -1039,11 +1050,31 @@ Boolean MCField::mdown(uint2 which)
 		{
 		case T_BROWSE:
 		{
+            // Password-toggle eye icon hit test: check before any other
+            // selection or link handling so the click is fully consumed.
+            if (m_password_toggle && MCU_point_in_rect(_passwordToggleIconRect(), mx, my))
+            {
+                m_password_field = !m_password_field;
+                message_with_valueref_args(MCM_password_toggle_clicked, m_password_field ? MCSTR("true") : MCSTR("false"));
+                layer_redrawrect(getfrect());
+                return True;
+            }
+
+            // Cancel-button × icon hit test: only active when the field has content.
+            bool t_field_has_content = !(paragraphs->next() == paragraphs && paragraphs->IsEmpty());
+            if (m_cancel_button && t_field_has_content && MCU_point_in_rect(_cancelButtonIconRect(), mx, my))
+            {
+                settext(0, kMCEmptyString, False);
+                message(MCM_cancel_button_clicked);
+                layer_redrawrect(getfrect());
+                return True;
+            }
+
 			// MW-2011-02-26: [[ Bug 9417 ]] When clicking on a link in a list we
 			//   still do any autoHilite behavior.
 			bool t_is_link_in_list;
 			t_is_link_in_list = false;
-			
+
 			MCclickfield = this;
 			clickx = mx;
 			clicky = my;
@@ -2247,6 +2278,54 @@ void MCField::textchanged(void)
 	setstate(True, CS_IN_TEXTCHANGED);
 	message(MCM_text_changed);
 	setstate(False, CS_IN_TEXTCHANGED);
+
+    if (m_spell_check)
+        updateSpellingErrors();
+}
+
+void MCField::clearSpellingErrors(void)
+{
+    delete[] m_spell_errors;
+    m_spell_errors = nil;
+    m_spell_error_count = 0;
+}
+
+void MCField::updateSpellingErrors(void)
+{
+    clearSpellingErrors();
+
+    // Collect the full plain text of the field for spell checking.
+    MCStringRef t_text = nil;
+    if (!exportasplaintext((uinteger_t)0, 0, INT32_MAX, t_text))
+        return;
+    if (MCStringIsEmpty(t_text))
+    {
+        MCValueRelease(t_text);
+        return;
+    }
+
+    // Ask the platform for a list of misspelled character ranges.
+    MCRange *t_ranges = nil;
+    uindex_t t_count = 0;
+    MCPlatformSpellCheckText(t_text, t_ranges, t_count);
+    MCValueRelease(t_text);
+
+    if (t_count == 0)
+        return;
+
+    m_spell_errors = new (nothrow) MCSpellError[t_count];
+    if (m_spell_errors == nil)
+    {
+        delete[] t_ranges;
+        return;
+    }
+    for (uindex_t i = 0; i < t_count; i++)
+    {
+        m_spell_errors[i].start = (findex_t)t_ranges[i].offset;
+        m_spell_errors[i].end   = (findex_t)(t_ranges[i].offset + t_ranges[i].length);
+    }
+    m_spell_error_count = t_count;
+    delete[] t_ranges;
 }
 
 // MW-2012-02-14: [[ FontRefs ]] Update the field's fontref and all its blocks
@@ -2561,6 +2640,48 @@ void MCField::draw(MCDC *dc, const MCRectangle& p_dirty, bool p_isolated, bool p
 //  Redraw Management
 //-----------------------------------------------------------------------------
 
+////////////////////////////////////////////////////////////////////////////////
+// Password-toggle icon geometry
+//
+// The eye icon occupies a fixed-size square in the right margin of the field,
+// vertically centred.  Both the drawing code (fieldf.cpp) and the click
+// hit-test (mdown) use this single source of truth.
+
+static const int16_t kPasswordToggleIconSize = 20;  // px, square
+static const int16_t kPasswordToggleIconPad  =  4;  // px from right edge
+
+MCRectangle MCField::_passwordToggleIconRect() const
+{
+    MCRectangle frect = getfrect();
+    MCRectangle r;
+    r.width  = kPasswordToggleIconSize;
+    r.height = kPasswordToggleIconSize;
+    r.x      = frect.x + frect.width  - kPasswordToggleIconSize - kPasswordToggleIconPad;
+    r.y      = frect.y + (frect.height - kPasswordToggleIconSize) / 2;
+    return r;
+}
+
+// Cancel-button × icon: slightly smaller than the eye so it clears the field
+// border, positioned to the left of the eye when both are showing.
+static const int16_t kCancelButtonIconSize = 14;  // px, square — smaller than eye to clear border
+static const int16_t kCancelButtonIconPad  =  7;  // px from right edge — more room than eye
+
+MCRectangle MCField::_cancelButtonIconRect() const
+{
+    MCRectangle frect = getfrect();
+    MCRectangle r;
+    r.width  = kCancelButtonIconSize;
+    r.height = kCancelButtonIconSize;
+    // Start from the right edge with the cancel pad, then shift further left
+    // by one eye-icon slot if passwordToggle is also active.
+    int16_t t_right_offset = kCancelButtonIconPad + kCancelButtonIconSize;
+    if (m_password_toggle)
+        t_right_offset += kPasswordToggleIconSize + kPasswordToggleIconPad;
+    r.x = frect.x + frect.width - t_right_offset;
+    r.y = frect.y + (frect.height - kCancelButtonIconSize) / 2;
+    return r;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 //  SAVING AND LOADING
@@ -2570,7 +2691,11 @@ void MCField::draw(MCDC *dc, const MCRectangle& p_dirty, bool p_isolated, bool p
 // SN-2015-04-30: [[ Bug 15175 ]] TabAlignment flag added
 #define FIELD_EXTRA_TABALIGN        (1 << 1)
 #define FIELD_EXTRA_KEYBOARDTYPE    (1 << 2)
-#define FIELD_EXTRA_RETURNKEYTYPE    (1 << 3)
+#define FIELD_EXTRA_RETURNKEYTYPE   (1 << 3)
+#define FIELD_EXTRA_PASSWORDFIELD   (1 << 4)
+#define FIELD_EXTRA_HINTTEXT        (1 << 5)
+#define FIELD_EXTRA_PASSWORDTOGGLE  (1 << 6)
+#define FIELD_EXTRA_CANCELBUTTON    (1 << 7)
 
 IO_stat MCField::extendedsave(MCObjectOutputStream& p_stream, uint4 p_part, uint32_t p_version)
 {
@@ -2606,6 +2731,30 @@ IO_stat MCField::extendedsave(MCObjectOutputStream& p_stream, uint4 p_part, uint
         t_size += sizeof(int8_t);
     }
 
+    if (m_password_field)
+    {
+        t_flags |= FIELD_EXTRA_PASSWORDFIELD;
+        t_size += sizeof(uint8_t);
+    }
+
+    if (!MCStringIsEmpty(m_hint_text))
+    {
+        t_flags |= FIELD_EXTRA_HINTTEXT;
+        t_size += p_stream . MeasureStringRefNew(m_hint_text, p_version >= kMCStackFileFormatVersion_7_0);
+    }
+
+    if (m_password_toggle)
+    {
+        t_flags |= FIELD_EXTRA_PASSWORDTOGGLE;
+        t_size += sizeof(uint8_t);
+    }
+
+    if (m_cancel_button)
+    {
+        t_flags |= FIELD_EXTRA_CANCELBUTTON;
+        t_size += sizeof(uint8_t);
+    }
+
 	IO_stat t_stat;
 	t_stat = p_stream . WriteTag(t_flags, t_size);
 
@@ -2629,7 +2778,27 @@ IO_stat MCField::extendedsave(MCObjectOutputStream& p_stream, uint4 p_part, uint
     {
         t_stat = p_stream . WriteS8((int8_t)return_key_type);
     }
-    
+
+    if (t_stat == IO_NORMAL && (t_flags & FIELD_EXTRA_PASSWORDFIELD))
+    {
+        t_stat = p_stream . WriteU8(m_password_field ? 1 : 0);
+    }
+
+    if (t_stat == IO_NORMAL && (t_flags & FIELD_EXTRA_HINTTEXT))
+    {
+        t_stat = p_stream . WriteStringRefNew(m_hint_text, p_version >= kMCStackFileFormatVersion_7_0);
+    }
+
+    if (t_stat == IO_NORMAL && (t_flags & FIELD_EXTRA_PASSWORDTOGGLE))
+    {
+        t_stat = p_stream . WriteU8(m_password_toggle ? 1 : 0);
+    }
+
+    if (t_stat == IO_NORMAL && (t_flags & FIELD_EXTRA_CANCELBUTTON))
+    {
+        t_stat = p_stream . WriteU8(m_cancel_button ? 1 : 0);
+    }
+
     if (t_stat == IO_NORMAL)
 		t_stat = MCObject::extendedsave(p_stream, p_part, p_version);
     
@@ -2708,7 +2877,42 @@ IO_stat MCField::extendedload(MCObjectInputStream& p_stream, uint32_t p_version,
                 return_key_type =  static_cast<MCInterfaceReturnKeyType>(t_value);
             }
         }
-        
+
+        if (t_stat == IO_NORMAL && (t_flags & FIELD_EXTRA_PASSWORDFIELD) != 0)
+        {
+            uint8_t t_value;
+            t_stat = checkloadstat(p_stream . ReadU8(t_value));
+            if (t_stat == IO_NORMAL)
+                m_password_field = (t_value != 0);
+        }
+
+        if (t_stat == IO_NORMAL && (t_flags & FIELD_EXTRA_HINTTEXT) != 0)
+        {
+            MCStringRef t_hint_text;
+            t_stat = checkloadstat(p_stream . ReadStringRefNew(t_hint_text, p_version >= kMCStackFileFormatVersion_7_0));
+            if (t_stat == IO_NORMAL)
+            {
+                MCValueAssign(m_hint_text, t_hint_text);
+                MCValueRelease(t_hint_text);
+            }
+        }
+
+        if (t_stat == IO_NORMAL && (t_flags & FIELD_EXTRA_PASSWORDTOGGLE) != 0)
+        {
+            uint8_t t_value;
+            t_stat = checkloadstat(p_stream . ReadU8(t_value));
+            if (t_stat == IO_NORMAL)
+                m_password_toggle = (t_value != 0);
+        }
+
+        if (t_stat == IO_NORMAL && (t_flags & FIELD_EXTRA_CANCELBUTTON) != 0)
+        {
+            uint8_t t_value;
+            t_stat = checkloadstat(p_stream . ReadU8(t_value));
+            if (t_stat == IO_NORMAL)
+                m_cancel_button = (t_value != 0);
+        }
+
         if (t_stat == IO_NORMAL)
             t_stat = checkloadstat(p_stream . Skip(t_length));
         
@@ -2737,7 +2941,9 @@ IO_stat MCField::save(IO_handle stream, uint4 p_part, bool p_force_ext, uint32_t
     t_has_extension = text_direction != kMCTextDirectionAuto ||
                       nalignments != 0 ||
                       keyboard_type != kMCInterfaceKeyboardTypeNone ||
-                      return_key_type != kMCInterfaceReturnKeyTypeNone;
+                      return_key_type != kMCInterfaceReturnKeyTypeNone ||
+                      m_password_field ||
+                      !MCStringIsEmpty(m_hint_text);
     
     if ((stat = MCObject::save(stream, p_part, t_has_extension || p_force_ext, p_version)) != IO_NORMAL)
 		return stat;

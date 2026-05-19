@@ -1,19 +1,3 @@
-/* Copyright (C) 2003-2015 LiveCode Ltd.
-
-This file is part of LiveCode.
-
-LiveCode is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License v3 as published by the Free
-Software Foundation.
-
-LiveCode is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-for more details.
-
-You should have received a copy of the GNU General Public License
-along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
-
 #include "prefix.h"
 
 #include "globdefs.h"
@@ -362,6 +346,7 @@ static const PropList fieldprops[] =
         {"hilitePattern", P_HILITE_PATTERN},
         {"hScroll", P_HSCROLL},
         {"hScrollbar", P_HSCROLLBAR},
+        {"hintText", P_HINT_TEXT},
         {"htmlText", P_HTML_TEXT},
         {"id", P_ID},
         {"ink", P_INK},
@@ -378,6 +363,9 @@ static const PropList fieldprops[] =
         {"noncontiguousHilites", P_NONCONTIGUOUS_HILITES},
         {"outerGlow", P_BITMAP_EFFECT_OUTER_GLOW},
         {"opaque", P_OPAQUE},
+        {"cancelButton", P_CANCEL_BUTTON},
+        {"passwordField", P_PASSWORD_FIELD},
+        {"passwordToggle", P_PASSWORD_TOGGLE},
         {"rect", P_RECTANGLE},
         {"scrollbarWidth", P_SCROLLBAR_WIDTH},
         {"shadow", P_SHADOW},
@@ -385,6 +373,7 @@ static const PropList fieldprops[] =
         {"shadowOffset", P_SHADOW_OFFSET},
         {"shadowPattern", P_SHADOW_PATTERN},
         {"sharedText", P_SHARED_TEXT},
+        {"spellCheck", P_SPELL_CHECK},
         {"showBorder", P_SHOW_BORDER},
         {"showFocusBorder", P_SHOW_FOCUS_BORDER},
         {"showLines", P_SHOW_LINES},
@@ -737,6 +726,24 @@ static const PropList audioclipprops[] =
         {"id", P_ID},
         {"name", P_NAME},
         {"playLoudness", P_PLAY_LOUDNESS},
+    };
+
+static const PropList toolbarprops[] =
+    {
+        {"displayMode",      P_TOOLBAR_DISPLAY_MODE},
+        {"id",               P_ID},
+        {"itemEnabled",      P_TOOLBAR_ITEM_ENABLED},
+        {"itemIcon",         P_TOOLBAR_ITEM_ICON},
+        {"itemLabel",        P_TOOLBAR_ITEM_LABEL},
+        {"itemNames",        P_TOOLBAR_ITEM_NAMES},
+        {"itemStyle",        P_TOOLBAR_ITEM_STYLE},
+        {"itemTooltip",      P_TOOLBAR_ITEM_TOOLTIP},
+        {"layer",            P_LAYER},
+        {"lockLoc",          P_LOCK_LOCATION},
+        {"name",             P_SHORT_NAME},
+        {"rect",             P_RECTANGLE},
+        {"toolbarVisible",   P_TOOLBAR_VISIBLE},
+        {"visible",          P_VISIBLE}
     };
 
 static const PropList videoclipprops[] =
@@ -1555,6 +1562,13 @@ void MCObject::GetScript(MCExecContext& ctxt, MCStringRef& r_script)
 		return;
 	}
 
+	// HXT: Compiled libraries are immutable — return empty script.
+	if (getstack() -> iscompiledlib())
+	{
+		r_script = MCValueRetain(kMCEmptyString);
+		return;
+	}
+
 	if (!getstack() -> iskeyed())
 	{
 		ctxt . LegacyThrow(EE_STACK_NOKEY);
@@ -1573,6 +1587,11 @@ void MCObject::SetScript(MCExecContext& ctxt, MCStringRef new_script)
 		ctxt . LegacyThrow(EE_OBJECT_NOHOME);
 		return;
 	}
+
+	// HXT: Compiled libraries are immutable — silently ignore set the script.
+	if (getstack()->iscompiledlib())
+		return;
+
 	if (!getstack()->iskeyed())
 	{
 		ctxt . LegacyThrow(EE_STACK_NOKEY);
@@ -3358,6 +3377,10 @@ void MCObject::DoGetProperties(MCExecContext& ctxt, uint32_t part, bool p_effect
 		table = videoclipprops;
 		tablesize = ELEMENTS(videoclipprops);
 		break;
+    case CT_TOOLBAR:
+        table = toolbarprops;
+        tablesize = ELEMENTS(toolbarprops);
+        break;
     case CT_WIDGET:
 		table = NULL;
 		tablesize = 0;

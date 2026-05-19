@@ -1,19 +1,3 @@
-/* Copyright (C) 2003-2015 LiveCode Ltd.
-
-This file is part of LiveCode.
-
-LiveCode is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License v3 as published by the Free
-Software Foundation.
-
-LiveCode is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-for more details.
-
-You should have received a copy of the GNU General Public License
-along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
-
 #include "prefix.h"
 
 #include "globdefs.h"
@@ -34,6 +18,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 #include "redraw.h"
 
 #include "globals.h"
+#include "mode.h"
 #include "exec.h"
 
 MCStacknode::~MCStacknode()
@@ -132,6 +117,14 @@ Boolean MCStacklist::isempty()
     // window and are never closed by the user. Treat a list that contains only
     // script-only stacks as empty so the engine quit-detection in dskmain.cpp
     // still fires when the last visible window is closed.
+    //
+    // Exception: in development/IDE mode the entire toolset consists of
+    // script-only library stacks loaded from .livecodescript files. We must
+    // NOT treat that as "empty" or the engine will auto-quit whenever no
+    // project window is open. MCModeHasHomeStack() returns true only in
+    // development mode; in standalone/player/server it returns false.
+    if (MCModeHasHomeStack())
+        return False;
     MCStacknode *tptr = stacks;
     do
     {

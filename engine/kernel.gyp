@@ -35,6 +35,7 @@
 				'../thirdparty/libjpeg/libjpeg.gyp:libjpeg',
 				'../thirdparty/libgif/libgif.gyp:libgif',
 				'../thirdparty/libpng/libpng.gyp:libpng',
+				'../thirdparty/libvlc/libvlc.gyp:libvlc_headers',
 
 				'../thirdparty/libz/libz.gyp:libz',
 
@@ -46,6 +47,7 @@
 			[
 				'include',
 				'src',
+				'../hxtlib',
 				'../thirdparty/libpng/src',
 				'../thirdparty/libjpeg/src',
 			],
@@ -56,6 +58,7 @@
 				'<@(engine_desktop_source_files)',
 				'<@(engine_module_source_files)',
 				'<@(engine_java_source_files)',
+				'../hxtlib/hxtlib.cpp',
 			],
 
 			'conditions':
@@ -66,6 +69,7 @@
 						'include_dirs':
 						[
 							'../thirdparty/headers/linux/include/cairo',
+							'<!@(pkg-config --cflags-only-I dbus-1 2>/dev/null | sed "s/-I//g")',
 						],
 
 						'defines':
@@ -191,6 +195,7 @@
 								'$(SDKROOT)/System/Library/Frameworks/Cocoa.framework',
 								'$(SDKROOT)/System/Library/Frameworks/MediaToolbox.framework',
 								'$(SDKROOT)/System/Library/Frameworks/Quartz.framework',
+								'$(SDKROOT)/System/Library/Frameworks/UserNotifications.framework',
 							],
 						},
 					],
@@ -208,6 +213,52 @@
 							},
                         },
                     ],
+					[
+						# VLC: weakly link libvlc/libvlccore from VLC.app on macOS.
+						# Weak linking lets standalones that do not bundle VLC still
+						# launch; EnsureVLCInstance() guards every symbol before use.
+						'OS == "mac"',
+						{
+							'xcode_settings':
+							{
+								'OTHER_LDFLAGS':
+								[
+									'-weak_library /Applications/VLC.app/Contents/MacOS/lib/libvlc.dylib',
+									'-weak_library /Applications/VLC.app/Contents/MacOS/lib/libvlccore.dylib',
+								],
+							},
+						},
+					],
+					[
+						# VLC: link against system libvlc on Linux
+						# (install with: sudo apt install libvlc-dev)
+						'OS == "linux"',
+						{
+							'libraries':
+							[
+								'-lvlc',
+							],
+						},
+					],
+					[
+						# VLC: delay-load libvlc.dll on Windows so standalones that do
+						# not bundle VLC still launch; EnsureVLCInstance() is the only
+						# call site and returns false gracefully when symbols are null.
+						'OS == "win"',
+						{
+							'libraries':
+							[
+								'libvlc.lib',
+							],
+							'msvs_settings':
+							{
+								'VCLinkerTool':
+								{
+									'DelayLoadDLLs': 'libvlc.dll',
+								},
+							},
+						},
+					],
                     [
                         'OS == "mac" and target_sdk == "macosx10.6"',
                         {
@@ -272,6 +323,7 @@
 								'-ldl',
 								'-lpthread',
 								'-lcups',
+								'-ldbus-1',
 							],
 						},
 					],

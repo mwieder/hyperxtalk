@@ -1,19 +1,3 @@
-/* Copyright (C) 2003-2015 LiveCode Ltd.
-
-This file is part of LiveCode.
-
-LiveCode is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License v3 as published by the Free
-Software Foundation.
-
-LiveCode is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-for more details.
-
-You should have received a copy of the GNU General Public License
-along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
-
 //
 // global parsing definitions for MetaCard
 //
@@ -107,6 +91,7 @@ enum Convert_form {
     CF_ABBREVIATED,
     CF_LONG,
     CF_INTERNET,
+	CF_SQL,
     CF_SECONDS,
     CF_DATEITEMS,
     CF_TIME,
@@ -118,6 +103,7 @@ enum Convert_form {
     CF_ABBREV_DATE,
     CF_LONG_DATE,
     CF_INTERNET_DATE,
+	CF_SQL_DATE,
     CF_ENGLISH = 1000,
     CF_SYSTEM = 2000
 };
@@ -320,6 +306,7 @@ enum Functions {
     F_BASE_CONVERT,
     F_BASE64_DECODE,
     F_BASE64_ENCODE,
+    F_BATTERY_LEVEL,
     // AL-2014-10-17: [[ BiDi ]] Returns the result of applying the bi-directional algorithm to text
     F_BIDI_DIRECTION,
     F_BINARY_DECODE,
@@ -360,6 +347,7 @@ enum Functions {
     F_DATE,
     F_DATE_FORMAT,
     F_DECOMPRESS,
+    F_DELETE_CREDENTIAL,
     F_DELETE_RESOURCE,
     F_DIRECTORIES,
     F_DISK_SPACE,
@@ -409,6 +397,7 @@ enum Functions {
     F_HN,
     F_HNTOA,
     F_INTERRUPT,
+    F_IFF,
     F_INTERSECT,
     F_IS_NUMBER,
     F_ISO_TO_MAC,
@@ -459,6 +448,7 @@ enum Functions {
     F_MOVIE,
     F_MOVING_CONTROLS,
     F_NATIVE_CHAR_TO_NUM,
+    F_NATURAL_SCROLLING,
     F_NUM_TO_CHAR,
     F_NUM_TO_NATIVE_CHAR,
     F_NUM_TO_UNICODE_CHAR,
@@ -478,12 +468,14 @@ enum Functions {
     F_PARAM,
     F_PARAMS,
     F_PARAM_COUNT,
+    F_NOTIFICATION_PERMISSION,
     F_PENDING_MESSAGES,
     F_PLATFORM,
 	// JS-2013-06-19: [[ StatsFunctions ]] Tag for 'populationStdDev'
     F_POP_STD_DEV,
 	// JS-2013-06-19: [[ StatsFunctions ]] Tag for 'populationVariance'
     F_POP_VARIANCE,
+    F_POWER_SOURCE,
     F_PROCESS_ID,
     F_PROCESSOR,
     F_PROPERTY_NAMES,
@@ -496,6 +488,7 @@ enum Functions {
     F_RECORD_LOUDNESS,
     F_REPLACE_TEXT,
     F_RESULT,
+    F_RETRIEVE_CREDENTIAL,
     F_ROUND,
 	F_RUNTIME_ENVIRONMENTS, // RUNTIME ONLY
     F_SCREEN_COLORS,
@@ -533,6 +526,7 @@ enum Functions {
     F_STACKS,
     F_STACK_SPACE,
     F_STAT_ROUND,
+    F_STORE_CREDENTIAL,
     F_SUM,
     F_SYS_ERROR,
     F_SYSTEM_VERSION,
@@ -785,7 +779,8 @@ enum Operators {
     O_OR,
 	O_WRAP,
 	O_BEGINS_WITH,
-	O_ENDS_WITH
+	O_ENDS_WITH,
+	O_MATCHES
 };
 
 // return codes from parsers
@@ -908,6 +903,7 @@ enum Properties {
     P_ABBREVIATE,
     P_LONG,
     P_INTERNET,
+	P_SQL,
     P_EFFECTIVE,
     P_ENGLISH,
     P_SYSTEM,
@@ -1280,6 +1276,9 @@ enum Properties {
     P_DESTROY_WINDOW,
     P_ALWAYS_BUFFER,
     P_PASSWORD,
+    P_PASSWORD_FIELD,
+    P_PASSWORD_TOGGLE,
+    P_CANCEL_BUTTON,
     P_KEY,
     P_MODE,
     P_WM_PLACE,
@@ -1438,6 +1437,17 @@ enum Properties {
     P_DEFAULT,
     P_LABEL,
     P_LABEL_WIDTH,
+    P_HINT_TEXT,
+    // toolbar properties
+    P_TOOLBAR_DISPLAY_MODE,
+    P_TOOLBAR_VISIBLE,
+    P_TOOLBAR_ITEM_NAMES,
+    // toolbar item properties
+    P_TOOLBAR_ITEM_LABEL,
+    P_TOOLBAR_ITEM_TOOLTIP,
+    P_TOOLBAR_ITEM_ENABLED,
+    P_TOOLBAR_ITEM_ICON,
+    P_TOOLBAR_ITEM_STYLE,
     P_FAMILY,
     P_VISITED,
     // button menu item properties
@@ -1502,6 +1512,7 @@ enum Properties {
     P_FIRST_INDENT,
     P_LOCK_TEXT,
     P_SHARED_TEXT,
+    P_SPELL_CHECK,
     P_SHOW_LINES,
     P_FORMATTED_LEFT,
     P_FORMATTED_TOP,
@@ -1762,6 +1773,13 @@ enum Properties {
 
 	P_SYSTEM_TEXT_COLOR,
 
+    P_BADGE,
+    P_TASKBAR_OVERLAY_ICON,
+    P_TASKBAR_PROGRESS,
+
+    P_JUMP_LIST_TASKS,
+    P_JUMP_LIST_CATEGORY,
+
     __P_LAST,
 };
 
@@ -2010,10 +2028,13 @@ enum Statements {
 	// MW-2013-11-14: [[ AssertCmd ]] 'assert' command tag.
 	S_ASSERT,
     S_BEEP,
+    S_BRING_APPLICATION_TO_FRONT,
     S_BREAK,
     S_BREAKPOINT,
     S_CALL,
     S_CANCEL,
+    S_CANCEL_ALL_NOTIFICATIONS,
+    S_CANCEL_NOTIFICATION,
     S_CHOOSE,
     S_CLICK,
     S_CLONE,
@@ -2102,6 +2123,7 @@ enum Statements {
     S_REPLACE,
     S_REPLY,
     S_REQUEST,
+    S_REQUEST_NOTIFICATION_PERMISSION,
 	S_REQUIRE,
     S_RESET,
     // MERG-2013-09-23: [[ ResolveImage ]] resolve image [id] relative to <object>
@@ -2117,9 +2139,11 @@ enum Statements {
     S_SEEK,
     S_SELECT,
     S_SEND,
+    S_SHARE,
     S_SET,
     S_SHEET,
     S_SHOW,
+    S_SHOW_NOTIFICATION,
     S_SORT,
     S_SPLIT,
     S_START,
