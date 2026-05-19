@@ -402,7 +402,7 @@ void MCStack::realize()
 
 		// MW-2011-02-15: [[ Bug 9396 ]] Tooltips should have a shadow on Windows.
 		// IM-2015-03-12: [[ WidgetPopup ]] Disable dropshadow for non-opaque stacks.
-		Boolean isxpmenu = (mode == WM_PULLDOWN || mode == WM_POPUP || mode == WM_CASCADE || mode == WM_TOOLTIP) \
+		Boolean isxpmenu = (mode == WM_PULLDOWN || mode == WM_POPUP || mode == WM_POPOVER || mode == WM_CASCADE || mode == WM_TOOLTIP) \
 		                   && (MCcurtheme && MCcurtheme->getthemeid() == LF_NATIVEWIN) && isopaque();
 
 		// MW-2012-09-07: [[ Bug 10368 ]] If the 'no-shadow' bit is set, then we don't
@@ -414,7 +414,9 @@ void MCStack::realize()
 
         MCAutoStringRefAsWString t_window_name;
         /* UNCHECKED */ t_window_name.Lock(MCNameGetString(getname()));
-        window -> handle . window = (MCSysWindowHandle)CreateWindowExW(exstyle, MC_WIN_CLASS_NAME_W, *t_window_name, wstyle | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, x, y, width, height,
+        // Use the drop-shadow menu class for popovers, pulldowns, tooltips etc.
+        const WCHAR *t_class_name = isxpmenu ? MC_MENU_WIN_CLASS_NAME_W : MC_WIN_CLASS_NAME_W;
+        window -> handle . window = (MCSysWindowHandle)CreateWindowExW(exstyle, t_class_name, *t_window_name, wstyle | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, x, y, width, height,
                                                                        t_parenthwnd, NULL, MChInst, NULL);
 
 		SetWindowLongPtrA((HWND)window->handle.window, GWLP_USERDATA, mode);

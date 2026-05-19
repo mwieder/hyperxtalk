@@ -543,7 +543,20 @@ Boolean MCScreenDC::handle(Boolean dispatch, Boolean anyevent, Boolean& abort, B
             {
                 // We're not dragging
                 dragclick = false;
-                
+
+                // Click-outside dismiss for WM_POPOVER windows.
+                // If a popover is open and the click landed on a different
+                // GdkWindow, close the popover before handling the event
+                // normally so the click is still delivered to its target.
+                if (MCpopoverstack != nullptr &&
+                    t_event->type == GDK_BUTTON_PRESS &&
+                    t_event->button.window != MCpopoverstack->getwindowalways())
+                {
+                    MCStack *t_closing = MCpopoverstack;
+                    MCpopoverstack = nullptr; // clear before wclose to prevent re-entry
+                    MCdispatcher->wclose(t_closing->getwindowalways());
+                }
+
                 // Update the mouse button status
                 if (t_event->type == GDK_BUTTON_PRESS)
                     setmods(t_event->button.state, 0, t_event->button.button, False);
@@ -747,6 +760,16 @@ Boolean MCScreenDC::handle(Boolean dispatch, Boolean anyevent, Boolean& abort, B
                 MCStack *t_stack = MCdispatcher->findstackd(t_event->configure.window);
                 if (t_stack == nil)
                     break;
+
+                // If the anchor stack has moved, dismiss the popover.
+                // This matches macOS behaviour where popovers hide on parent move.
+                if (MCpopoverstack != nullptr && t_stack == MCpopoverparentstack)
+                {
+                    MCStack *t_closing = MCpopoverstack;
+                    MCpopoverstack = nullptr;
+                    MCpopoverparentstack = nullptr;
+                    MCdispatcher->wclose(t_closing->getwindowalways());
+                }
                 
                 GdkGeometry t_geom;
                 gint t_new_width, t_new_height;

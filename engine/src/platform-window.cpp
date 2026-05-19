@@ -161,6 +161,19 @@ void MCPlatformWindow::ShowAsSheet(MCPlatformWindowRef p_parent)
 	DoShowAsSheet(p_parent);
 }
 
+void MCPlatformWindow::ShowAsPopover(MCRectangle p_anchor_rect, MCPlatformWindowEdge p_edge)
+{
+	if (m_is_visible)
+		return;
+
+	// Make sure the window has been created.
+	RealizeAndNotify();
+
+	m_is_visible = true;
+
+	DoShowAsPopover(p_anchor_rect, p_edge);
+}
+
 void MCPlatformWindow::Hide(void)
 {
 	// Do nothing if the window is not visible.
@@ -643,6 +656,11 @@ void MCPlatformShowWindow(MCPlatformWindowRef p_window)
 void MCPlatformShowWindowAsSheet(MCPlatformWindowRef p_window, MCPlatformWindowRef p_parent_window)
 {
 	p_window -> ShowAsSheet(p_parent_window);
+}
+
+void MCPlatformShowWindowAsPopover(MCPlatformWindowRef p_window, MCRectangle p_anchor_rect, MCPlatformWindowEdge p_edge)
+{
+	p_window -> ShowAsPopover(p_anchor_rect, p_edge);
 }
 
 void MCPlatformHideWindow(MCPlatformWindowRef p_window)

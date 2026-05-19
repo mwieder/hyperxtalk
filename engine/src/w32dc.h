@@ -17,6 +17,7 @@
 #define MC_VIDEO_WIN_CLASS_NAME		"MCVideoWinClass"
 #define MC_POPUP_WIN_CLASS_NAME		"MCPopupWinClass"
 #define MC_MENU_WIN_CLASS_NAME		"MCMenuWinClass"
+#define MC_MENU_WIN_CLASS_NAME_W    L"MCMenuWinClassW"
 #define MC_SNAPSHOT_WIN_CLASS_NAME	"MCSnapshotWinClass"
 #define MC_BACKDROP_WIN_CLASS_NAME      "MCBackdropWinClass"
 #define MC_APP_NAME			"LiveCode"

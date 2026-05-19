@@ -671,10 +671,35 @@ void MCScreenDC::openwindow(Window window, Boolean override)
 	MCStack *target = MCdispatcher->findstackd(window);
     gdk_window_show(window);
 	MCstacks -> enableformodal(window, False);
+
+    // WM_POPOVER on Linux: track the open popover stack so the
+    // GDK_BUTTON_PRESS and GDK_CONFIGURE handlers in lnxdclnx.cpp can
+    // implement click-outside dismiss and dismiss-on-parent-move.
+    if (target != nullptr && target->getmode() == WM_POPOVER)
+    {
+        MCpopoverstack = target;
+    }
 }
 
 void MCScreenDC::closewindow(Window window)
 {
+    // If a popover is open and some OTHER window is being closed, dismiss the
+    // popover first so it doesn't outlive the stack it was anchored to.
+    if (MCpopoverstack != nullptr && MCpopoverstack->getwindowalways() != window)
+    {
+        MCStack *t_popover = MCpopoverstack;
+        MCpopoverstack = nullptr;
+        MCpopoverparentstack = nullptr;
+        MCdispatcher->wclose(t_popover->getwindowalways());
+    }
+
+    // If the popover itself is being closed, clear our tracking state.
+    if (MCpopoverstack != nullptr && MCpopoverstack->getwindowalways() == window)
+    {
+        MCpopoverstack = nullptr;
+        MCpopoverparentstack = nullptr;
+    }
+
 	MCStack *target = MCdispatcher->findstackd(window);
 	MCstacks -> enableformodal(window, True);
     gdk_window_hide(window);

@@ -378,6 +378,7 @@ const LT command_table[] =
         {"place", TT_STATEMENT, S_PLACE},
         {"play", TT_STATEMENT, S_PLAY},
         {"pop", TT_STATEMENT, S_POP},
+        {"popover", TT_STATEMENT, S_POPOVER},
         {"popup", TT_STATEMENT, S_POPUP},
         {"post", TT_STATEMENT, S_POST},
         {"prepare", TT_STATEMENT, S_PREPARE},
@@ -2162,12 +2163,14 @@ const static LT start_table[] =
 const static LT sugar_table[] =
     {
 		{"anchor", TT_UNDEFINED, SG_ANCHOR},
+		{"anchored", TT_UNDEFINED, SG_ANCHORED},
 		{"bookmark", TT_UNDEFINED, SG_BOOKMARK},
 		{"browser", TT_UNDEFINED, SG_BROWSER},
         {"callback", TT_CHUNK, CT_UNDEFINED},
 		{"caller", TT_UNDEFINED, SG_CALLER},
 		{"closed", TT_UNDEFINED, SG_CLOSED},
         {"data", TT_UNDEFINED, SG_DATA},
+		{"edge", TT_UNDEFINED, SG_EDGE},
 		{"effects", TT_UNDEFINED, SG_EFFECTS},
 		{"elevated", TT_UNDEFINED, SG_ELEVATED},
         {"empty", TT_CHUNK, CT_UNDEFINED},

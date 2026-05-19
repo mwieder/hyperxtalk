@@ -1952,6 +1952,8 @@ enum Sugar_constants {
 	SG_OPTIMIZED,
 	SG_OPTIONS,
 	SG_ANCHOR,
+	SG_ANCHORED,
+	SG_EDGE,
 	SG_LINK,
 	
 	// MM-2012-09-05: [[ Property Listener ]] Used by cancel listener for object
@@ -2105,6 +2107,7 @@ enum Statements {
     S_PLAY,
     S_POP,
     S_POPUP,
+    S_POPOVER,
     S_POST,
     S_PREPARE,
     S_PRINT,

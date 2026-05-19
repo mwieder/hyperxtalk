@@ -1670,6 +1670,22 @@ LRESULT CALLBACK MCWindowProc(HWND hwnd, UINT msg, WPARAM wParam,
 		}
 		break;
 	}
+	case WM_ACTIVATE:
+		// Dismiss a popover when it loses activation (user clicked elsewhere
+		// or another window came to the front).  WA_INACTIVE is sent to the
+		// window that is being deactivated, so we only act on that case.
+		if (LOWORD(wParam) == WA_INACTIVE)
+		{
+			LONG_PTR t_mode = GetWindowLongPtrA(hwnd, GWLP_USERDATA);
+			if (t_mode == WM_POPOVER)
+			{
+				MCStack *sptr = MCdispatcher->findstackd(dw);
+				if (sptr != NULL)
+					sptr->close();
+			}
+		}
+		break;
+
 	case WM_ACTIVATEAPP:
 		if (wParam != isactive)
 		{

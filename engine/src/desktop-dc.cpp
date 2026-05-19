@@ -402,7 +402,17 @@ void MCScreenDC::openwindow(Window w, Boolean override)
 	if (t_stack != nil)
 		t_parent = t_stack -> getparentwindow();
 		
-	if (t_stack -> getmode() != WM_SHEET)
+	if (t_stack->getmode() == WM_POPOVER)
+	{
+		MCPlatformShowWindowAsPopover(w, MCpopoveranchor, (MCPlatformWindowEdge)MCpopoveredge);
+#ifdef _LINUX_DESKTOP
+		// On Linux there is no native popover widget, so we track the open
+		// popover stack here. The GDK button-press handler in lnxdclnx.cpp
+		// checks this to implement click-outside dismiss.
+		MCpopoverstack = t_stack;
+#endif
+	}
+	else if (t_stack->getmode() != WM_SHEET)
 		MCPlatformShowWindow(w);
 	else
 		MCPlatformShowWindowAsSheet(w, t_parent);
@@ -410,6 +420,11 @@ void MCScreenDC::openwindow(Window w, Boolean override)
 
 void MCScreenDC::closewindow(Window window)
 {
+#ifdef _LINUX_DESKTOP
+	// Clear the popover tracker if this window is the current popover.
+	if (MCpopoverstack != nullptr && MCpopoverstack->getw() == window)
+		MCpopoverstack = nullptr;
+#endif
 	MCPlatformHideWindow(window);
 }
 

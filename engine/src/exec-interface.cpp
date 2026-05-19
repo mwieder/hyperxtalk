@@ -48,6 +48,8 @@
 #include "stacksecurity.h"
 
 #include "exec-interface.h"
+#include "platform.h"
+
 
 #if defined(_WINDOWS_DESKTOP)
 #include "w32dc.h"
@@ -2848,7 +2850,7 @@ void MCInterfaceExecPopupButton(MCExecContext& ctxt, MCButton *p_target, MCPoint
 
 void MCInterfaceExecSubwindow(MCExecContext& ctxt, MCStack *p_target, MCStack *p_parent, MCRectangle p_rect, int p_at, int p_aligned, int p_mode)
 {
-	if (p_mode != WM_PULLDOWN && p_mode != WM_POPUP && p_mode != WM_OPTION)
+	if (p_mode != WM_PULLDOWN && p_mode != WM_POPUP && p_mode != WM_POPOVER && p_mode != WM_OPTION)
     	MCU_watchcursor(ctxt . GetObject()->getstack(), False);
         
 	// MW-2007-05-01: Reverting this as it causes problems :o(
@@ -3045,6 +3047,65 @@ void MCInterfaceExecPopupStackByName(MCExecContext& ctxt, MCNameRef p_name, MCPo
 	}
 	
 	MCInterfaceExecPopupStack(ctxt, sptr, p_at, p_mode);
+}
+
+// ---------------------------------------------------------------------------
+// Popover
+// ---------------------------------------------------------------------------
+
+// p_anchor_rect: the anchor control's rect in screen coordinates (may be nil).
+// p_edge:        Window_position value (WP_PARENTxxx) indicating which edge
+//               of the anchor the popover should appear on.
+// Convert Window_position edge to MCPlatformWindowEdge for the native popover API.
+static MCPlatformWindowEdge s_popover_wp_to_platform_edge(int p_wp)
+{
+	switch (p_wp)
+	{
+		case WP_PARENTTOP:    return KMCPlatformWindowEdgeTop;
+		case WP_PARENTLEFT:   return kMCPlatformWindowEdgeLeft;
+		case WP_PARENTRIGHT:  return kMCPlatformWindowEdgeRight;
+		case WP_PARENTBOTTOM:
+		default:              return kMCPlatformWindowEdgeBottom;
+	}
+}
+
+void MCInterfaceExecPopoverStack(MCExecContext& ctxt, MCStack *p_target, MCRectangle *p_anchor_rect, int p_edge)
+{
+	// Store anchor rect and edge for the macOS NSPopover show path (desktop-dc.cpp openwindow).
+	if (p_anchor_rect != nil)
+		MCpopoveranchor = *p_anchor_rect;
+	else
+		MCU_set_rect(MCpopoveranchor, 0, 0, 0, 0);
+	MCpopoveredge = s_popover_wp_to_platform_edge(p_edge);
+
+	MCRectangle t_ref_rect;
+	if (p_anchor_rect != nil)
+	{
+		t_ref_rect = *p_anchor_rect;
+	}
+	else if (MCdefaultstackptr && MCdefaultstackptr->getopened())
+	{
+		t_ref_rect = MCdefaultstackptr->getrect();
+	}
+	else
+	{
+		MCU_set_rect(t_ref_rect, 0, 0, 1, 1);
+	}
+
+	MCInterfaceExecSubwindow(ctxt, p_target, nil, t_ref_rect, p_edge, OP_CENTER, WM_POPOVER);
+}
+
+void MCInterfaceExecPopoverStackByName(MCExecContext& ctxt, MCNameRef p_name, MCRectangle *p_anchor_rect, int p_edge)
+{
+	MCStack *sptr = ctxt.GetObject()->getstack()->findstackname(p_name);
+	if (sptr == nil)
+	{
+		if (MCresult->isclear())
+			ctxt.SetTheResultToStaticCString("can't find stack");
+		return;
+	}
+
+	MCInterfaceExecPopoverStack(ctxt, sptr, p_anchor_rect, p_edge);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

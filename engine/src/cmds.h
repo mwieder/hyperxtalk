@@ -2078,6 +2078,21 @@ public:
 	}
 };
 
+// Popover window: popover stack <target> [anchored to <control>] [on edge <edge>]
+// The popover floats near an anchor control, on the specified edge.
+// Edge strings: "top", "bottom" (default), "left", "right".
+class MCPopover : public MCStatement
+{
+	MCChunk *target;   // the stack to show
+	MCChunk *anchor;   // the control to anchor to (optional)
+	MCExpression *edge; // edge string expression (optional)
+public:
+	MCPopover();
+	virtual ~MCPopover();
+	virtual Parse_stat parse(MCScriptPoint &);
+	virtual void exec_ctxt(MCExecContext &ctxt);
+};
+
 class MCUnlock : public MCStatement
 {
 	Lock_constants which;

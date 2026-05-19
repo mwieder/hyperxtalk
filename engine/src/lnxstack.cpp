@@ -237,6 +237,7 @@ void MCStack::sethints()
             break;
             
         case WM_POPUP:
+        case WM_POPOVER:
         case WM_OPTION:
         case WM_CASCADE:
             t_type_hint = GDK_WINDOW_TYPE_HINT_POPUP_MENU;
