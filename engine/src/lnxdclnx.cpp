@@ -762,17 +762,28 @@ Boolean MCScreenDC::handle(Boolean dispatch, Boolean anyevent, Boolean& abort, B
                 if (t_stack == nil)
                     break;
 
-                // If a popover is open and its parent stack (or any other
-                // stack) has moved or resized, dismiss the popover.  We can't
-                // reposition it because we only stored the anchor rect at open
-                // time, not the anchor control; dismissing is the safest option
-                // and matches common popover UX.
-                if (MCpopoverstack != nullptr && t_stack != MCpopoverstack)
+                // If the anchor stack has moved, translate the popover by the
+                // same delta so it stays visually anchored to its control.
+                // gdk_window_get_origin gives root-window (screen) coordinates,
+                // which are consistent regardless of WM reparenting.
+                if (MCpopoverstack != nullptr && t_stack == MCpopoverparentstack)
                 {
-                    MCStack *t_closing = MCpopoverstack;
-                    MCpopoverstack = nullptr;
-                    gdk_display_pointer_ungrab(dpy, GDK_CURRENT_TIME);
-                    MCdispatcher->wclose(t_closing->getwindowalways());
+                    gint t_new_x, t_new_y;
+                    gdk_window_get_origin(t_event->configure.window, &t_new_x, &t_new_y);
+                    int t_dx = t_new_x - MCpopoverparentx;
+                    int t_dy = t_new_y - MCpopoverparenty;
+                    MCpopoverparentx = t_new_x;
+                    MCpopoverparenty = t_new_y;
+
+                    if ((t_dx != 0 || t_dy != 0) &&
+                        MCpopoverstack->getwindowalways() != nullptr)
+                    {
+                        gint t_px, t_py;
+                        gdk_window_get_origin(MCpopoverstack->getwindowalways(),
+                                              &t_px, &t_py);
+                        gdk_window_move(MCpopoverstack->getwindowalways(),
+                                        t_px + t_dx, t_py + t_dy);
+                    }
                 }
                 
                 GdkGeometry t_geom;

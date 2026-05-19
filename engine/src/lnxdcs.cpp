@@ -679,6 +679,17 @@ void MCScreenDC::openwindow(Window window, Boolean override)
     if (target != nullptr && target->getmode() == WM_POPOVER)
     {
         MCpopoverstack = target;
+
+        // Capture the anchor stack's current screen origin so the
+        // GDK_CONFIGURE handler in lnxdclnx.cpp can compute the movement
+        // delta and translate the popover window in lock-step.
+        if (MCpopoverparentstack != nullptr &&
+            MCpopoverparentstack->getwindowalways() != nullptr)
+        {
+            gdk_window_get_origin(MCpopoverparentstack->getwindowalways(),
+                                  &MCpopoverparentx, &MCpopoverparenty);
+        }
+
         gdk_pointer_grab(window, False,
                          GdkEventMask(GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK),
                          NULL, NULL, GDK_CURRENT_TIME);
@@ -693,6 +704,8 @@ void MCScreenDC::closewindow(Window window)
     {
         MCStack *t_popover = MCpopoverstack;
         MCpopoverstack = nullptr;
+        MCpopoverparentstack = nullptr;
+        MCpopoverparentx = MCpopoverparenty = 0;
         gdk_display_pointer_ungrab(dpy, GDK_CURRENT_TIME);
         MCdispatcher->wclose(t_popover->getwindowalways());
     }
@@ -701,6 +714,8 @@ void MCScreenDC::closewindow(Window window)
     if (MCpopoverstack != nullptr && MCpopoverstack->getwindowalways() == window)
     {
         MCpopoverstack = nullptr;
+        MCpopoverparentstack = nullptr;
+        MCpopoverparentx = MCpopoverparenty = 0;
         gdk_display_pointer_ungrab(dpy, GDK_CURRENT_TIME);
     }
 

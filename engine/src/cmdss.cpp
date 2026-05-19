@@ -1803,6 +1803,10 @@ void MCPopover::exec_ctxt(MCExecContext &ctxt)
 	// ------------------------------------------------------------------
 	// Open the popover
 	// ------------------------------------------------------------------
+	// Record the anchor's stack so the Linux GDK_CONFIGURE handler can
+	// translate the popover when the parent window is moved.
+	MCpopoverparentstack = (t_anchor_obj != nil) ? t_anchor_obj->getstack() : nullptr;
+
 	if (t_stack_by_obj)
 		MCInterfaceExecPopoverStack(ctxt, (MCStack *)t_stack_obj, t_anchor_rect_ptr, t_edge);
 	else

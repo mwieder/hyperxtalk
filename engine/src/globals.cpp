@@ -163,6 +163,9 @@ int2 MCmousey;
 MCRectangle MCpopoveranchor = {0, 0, 0, 0};
 int MCpopoveredge = 0; // kMCPlatformWindowEdgeBottom
 MCStack *MCpopoverstack = nullptr;
+MCStack *MCpopoverparentstack = nullptr; // stack containing the anchor control
+int MCpopoverparentx = 0;               // anchor stack screen x captured at open time
+int MCpopoverparenty = 0;               // anchor stack screen y captured at open time
 uint2 MCsiguser1;
 uint2 MCsiguser2;
 int4 MCinputfd = -1;
