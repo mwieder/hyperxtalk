@@ -1,0 +1,62 @@
+Library: mergScreen
+
+type: library
+
+Description:
+
+
+Tags: Externals
+Name: mergScreenGetBrightness
+
+Type: function
+
+Syntax: mergScreenGetBrightness()
+
+Summary:  Get the brightness of the screen
+
+Introduced: 8.0
+
+OS: ios
+
+Platforms: mobile
+
+Edition: Community
+
+
+
+
+
+
+
+Returns:  A number between 0 and 100 where 0 is black
+
+
+
+Name: mergScreenSetBrightness
+
+Type: command
+
+Syntax: mergScreenSetBrightness <pBrightness>
+
+Summary:  Set the brightness of the screen
+
+Introduced: 8.0
+
+OS: ios
+
+Platforms: mobile
+
+Edition: Community
+
+
+
+
+
+
+
+Parameters:
+pBrightness:  A number between 0 and 100 where 0 is black
+
+
+
+

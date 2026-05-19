@@ -24,7 +24,6 @@ util/perfect/perfect.linux-*
 **/extensions/*/*/*.lci
 **/extensions/*/*/*.lcm
 **/extensions/*/*/*.lce
-**/extensions/*/*/api.lcdoc
 */src/.lci/*
 
 # Compiled source and intermediates #
@@ -141,11 +140,7 @@ build-win-x86_64/livecode/Debug/lib/libcef_library_wrapper.lib
 build-win-x86_64/livecode/Debug/lib/libcef_library_wrapper.lib
 build-win-x86_64/livecode/thirdparty/libcef/Debug/lib/libcef_library_wrapper.lib
 build-win-x86_64/livecode/Debug/Externals/CEF/libcef.dll
-build/engine/Debug/Externals/CEF 
-build/engine/Release/Externals/CEF 
+build/engine/Debug/Externals/CEF
+build/engine/Release/Externals/CEF
 /thirdparty/libcef
 /Installer/output
-ide/Documentation/html_viewer/resources/data/api/api.sqlite
-ide/Documentation/html_viewer/resources/data/api/api.sqlite
-ide/Documentation/html_viewer/resources/data/api/api.sqlite
-/ide/Documentation/html_viewer/resources/data/api

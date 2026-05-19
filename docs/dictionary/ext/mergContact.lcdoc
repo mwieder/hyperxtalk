@@ -1,0 +1,44 @@
+Library: mergContact
+
+type: library
+
+Description:
+
+
+Tags: Externals
+Name: mergContactImage
+
+Type: function
+
+Syntax: mergContactImage(<pContactID>, [<pImageType>])
+
+Summary:  Get the image for a contact in the address book
+
+Introduced: 8.0
+
+OS: ios
+
+Platforms: mobile
+
+Edition: Community
+
+
+
+
+
+
+
+Parameters:
+pContactID:  The contact ID as returned by mobileContactGet
+
+pImageType: (optional with "thumbnail" default)  The image type. The
+image returned is not a guaranteed size or quality, however, the
+thumbnail is cropped square. One of: 
+ - thumbnail
+ - original
+
+
+Returns:  The image data
+
+
+
