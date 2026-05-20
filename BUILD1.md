@@ -19,11 +19,13 @@
 3. **Homebrew** — install from https://docs.brew.sh/Installation, then install
    the formulae the prebuild scripts need:
    ```bash
-   brew install openssl@3 libpq mysql-client pixman meson ninja pkg-config
+   brew install openssl@3 libpq mysql-client pixman libpng meson ninja pkg-config
    ```
    `meson` and `ninja` are required by the libcairo build step inside
-   `make prebuilt-mac`. `pixman` is a cairo dependency. `pkg-config` is
-   used by several prebuild scripts to locate library flags.
+   `make prebuilt-mac`. `pixman` and `libpng` are cairo dependencies that
+   the cairo build locates via `pkg-config` (cairo is built with
+   `-Dpng=enabled`). `pkg-config` is used by several prebuild scripts to
+   locate library flags.
 
    Also install VLC (needed for the media player integration):
    ```bash
