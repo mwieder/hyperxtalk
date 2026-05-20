@@ -1129,47 +1129,41 @@ __MCEngineDescribeScriptOfScriptObject_HandlerCallback(void *p_context,
     if (p_include_all)
     {
         MCAutoProperListRef t_global_names;
-        if (!p_handler->getglobalnames_as_properlist(&t_global_names))
+        if (p_handler->getglobalnames_as_properlist(&t_global_names))
         {
-            return false;
+            if (!MCArrayStoreValue(*t_entry,
+                                   false,
+                                   MCNAME("globals"),
+                                   *t_global_names))
+            {
+                return false;
+            }
         }
-        
-        if (!MCArrayStoreValue(*t_entry,
-                               false,
-                               MCNAME("globals"),
-                               *t_global_names))
-        {
-            return false;
-        }
-        
+
         MCAutoProperListRef t_variable_names;
-        if (!p_handler->getvariablenames_as_properlist(&t_variable_names))
+        if (p_handler->getvariablenames_as_properlist(&t_variable_names))
         {
-            return false;
+            if (!MCArrayStoreValue(*t_entry,
+                                   false,
+                                   MCNAME("locals"),
+                                   *t_variable_names))
+            {
+                return false;
+            }
         }
-        
-        if (!MCArrayStoreValue(*t_entry,
-                               false,
-                               MCNAME("locals"),
-                               *t_variable_names))
-        {
-            return false;
-        }
-        
+
         MCAutoProperListRef t_constant_names;
-        if (!p_handler->getconstantnames_as_properlist(&t_constant_names))
+        if (p_handler->getconstantnames_as_properlist(&t_constant_names))
         {
-            return false;
+            if (!MCArrayStoreValue(*t_entry,
+                                   false,
+                                   MCNAME("constants"),
+                                   *t_constant_names))
+            {
+                return false;
+            }
         }
-        
-        if (!MCArrayStoreValue(*t_entry,
-                               false,
-                               MCNAME("constants"),
-                               *t_constant_names))
-        {
-            return false;
-        }
-        
+
     }
     
     if (!MCArrayStoreValue(t_array,
