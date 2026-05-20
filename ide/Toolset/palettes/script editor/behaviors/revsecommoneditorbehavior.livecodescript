@@ -1,4 +1,4 @@
-script "com.livecode.scripteditor.behavior.editorcommon"
+﻿script "com.livecode.scripteditor.behavior.editorcommon"
 
 -- Autocomplete is always enabled in HyperXTalk.
 -- Defined here so it is always in the message path regardless of
@@ -3261,7 +3261,7 @@ command getCaretToken pUseClick
    ## AL-2014-01-15: [[ Bug 11094 ]] Added # to the list of script editor token delimiters
    ## Added [, ., " as delimiters; removed duplicate ] from character class
    local tExpression
-   put "\s|[\%\^\&\*\(\)\-\+\=\[\]\.\"\;\,\\@\\\/\<\>\#]" into tExpression
+   put "\s|[\%\^\&\*\(\)\-\+\=\[\]\.\" & QUOTE & "\;\,\\@\\\/\<\>\#]" into tExpression
    
    # Try looking backwards first
    local tText, tChar
