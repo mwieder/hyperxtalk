@@ -2043,33 +2043,15 @@ void MCMacPlatformHandleMouseCursorChange(MCPlatformWindowRef p_window)
     MCMacPlatformWindow *t_window;
     t_window = (MCMacPlatformWindow *)p_window;
     
-    // If we are on Lion+ then check to see if the mouse location is outside
-    // of any of the system tracking rects (used for resizing etc.)
-    extern uint4 MCmajorosversion;
-    if (MCmajorosversion >= MCOSVersionMake(10,7,0))
-    {
-        // MW-2014-06-11: [[ Bug 12437 ]] Make sure we only check tracking rectangles if we have
-        //   a resizable frame.
-        bool t_is_resizable;
-        MCPlatformGetWindowProperty(p_window, kMCPlatformWindowPropertyHasSizeWidget, kMCPlatformPropertyTypeBool, &t_is_resizable);
-        
-        if (t_is_resizable)
-        {
-            NSArray *t_tracking_areas;
-            t_tracking_areas = [[t_window -> GetContainerView() superview] trackingAreas];
-            
-            NSPoint t_mouse_loc;
-            t_mouse_loc = [t_window -> GetView() mapMCPointToNSPoint: s_mouse_position];
-            for(uindex_t i = 0; i < [t_tracking_areas count]; i++)
-            {
-                if (NSPointInRect(t_mouse_loc, [(NSTrackingArea *)[t_tracking_areas objectAtIndex: i] rect]))
-                    return;
-            }
-        }
-    }
-    
     // MW-2014-06-25: [[ Bug 12634 ]] Make sure we only change the cursor if we are not
     //   within a native view.
+    // Note: a Lion-era block that checked the superview's tracking areas to avoid
+    // overriding the system resize cursors was removed here.  On modern macOS the
+    // superview's tracking areas cover the entire content area (not just resize
+    // handles), so that check unconditionally suppressed cursor changes on any
+    // resizable stack.  The hitTest below is the correct gate: when the mouse is
+    // over a resize handle it sits in the window chrome (outside our view
+    // hierarchy), hitTest does not return our view, and we leave the cursor alone.
     if ([t_window -> GetContainerView() hitTest: [t_window -> GetView() mapMCPointToNSPoint: s_mouse_position]] == t_window -> GetView())
     {
         // Show the cursor attached to the window.
