@@ -19,13 +19,14 @@
 3. **Homebrew** — install from https://docs.brew.sh/Installation, then install
    the formulae the prebuild scripts need:
    ```bash
-   brew install openssl@3 libpq mysql-client pixman libpng meson ninja pkg-config
+   brew install openssl@3 libpq mysql-client pixman meson ninja pkg-config
    ```
    `meson` and `ninja` are required by the libcairo build step inside
-   `make prebuilt-mac`. `pixman` and `libpng` are cairo dependencies that
-   the cairo build locates via `pkg-config` (cairo is built with
-   `-Dpng=enabled`). `pkg-config` is used by several prebuild scripts to
-   locate library flags.
+   `make prebuilt-mac`. `pixman` is a cairo dependency. `pkg-config` is used
+   by several prebuild scripts to locate library flags. cairo's other
+   dependencies — zlib and libpng — are built from the repo's own vendored
+   sources earlier in the `prebuilt-mac` pass, so they need no Homebrew
+   formulae.
 
    Also install VLC (needed for the media player integration):
    ```bash
@@ -70,21 +71,29 @@ make package-mac-bin
 
 ### What `make prebuilt-mac` does
 
-In order:
+The scripts run in this order — the order matters (see the note below):
 
 1. `prebuilt/scripts/build-libffi-mac-arm64.sh` — vendored libffi → `prebuilt/lib/mac/libffi.a`.
-2. `prebuilt/scripts/build-thirdparty-mac-arm64.sh` — xcodebuild over the seven
-   vendored libs (libskia, libsqlite, libxml, libzip, libcairo, libxslt,
-   libiodbc) and copies the resulting `.a` files into `prebuilt/lib/mac/`.
-3. `prebuilt/scripts/build-libz-mac-arm64.sh` — zlib.
-4. `prebuilt/scripts/build-icu-mac-arm64.sh` — ICU 58.2 (icupkg host tool + five
+2. `prebuilt/scripts/build-libz-mac-arm64.sh` — zlib from `thirdparty/libz` → `prebuilt/lib/mac/libz.a`.
+3. `prebuilt/scripts/build-mac-extras.sh` — libgif, libjpeg, libpng, libpcre
+   (xcodebuild); `libcustomcrypto`/`libcustomssl` (copied from Homebrew
+   openssl@3); and stub `libpq.a`/`libmysql.a`.
+4. `prebuilt/scripts/build-libcairo-mac-arm64.sh` — cairo 1.18.4 (meson),
+   linking the repo's own zlib and libpng from steps 2–3.
+5. `prebuilt/scripts/build-thirdparty-mac-arm64.sh` — xcodebuild over the
+   vendored libs (libskia, libsqlite, libxml, libzip, libxslt, libiodbc) and
+   copies the resulting `.a` files into `prebuilt/lib/mac/`.
+6. `prebuilt/scripts/build-icu-mac-arm64.sh` — ICU 58.2 (icupkg host tool + five
    `libicu*.a` static libs in one pass).
-5. `prebuilt/scripts/build-mac-extras.sh` — libgif, libjpeg, libpng, libpcre,
-   and `libcustomcrypto`/`libcustomssl` (copied from Homebrew openssl@3).
-6. `prebuilt/scripts/build-libpq-mac-arm64.sh` — real static libpq from Homebrew.
-7. `prebuilt/scripts/build-libmysql-mac-arm64.sh` — real static libmysqlclient.
+7. `prebuilt/scripts/build-libpq-mac-arm64.sh` — real static libpq from Homebrew.
+8. `prebuilt/scripts/build-libmysql-mac-arm64.sh` — real static libmysqlclient.
 
-Step 6+7 replace the stub `libpq.a` / `libmysql.a` archives so that the
+> **Order note:** `build-libcairo` is configured to link the repo's vendored
+> zlib and libpng (via generated `pkg-config` files) rather than the macOS
+> SDK / Homebrew copies, so `build-libz` and `build-mac-extras` must run
+> before it.
+
+Steps 7+8 replace the stub `libpq.a` / `libmysql.a` archives so that the
 `dbpostgresql` / `dbmysql` driver bundles link against functional
 client libraries. Without them, `dbpostgresql` silently crashes the engine
 when used (no runtime guard); `dbmysql` has a `dlsym` guard and reports a
