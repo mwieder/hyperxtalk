@@ -5,7 +5,7 @@
 # pixman — pixman is now an external dependency.
 #
 # Prerequisites (install once):
-#   brew install meson ninja pixman pkg-config
+#   brew install meson ninja pixman libpng pkg-config
 #
 # Usage (from repo root):
 #   sh prebuilt/scripts/build-libcairo-mac-arm64.sh
