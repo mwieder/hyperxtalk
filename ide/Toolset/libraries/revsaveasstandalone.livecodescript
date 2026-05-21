@@ -1986,6 +1986,60 @@ private command revSetMacOS pWhatFile, pPlatformCode, pEnginePath
          end if
          put escapeForXml(tDocExtList) into line lineoffset("<key>CFBundleTypeExtensions</key>",tTempPlist) + 2 of tTempPlist
       end if
+
+      -- Inject placeholder NSUsageDescription keys for any privacy entitlements present
+      -- in the developer's entitlements file that aren't already in the plist.
+      -- macOS silently denies access (or App Store review rejects the app) if these are
+      -- missing. Developers can replace the placeholder strings with their own wording.
+      local tPrivacyEntFile
+      put sStandaloneSettingsA["OSX,entitlementsFile"] into tPrivacyEntFile
+      if tPrivacyEntFile is not empty and there is a file tPrivacyEntFile then
+         local tPrivacyEntContent, tPrivacyMapping, tPrivacyMapLine
+         local tPrivacyEntKey, tPrivacyNSKey, tPrivacyPlaceholder, tNewUsageKeys
+         put URL ("file:" & tPrivacyEntFile) into tPrivacyEntContent
+         put empty into tNewUsageKeys
+
+         -- entitlement | Info.plist key | placeholder description
+         put "com.apple.security.device.camera|NSCameraUsageDescription|This app requires access to the camera." & return & \
+             "com.apple.security.device.microphone|NSMicrophoneUsageDescription|This app requires access to the microphone." & return & \
+             "com.apple.security.personal-information.location|NSLocationUsageDescription|This app requires access to your location." & return & \
+             "com.apple.security.personal-information.contacts|NSContactsUsageDescription|This app requires access to your contacts." & return & \
+             "com.apple.security.personal-information.calendars|NSCalendarsUsageDescription|This app requires access to your calendars." & return & \
+             "com.apple.security.personal-information.photos-library|NSPhotoLibraryUsageDescription|This app requires access to your photo library." & return & \
+             "com.apple.security.automation.apple-events|NSAppleEventsUsageDescription|This app requires the ability to send Apple events." into tPrivacyMapping
+
+         set the itemDelimiter to "|"
+         repeat for each line tPrivacyMapLine in tPrivacyMapping
+            put item 1 of tPrivacyMapLine into tPrivacyEntKey
+            put item 2 of tPrivacyMapLine into tPrivacyNSKey
+            put item 3 of tPrivacyMapLine into tPrivacyPlaceholder
+            if tPrivacyEntContent contains tPrivacyEntKey then
+               if tTempPlist does not contain tPrivacyNSKey then
+                  put tab & "<key>" & tPrivacyNSKey & "</key>" & return & \
+                        tab & "<string>" & tPrivacyPlaceholder & "</string>" & return after tNewUsageKeys
+               end if
+            end if
+         end repeat
+         set the itemDelimiter to comma
+
+         if tNewUsageKeys is not empty then
+            -- Insert before the last </dict> in the file (the root dict close).
+            -- Searching from the end avoids confusion with any nested <dict> blocks.
+            local tPrivacyLineCount, tPrivacyLineNum
+            put the number of lines of tTempPlist into tPrivacyLineCount
+            put 0 into tPrivacyLineNum
+            repeat with i = tPrivacyLineCount down to 1
+               if line i of tTempPlist contains "</dict>" then
+                  put i into tPrivacyLineNum
+                  exit repeat
+               end if
+            end repeat
+            if tPrivacyLineNum > 0 then
+               put tNewUsageKeys before line tPrivacyLineNum of tTempPlist
+            end if
+         end if
+      end if
+
       set the itemDel to "/"
       put uniDecode(uniEncode(tTempPlist), "UTF8") into URL ("file:" & item 1 to -3 of pWhatFile&"/Info.plist")
       if sStandaloneSettingsA["OSX,signature"] is not empty then
