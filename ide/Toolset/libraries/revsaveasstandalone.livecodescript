@@ -1987,17 +1987,22 @@ private command revSetMacOS pWhatFile, pPlatformCode, pEnginePath
          put escapeForXml(tDocExtList) into line lineoffset("<key>CFBundleTypeExtensions</key>",tTempPlist) + 2 of tTempPlist
       end if
 
+      set the itemDel to "/"
+      put uniDecode(uniEncode(tTempPlist), "UTF8") into URL ("file:" & item 1 to -3 of pWhatFile&"/Info.plist")
+
       -- Inject placeholder NSUsageDescription keys for any privacy entitlements present
-      -- in the developer's entitlements file that aren't already in the plist.
+      -- in the developer's entitlements file that aren't already in the Info.plist.
       -- macOS silently denies access (or App Store review rejects the app) if these are
-      -- missing. Developers can replace the placeholder strings with their own wording.
-      local tPrivacyEntFile
+      -- missing. Uses PlistBuddy so the output is always valid plist XML.
+      -- Developers can replace the placeholder strings with their own wording afterwards.
+      local tPrivacyEntFile, tPrivacyInfoPlist
       put sStandaloneSettingsA["OSX,entitlementsFile"] into tPrivacyEntFile
+      put item 1 to -3 of pWhatFile & "/Info.plist" into tPrivacyInfoPlist
       if tPrivacyEntFile is not empty and there is a file tPrivacyEntFile then
          local tPrivacyEntContent, tPrivacyMapping, tPrivacyMapLine
-         local tPrivacyEntKey, tPrivacyNSKey, tPrivacyPlaceholder, tNewUsageKeys
+         local tPrivacyEntKey, tPrivacyNSKey, tPrivacyPlaceholder, tPB
          put URL ("file:" & tPrivacyEntFile) into tPrivacyEntContent
-         put empty into tNewUsageKeys
+         put "/usr/libexec/PlistBuddy" into tPB
 
          -- entitlement | Info.plist key | placeholder description
          put "com.apple.security.device.camera|NSCameraUsageDescription|This app requires access to the camera." & return & \
@@ -2014,34 +2019,13 @@ private command revSetMacOS pWhatFile, pPlatformCode, pEnginePath
             put item 2 of tPrivacyMapLine into tPrivacyNSKey
             put item 3 of tPrivacyMapLine into tPrivacyPlaceholder
             if tPrivacyEntContent contains tPrivacyEntKey then
-               if tTempPlist does not contain tPrivacyNSKey then
-                  put tab & "<key>" & tPrivacyNSKey & "</key>" & return & \
-                        tab & "<string>" & tPrivacyPlaceholder & "</string>" & return after tNewUsageKeys
-               end if
+               -- PlistBuddy Add fails (non-zero exit) if the key already exists, which
+               -- is exactly what we want — existing values from a custom plist are preserved.
+               get shell(tPB && "-c" && quote & "Add :" & tPrivacyNSKey & " string " & quote & tPrivacyPlaceholder & quote && quote & tPrivacyInfoPlist & quote & " 2>/dev/null")
             end if
          end repeat
          set the itemDelimiter to comma
-
-         if tNewUsageKeys is not empty then
-            -- Insert before the last </dict> in the file (the root dict close).
-            -- Searching from the end avoids confusion with any nested <dict> blocks.
-            local tPrivacyLineCount, tPrivacyLineNum
-            put the number of lines of tTempPlist into tPrivacyLineCount
-            put 0 into tPrivacyLineNum
-            repeat with i = tPrivacyLineCount down to 1
-               if line i of tTempPlist contains "</dict>" then
-                  put i into tPrivacyLineNum
-                  exit repeat
-               end if
-            end repeat
-            if tPrivacyLineNum > 0 then
-               put tNewUsageKeys before line tPrivacyLineNum of tTempPlist
-            end if
-         end if
       end if
-
-      set the itemDel to "/"
-      put uniDecode(uniEncode(tTempPlist), "UTF8") into URL ("file:" & item 1 to -3 of pWhatFile&"/Info.plist")
       if sStandaloneSettingsA["OSX,signature"] is not empty then
          put "APPL" & sStandaloneSettingsA["OSX,signature"] into URL ("file:" & item 1 to -3 of pWhatFile&"/PkgInfo")
       end if
