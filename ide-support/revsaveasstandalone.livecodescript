@@ -2168,7 +2168,7 @@ private command revSetMacOS pWhatFile, pPlatformCode, pEnginePath
          put item 2 of tPrivacyMapLine into tPrivacyPlaceholder
          get shell(tPB && "-c" && quote & "Add :" & tPrivacyNSKey & " string '" & tPrivacyPlaceholder & "'" & quote && quote & tPrivacyInfoPlist & quote & " 2>/dev/null")
       end repeat
-      set the itemDelimiter to comma
+      set the itemDelimiter to "/"
       if sStandaloneSettingsA["OSX,signature"] is not empty then
          put "APPL" & sStandaloneSettingsA["OSX,signature"] into URL ("file:" & item 1 to -3 of pWhatFile&"/PkgInfo")
       end if
