@@ -2166,7 +2166,7 @@ private command revSetMacOS pWhatFile, pPlatformCode, pEnginePath
       repeat for each line tPrivacyMapLine in tPrivacyMapping
          put item 1 of tPrivacyMapLine into tPrivacyNSKey
          put item 2 of tPrivacyMapLine into tPrivacyPlaceholder
-         get shell(tPB && "-c" && quote & "Add :" & tPrivacyNSKey & " string " & quote & tPrivacyPlaceholder & quote && quote & tPrivacyInfoPlist & quote & " 2>/dev/null")
+         get shell(tPB && "-c" && quote & "Add :" & tPrivacyNSKey & " string '" & tPrivacyPlaceholder & "'" & quote && quote & tPrivacyInfoPlist & quote & " 2>/dev/null")
       end repeat
       set the itemDelimiter to comma
       if sStandaloneSettingsA["OSX,signature"] is not empty then
