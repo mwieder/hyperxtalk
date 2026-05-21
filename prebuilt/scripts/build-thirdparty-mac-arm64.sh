@@ -31,23 +31,28 @@ LIBS="libskia libsqlite libxml libzip libxslt libiodbc"
 FAILED_LIBS=""
 for LIB in ${LIBS}; do
     echo "=== Building ${LIB} ==="
+    # Test xcodebuild's real exit status. A previous version piped
+    # xcodebuild into `grep` and tested the *grep* exit code — but grep
+    # succeeds whenever it matches a line, including "** BUILD FAILED **",
+    # so a failed build was silently treated as a success and the stale
+    # prebuilt .a was kept. Capture the build to a log, test xcodebuild
+    # itself, and also scan the log for "BUILD FAILED" in case xcodebuild
+    # ever exits 0 spuriously.
+    BUILD_LOG="$(mktemp /tmp/hxt-thirdparty-build.XXXXXX)"
     if xcodebuild \
         -project "${REPO_ROOT}/build-mac/livecode/thirdparty/${LIB}/${LIB}.xcodeproj" \
         -configuration Debug \
         -arch arm64 \
         SOLUTION_DIR="${REPO_ROOT}" \
-        2>&1 | grep -E "BUILD (SUCCEEDED|FAILED)|error:"; then
-        :
+        > "${BUILD_LOG}" 2>&1 \
+        && ! grep -q "BUILD FAILED" "${BUILD_LOG}"; then
+        grep -E "BUILD (SUCCEEDED|FAILED)" "${BUILD_LOG}" || echo "  ${LIB}: build completed"
     else
-        echo "ERROR: ${LIB} build failed — re-running with full output:"
-        xcodebuild \
-            -project "${REPO_ROOT}/build-mac/livecode/thirdparty/${LIB}/${LIB}.xcodeproj" \
-            -configuration Debug \
-            -arch arm64 \
-            SOLUTION_DIR="${REPO_ROOT}" \
-            2>&1 | tail -40
+        echo "ERROR: ${LIB} build failed — last 40 lines of the build log:"
+        tail -40 "${BUILD_LOG}"
         FAILED_LIBS="${FAILED_LIBS} ${LIB}"
     fi
+    rm -f "${BUILD_LOG}"
 done
 
 if [ -n "${FAILED_LIBS}" ]; then
