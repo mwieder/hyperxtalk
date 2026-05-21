@@ -1,4 +1,4 @@
-Name: LiveCode custom library
+Name: Custom library
 
 Synonyms: livecode custom library, livecode custom libraries,
 custom library, custom libraries, livecode custom command,
@@ -9,17 +9,15 @@ livecode libraries
 Type: glossary
 
 Description:
-One of several <libraries> of <custom function|custom functions>, 
-<command|commands>, or <property|properties> that come with the 
-LiveCode <development environment>. 
+One of several <libraries> of <custom function|custom functions>,
+<command|commands>, or <property|properties> that come with the <development environment>.
 
->*Important:* If your <stack|stacks> use <command|commands> from a 
-> LiveCode custom library, be sure to select the appropriate option in 
-> the Inclusions pane of the <Standalone Application Settings> window 
+>*Important:* If your <stack|stacks> use <command|commands> from a
+> IDE custom library, be sure to select the appropriate option in
+> the Inclusions pane of the <Standalone Application Settings> window
 > to include the <library> in your <standalone application|standalone>.
 
 References: property (glossary), custom function (glossary),
-Standalone Application Settings (glossary), 
+Standalone Application Settings (glossary),
 development environment (glossary), standalone application (glossary),
 command (glossary), stack (glossary), library (library)
-
