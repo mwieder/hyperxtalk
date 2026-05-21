@@ -5,39 +5,39 @@ group: deployment
 
 ## Introduction
 
-With LiveCode, it is easy to deploy your application to anyone.
+With XTalk, it is easy to deploy your application to anyone.
 
-Using the standalone building capability in LiveCode you can create a native 
-application for each operating system you want to support. Users who do not have LiveCode 
-can run these applications like any other application they download and install. 
+Using the standalone building capability you can create a native
+application for each operating system you want to support. Users
+can run these applications like any other application they download and install.
 Standalone applications can have their own identity as true applications, include
 icons, document associations and more.
 
 ## Building a Standalone Application
 
-When you have finished your LiveCode application and what to distribute it you can build 
-it into a standalone application. These applications do not require users to have LiveCode.
-All of LiveCode's feature set is available for use in a standalone application, with the 
+When you have finished your application and what to distribute it you can build
+it into a standalone application. These applications do not require users to have the IDE.
+All of the engine's feature set is available for use in a standalone application, with the
 exception that you cannot set scripts on objects.
 
-The builder itself will let you build standalone applications for any platform it supports, 
+The builder itself will let you build standalone applications for any platform it supports,
 from any platform it supports with the exception that iOS standalones must be
 built on Mac OS X. For example you can build a Windows standalone on a Mac OS X
-machine. However, you may wish to check that your application looks and behaves correctly 
-on each platform you intend to support. Please note it is inherently harder to debug an 
-application that has been built as a standalone, so you should test your application as 
+machine. However, you may wish to check that your application looks and behaves correctly
+on each platform you intend to support. Please note it is inherently harder to debug an
+application that has been built as a standalone, so you should test your application as
 thoroughly as possible before building it.
 
 Related lessons:
 
 * [Building Standalone Applications](http://lessons.livecode.com/m/4603/l/44282-building-standalone-applications)
-* [How do I Develop Cross-Platform in LiveCode?](http://lessons.livecode.com/m/4069/l/28092-how-do-i-develop-cross-platform-in-livecode)
+* [How do I Develop Cross-Platform?](http://lessons.livecode.com/m/4069/l/28092-how-do-i-develop-cross-platform-in-livecode)
 
 ### Step by step
 
 Deploying an app to standalone is straightforward:
 
-1) Open your stack in the LiveCode IDE
+1) Open your stack in the IDE
 
 2) Select **File → Standalone Application Settings...** from the menu bar
 
@@ -53,10 +53,10 @@ Your application will be packaged up and placed in the selected output folder.
 
 ## Standalone Applications Settings
 
-The Standalone Applications Setting dialog allows you to create settings for your 
-standalone application. This dialog can be found in the File menu. The settings you enter 
-are applied to the current front most editable stack and are saved with the stack. This 
-means you only need to enter the settings once for each application you create. The same 
+The Standalone Applications Setting dialog allows you to create settings for your
+standalone application. This dialog can be found in the File menu. The settings you enter
+are applied to the current front most editable stack and are saved with the stack. This
+means you only need to enter the settings once for each application you create. The same
 settings will apply if you do another build in the future.
 
 Related lessons:
@@ -77,21 +77,21 @@ Figure 1 – Standalone Settings – General Tab
 
 **Search for Inclusions**
 
-This is the default option. When selected, LiveCode will search your application stack file 
-(main stack and sub stacks) to attempt to determine what components your application uses. 
+This is the default option. When selected, the IDE will search your application stack file
+(main stack and sub stacks) to attempt to determine what components your application uses.
 It will then include those items.
 
 **Select Inclusions for the Standalone Applications**
 
-Select this option if you want to specify the components to include manually. You may wish 
-to use this option if your application dynamically loads components that cannot be searched 
-at this point automatically, or if you know exactly what components your application uses 
+Select this option if you want to specify the components to include manually. You may wish
+to use this option if your application dynamically loads components that cannot be searched
+at this point automatically, or if you know exactly what components your application uses
 and wish to speed up the standalone building process by skipping the automatic search step.
 
-It is important that you choose to include all the components that your application uses 
-or it may fail. If you do not include your own custom error reporting or LiveCode’s 
-standalone error reporting dialog (discussed below) such failure may be silent – i.e. an 
-operation in your standalone will simply cease working without displaying anything to the 
+It is important that you choose to include all the components that your application uses
+or it may fail. If you do not include your own custom error reporting or the IDE’s
+standalone error reporting dialog (discussed below) such failure may be silent – i.e. an
+operation in your standalone will simply cease working without displaying anything to the
 user.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 
 | &nbsp;| &nbsp;|
@@ -120,14 +120,14 @@ Figure 2 – Standalone Settings – Stacks Tab
 | **Encrypt with password**                | Secures the scripts within the selected stack file with a password. This provides a basic level of encryption that prevents someone from casually reading the scripts in the stack by opening the file in a binary file viewer.                                                                                 |
 
 > **Note:** A stack file directly attached to a standalone application cannot have changes
-saved to it. This stack is bound directly to the executable file that runs. The OS locks 
-an executable file while it is running. If you want to save changes in your standalone 
-application, split your stack up until multiple files. A common technique is to create a 
-"splash screen" stack that contains a welcome screen and then loads the stacks that make 
-up the rest of your application. These stacks are referenced as `stackFiles`on this pane 
-in the standalone settings screen. It is thus possible to automatically update these 
-component stacks, or to save changes to them. You may also want to consider creating 
-preference files in the appropriate location on your end user's system (see the 
+saved to it. This stack is bound directly to the executable file that runs. The OS locks
+an executable file while it is running. If you want to save changes in your standalone
+application, split your stack up until multiple files. A common technique is to create a
+"splash screen" stack that contains a welcome screen and then loads the stacks that make
+up the rest of your application. These stacks are referenced as `stackFiles`on this pane
+in the standalone settings screen. It is thus possible to automatically update these
+component stacks, or to save changes to them. You may also want to consider creating
+preference files in the appropriate location on your end user's system (see the
 `specialFolderPath`function and query/setRegistry functions for more information).
 
 > **Note:** Adding additional stacks to the stacks tab is not supported for iOS,
@@ -146,15 +146,15 @@ Figure 3 – Standalone Settings – Copy Files
 | **Copy Referenced Files**              | Loops over all image and player objects in stacks and copies any files referenced in the `fileName`property of these objects into the standalone. Then automatically sets the `fileName`property to reference these files in the standalone using referenced file paths. |
 | **Destination folder**                 | Create a subfolder within your standalone to copy the image and movie files to.                                                                                                                                                                                        |
 
-#### Including Additional Resources 
+#### Including Additional Resources
 
 ![](images/standalone-settings-inclusions.png)
 
 Figure 4 – Standalone Settings – Inclusions
 
 The list of resources available to select for inclusion in a standalone
-application are a combination of currently installed LiveCode Builder
-extensions, externals and database drivers (both built-in and those 
+application are a combination of currently installed Builder
+extensions, externals and database drivers (both built-in and those
 found in user folders), and built-in resources and script libraries.
 
 The following built-in resources are available by default:
@@ -165,12 +165,12 @@ The following built-in resources are available by default:
 | **Answer Dialog**    | This option is required if any of your scripts use the "answer" command. Note that this only applies to the dialog form of the command. The answer file / printer / color / effect / folder / page setup / printer and record forms of the command do *not* require this option. The standalone builder will copy the stack "answer dialog" into your standalone.                                                                                                                                                                                                                               |
 | **Browser**   	   | This option is required if your application uses the embedded browser or any `revBrowser` command.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | **Browser (CEF)**    | This option is required if your application uses the embedded CEF browser or any `revBrowser` command.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| **Brushes**          | This option is required if your application uses any of LiveCode's brush cursors. It is not required if your application does not make use of the painting commands. It copies the stack "brushes" into your standalone.                                                                                                                                                                                                                                                                                                                                                                        |
-| **Cursors**          | This option is required if your application uses any of LiveCode's cursors. It is not required if your application only uses OS cursors. It copies the stack "cursors" into your standalone.                                                                                                                                                                                                                                                                                                                                                                                                    |
+| **Brushes**          | This option is required if your application uses any brush cursors. It is not required if your application does not make use of the painting commands. It copies the stack "brushes" into your standalone.                                                                                                                                                                                                                                                                                                                                                                        |
+| **Cursors**          | This option is required if your application uses any cursors. It is not required if your application only uses OS cursors. It copies the stack "cursors" into your standalone.                                                                                                                                                                                                                                                                                                                                                                                                    |
 | **Database**         | This option is required if your application uses database access or any `revDatabase` command.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | **Magnify**		   | This option is required if your application uses the magnify palette.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | **PDF Printer**      | This option is required if your application uses the "open printing to pdf" command.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| **Print Dialog**     | This option is required if your application uses LiveCode's built-in print or page setup dialogs (e.g. for use on Linux without GTK installed). It is not required if you only display the system printer and page setup dialogs. It copies the stack "print dialog" and "page setup" into your standalone.                                                                                                                                                                                                                                                                                     |
+| **Print Dialog**     | This option is required if your application uses the built-in print or page setup dialogs (e.g. for use on Linux without GTK installed). It is not required if you only display the system printer and page setup dialogs. It copies the stack "print dialog" and "page setup" into your standalone.                                                                                                                                                                                                                                                                                     |
 | **SSL & Encryption** | This option is required if your application uses any SSL or encryption related commands                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | **XML**              | This option is required if your application uses any `revXML` commands                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 
@@ -208,9 +208,9 @@ Figure 5 – Standalone Settings – Mac
 | **Build for Mac OS X 64-bit**                                   | Build a standalone that includes a 64 bit slice.                                                                                                                                                                                                                                                                                                                                                                              |
 | **Application Icon**                                            | Choose an application icon to represent the application in the Finder. The icon should be in icns format.                                                                                                                                                                                                                                                                                                                     |
 | **Document Icon**                                               | Choose a document icon to represent your application's documents in the Finder. The icon should be in icns format.                                                                                                                                                                                                                                                                                                            |
-| **Icons for ask / answer dialogs**                              | Choose an icon to display whenever you use the ask or answer commands to display a dialog. On Mac OS X, the convention is that these dialogs should display your application icon. The icon should be stored in your stack as an image, or selected from LiveCode's built-in icons. If you have used a built-in icon, be sure to select the relevant inclusion on the General tab (if you are selecting inclusions manually). |
-| **PLIST – enter information and have LiveCode write the PLIST** | Have LiveCode fill out the PLIST for your application automatically. The PLIST is a settings file stored in XML format stored as part of every Mac OS X application. It contains information about the application, including its name, version number, copyright notice and document associations. Having LiveCode create this file for you is the recommended option. For more information about PLISTs consult [Apple's developer documentation](http://developer.apple.com/documentation/Darwin/Reference/ManPages/man5/plist.5.html)|
-| **Choose a file to import into the application bundle**         | Choose to import a PLIST file instead of having LiveCode create one. Select this option if you have created your own highly customized PLIST that you want to use for your application in each build you create.                                                                                                                                                                                                              |
+| **Icons for ask / answer dialogs**                              | Choose an icon to display whenever you use the ask or answer commands to display a dialog. On Mac OS X, the convention is that these dialogs should display your application icon. The icon should be stored in your stack as an image, or selected from built-in icons. If you have used a built-in icon, be sure to select the relevant inclusion on the General tab (if you are selecting inclusions manually). |
+| **PLIST – enter information and have the IDE write the PLIST** | Have the IDE fill out the PLIST for your application automatically. The PLIST is a settings file stored in XML format stored as part of every Mac OS X application. It contains information about the application, including its name, version number, copyright notice and document associations. Having the IDE create this file for you is the recommended option. For more information about PLISTs consult [Apple's developer documentation](http://developer.apple.com/documentation/Darwin/Reference/ManPages/man5/plist.5.html)|
+| **Choose a file to import into the application bundle**         | Choose to import a PLIST file instead of having the IDE create one. Select this option if you have created your own highly customized PLIST that you want to use for your application in each build you create.                                                                                                                                                                                                              |
 | **Short version / long version**                                | The version information to be included with your standalone.                                                                                                                                                                                                                                                                                                                                                                  |
 | **Get info string**                                             | The visible text displayed in your application's Get Info window by the Finder.                                                                                                                                                                                                                                                                                                                                               |
 | **Copyright notice**                                            | The copyright notice for your application.                                                                                                                                                                                                                                                                                                                                                                                    |
@@ -245,7 +245,7 @@ Figure 7 – Standalone Settings – Linux
 |---------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Build for Linux**             | Build a standalone for 32-bit Linux                                                                                                                                                                                                                          |
 | **Build for Linux x64**         | Build a standalone for 64-bit Linux                                                                                                                                                                                                                          |
-| **Include**                     | Select built-in LiveCode dialogs to include. These dialogs are useful if your application may be run on a system that does not include these dialogs as part of the OS. You do not need to include these dialogs if you are running a recent version of GTK. |
+| **Include**                     | Select built-in dialogs to include. These dialogs are useful if your application may be run on a system that does not include these dialogs as part of the OS. You do not need to include these dialogs if you are running a recent version of GTK. |
 
 ## iOS Deployment Settings
 
@@ -302,7 +302,7 @@ Figure 9 – Standalone Settings – iOS Requirements
 | **Local Notifications**                     | Indicate the application sends local notifications                                                                                                                                                        |
 | **Push Notifications**                      | Indicate the application sends push notifications                                                                                                                                                         |
 | **Disable ATS**                             | Disabling ATS allows your application to load insecure websites (not recommended).                                                                                                                        |
-| **Enable Background Execution**             | By default LiveCode applications will exit when the user suspends them. This option allows the applications to remain open while in the background.                                                       |
+| **Enable Background Execution**             | By default applications will exit when the user suspends them. This option allows the applications to remain open while in the background.                                                       |
 | **Background Audio**                        | Enable if the application plays audio while in the background.                                                                                                                                            |
 | **Location Update**                         | Enable if the application recieves location updates while in the background.                                                                                                                              |
 | **VoIP**                                    | Enable if the application handles VoIP calls while in the background.                                                                                                                                     |
@@ -409,7 +409,7 @@ Figure 12 – Standalone Settings – Android
 
 Related lessons:
 
-* [LiveCode and Android Studio](http://lessons.livecode.com/m/4069/l/985962-livecode-and-android-studio)
+* [OpenXTalk and Android Studio](http://lessons.livecode.com/m/4069/l/985962-livecode-and-android-studio)
 * [The Basics: How do I Create Hello World on Android?](http://lessons.livecode.com/m/4069/l/27733-the-basics-how-do-i-create-hello-world-on-android)
 
 ## HTML5 Deployment Settings
@@ -440,7 +440,7 @@ The following browsers are supported:
 
 ##### HTML5 engine features
 
-The HTML5 engine in this release of LiveCode has a limited range of features.
+The HTML5 engine in this release has a limited range of features.
 You can:
 
 * deploy single or multiple stack applications with embedded resources. Stacks
@@ -448,9 +448,9 @@ other than the main stack will open in their own floating container windows.
 * use most of the engine's built-in controls and graphics capabilities.
 * read and write temporary files in a special virtual filesystem (which is
 erased when the user navigates away from the page)
-* use LiveCode Builder widgets and extensions
+* use Builder widgets and extensions
 * interact with JavaScript code in the web page using `do <script> as "JavaScript"`
-* call JavaScript from LiveCode Builder widgets and extensions using the
+* call JavaScript Builder widgets and extensions using the
 com.livecode.emscripten module
 * implement widgets by embedding DOM elements as native layers
 * perform basic networking operations using the **load** command
@@ -477,7 +477,7 @@ syntax) is based on the contents of the standalone archive.
 * The engine itself, which consists of two files.  The `.js` file contains the
 engine's executable code, and the `.html.mem` file contains essential data
 that's needed for the engine to run.  These files are always the same, and only
-change when LiveCode is upgraded.
+change when the IDE is upgraded.
 
 * A test HTML page.  This can be opened in a browser and will correctly prepare,
 download and start your HTML5 app in a convenient test environment.
@@ -485,7 +485,7 @@ download and start your HTML5 app in a convenient test environment.
 ##### Advanced: HTML5 standalone filesystem
 
 JavaScript applications running in a browser don't have access to the host
-system's filesystem.  Instead, the filesystem-related features of LiveCode, such
+system's filesystem.  Instead, the filesystem-related features, such
 as `open file`, use a virtual filesystem (VFS) that exists only in memory.  This
 filesystem is initialised before the engine starts, and is reset and its content
 discarded when the engine stops (when the user closes the browser view or
@@ -600,7 +600,7 @@ to your configuration.
 
 ##### Advanced: Customizing the Module object
 
-There are a number of LiveCode-specific `Module` attributes that you can modify
+There are a number of engine-specific `Module` attributes that you can modify
 to affect how the engine behaves:
 
 * `Module.livecodeStandalone`: the filename of the standalone archive (default
@@ -625,7 +625,7 @@ Figure 14 – Standalone Settings – Bug Reports
 | &nbsp;| &nbsp;|
 |---------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Include Error Reporting Dialog**    | Include an error reporting stack in your standalone. You should select this option if you are testing your application and want details of any errors in your standalone, or if you have not included your own error reporting routines in your stacks.                                                                                                                                    |
-| **htmlText for dialog**               | The text to display to the user in the dialog that comes up when an error is encountered. This text should be in LiveCode-compatible HTML format. Create and format the text in a LiveCode field then copy the field's HTMLText property.                                                                                                                                                  |
+| **htmlText for dialog**               | The text to display to the user in the dialog that comes up when an error is encountered. This text should be in xTalk-compatible HTML format. Create and format the text in a field then copy the field's HTMLText property.                                                                                                                                                  |
 | **Dialog icon**                       | The icon to display in the error dialog. This should be stored as an image in your stack.                                                                                                                                                                                                                                                                                                  |
 | **Allow user to enter comments**      | Display a box for the user to give you more information. This information will be included in the report.                                                                                                                                                                                                                                                                                  |
 | **Allow user to save report to file** | Allow the user to save the report to a file. Select this option if you want users to save an error report and send it to you.                                                                                                                                                                                                                                                              |
@@ -635,7 +635,7 @@ Figure 14 – Standalone Settings – Bug Reports
 
 Testing an app is straightforward:
 
-1) Open your stack in the LiveCode IDE
+1) Open your stack in the IDE
 
 2) Select **File → Standalone Application Settings...** from the menu bar
 
@@ -651,12 +651,8 @@ select the target to test deployment to
 
 7) Click the **Test** button or choose **Development → Test** from the menu bar
 
-8) The standalone will be built and deployed to the target and launched. In
-LiveCode Business Edition the remote debugger will detect any execution errors
-and present them.
+8) The standalone will be built and deployed to the target and launched.
 
 > **Note:** iOS devices connected via USB are detected as test targets in
 LiveCode Business Edition and apps will be installed on them, however, they will
 not be automatically launched.
-
-
