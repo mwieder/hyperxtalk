@@ -2142,8 +2142,33 @@ private command revSetMacOS pWhatFile, pPlatformCode, pEnginePath
          end if
          put escapeForXml(tDocExtList) into line lineoffset("<key>CFBundleTypeExtensions</key>",tTempPlist) + 2 of tTempPlist
       end if
+      
       set the itemDel to "/"
       put uniDecode(uniEncode(tTempPlist), "UTF8") into URL ("file:" & item 1 to -3 of pWhatFile&"/Info.plist")
+      
+      -- Inject placeholder NSUsageDescription keys for all privacy-sensitive APIs into
+      -- the Info.plist. macOS silently denies access (or App Store review rejects the
+      -- app) if these keys are absent. PlistBuddy's Add command is a no-op if the key
+      -- already exists, so values from a custom plist are preserved. Developers can
+      -- replace the placeholder strings with their own wording afterwards.
+      local tPrivacyInfoPlist, tPB
+      put item 1 to -3 of pWhatFile & "/Info.plist" into tPrivacyInfoPlist
+      put "/usr/libexec/PlistBuddy" into tPB
+      local tPrivacyMapping, tPrivacyMapLine, tPrivacyNSKey, tPrivacyPlaceholder
+      put "NSCameraUsageDescription|This app requires access to the camera." & return & \
+          "NSMicrophoneUsageDescription|This app requires access to the microphone." & return & \
+          "NSLocationUsageDescription|This app requires access to your location." & return & \
+          "NSContactsUsageDescription|This app requires access to your contacts." & return & \
+          "NSCalendarsUsageDescription|This app requires access to your calendars." & return & \
+          "NSPhotoLibraryUsageDescription|This app requires access to your photo library." & return & \
+          "NSAppleEventsUsageDescription|This app requires the ability to send Apple events." into tPrivacyMapping
+      set the itemDelimiter to "|"
+      repeat for each line tPrivacyMapLine in tPrivacyMapping
+         put item 1 of tPrivacyMapLine into tPrivacyNSKey
+         put item 2 of tPrivacyMapLine into tPrivacyPlaceholder
+         get shell(tPB && "-c" && quote & "Add :" & tPrivacyNSKey & " string '" & tPrivacyPlaceholder & "'" & quote && quote & tPrivacyInfoPlist & quote & " 2>/dev/null")
+      end repeat
+      set the itemDelimiter to "/"
       if sStandaloneSettingsA["OSX,signature"] is not empty then
          put "APPL" & sStandaloneSettingsA["OSX,signature"] into URL ("file:" & item 1 to -3 of pWhatFile&"/PkgInfo")
       end if

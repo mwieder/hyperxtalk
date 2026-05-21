@@ -6528,8 +6528,12 @@ on revIDEStandaloneSettingsSet pStack, pProperty, pValue
    set the cRevStandaloneSettings[pProperty] of pStack to pValue
 end revIDEStandaloneSettingsSet
 
+function revIDEStandaloneSettingsGet pTargetStackLongID, pProperty
+   return the cRevStandaloneSettings[pProperty] of pTargetStackLongID
+end revIDEStandaloneSettingsGet
+   
 function revIDEStandaloneSections
-	// AL-2015-03-03: [[ Bug 14769 ]] Add 'Table' section to the property inspector
+   // AL-2015-03-03: [[ Bug 14769 ]] Add 'Table' section to the property inspector
    return "General,Stacks,Copy Files,Mac,Windows,Linux,iOS,Android,Bug Reports"
 end revIDEStandaloneSections
 
