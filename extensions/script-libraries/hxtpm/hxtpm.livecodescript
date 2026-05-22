@@ -273,7 +273,10 @@ function hxtpmAvailable
    local tRaw
    put URL (sRegistryBase & "/index.json") into tRaw
    if the result is not empty or tRaw is empty then return empty
-   return JsonImport(tRaw)["packages"]
+   local tJsonImportRaw
+   put JsonImport(tRaw) into tJsonImportRaw
+   
+   return tJsonImportRaw["packages"]
 end hxtpmAvailable
 
 /**
@@ -361,7 +364,9 @@ Example:
 
 */
 function hxtpmInstalledVersion pName
-   return _readInstalledMeta(pName)["version"]
+   local tInstalledMeta
+   put _readInstalledMeta(pName) into tInstalledMeta
+   return tInstalledMeta["version"]
 end hxtpmInstalledVersion
 
 /**
@@ -397,7 +402,7 @@ end hxtpmInstalled
 -- Private: install helpers
 -- ---------------------------------------------------------------------------
 
-private command _installLCS pName, pVersion, pVersionData
+private function _installLCS pName, pVersion, pVersionData
    -- Download the source file to a temp location
    local tTempPath
    put revEnvironmentUserLibraries() & slash & ".hxtpm_download_tmp" into tTempPath
@@ -417,7 +422,7 @@ private command _installLCS pName, pVersion, pVersionData
    -- Create the package subfolder
    local tDestFolder
    put revEnvironmentUserLibraries() & slash & pName into tDestFolder
-   createFolder tDestFolder
+   create folder tDestFolder
    if the result is not empty then
       delete file tTempPath
       return "Could not create package folder:" && the result
@@ -448,14 +453,14 @@ private command _installLCS pName, pVersion, pVersionData
    return empty
 end _installLCS
 
-private command _installLCB pName, pVersion, pVersionData
+private function _installLCB pName, pVersion, pVersionData
    -- LCB package support is planned for a future release.
    -- It requires either pre-built platform LCE binaries in the registry
    -- or a local lc-compile step.
    return "LCB package installation is not yet supported"
 end _installLCB
 
-private command _uninstallLCS pName
+private function _uninstallLCS pName
    local tFolder
    put revEnvironmentUserLibraries() & slash & pName into tFolder
 
@@ -481,7 +486,7 @@ private command _uninstallLCS pName
    return empty
 end _uninstallLCS
 
-private command _uninstallLCB pName
+private function _uninstallLCB pName
    return "LCB package uninstallation is not yet supported"
 end _uninstallLCB
 
@@ -580,7 +585,7 @@ private function _verifyChecksum pFilePath, pExpected
 end _verifyChecksum
 
 private function _filenameFromURL pURL
-   local tSaved
+   local tSaved, tResult
    put the itemDel into tSaved
    set the itemDel to "/"
    put the last item of pURL into tResult

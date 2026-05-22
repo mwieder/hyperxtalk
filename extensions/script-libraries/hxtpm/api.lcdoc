@@ -20,6 +20,12 @@ Developers can build their own package manager UI on top of this library.
 All commands return empty on success or an error message on failure via the result.
 
 Usage:
+   -- Browse all packages available in the registry
+   put hxtpmAvailable() into tAll
+   repeat for each key tName in tAll
+      put tName && tAll[tName]["latest"] & return after field "packageList"
+   end repeat
+
    -- Install the latest version of a package
    hxtpmInstall "com.example.library.myutils"
    if the result is not empty then answer error the result
@@ -112,6 +118,27 @@ Example:
 
 
 
+Name: hxtpmAvailable
+
+Type: function
+
+Syntax: hxtpmAvailable()
+
+Summary: Return an array of all packages available in the registry.
+
+Returns:
+An array keyed by package name. Each entry contains: title, description,
+author, type, license, repository, latest (version string), versions (list).
+Returns empty if the index could not be fetched.
+
+Example:
+   put hxtpmAvailable() into tAll
+   repeat for each key tName in tAll
+      put tName && tAll[tName]["latest"] & return after field "packageList"
+   end repeat
+
+
+
 Name: hxtpmInfo
 
 Type: function
@@ -154,6 +181,25 @@ Example:    put hxtpmInstalledVersion("com.example.library.myutils") into tVersi
 
 
 
+Name: hxtpmLatestVersion
+
+Type: function
+
+Syntax: hxtpmLatestVersion(<pName>)
+
+Summary: Return the latest available version of a package.
+
+Parameters: 
+
+pName: The package name.
+
+Returns: The latest version string, or empty if the package is not found.
+
+Example:    put hxtpmLatestVersion("com.example.library.myutils") into tLatest
+
+
+
+
 Name: hxtpmInstalled
 
 Type: function
@@ -171,25 +217,6 @@ Example:
    repeat for each key tName in tPackages
       put tName && tPackages[tName]["version"] & return after field "packageList"
    end repeat
-
-
-
-Name: hxtpmLatestVersion
-
-Type: function
-
-Syntax: hxtpmLatestVersion(<pName>)
-
-Summary: Return the latest available version of a package.
-
-Parameters: 
-
-pName: The package name.
-
-Returns: The latest version string, or empty if the package is not found.
-
-Example:    put hxtpmLatestVersion("com.example.library.myutils") into tLatest
-
 
 
 
