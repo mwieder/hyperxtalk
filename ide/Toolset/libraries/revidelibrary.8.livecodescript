@@ -4123,6 +4123,11 @@ function revIDESpecialFolderPath pKey, pParam
          revIDEEnsurePath tPath
          return tPath
          break
+      case "user libraries"
+         put revEnvironmentUserLibraries() into tPath
+         revIDEEnsurePath tPath
+         return tPath
+         break
       case "temp extensions"
          put revEnvironmentUserExtensionsPath() & "/temp" into tPath
          revIDEEnsurePath tPath

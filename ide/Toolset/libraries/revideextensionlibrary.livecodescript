@@ -31,6 +31,9 @@ on extensionInitialize
 
     # Load all the extensions ready for use
     __extensionsLoad
+
+    # Load user-installed script libraries
+    __userLibrariesLoad
 end extensionInitialize
 
 on extensionFinalize
@@ -62,6 +65,9 @@ end revIDEExtensionBytecodeFilename
 on revIDEInitialiseExtensions
    # Load all the extensions ready for use
    __extensionsLoad
+
+   # Load user-installed script libraries
+   __userLibrariesLoad
 end revIDEInitialiseExtensions
 
 command revIDEExtensionDownloadAndInstall pExtensionPath, pType, pCallbackObject, pCallbackMessage
@@ -946,6 +952,36 @@ on __extensionsLoad
       __extensionLoad tLine, tToLoadA[tLine]
    end repeat
 end __extensionsLoad
+
+# Walk the user libraries folder and start using each installed script library.
+# Each library lives in its own subfolder (named after the package), containing
+# one .livecodescript file. This mirrors the layout hxtpm uses when installing.
+private command __userLibrariesLoad
+   local tLibrariesFolder
+   put revIDESpecialFolderPath("user libraries") into tLibrariesFolder
+
+   if tLibrariesFolder is empty then exit __userLibrariesLoad
+
+   repeat for each line tPackageFolder in folders(tLibrariesFolder)
+      if tPackageFolder begins with "." then next repeat
+
+      local tPackagePath
+      put tLibrariesFolder & slash & tPackageFolder into tPackagePath
+
+      repeat for each line tFile in files(tPackagePath)
+         if tFile ends with ".livecodescript" then
+            local tLibPath
+            put tPackagePath & slash & tFile into tLibPath
+            try
+               start using stack tLibPath
+            catch tError
+               revIDELog "user library" && tFile && "failed to load:" && tError
+            end try
+            exit repeat -- one library file per package folder
+         end if
+      end repeat
+   end repeat
+end __userLibrariesLoad
 
 # Calls Weservice and returns updates
 function __extensionUpdates
