@@ -383,8 +383,10 @@ end preOpenStack
 --on preOpenCard
 --end preOpenCard
 
---on openCard
---end openCard
+on openCard
+	select the text of field 1 of me
+    set the clipboarddata["text"] to field 1 of me
+end openCard
 
 --on closeCard
 --end closeCard
