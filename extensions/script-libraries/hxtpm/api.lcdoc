@@ -1,0 +1,243 @@
+Library: com.hyperxtalk.library.hxtpm
+
+Type: library
+
+Title: HyperXTalk Package Manager Library
+
+Author: HyperXTalk
+
+Version: 1.0.0
+
+Description:
+Script library for installing, updating, and removing HyperXTalk packages
+from the hxtpm registry.
+
+Packages are hosted on GitHub. Script libraries (type "lcs") are installed to
+the user libraries folder and become available immediately via start using stack.
+LCB extensions (type "lcb") are installed to the user extensions folder.
+
+Developers can build their own package manager UI on top of this library.
+All commands return empty on success or an error message on failure via the result.
+
+Usage:
+   -- Install the latest version of a package
+   hxtpmInstall "com.example.library.myutils"
+   if the result is not empty then answer error the result
+
+   -- Install a specific version
+   hxtpmInstall "com.example.library.myutils", "1.2.0"
+
+   -- Check what is installed
+   put hxtpmInstalled() into tInstalled
+   repeat for each key tName in tInstalled
+      put tName && tInstalled[tName]["version"]
+   end repeat
+
+   -- Uninstall
+   hxtpmUninstall "com.example.library.myutils"
+
+   -- Update to latest
+   hxtpmUpdate "com.example.library.myutils"
+
+Name: hxtpmUninstall
+
+Type: command
+
+Syntax: hxtpmUninstall <pName>
+
+Summary: Uninstall an installed package.
+
+Parameters: 
+
+pName: The package name to remove.
+
+Description:
+Stops using the library and removes its files from the user libraries or
+user extensions folder. The result is set to empty on success or an error
+message on failure.
+
+Example:
+   hxtpmUninstall "com.example.library.myutils"
+   if the result is not empty then
+      answer error the result
+   end if
+
+
+
+Name: hxtpmInstall
+
+Type: command
+
+Syntax: hxtpmInstall <pName>,<pVersion>
+
+Summary: Install a package from the registry.
+
+Parameters: 
+
+pName: The package name, e.g. "com.example.library.myutils".
+
+pVersion: A specific version string. If omitted, the latest version is installed.
+
+Description:
+Downloads and installs the named package from the hxtpm registry. Script
+libraries (type "lcs") are installed to the user libraries folder and loaded
+immediately. The result is set to empty on success or an error message on failure.
+
+Example:
+   hxtpmInstall "com.example.library.myutils"
+   if the result is not empty then
+      answer error the result
+   end if
+
+
+
+Name: hxtpmIsInstalled
+
+Type: function
+
+Syntax: hxtpmIsInstalled(<pName>)
+
+Summary: Return true if a package is currently installed.
+
+Parameters: 
+
+pName: The package name.
+
+Returns: True if the package is installed, false otherwise.
+
+Example:
+   if hxtpmIsInstalled("com.example.library.myutils") then
+      put "installed" into field "status"
+   end if
+
+
+
+Name: hxtpmInfo
+
+Type: function
+
+Syntax: hxtpmInfo(<pName>)
+
+Summary: Return registry metadata for a package.
+
+Parameters: 
+
+pName: The package name.
+
+Returns:
+An array with keys: name, title, description, author, license, repository,
+type, versions. Returns empty if the package is not found in the registry.
+
+Example:
+   put hxtpmInfo("com.example.library.myutils") into tInfo
+   put tInfo["title"] into field "packageTitle"
+   put tInfo["description"] into field "packageDescription"
+
+
+
+Name: hxtpmInstalledVersion
+
+Type: function
+
+Syntax: hxtpmInstalledVersion(<pName>)
+
+Summary: Return the currently installed version of a package.
+
+Parameters: 
+
+pName: The package name.
+
+Returns: The installed version string, or empty if the package is not installed.
+
+Example:    put hxtpmInstalledVersion("com.example.library.myutils") into tVersion
+
+
+
+
+Name: hxtpmInstalled
+
+Type: function
+
+Syntax: hxtpmInstalled()
+
+Summary: Return an array describing all installed packages.
+
+Returns:
+An array keyed by package name. Each value is an array with keys: name,
+version, type, installed (date string).
+
+Example:
+   put hxtpmInstalled() into tPackages
+   repeat for each key tName in tPackages
+      put tName && tPackages[tName]["version"] & return after field "packageList"
+   end repeat
+
+
+
+Name: hxtpmLatestVersion
+
+Type: function
+
+Syntax: hxtpmLatestVersion(<pName>)
+
+Summary: Return the latest available version of a package.
+
+Parameters: 
+
+pName: The package name.
+
+Returns: The latest version string, or empty if the package is not found.
+
+Example:    put hxtpmLatestVersion("com.example.library.myutils") into tLatest
+
+
+
+
+Name: hxtpmUpdate
+
+Type: command
+
+Syntax: hxtpmUpdate <pName>
+
+Summary: Update an installed package to the latest registry version.
+
+Parameters: 
+
+pName: The package name to update.
+
+Description:
+Fetches the latest version from the registry, uninstalls the current version,
+and installs the latest. If the package is already at the latest version,
+nothing happens and the result is empty. The result is set to empty on success
+or an error message on failure.
+
+Example:
+   hxtpmUpdate "com.example.library.myutils"
+   if the result is not empty then
+      answer error the result
+   end if
+
+
+
+Name: hxtpmVersions
+
+Type: function
+
+Syntax: hxtpmVersions(<pName>)
+
+Summary: Return the available versions for a package, newest first.
+
+Parameters: 
+
+pName: The package name.
+
+Returns:
+A line-delimited list of version strings sorted newest-first, or empty if
+the package is not found in the registry.
+
+Example:
+   put hxtpmVersions("com.example.library.myutils") into tVersions
+   -- tVersions is "2.0.0\n1.1.0\n1.0.0"
+
+
+

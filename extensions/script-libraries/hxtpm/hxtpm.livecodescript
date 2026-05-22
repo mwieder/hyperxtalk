@@ -72,6 +72,12 @@ Developers can build their own package manager UI on top of this library.
 All commands return empty on success or an error message on failure via the result.
 
 Usage:
+   -- Browse all packages available in the registry
+   put hxtpmAvailable() into tAll
+   repeat for each key tName in tAll
+      put tName && tAll[tName]["latest"] & return after field "packageList"
+   end repeat
+
    -- Install the latest version of a package
    hxtpmInstall "com.example.library.myutils"
    if the result is not empty then answer error the result
@@ -246,6 +252,29 @@ Example:
 function hxtpmInfo pName
    return _fetchPackageInfo(pName)
 end hxtpmInfo
+
+/**
+
+Summary: Return an array of all packages available in the registry.
+
+Returns:
+An array keyed by package name. Each entry contains: title, description,
+author, type, license, repository, latest (version string), versions (list).
+Returns empty if the index could not be fetched.
+
+Example:
+   put hxtpmAvailable() into tAll
+   repeat for each key tName in tAll
+      put tName && tAll[tName]["latest"] & return after field "packageList"
+   end repeat
+
+*/
+function hxtpmAvailable
+   local tRaw
+   put URL (sRegistryBase & "/index.json") into tRaw
+   if the result is not empty or tRaw is empty then return empty
+   return JsonImport(tRaw)["packages"]
+end hxtpmAvailable
 
 /**
 
