@@ -803,13 +803,24 @@ private function _installLCE pName, pVersion, pVersionData, pSourceName, pSource
    local tFileURL
    put _resolveFileURL(pVersionData["source"], pSourceBase) into tFileURL
 
-   -- Download the .lce package to a temp file.
-   -- Keeping the .lce extension ensures revIDEExtensionInstall recognises it.
+   -- Download the .lce package to a unique temp file inside the Extensions folder.
+   -- Must be in the Extensions folder (not the system temp dir) because
+   -- extensionValidateLCEPackage uses revZipOpenArchive internally, which cannot
+   -- read from macOS-managed TemporaryItems/ paths due to sandbox restrictions.
+   -- Unique name per install attempt avoids stale entries in the extension manager's
+   -- internal path cache (revIDEExtensionInstall caches by download_package_path, so
+   -- reusing a fixed filename after a failed attempt causes bad state to be reused).
    local tTempPath
-   put revEnvironmentUserExtensionsPath() & slash & ".hxtpm_download.lce" into tTempPath
-   put URL tFileURL into URL ("file:" & tTempPath)
-   if the result is not empty then
-      return "Download failed for" && pName & ":" && the result
+   put revEnvironmentUserExtensionsPath() & slash & pName & "-" & pVersion & "-" & the seconds & ".lce" into tTempPath
+
+   -- Use curl rather than LiveCode's put URL, which cannot follow GitHub raw
+   -- redirects (github.com/…/raw/… → raw.githubusercontent.com/…) reliably
+   -- and may corrupt binary data.  curl -L follows redirects; -s suppresses
+   -- the progress meter; --max-time 120 guards against stalls.
+   local tCurlOut
+   put shell("curl -L -s --max-time 120 -o " & quote & tTempPath & quote & " " & quote & tFileURL & quote) into tCurlOut
+   if there is not a file tTempPath then
+      return "Download failed for" && pName & "." && tCurlOut
    end if
 
    -- Verify checksum before handing off to the IDE
@@ -818,6 +829,18 @@ private function _installLCE pName, pVersion, pVersionData, pSourceName, pSource
    if tErr is not empty then
       delete file tTempPath
       return tErr
+   end if
+
+   -- Validate the package structure before handing off to the IDE.
+   -- revIDEExtensionInstall swallows the real error (shows a dialog with no detail);
+   -- calling extensionValidateLCEPackage directly lets us surface the actual reason.
+   local tManifest
+   extensionValidateLCEPackage tTempPath, tManifest
+   if the result is not empty then
+      local tValidateErr
+      put the result into tValidateErr
+      delete file tTempPath
+      return "LCE package validation failed for" && pName & ":" && tValidateErr
    end if
 
    -- Delegate to the IDE extension manager.
