@@ -2069,7 +2069,7 @@ end inclusionKeyAndIdentifier
 
 command revSBUpdateInclusions pInclusions, pExclusions, pStackName
    local tSettingsKey, tIdentifier, tNewSettings
-   
+
    -- first remove all exclusions
    repeat for each element tElement in pExclusions
       inclusionKeyAndIdentifier tElement, tSettingsKey, tIdentifier
@@ -2957,9 +2957,27 @@ private command revSmartChecking pStackFilesList, @xSettings
    lock messages
    
    if tNewSettings["inclusions"] is "search" then
-      
+
       revStandaloneProgress "Auto detecting library inclusions..."
-      
+
+      -- HXT: hxtpm user libraries can't be auto-detected from script content, so preserve
+      -- any entries that match a package folder in the user libraries directory before the
+      -- search wipe and restore them after auto-detection completes.
+      local tPreservedUserLibs, tPreservedLib, tUserLibsFolder
+      put revEnvironmentUserLibraries() into tUserLibsFolder
+      if tUserLibsFolder is not empty then
+         repeat for each line tPreservedLib in tNewSettings["scriptLibraries"]
+            if tPreservedLib is not empty and \
+                  there is a folder (tUserLibsFolder & slash & tPreservedLib) then
+               if tPreservedUserLibs is empty then
+                  put tPreservedLib into tPreservedUserLibs
+               else
+                  put return & tPreservedLib after tPreservedUserLibs
+               end if
+            end if
+         end repeat
+      end if
+
       put empty into tNewSettings["scriptLibraries"]
       put true into tNewSettings["cursors"]
       put false into tNewSettings["answerDialog"]
@@ -3010,6 +3028,14 @@ private command revSmartChecking pStackFilesList, @xSettings
    end repeat
    
    put the keys of tExtensionIDs into tNewSettings["extensions"]
+
+   -- HXT: Restore hxtpm user libraries preserved before the search wipe.
+   if tPreservedUserLibs is not empty then
+      repeat for each line tPreservedLib in tPreservedUserLibs
+         revSBAddInclusion tPreservedLib, "scriptLibraries", tNewSettings
+      end repeat
+   end if
+
    -- Update the output settings
    put tNewSettings into xSettings
    unlock messages
