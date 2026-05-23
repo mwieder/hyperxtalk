@@ -15,8 +15,8 @@ from the hxtpm registry.
 Packages are hosted on GitHub or stored locally. Script libraries (type "lcs")
 are installed to the user libraries folder and become available immediately via
 start using stack. LCE extensions (type "lce") are pre-compiled LiveCode
-extension packages (.lce zip) installed to the user extensions folder via the
-IDE extension manager. They are loaded immediately without an IDE restart.
+extension packages (.lce zip) installed to the user extensions folder via
+the IDE extension manager. They are loaded immediately without an IDE restart.
 
 Multiple package sources are supported. A source can be a remote GitHub-hosted
 registry or a local folder on disk. The official HyperXTalk source is always
