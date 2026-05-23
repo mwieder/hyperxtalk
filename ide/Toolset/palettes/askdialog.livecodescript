@@ -6,7 +6,7 @@ mwieder@ahsoftware.net
 private command doresize
    // AL-2014-05-21: [[ Bug 12074 ]] Support RTL layout when resizing ask dialog
    local tIsRightToLeft
-	# This needs to go into revPreferences mdw
+   # This needs to go into revPreferences mdw
    --put the cRTL of this card into tIsRightToLeft
    put the cRTL of stack "revPreferences" into tIsRightToLeft
    
@@ -29,18 +29,18 @@ private command doresize
          put 24 into tIconEdge
       end if
    end if
-   set the width of field 1 to twidth - 48
-   set the width of field 2 to twidth - 48
+   set the width of field "prompt" to twidth - 48
+   set the width of field "input" to twidth - 48
    
    if tIsRightToLeft then
-      set the right of field 1 to tIconEdge
-      set the right of field 2 to tIconEdge
+      set the right of field "prompt" to tIconEdge
+      set the right of field "input" to tIconEdge
    else
-      set the left of field 1 to tIconEdge
-      set the left of field 2 to tIconEdge
+      set the left of field "prompt" to tIconEdge
+      set the left of field "input" to tIconEdge
    end if
-   set the top of field 2 to the bottom of field 1 + 4
-   set the top of button 1 to the height of field 1 div 2 - 8
+   set the top of field "input" to the bottom of field "prompt" + 4
+   set the top of button "icon" to the height of field "prompt" div 2 - 8
    set the default of button "OK" to false
    
    local tFirstWidthOffset, tFirstBottomOffset, tSecondLeftOffset, tSecondBottomOffset
@@ -75,12 +75,12 @@ private command doresize
 end doresize
 
 on star
-  local tstring
-  put empty into tstring
-  repeat with i = 1 to the number of characters in field 3
-    put "*" after tstring
-  end repeat
-  put tstring into field 2
+   local tstring
+   put empty into tstring
+   repeat with i = 1 to the number of characters in field "passwordtext"
+      put "*" after tstring
+   end repeat
+   put tstring into field "input"
 end star
 
 constant kIconTypes="information error warning question"
@@ -118,15 +118,11 @@ on preOpenStack
    // create button "icon"
    if there is no button "icon" of me then
       create button "icon"
-      set the width of it to 64
-      set the height of it to 64
    end if
    
    // create button "icon 2"
    if there is no button "icon 2" of me then
       create button "icon 2"
-      set the width of it to 64
-      set the height of it to 64
    end if
    
    reset the templateButton
@@ -148,6 +144,11 @@ on preOpenStack
    // create field 1
    if there is no field "prompt" of me then
       create field "prompt"
+      set the locktext of it to true
+      set the showBorder of it to false
+      set the opaque of it to false
+      set the traversalon of it to false
+      set the sharedtext of it to true
    end if
    
    // create field 2
@@ -164,9 +165,9 @@ on preOpenStack
    local tText
    put item 3 of the dialogData into tText
    if "<p>" is in tText or matchChunk(tText, "<(.+>.+</.+)>") then
-      set the htmlText of field "input" of me to tText
+      set the htmlText of field "prompt" of me to tText
    else
-      put item 3 of the dialogData into field "input" of me
+      put item 3 of the dialogData into field "prompt" of me
    end if
    
    set the itemDel to comma
@@ -252,19 +253,19 @@ on preOpenStack
    
    # TH-11-01-2008: Bug fix for 4913, need to set the field size after the font sizes have been
    # adjusted to prevent clipping of text
-   put max(the formattedWidth of field "input" of me + 48,\\
-         the formattedWidth of field 2 of me + 64, 450) into twidth
+   put max(the formattedWidth of field "prompt" of me + 48,\\
+         the formattedWidth of field "prompt" of me + 64, 450) into twidth
    set the width of this stack to twidth
-   set the height of field 1 to the formattedHeight of field "input" of me -- + 25
-   set the top of field "input" of me to 8
-   set the height of this stack to (the height of field "input" of me) + 88
+   set the height of field "prompt" to the formattedHeight of field "prompt" of me -- + 25
+   set the top of field "prompt" of me to 8
+   set the height of this stack to (the height of field "prompt" of me) + 88
    
    set the itemDel to numToChar(0)
    if the fieldmode of me is "password" or the fieldmode of me is "clear" then
-      put item 4 of the dialogData into field 3 of me
+      put item 4 of the dialogData into field "passwordtext" of me
       star
    else
-      put item 4 of the dialogData into field 2 of me
+      put item 4 of the dialogData into field "input" of me
    end if
    
    // AL-2014-05-21: [[ Bug 12074 ]] Support RTL layout for ask dialog
@@ -279,10 +280,10 @@ on preOpenStack
    -- field alignment
    if tIsRightToLeft then
       set the textAlign of field "input" of me to "right"
-      set the textAlign of field 2 of me to "right"
+      set the textAlign of field "prompt" of me to "right"
    else
       set the textAlign of field "input" of me to "left"
-      set the textAlign of field 2 of me to "left"
+      set the textAlign of field "prompt" of me to "left"
    end if
    
    --set the cRTL of this card to tIsRightToLeft
@@ -323,13 +324,13 @@ on preOpenStack
 end preOpenStack
 
 on keyDown which
-  local tpos
-  if the name of the target contains "field" and word 1 of the fieldmode of me is "password" or the fieldmode of me is "clear" then
-    put the selectedChunk into tpos
-    put which into character (word 2 of tpos) to (word 4 of tpos) of field 3
-    star
-    select after character (word 2 of tpos) of field 2
-  else pass keyDown
+   local tpos
+   if the name of the target contains "field" and word 1 of the fieldmode of me is "password" or the fieldmode of me is "clear" then
+      put the selectedChunk into tpos
+      put which into character (word 2 of tpos) to (word 4 of tpos) of field 3
+      star
+      select after character (word 2 of tpos) of field "input"
+   else pass keyDown
 end keyDown
 
 on deleteKey
@@ -375,7 +376,7 @@ private command deleteChunk pChunk
    put word 4 of pChunk into tEndChar
    put empty into char tStartChar to tEndChar of field 3
    star
-   select before char tStartChar of field 2     
+   select before char tStartChar of field "input"     
 end deleteChunk
   
 private command deleteone pDirection
@@ -385,11 +386,11 @@ private command deleteone pDirection
    if pDirection is "back" then    -- backSpace key is pressed
       put empty into character (tpos - 1) of field 3
       star
-      select before character (tpos - 1) of field 2
+      select before character (tpos - 1) of field "input"
    else if pDirection is "forward" then     -- delete key is pressed
       put empty into character (tpos) of field 3
       star
-      select before character (tpos) of field 2
+      select before character (tpos) of field "input"
    end if
 end deleteone
 
@@ -403,9 +404,9 @@ on commandKeyDown which
          switch which
             case "D"
                put word 2 of the selectedChunk into tpos
-               put empty into character tpos of field 3
+               put empty into character tpos of field "passwordtext"
                star
-               select before character tpos of field 1
+               select before character tpos of field "input"
                break
             case "H"
                deleteone "back"
@@ -440,9 +441,9 @@ on closeStack
 end closeStack
 
 private command cleanUpAskDialog
-   put empty into field 1
-   put empty into field 2
-   put empty into field 3
+   put empty into field "prompt"
+   put empty into field "input"
+   put empty into field "passwordtext"
 end cleanUpAskDialog
 
 # OK-2007-11-05 : Bug 3956
@@ -455,15 +456,11 @@ command closeAccept
       case "error"
       case "information"
       case "warning"
-         put the text of field 2 of me into tResult
+         put the text of field "input" of me into tResult
          break
       case "password"
-         --put mcencrypt(the text of field 3 of me) into tResult
-         -- MM-2013-01-28: [[ Bug 10037 ]] No longer hash passwords.
-         put the text of field 3 of me into tResult
-         break
       case "clear"
-         put the text of field 3 of me into tResult
+         put the text of field "passwordtext" of me into tResult
          break
    end switch
    
@@ -487,7 +484,7 @@ on SystemAppearanceChanged pMode, pWindowColor, pTextColor
 end SystemAppearanceChanged
 
 on openCard
-   select the text of field 2 of me #mikey h4x0rz t3h IDE
+   select the text of field "prompt" of me #mikey h4x0rz t3h IDE
 end openCard
 
 on preOpenCard
