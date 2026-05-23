@@ -2925,8 +2925,93 @@ on initialiseSearchForInclusions
       put "databaseDrivers" into sPatternsA[tDBName]["Key"]
    end repeat
    
+   -- HXT: Register auto-detection patterns for hxtpm user libraries.
+   -- Each library's public handlers become Script patterns so that revCheckObject
+   -- will include the library whenever one of those names appears in project code.
+   __InitialiseUserLibraryPatterns
+
    put true into sSearchInitialised
 end initialiseSearchForInclusions
+
+-- Scan every installed hxtpm user library and register its public handler names
+-- as Script patterns in sPatternsA.  Called once per IDE session from
+-- initialiseSearchForInclusions.
+private command __InitialiseUserLibraryPatterns
+   local tLibsFolder
+   put revEnvironmentUserLibraries() into tLibsFolder
+   if tLibsFolder is empty then exit __InitialiseUserLibraryPatterns
+
+   repeat for each line tPackageFolder in folders(tLibsFolder)
+      if tPackageFolder begins with "." then next repeat
+
+      local tPackagePath
+      put tLibsFolder & slash & tPackageFolder into tPackagePath
+
+      -- Find the .livecodescript file inside the package folder
+      local tStackName
+      repeat for each line tFile in files(tPackagePath)
+         if tFile ends with ".livecodescript" then
+            -- The library is loaded at IDE startup under its declared script name,
+            -- which by hxtpm convention matches the package folder name.
+            if there is a stack tPackageFolder then
+               put tPackageFolder into tStackName
+            else if there is a stack (tPackagePath & slash & tFile) then
+               put the short name of stack (tPackagePath & slash & tFile) into tStackName
+            end if
+            exit repeat -- one library per package folder
+         end if
+      end repeat
+
+      if tStackName is empty then next repeat
+
+      -- Parse the library's script for public handler declarations.
+      -- We collect handler names and use them as substring search targets:
+      -- if any name appears in a project object's script, the library is included.
+      local tLibScript
+      try
+         put the script of stack tStackName into tLibScript
+      catch tErr
+         next repeat -- locked or unreadable; skip
+      end try
+
+      local tPatterns, tLine, tHandlerName
+      repeat for each line tLine in tLibScript
+         -- Skip blank lines and private handlers
+         if tLine is empty then next repeat
+         if word 1 of tLine is "private" then next repeat
+
+         -- Match: on/function/command/getprop/setprop <name>
+         if word 1 of tLine is among the items of "on,function,command,getprop,setprop" then
+            put word 2 of tLine into tHandlerName
+            -- Strip any trailing parenthesis (e.g. "myHandler(")
+            if the last char of tHandlerName is "(" then
+               delete the last char of tHandlerName
+            end if
+            -- Skip internal lifecycle handlers and empty names
+            if tHandlerName is empty then next repeat
+            if tHandlerName is among the items of \
+                  "extensionInitialize,extensionFinalize,revLoadLibrary,revUnloadLibrary" then
+               next repeat
+            end if
+            if tPatterns is empty then
+               put tHandlerName into tPatterns
+            else
+               put comma & tHandlerName after tPatterns
+            end if
+         end if
+      end repeat
+
+      if tPatterns is not empty then
+         put tPatterns into sPatternsA[tPackageFolder]["Script"]
+         put "scriptLibraries" into sPatternsA[tPackageFolder]["Key"]
+      end if
+
+      -- Reset locals for next iteration
+      put empty into tStackName
+      put empty into tLibScript
+      put empty into tPatterns
+   end repeat
+end __InitialiseUserLibraryPatterns
 
 command revSBSearchForInclusions pStack, @xSettings
    -- Ensure all properties and patterns are initialised
@@ -2948,24 +3033,6 @@ private command revSmartChecking pStackFilesList, @xSettings
    if tNewSettings["inclusions"] is "search" then
 
       revStandaloneProgress "Auto detecting library inclusions..."
-
-      -- HXT: hxtpm user libraries can't be auto-detected from script content, so preserve
-      -- any entries that match a package folder in the user libraries directory before the
-      -- search wipe and restore them after auto-detection completes.
-      local tPreservedUserLibs, tPreservedLib, tUserLibsFolder
-      put revEnvironmentUserLibraries() into tUserLibsFolder
-      if tUserLibsFolder is not empty then
-         repeat for each line tPreservedLib in tNewSettings["scriptLibraries"]
-            if tPreservedLib is not empty and \
-                  there is a folder (tUserLibsFolder & slash & tPreservedLib) then
-               if tPreservedUserLibs is empty then
-                  put tPreservedLib into tPreservedUserLibs
-               else
-                  put return & tPreservedLib after tPreservedUserLibs
-               end if
-            end if
-         end repeat
-      end if
 
       put empty into tNewSettings["scriptLibraries"]
       put true into tNewSettings["cursors"]
@@ -3017,14 +3084,6 @@ private command revSmartChecking pStackFilesList, @xSettings
    end repeat
    
    put the keys of tExtensionIDs into tNewSettings["extensions"]
-
-   -- HXT: Restore hxtpm user libraries preserved before the search wipe.
-   if tPreservedUserLibs is not empty then
-      repeat for each line tPreservedLib in tPreservedUserLibs
-         revSBAddInclusion tPreservedLib, "scriptLibraries", tNewSettings
-      end repeat
-   end if
-
    -- Update the output settings
    put tNewSettings into xSettings
    unlock messages
