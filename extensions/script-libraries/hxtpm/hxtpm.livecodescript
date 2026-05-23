@@ -550,7 +550,9 @@ Example:
 
 */
 function hxtpmInstalledVersion pName
-   return _readInstalledMeta(pName)["version"]
+   local tMeta
+   put _readInstalledMeta(pName) into tMeta
+   return tMeta["version"]
 end hxtpmInstalledVersion
 
 /**
