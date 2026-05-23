@@ -412,28 +412,38 @@ end hxtpmInfo
 
 /**
 
-Summary: Return an array of all packages available across all sources.
+Summary: Return an array of packages available from a given source.
+
+Parameters:
+pSourceName (string): The name of the source to query. Pass empty to query
+all sources (first source wins on name collision).
 
 Returns:
 An array keyed by package name. Each entry contains: title, description,
 author, type, license, repository, latest (version string), versions (list),
-source (source name). When the same package exists in multiple sources, the
-first source in the list wins. Returns empty if no source index could be
-fetched.
+source (source name). Returns empty if the source index could not be fetched.
 
 Example:
-   put hxtpmAvailable() into tAll
-   repeat for each key tName in tAll
-      put tName && tAll[tName]["latest"] && "(" & tAll[tName]["source"] & ")" \
-            & return after field "packageList"
+   -- Browse a specific source
+   put hxtpmAvailable("HyperXTalk Official") into tPkgs
+   repeat for each key tName in tPkgs
+      put tName && tPkgs[tName]["latest"] & return after field "packageList"
    end repeat
 
+   -- Browse all sources (legacy / combined view)
+   put hxtpmAvailable() into tAll
+
 */
-function hxtpmAvailable
+function hxtpmAvailable pSourceName
    local tSources, tAll
    put _loadSources() into tSources
 
    repeat for each key tIdx in tSources
+      -- If a specific source was requested, skip all others
+      if pSourceName is not empty and tSources[tIdx]["name"] is not pSourceName then
+         next repeat
+      end if
+
       local tBase, tRaw, tIndex
       put _sourceBase(tSources[tIdx]) into tBase
       if tBase is empty then next repeat
@@ -444,7 +454,7 @@ function hxtpmAvailable
       put JsonImport(tRaw) into tIndex
       if tIndex is not an array then next repeat
 
-      -- First source that lists a package name wins
+      -- First source that lists a package name wins (only matters in all-sources mode)
       repeat for each key tPkgName in tIndex["packages"]
          if tAll[tPkgName] is empty then
             put tIndex["packages"][tPkgName] into tAll[tPkgName]
