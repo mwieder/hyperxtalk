@@ -65,8 +65,9 @@ from the hxtpm registry.
 
 Packages are hosted on GitHub or stored locally. Script libraries (type "lcs")
 are installed to the user libraries folder and become available immediately via
-start using stack. LCB extensions (type "lcb") are installed to the user
-extensions folder.
+start using stack. LCE extensions (type "lce") are pre-compiled LiveCode
+extension packages (.lce zip) installed to the user extensions folder via
+the IDE extension manager. They are loaded immediately without an IDE restart.
 
 Multiple package sources are supported. A source can be a remote GitHub-hosted
 registry or a local folder on disk. The official HyperXTalk source is always
@@ -274,8 +275,9 @@ pVersion: A specific version string. If omitted, the latest version is installed
 Description:
 Searches all configured sources in order and installs the package from the
 first source that provides it. Script libraries (type "lcs") are installed
-to the user libraries folder and loaded immediately. The result is empty on
-success or an error message on failure.
+to the user libraries folder and loaded immediately. LCE extensions (type
+"lce") are installed via the IDE extension manager and loaded without an IDE
+restart. The result is empty on success or an error message on failure.
 
 Example:
    hxtpmInstall "com.example.library.myutils"
@@ -304,8 +306,8 @@ command hxtpmInstall pName, pVersion
 
    if tType is "lcs" then
       return _installLCS(pName, pVersion, tPackage["versions"][pVersion], tPackage["source"], tPackage["sourceBase"])
-   else if tType is "lcb" then
-      return _installLCB(pName, pVersion, tPackage["versions"][pVersion])
+   else if tType is "lce" then
+      return _installLCE(pName, pVersion, tPackage["versions"][pVersion], tPackage["source"], tPackage["sourceBase"])
    else
       return "Unknown package type: " & tType
    end if
@@ -319,8 +321,9 @@ Parameters:
 pName: The package name to remove.
 
 Description:
-Stops using the library and removes its files from the user libraries or
-user extensions folder. The result is empty on success or an error message
+Stops using the library and removes its files from the user libraries folder
+(for lcs packages) or unloads and removes the extension via the IDE extension
+manager (for lce packages). The result is empty on success or an error message
 on failure.
 
 Example:
@@ -338,8 +341,8 @@ command hxtpmUninstall pName
 
    if tMeta["type"] is "lcs" then
       return _uninstallLCS(pName)
-   else if tMeta["type"] is "lcb" then
-      return _uninstallLCB(pName)
+   else if tMeta["type"] is "lce" then
+      return _uninstallLCE(pName)
    else
       return "Unknown installed package type: " & tMeta["type"]
    end if
@@ -531,7 +534,7 @@ Example:
 */
 function hxtpmIsInstalled pName
    if there is a file _metaPath(pName, "lcs") then return true
-   if there is a file _metaPath(pName, "lcb") then return true
+   if _findLCEMetaPath(pName) is not empty then return true
    return false
 end hxtpmIsInstalled
 
@@ -795,10 +798,50 @@ private function _installLCS pName, pVersion, pVersionData, pSourceName, pSource
    return empty
 end _installLCS
 
-private function _installLCB pName, pVersion, pVersionData
-   -- LCB package support is planned for a future release.
-   return "LCB package installation is not yet supported"
-end _installLCB
+private function _installLCE pName, pVersion, pVersionData, pSourceName, pSourceBase
+   -- Resolve the download URL (absolute or relative to source base)
+   local tFileURL
+   put _resolveFileURL(pVersionData["source"], pSourceBase) into tFileURL
+
+   -- Download the .lce package to a temp file.
+   -- Keeping the .lce extension ensures revIDEExtensionInstall recognises it.
+   local tTempPath
+   put revEnvironmentUserExtensionsPath() & slash & ".hxtpm_download.lce" into tTempPath
+   put URL tFileURL into URL ("file:" & tTempPath)
+   if the result is not empty then
+      return "Download failed for" && pName & ":" && the result
+   end if
+
+   -- Verify checksum before handing off to the IDE
+   local tErr
+   put _verifyChecksum(tTempPath, pVersionData["checksum"]) into tErr
+   if tErr is not empty then
+      delete file tTempPath
+      return tErr
+   end if
+
+   -- Delegate to the IDE extension manager.
+   -- revIDEExtensionInstall extracts the .lce zip, copies the .lci interface
+   -- file to the interfaces folder, then calls 'load extension from file' on
+   -- the compiled module — no IDE restart required.
+   revIDEExtensionInstall tTempPath
+   delete file tTempPath
+
+   -- Confirm success by checking for the versioned extension folder the IDE
+   -- creates at <userExtensions>/<name>.<version>/
+   local tExtFolder
+   put revEnvironmentUserExtensionsPath() & slash & pName & "." & pVersion into tExtFolder
+   if there is not a folder tExtFolder then
+      return "Extension install failed. Check the Extension Manager for details."
+   end if
+
+   -- Write hxtpm metadata into the installed extension folder so we can
+   -- track the source and version for updates and uninstalls.
+   put _writeMeta(tExtFolder, pName, pVersion, "lce", pSourceName) into tErr
+   if tErr is not empty then return tErr
+
+   return empty
+end _installLCE
 
 private function _uninstallLCS pName
    local tFolder
@@ -826,9 +869,31 @@ private function _uninstallLCS pName
    return empty
 end _uninstallLCS
 
-private function _uninstallLCB pName
-   return "LCB package uninstallation is not yet supported"
-end _uninstallLCB
+private function _uninstallLCE pName
+   -- Delegate to the IDE extension manager which handles unloading the
+   -- compiled module and removing the entire versioned extension folder.
+   revIDEExtensionUninstall pName
+   if the result is not empty then
+      return "Extension uninstall failed:" && the result
+   end if
+   return empty
+end _uninstallLCE
+
+-- Locate the hxtpm.json file for an installed LCE package.
+-- The IDE extension manager installs to <userExtensions>/<name>.<version>/
+-- so we scan for any subfolder of that form that contains hxtpm.json.
+private function _findLCEMetaPath pName
+   local tExtFolder
+   put revEnvironmentUserExtensionsPath() into tExtFolder
+   repeat for each line tSub in folders(tExtFolder)
+      if tSub begins with pName & "." then
+         local tMeta
+         put tExtFolder & slash & tSub & slash & "hxtpm.json" into tMeta
+         if there is a file tMeta then return tMeta
+      end if
+   end repeat
+   return empty
+end _findLCEMetaPath
 
 -- ---------------------------------------------------------------------------
 -- Private: metadata
@@ -845,7 +910,7 @@ private function _readInstalledMeta pName
    local tPath
    put _metaPath(pName, "lcs") into tPath
    if there is not a file tPath then
-      put _metaPath(pName, "lcb") into tPath
+      put _findLCEMetaPath(pName) into tPath
    end if
    if there is not a file tPath then return empty
    return JsonImport(URL ("file:" & tPath))
