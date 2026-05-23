@@ -965,7 +965,10 @@ private function _verifyChecksum pFilePath, pExpected
       put tByte after tHex
    end repeat
 
-   if ("sha256:" & tHex) is not pExpected then
+   -- Normalise to lowercase for comparison — baseConvert returns uppercase,
+   -- but stored checksums are conventionally lowercase (e.g. from shasum -a 256).
+   put toLower(tHex) into tHex
+   if ("sha256:" & tHex) is not toLower(pExpected) then
       return "Checksum mismatch: expected" && pExpected & ", got sha256:" & tHex
    end if
    return empty
