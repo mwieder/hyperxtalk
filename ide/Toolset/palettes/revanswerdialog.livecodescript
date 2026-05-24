@@ -96,7 +96,7 @@ on preOpenStack
          set the textFont of this stack to "Lucida Grande"
          set the textSize of this stack to 13
          set the textSize of field 1 of me to 13
-         put "210093 210092 210094 210093" into tIcons
+         put "210093 210092 210094 210097" into tIcons
          break
       case "Win32"
          if gAPKLargeFonts then
