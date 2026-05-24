@@ -63,17 +63,27 @@ Author: HyperXTalk
 
 Type: library
 
-Version: 1.1.0
+Version: 1.2.0
 
 Description:
 Script library for installing, updating, and removing HyperXTalk packages
 from the hxtpm registry.
 
-Packages are hosted on GitHub or stored locally. Script libraries (type "lcs")
-are installed to the user libraries folder and become available immediately via
-start using stack. LCE extensions (type "lce") are pre-compiled LiveCode
-extension packages (.lce zip) installed to the user extensions folder via
-the IDE extension manager. They are loaded immediately without an IDE restart.
+Packages are hosted on GitHub or stored locally. Three package types are
+supported:
+
+  lcs — Script libraries. Installed to the user libraries folder as a named
+        subfolder containing the .livecodescript file. Loaded immediately via
+        start using stack. No IDE restart required.
+
+  lce — Pre-compiled LiveCode Extension packages (.lce zip). Installed to the
+        user extensions folder via the IDE extension manager. Loaded immediately
+        via load extension from file. No IDE restart required.
+
+  lcp — LiveCode IDE plugins. The plugin stack file is placed directly in the
+        user plugins folder. The IDE plugin registry is refreshed via
+        revIDEUpdatePlugins immediately after install or uninstall.
+        No IDE restart required.
 
 Multiple package sources are supported. A source can be a remote GitHub-hosted
 registry or a local folder on disk. The official HyperXTalk source is always
@@ -84,8 +94,21 @@ provides a package wins.
 The sources list is stored in a JSON file at:
    <UserLibraries>/.hxtpm/sources.json
 
-All commands return empty on success or an error message on failure via the
-result.
+Package metadata (hxtpm.json) is written alongside each installed package:
+   lcs  — <UserLibraries>/<name>/hxtpm.json
+   lce  — <UserExtensions>/<name>.<version>/hxtpm.json
+   lcp  — <UserPlugins>/.hxtpm/<name>/hxtpm.json
+
+Install and update commands are asynchronous: they return immediately and
+deliver their result via a message dispatched to the calling object.
+Uninstall and source-management commands are synchronous and return empty on
+success or an error message via the result.
+
+Authoring checksums:
+Use hxtpmComputeChecksum to get the correct sha256 value for a package file
+URL before writing it into package.json. This downloads the file through
+LiveCode's own network stack and hashes it identically to how the install
+pipeline verifies it, guaranteeing the values will match.
 
 Usage:
    -- Browse all packages available across all sources
@@ -96,7 +119,10 @@ Usage:
 
    -- Install the latest version of a package (resolved from all sources)
    hxtpmInstall "com.example.library.myutils"
-   if the result is not empty then answer error the result
+
+   on hxtpmInstallComplete pName, pError
+      if pError is not empty then answer error pError
+   end hxtpmInstallComplete
 
    -- Install a specific version
    hxtpmInstall "com.example.library.myutils", "1.2.0"
@@ -115,7 +141,21 @@ Usage:
 
    -- Uninstall / update
    hxtpmUninstall "com.example.library.myutils"
+   if the result is not empty then answer error the result
+
    hxtpmUpdate "com.example.library.myutils"
+
+   on hxtpmUpdateComplete pName, pError
+      if pError is not empty then answer error pError
+   end hxtpmUpdateComplete
+
+   -- Compute the correct checksum for a URL before writing it into package.json
+   hxtpmComputeChecksum "https://raw.githubusercontent.com/example/repo/main/MyLib.lcs"
+
+   on hxtpmChecksumComplete pURL, pChecksum, pError
+      if pError is not empty then answer error pError
+      -- paste pChecksum directly into the "checksum" field of package.json
+   end hxtpmChecksumComplete
 
 */
 
@@ -284,11 +324,15 @@ first source that provides it. The install is asynchronous: hxtpmInstall
 returns immediately and the caller receives an hxtpmInstallComplete message
 when the install finishes (whether it succeeded or failed).
 
-Script libraries (type "lcs") are installed to the user libraries folder and
-loaded immediately. LCE extensions (type "lce") are installed via the IDE
-extension manager and loaded without an IDE restart. LiveCode plugins (type "lcp")
-are stack files placed directly in the user plugins folder; the IDE plugin
-registry is refreshed immediately so no restart is required.
+The package type determines how it is installed:
+
+  lcs — Placed in the user libraries folder and loaded immediately via
+        start using stack.
+  lce — Installed via the IDE extension manager and loaded immediately.
+  lcp — Stack file placed in the user plugins folder; the IDE plugin registry
+        is refreshed immediately via revIDEUpdatePlugins.
+
+No IDE restart is required for any package type.
 
 Example:
    -- Trigger install
@@ -351,10 +395,15 @@ Parameters:
 pName: The package name to remove.
 
 Description:
-Stops using the library and removes its files from the user libraries folder
-(for lcs packages) or unloads and removes the extension via the IDE extension
-manager (for lce packages). The result is empty on success or an error message
-on failure.
+Removes the installed package and cleans up its files. Behaviour by type:
+
+  lcs — Stops using the stack and deletes the package subfolder from the user
+        libraries folder.
+  lce — Unloads and removes the extension via the IDE extension manager.
+  lcp — Deletes the plugin stack file from the user plugins folder and refreshes
+        the IDE plugin registry via revIDEUpdatePlugins.
+
+The result is empty on success or an error message on failure.
 
 Example:
    hxtpmUninstall "com.example.library.myutils"
@@ -391,8 +440,11 @@ Description:
 Fetches the latest version from whichever source originally provided the
 package, uninstalls the current version, and installs the latest. If already
 at the latest version, hxtpmUpdateComplete is dispatched immediately with an
-empty error. The update is asynchronous: hxtpmUpdate returns immediately and
-the caller receives an hxtpmUpdateComplete message when the update finishes.
+empty error.
+
+The update is asynchronous: hxtpmUpdate returns immediately and the caller
+receives an hxtpmUpdateComplete message when the update finishes. The message
+signature is identical to hxtpmInstallComplete — pName and pError.
 
 Example:
    -- Trigger update
@@ -458,6 +510,88 @@ command hxtpmUpdate pName
       dispatch "hxtpmUpdateComplete" to tCallerTarget with pName, "Unknown package type: " & tType
    end if
 end hxtpmUpdate
+
+/**
+
+Summary: Compute the hxtpm-compatible SHA-256 checksum for a package file URL.
+
+Parameters:
+pURL: The direct download URL of the package file.
+
+Description:
+Downloads the file via libURLDownloadToFile and computes its SHA-256 checksum
+using exactly the same method as hxtpm's internal checksum verification — so
+the value produced here is guaranteed to match at install time.
+
+The result is delivered asynchronously via an hxtpmChecksumComplete message sent
+to the calling object:
+
+   on hxtpmChecksumComplete pURL, pChecksum, pError
+      -- pChecksum is in the form "sha256:<hex>" on success, empty on failure
+      -- pError is empty on success, or an error message on failure
+   end hxtpmChecksumComplete
+
+Use this command when authoring a new package.json to get the correct checksum
+value to put in the "checksum" field for a given version's source URL.
+
+Example:
+   hxtpmComputeChecksum "https://raw.githubusercontent.com/example/repo/main/MyLib.livecodescript"
+
+   on hxtpmChecksumComplete pURL, pChecksum, pError
+      if pError is not empty then
+         answer error pError
+      else
+         answer "Checksum for" && pURL & ":" & return & pChecksum
+      end if
+   end hxtpmChecksumComplete
+
+*/
+command hxtpmComputeChecksum pURL
+   local tCallerTarget
+   put the long id of the target into tCallerTarget
+
+   local tTempPath
+   put revEnvironmentUserLibraries() & slash & "hxtpm-checksum-" & the seconds & ".tmp" into tTempPath
+
+   put pURL              into sPendingInstalls[pURL]["checksumURL"]
+   put tTempPath         into sPendingInstalls[pURL]["tempPath"]
+   put "checksum"        into sPendingInstalls[pURL]["type"]
+   put tCallerTarget     into sPendingInstalls[pURL]["callerTarget"]
+
+   libURLDownloadToFile pURL, tTempPath, "_hxtpmChecksumDownloadComplete"
+end hxtpmComputeChecksum
+
+on _hxtpmChecksumDownloadComplete pURL, pStatus
+   local tState
+   put sPendingInstalls[pURL] into tState
+   delete variable sPendingInstalls[pURL]
+
+   local tTempPath, tCallerTarget
+   put tState["tempPath"]      into tTempPath
+   put tState["callerTarget"]  into tCallerTarget
+
+   if pStatus is not "downloaded" then
+      delete file tTempPath
+      dispatch "hxtpmChecksumComplete" to tCallerTarget with pURL, empty, "Download failed:" && pStatus
+      exit _hxtpmChecksumDownloadComplete
+   end if
+
+   -- Compute hash the same way _verifyChecksum does so the value is guaranteed
+   -- to match when used in a package.json checksum field
+   local tData, tDigest, tHex, tByte
+   put URL ("file:" & tTempPath) into tData
+   delete file tTempPath
+   put messageDigest(tData, "SHA-256") into tDigest
+
+   repeat with i = 1 to the length of tDigest
+      put baseConvert(charToNum(char i of tDigest), 10, 16) into tByte
+      if the length of tByte is 1 then put "0" before tByte
+      put tByte after tHex
+   end repeat
+   put toLower(tHex) into tHex
+
+   dispatch "hxtpmChecksumComplete" to tCallerTarget with pURL, "sha256:" & tHex, empty
+end _hxtpmChecksumDownloadComplete
 
 -- ---------------------------------------------------------------------------
 -- Public API — packages (functions)
