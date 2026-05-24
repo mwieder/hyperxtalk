@@ -27,7 +27,7 @@ local sSources
 
 -- State for in-progress async downloads, keyed by download URL.
 -- Each element is an array with keys: name, version, versionData, sourceName,
--- tempPath, type (lcs|lce).
+-- tempPath, type (lcs|lce|lcp), callerTarget, completionMessage, and for lcp: filename.
 -- libURLDownloadToFile callbacks look up this table by URL to resume the install.
 local sPendingInstalls
 
@@ -286,7 +286,9 @@ when the install finishes (whether it succeeded or failed).
 
 Script libraries (type "lcs") are installed to the user libraries folder and
 loaded immediately. LCE extensions (type "lce") are installed via the IDE
-extension manager and loaded without an IDE restart.
+extension manager and loaded without an IDE restart. LiveCode plugins (type "lcp")
+are stack files placed directly in the user plugins folder; the IDE plugin
+registry is refreshed immediately so no restart is required.
 
 Example:
    -- Trigger install
@@ -334,6 +336,8 @@ command hxtpmInstall pName, pVersion
       _installLCSBegin pName, pVersion, tPackage["versions"][pVersion], tPackage["source"], tPackage["sourceBase"], tCallerTarget, tMsg
    else if tType is "lce" then
       _installLCEBegin pName, pVersion, tPackage["versions"][pVersion], tPackage["source"], tPackage["sourceBase"], tCallerTarget, tMsg
+   else if tType is "lcp" then
+      _installLCPBegin pName, pVersion, tPackage["versions"][pVersion], tPackage["source"], tPackage["sourceBase"], tCallerTarget, tMsg
    else
       dispatch tMsg to tCallerTarget with pName, "Unknown package type: " & tType
    end if
@@ -369,6 +373,8 @@ command hxtpmUninstall pName
       return _uninstallLCS(pName)
    else if tMeta["type"] is "lce" then
       return _uninstallLCE(pName)
+   else if tMeta["type"] is "lcp" then
+      return _uninstallLCP(pName)
    else
       return "Unknown installed package type: " & tMeta["type"]
    end if
@@ -446,6 +452,8 @@ command hxtpmUpdate pName
       _installLCSBegin pName, tLatest, tPackage["versions"][tLatest], tPackage["source"], tPackage["sourceBase"], tCallerTarget, "hxtpmUpdateComplete"
    else if tType is "lce" then
       _installLCEBegin pName, tLatest, tPackage["versions"][tLatest], tPackage["source"], tPackage["sourceBase"], tCallerTarget, "hxtpmUpdateComplete"
+   else if tType is "lcp" then
+      _installLCPBegin pName, tLatest, tPackage["versions"][tLatest], tPackage["source"], tPackage["sourceBase"], tCallerTarget, "hxtpmUpdateComplete"
    else
       dispatch "hxtpmUpdateComplete" to tCallerTarget with pName, "Unknown package type: " & tType
    end if
@@ -598,6 +606,7 @@ Example:
 function hxtpmIsInstalled pName
    if there is a file _metaPath(pName, "lcs") then return true
    if _findLCEMetaPath(pName) is not empty then return true
+   if there is a file _metaPath(pName, "lcp") then return true
    return false
 end hxtpmIsInstalled
 
@@ -646,6 +655,14 @@ function hxtpmInstalled
    local tExtFolder
    put revEnvironmentUserExtensionsPath() into tExtFolder
    _scanInstalledFolder tExtFolder, tResult
+
+   -- Plugin metadata lives in a hidden .hxtpm subfolder inside the plugins folder
+   -- so the IDE plugin scanner (which uses files()) doesn't see it
+   local tPluginMetaFolder
+   put revEnvironmentUserPluginsPath() & slash & ".hxtpm" into tPluginMetaFolder
+   if there is a folder tPluginMetaFolder then
+      _scanInstalledFolder tPluginMetaFolder, tResult
+   end if
 
    return tResult
 end hxtpmInstalled
@@ -989,6 +1006,144 @@ on _hxtpmLCEDownloadComplete pURL, pStatus
    dispatch tMsg to tCallerTarget with tName, empty
 end _hxtpmLCEDownloadComplete
 
+private command _installLCPBegin pName, pVersion, pVersionData, pSourceName, pSourceBase, pCallerTarget, pCompletionMessage
+   local tFileURL
+   put _resolveFileURL(pVersionData["source"], pSourceBase) into tFileURL
+
+   -- Derive the final filename from the source URL so the plugin stack has its
+   -- original name when placed in the plugins folder
+   local tFilename
+   put _filenameFromURL(pVersionData["source"]) into tFilename
+
+   -- Temp file sits in the plugins folder so the final rename stays on the
+   -- same filesystem (avoids cross-device rename errors)
+   local tTempPath
+   put revEnvironmentUserPluginsPath() & slash & pName & "-" & pVersion & "-" & the seconds & ".download" into tTempPath
+
+   -- Record state so the download callback can resume the install
+   put pName              into sPendingInstalls[tFileURL]["name"]
+   put pVersion           into sPendingInstalls[tFileURL]["version"]
+   put pVersionData       into sPendingInstalls[tFileURL]["versionData"]
+   put pSourceName        into sPendingInstalls[tFileURL]["sourceName"]
+   put tTempPath          into sPendingInstalls[tFileURL]["tempPath"]
+   put "lcp"              into sPendingInstalls[tFileURL]["type"]
+   put tFilename          into sPendingInstalls[tFileURL]["filename"]
+   put pCallerTarget      into sPendingInstalls[tFileURL]["callerTarget"]
+   put pCompletionMessage into sPendingInstalls[tFileURL]["completionMessage"]
+
+   libURLDownloadToFile tFileURL, tTempPath, "_hxtpmLCPDownloadComplete"
+end _installLCPBegin
+
+on _hxtpmLCPDownloadComplete pURL, pStatus
+   local tState
+   put sPendingInstalls[pURL] into tState
+   delete variable sPendingInstalls[pURL]
+
+   local tName, tVersion, tVersionData, tSourceName, tTempPath, tFilename, tCallerTarget, tMsg
+   put tState["name"]              into tName
+   put tState["version"]           into tVersion
+   put tState["versionData"]       into tVersionData
+   put tState["sourceName"]        into tSourceName
+   put tState["tempPath"]          into tTempPath
+   put tState["filename"]          into tFilename
+   put tState["callerTarget"]      into tCallerTarget
+   put tState["completionMessage"] into tMsg
+
+   if pStatus is not "downloaded" then
+      delete file tTempPath
+      dispatch tMsg to tCallerTarget with tName, "Download failed for" && tName & ":" && pStatus
+      exit _hxtpmLCPDownloadComplete
+   end if
+
+   -- Verify checksum
+   local tErr
+   put _verifyChecksum(tTempPath, tVersionData["checksum"]) into tErr
+   if tErr is not empty then
+      delete file tTempPath
+      dispatch tMsg to tCallerTarget with tName, tErr
+      exit _hxtpmLCPDownloadComplete
+   end if
+
+   -- Move the plugin file to its final name in the plugins folder.
+   -- The temp file is already in the plugins folder so this is an in-place rename.
+   local tDestPath
+   put revEnvironmentUserPluginsPath() & slash & tFilename into tDestPath
+   rename file tTempPath to tDestPath
+   if the result is not empty then
+      delete file tTempPath
+      dispatch tMsg to tCallerTarget with tName, "Could not save plugin file:" && the result
+      exit _hxtpmLCPDownloadComplete
+   end if
+
+   -- Create .hxtpm/<name> metadata folder (create parent first if needed)
+   local tHxtpmFolder, tMetaFolder
+   put revEnvironmentUserPluginsPath() & slash & ".hxtpm" into tHxtpmFolder
+   put tHxtpmFolder & slash & tName into tMetaFolder
+   if there is not a folder tHxtpmFolder then
+      create folder tHxtpmFolder
+      if the result is not empty then
+         delete file tDestPath
+         dispatch tMsg to tCallerTarget with tName, "Could not create plugin metadata folder:" && the result
+         exit _hxtpmLCPDownloadComplete
+      end if
+   end if
+   create folder tMetaFolder
+   if the result is not empty then
+      delete file tDestPath
+      dispatch tMsg to tCallerTarget with tName, "Could not create plugin metadata folder:" && the result
+      exit _hxtpmLCPDownloadComplete
+   end if
+
+   -- Write hxtpm metadata; store filename so uninstall knows which file to remove
+   local tExtra
+   put tFilename into tExtra["filename"]
+   put _writeMeta(tMetaFolder, tName, tVersion, "lcp", tSourceName, tExtra) into tErr
+   if tErr is not empty then
+      dispatch tMsg to tCallerTarget with tName, tErr
+      exit _hxtpmLCPDownloadComplete
+   end if
+
+   -- Refresh the IDE plugin registry so the plugin is visible immediately
+   revIDEUpdatePlugins
+
+   dispatch tMsg to tCallerTarget with tName, empty
+end _hxtpmLCPDownloadComplete
+
+private function _uninstallLCP pName
+   -- Read metadata to find which file to remove
+   local tMetaPath, tMeta
+   put _metaPath(pName, "lcp") into tMetaPath
+   if there is a file tMetaPath then
+      put JsonImport(URL ("file:" & tMetaPath)) into tMeta
+   end if
+
+   -- Remove the plugin stack file from the plugins folder
+   if tMeta["filename"] is not empty then
+      local tPluginFile
+      put revEnvironmentUserPluginsPath() & slash & tMeta["filename"] into tPluginFile
+      if there is a file tPluginFile then
+         delete file tPluginFile
+         if the result is not empty then
+            return "Could not remove plugin file:" && the result
+         end if
+      end if
+   end if
+
+   -- Remove the per-package metadata subfolder
+   local tMetaFolder
+   put revEnvironmentUserPluginsPath() & slash & ".hxtpm" & slash & pName into tMetaFolder
+   if there is a folder tMetaFolder then
+      local tErr
+      put _deleteFolder(tMetaFolder) into tErr
+      if tErr is not empty then return tErr
+   end if
+
+   -- Refresh the IDE plugin registry
+   revIDEUpdatePlugins
+
+   return empty
+end _uninstallLCP
+
 private function _uninstallLCS pName
    local tFolder
    put revEnvironmentUserLibraries() & slash & pName into tFolder
@@ -1061,6 +1216,10 @@ end _findLCEMetaPath
 private function _metaPath pName, pType
    if pType is "lcs" then
       return revEnvironmentUserLibraries() & slash & pName & slash & "hxtpm.json"
+   else if pType is "lcp" then
+      -- Plugin metadata lives in a hidden .hxtpm subfolder inside the plugins
+      -- folder so the IDE plugin scanner (which uses files()) never sees it.
+      return revEnvironmentUserPluginsPath() & slash & ".hxtpm" & slash & pName & slash & "hxtpm.json"
    end if
    return revEnvironmentUserExtensionsPath() & slash & pName & slash & "hxtpm.json"
 end _metaPath
@@ -1071,17 +1230,28 @@ private function _readInstalledMeta pName
    if there is not a file tPath then
       put _findLCEMetaPath(pName) into tPath
    end if
+   if there is not a file tPath then
+      put _metaPath(pName, "lcp") into tPath
+   end if
    if there is not a file tPath then return empty
    return JsonImport(URL ("file:" & tPath))
 end _readInstalledMeta
 
-private function _writeMeta pFolder, pName, pVersion, pType, pSourceName
+-- pExtra is an optional array of additional key-value pairs to include in the
+-- written metadata (e.g. ["filename": "MyPlugin.rev"] for lcp packages).
+private function _writeMeta pFolder, pName, pVersion, pType, pSourceName, pExtra
    local tMeta
    put pName       into tMeta["name"]
    put pVersion    into tMeta["version"]
    put pType       into tMeta["type"]
    put pSourceName into tMeta["source"]
    put the short date into tMeta["installed"]
+
+   if pExtra is an array then
+      repeat for each key tKey in pExtra
+         put pExtra[tKey] into tMeta[tKey]
+      end repeat
+   end if
 
    put JsonExport(tMeta) into URL ("file:" & pFolder & slash & "hxtpm.json")
    if the result is not empty then
