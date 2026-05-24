@@ -2,6 +2,11 @@
 
 // Scriptified 2026.05.21 by Mark Wieder mwieder@ahsoftware.net
 
+constant kIconTypes="information error warning question"
+constant kMacIcons="210093 210092 210094 210097"
+constant kWinIcons="210005 210011 210003 210004"
+constant kLinuxIcons="210005 210011 210003 210004"
+
 on preOpenStack
    global gAPKLargeFonts, gREVSmallAppIcon, gREVAppIcon
    local tIcons, tMacOSX, tMargin, tNumber, tIconWord, tIconAllowance
@@ -96,7 +101,7 @@ on preOpenStack
          set the textFont of this stack to "Lucida Grande"
          set the textSize of this stack to 13
          set the textSize of field 1 of me to 13
-         put "210093 210092 210094 210097" into tIcons
+         put kMacIcons into tIcons
          break
       case "Win32"
          if gAPKLargeFonts then
@@ -116,7 +121,7 @@ on preOpenStack
          set the textSize of this stack to empty
          
          set the textFont of field 1 of me to empty
-         put "210005 210011 210003 210004" into tIcons
+         put kWinIcons into tIcons
          break
       default
          repeat with i = 3 to the number of btns
@@ -132,7 +137,7 @@ on preOpenStack
             set the textSize of this stack to 12
          end if
          set the textFont of field "prompt" of me to empty
-         put "210005 210011 210003 210004" into tIcons
+         put kLinuxIcons into tIcons
          break
    end switch
    
@@ -281,8 +286,6 @@ on preOpenStack
    end if
    set the rect of field 1 of me to it
    
-   
-   #debugLog "Rect of field 1 after setting:" && ( the rect of field 1) & return
    if tMacOSX then
       put 5 into tAddition
    else
@@ -312,7 +315,6 @@ on preOpenStack
    set the height of this stack to tHeight
    set the height of field 1 of me to tHeight - 58
    set the top of field 1 of me to tTop
-   --set the topLeft of field 1 of me to tIconAllowance + 8, 12
    
    // AL-2014-05-21: [[ Bug 11493 ]] Linux confirmation button should be on the right
    if the platform is in "MacOSLinux" then
@@ -359,8 +361,6 @@ on preOpenStack
    if the platform is "MacOS" then
       set the top of this stack to round(item 4 of the screenRect/5)
    end if
-   --set the default of button 3 to true
-   #debugLog "DONE"
    
    -- Provide keyboard navigation on Linux and Windows but not OSX
    if the platform is not "MacOS" then
@@ -374,22 +374,10 @@ on preOpenStack
 	set the visible of me to true
 end preOpenStack
 
---on resizeStack
---end resizeStack
-
---on openStack
---end openStack
-
---on preOpenCard
---end preOpenCard
-
 on openCard
 	select the text of field 1 of me
     set the clipboarddata["text"] to field 1 of me
 end openCard
-
---on closeCard
---end closeCard
 
 on mouseDown
 end mouseDown
@@ -460,17 +448,8 @@ on linkClicked pLink
    end if
 end linkClicked
 
-on debugLog pMsg, pDel
-  --  global gAnswerDebugInfo
-  --  repeat for each line tLine in pMsg
-  --    put pDel & tLine & return after gAnswerDebugInfo
-  --  end repeat
-end debugLog
-
-
 on SystemAppearanceChanged pMode, pWindowColor, pTextColor
    set the backgroundColor of me to pWindowColor
    set the foregroundColor of me to pTextColor
 end SystemAppearanceChanged
-
 
