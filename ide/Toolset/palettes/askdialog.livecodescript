@@ -84,7 +84,7 @@ on star
 end star
 
 constant kIconTypes="information error warning question"
-constant kMacIcons="210093 210092 210094 210093"
+constant kMacIcons="210093 210092 210094 210097"
 constant kWinIcons="210005 210011 210003 210004"
 constant kLinuxIcons="210005 210011 210003 210004"
 
