@@ -88,23 +88,8 @@ constant kMacIcons="210093 210092 210094 210093"
 constant kWinIcons="210005 210011 210003 210004"
 constant kLinuxIcons="210005 210011 210003 210004"
 
-on preOpenStack
-   // HXT dark mode
-   set the backgroundColor of me to (the systemWindowColor)
-   set the foregroundColor of me to (the systemTextColor)
-   
-   -- PM-2015-07-23: [[ Bug 14224 ]] Remove the (old) focus to allow typing into the input fld
-   focus on nothing
-   
-   global gREVAppIcon
-   local twidth
-   set the itemDelimiter to numToChar(0)
-   set the fieldmode of me to word 2 of item 1 of the dialogData
-   if item 2 of the dialogData is empty then
-      set the title of this stack to space
-   else
-      set the title of this stack to item 2 of the dialogData
-   end if
+on dialogInitialize
+   lock messages
    
    set the showName of the templateButton to false
    set the borderWidth of the templateButton to 0
@@ -118,6 +103,8 @@ on preOpenStack
    // create button "icon"
    if there is no button "icon" of me then
       create button "icon"
+      set the width of it to 76
+      set the height of it to 65
    end if
    
    // create button "icon 2"
@@ -141,24 +128,69 @@ on preOpenStack
       set the script of it to "on mouseUp"&cr&tab&"CancelButton"&cr&"end mouseUp"
    end if
    
+   set the width of the templateField to 326
+   set the showBorder of the templateField to false
+   set dontSearch of the templateField to true
+   set the height of the templateField to 25
+   
    // create field 1
    if there is no field "prompt" of me then
       create field "prompt"
       set the locktext of it to true
-      set the showBorder of it to false
       set the opaque of it to false
       set the traversalon of it to false
       set the sharedtext of it to true
+      
+      set showBorder of it to false
+      set dontSearch of it to true
+      set the width of it to 326
+      set the height of it to 25
    end if
    
    // create field 2
    if there is no field "input" of me then
       create field "input"
+      set opaque of it to true
+      set dontWrap of it to true
+      
+      set sharedText of it to true
+      set lockText of it to false
+      set traversalOn of it to true
+      set autoTab of it to true
+      set showBorder of it to true
+      set dontSearch of it to true
+      --set the script of it to "on enterInField"&cr&tab&"closeAccept"&cr&"end enterInField"
    end if
    
    // create invisible field 3 for passwords
    if there is no field "passwordtext" of me then
       create invisible field "passwordtext"
+      set the width of it to 124
+      set the height of it to 28
+   end if
+   
+   reset the templateField
+   unlock messages
+end dialogInitialize
+
+on preOpenStack
+   // HXT dark mode
+   set the backgroundColor of me to (the systemWindowColor)
+   set the foregroundColor of me to (the systemTextColor)
+   
+   dialogInitialize
+   
+   -- PM-2015-07-23: [[ Bug 14224 ]] Remove the (old) focus to allow typing into the input fld
+   focus on nothing
+   
+   global gREVAppIcon
+   local twidth
+   set the itemDelimiter to numToChar(0)
+   set the fieldmode of me to word 2 of item 1 of the dialogData
+   if item 2 of the dialogData is empty then
+      set the title of this stack to space
+   else
+      set the title of this stack to item 2 of the dialogData
    end if
    
    -- MW-2007-12-11: [[ Bug 4974 ]] Support the use of htmlText in the prompt
@@ -254,7 +286,7 @@ on preOpenStack
    # TH-11-01-2008: Bug fix for 4913, need to set the field size after the font sizes have been
    # adjusted to prevent clipping of text
    put max(the formattedWidth of field "prompt" of me + 48,\\
-         the formattedWidth of field "prompt" of me + 64, 450) into twidth
+         the formattedWidth of field "input" of me + 64, 450) into twidth
    set the width of this stack to twidth
    set the height of field "prompt" to the formattedHeight of field "prompt" of me -- + 25
    set the top of field "prompt" of me to 8
@@ -286,7 +318,6 @@ on preOpenStack
       set the textAlign of field "prompt" of me to "left"
    end if
    
-   --set the cRTL of this card to tIsRightToLeft
    set the cRTL of stack "revPreferences" to tIsRightToLeft
    
    local tIconX, tIconY
@@ -318,6 +349,7 @@ on preOpenStack
       set the loc of button "icon" to tIconX, tIconY
    end if
    
+   --focus on field "input" of me
    set the dialogData to numToChar(0)
    doresize
    set the visible of me to true
@@ -327,10 +359,12 @@ on keyDown which
    local tpos
    if the name of the target contains "field" and word 1 of the fieldmode of me is "password" or the fieldmode of me is "clear" then
       put the selectedChunk into tpos
-      put which into character (word 2 of tpos) to (word 4 of tpos) of field 3
+      put which into character (word 2 of tpos) to (word 4 of tpos) of field "passwordtext"
       star
       select after character (word 2 of tpos) of field "input"
-   else pass keyDown
+   else
+      pass keyDown
+   end if
 end keyDown
 
 on deleteKey
@@ -351,7 +385,7 @@ end deleteKey
 
 # OK-2007-11-05 : Bug 3956
 on escapeKey
-	closeReject
+   cancelButton
 end escapeKey
 
 on backspaceKey
@@ -374,7 +408,7 @@ private command deleteChunk pChunk
    local tStartChar, tEndChar
    put word 2 of pChunk into tStartChar
    put word 4 of pChunk into tEndChar
-   put empty into char tStartChar to tEndChar of field 3
+   put empty into char tStartChar to tEndChar of field "passwordtext"
    star
    select before char tStartChar of field "input"     
 end deleteChunk
@@ -384,13 +418,13 @@ private command deleteone pDirection
    put word 2 of the selectedChunk into tpos
    
    if pDirection is "back" then    -- backSpace key is pressed
-      put empty into character (tpos - 1) of field 3
+      put empty into character (tpos - 1) of field "passwordtext" of me
       star
-      select before character (tpos - 1) of field "input"
+      select before character (tpos - 1) of field "input" of me
    else if pDirection is "forward" then     -- delete key is pressed
-      put empty into character (tpos) of field 3
+      put empty into character (tpos) of field "passwordtext" of me
       star
-      select before character (tpos) of field "input"
+      select before character (tpos) of field "input" of me
    end if
 end deleteone
 
@@ -411,6 +445,25 @@ on commandKeyDown which
             case "H"
                deleteone "back"
                break
+            case "V"
+               if the clipboard is "text" then
+                  local tSelectedChunk
+                  put the selectedChunk into tSelectedChunk
+                  put the clipboardData["text"] \
+                        into character (word 2 of tSelectedChunk) to (word 4 of tSelectedChunk) \
+                        of field 3
+                  star
+                  local tPastedLength
+                  put the number of chars in the clipboardData["text"] into tPastedLength
+                  if word 2 of tSelectedChunk > word 4 of tSelectedChunk then
+                     select after character (word 4 of tSelectedChunk + tPastedLength) \
+                           of field 2
+                  else
+                     select after character (word 2 of tSelectedChunk + tPastedLength - 1) \
+                           of field 2
+                  end if
+               end if
+               break
             default
                pass commandKeyDown
          end switch
@@ -421,23 +474,28 @@ on commandKeyDown which
 end commandKeyDown
 
 on openField
-  select the text of the target
+   --select the text of the target
+   --focus on the target
 end openField
 
 on resizeStack
-  doresize
+   doresize
 end resizeStack
 
+on returnKey
+   closeAccept
+end returnKey
+
 on returnInField
-  closeAccept
+   closeAccept
 end returnInField
 
 on enterInField
-  returnInField
+   closeAccept
 end enterInField
 
 on closeStack
-  cleanUpAskDialog
+   cleanUpAskDialog
 end closeStack
 
 private command cleanUpAskDialog
@@ -456,6 +514,7 @@ command closeAccept
       case "error"
       case "information"
       case "warning"
+      default
          put the text of field "input" of me into tResult
          break
       case "password"
@@ -465,10 +524,7 @@ command closeAccept
    end switch
    
    set the dialogData to tResult
-   lock messages
-   close this stack
-   cleanUpAskDialog
-   unlock messages
+   closeReject
 end closeAccept
 
 private command closeReject
@@ -484,7 +540,8 @@ on SystemAppearanceChanged pMode, pWindowColor, pTextColor
 end SystemAppearanceChanged
 
 on openCard
-   select the text of field "prompt" of me #mikey h4x0rz t3h IDE
+   --focus on field "input" of me
+   --select the text of field "input" of me #mikey h4x0rz t3h IDE
 end openCard
 
 on preOpenCard
@@ -499,11 +556,9 @@ end openStack
 on mouseDown
 end mouseDown
 
-on cancelbutton
-  lock messages
-  close this stack
-  cleanUpAskDialog--won't get closeStack
-  unlock messages
+on cancelButton
+   set the dialogData to empty
+   closeReject
 end cancelButton
 
 on OKButton
