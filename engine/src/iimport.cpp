@@ -125,12 +125,12 @@ bool MCImageDecode(IO_handle p_stream, MCBitmapFrame *&r_frames, uindex_t &r_fra
 bool MCImageDecode(const uint8_t *p_data, uindex_t p_size, MCBitmapFrame *&r_frames, uindex_t &r_frame_count)
 {
 	bool t_success = true;
-    MCAutoDataRef t_data;
+	MCAutoDataRef t_data;
 
 	IO_handle t_stream = nil;
 
-    if (t_success)
-        t_success = nil != (t_stream = MCS_fakeopen((const char *)p_data, p_size));
+	if (t_success)
+		t_success = nil != (t_stream = MCS_fakeopen((const char *)p_data, p_size));
 
 	if (t_success)
 		t_success = MCImageDecode(t_stream, r_frames, r_frame_count);

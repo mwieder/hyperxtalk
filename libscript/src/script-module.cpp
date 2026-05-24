@@ -564,13 +564,13 @@ bool MCScriptEnsureModuleIsUsable(MCScriptModuleRef self)
     if (self -> is_usable)
         return true;
 
-	/* If the module is already marked as being checked for usability,
-	 * then there must be a cyclic module dependency. */
-	if (self -> is_in_usable_check)
-		return MCErrorThrowGeneric(MCSTR("cyclic module dependency"));
-    
-	self -> is_in_usable_check = true;
-    
+    /* If the module is already marked as being checked for usability,
+     * then there must be a cyclic module dependency. */
+    if (self -> is_in_usable_check)
+        return MCErrorThrowGeneric(MCSTR("cyclic module dependency"));
+
+    self -> is_in_usable_check = true;
+
     // First ensure we can resolve all its external dependencies.
     for(uindex_t i = 0; i < self -> dependency_count; i++)
     {
