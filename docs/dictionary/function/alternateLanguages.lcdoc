@@ -16,7 +16,7 @@ Changes:
 - Support for running JavaScript on HTML5 systems was added in version
   9.0.0
 
-OS: mac, windows, html5
+OS: mac, windows
 
 Platforms: desktop
 

@@ -8,7 +8,7 @@ Summary: Evaluate a script written in another programming language
 
 Introduced: 1.0.0
 
-OS: mac, windows, html5
+OS: mac, windows
 
 Example:
 do field "Statements" as "AppleScript"
