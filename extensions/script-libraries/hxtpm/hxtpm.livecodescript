@@ -25,6 +25,12 @@ HyperXTalk. If not, see <http://www.gnu.org/licenses/>.
 -- The official HyperXTalk source is always element 1 and is pinned.
 local sSources
 
+-- State for in-progress async downloads, keyed by download URL.
+-- Each element is an array with keys: name, version, versionData, sourceName,
+-- tempPath, type (lcs|lce).
+-- libURLDownloadToFile callbacks look up this table by URL to resume the install.
+local sPendingInstalls
+
 -- ---------------------------------------------------------------------------
 -- Extension lifecycle
 -- ---------------------------------------------------------------------------
@@ -274,23 +280,42 @@ pVersion: A specific version string. If omitted, the latest version is installed
 
 Description:
 Searches all configured sources in order and installs the package from the
-first source that provides it. Script libraries (type "lcs") are installed
-to the user libraries folder and loaded immediately. LCE extensions (type
-"lce") are installed via the IDE extension manager and loaded without an IDE
-restart. The result is empty on success or an error message on failure.
+first source that provides it. The install is asynchronous: hxtpmInstall
+returns immediately and the caller receives an hxtpmInstallComplete message
+when the install finishes (whether it succeeded or failed).
+
+Script libraries (type "lcs") are installed to the user libraries folder and
+loaded immediately. LCE extensions (type "lce") are installed via the IDE
+extension manager and loaded without an IDE restart.
 
 Example:
+   -- Trigger install
    hxtpmInstall "com.example.library.myutils"
-   if the result is not empty then answer error the result
 
-   hxtpmInstall "com.example.library.myutils", "1.2.0"
+   -- Handle the result
+   on hxtpmInstallComplete pName, pError
+      if pError is not empty then
+         answer error pError
+      else
+         answer "Installed" && pName
+      end if
+   end hxtpmInstallComplete
 
 */
 command hxtpmInstall pName, pVersion
+   -- Capture the calling object now, while the message path is intact.
+   -- The download callbacks fire asynchronously from a different context, so
+   -- they must dispatch hxtpmInstallComplete explicitly to this object.
+   local tCallerTarget
+   put the long id of the target into tCallerTarget
+   local tMsg
+   put "hxtpmInstallComplete" into tMsg
+
    local tPackage
    put _fetchPackageInfo(pName) into tPackage
    if tPackage is empty then
-      return "Package not found in any configured source: " & pName
+      dispatch tMsg to tCallerTarget with pName, "Package not found in any configured source: " & pName
+      exit hxtpmInstall
    end if
 
    if pVersion is empty then
@@ -298,18 +323,19 @@ command hxtpmInstall pName, pVersion
    end if
 
    if tPackage["versions"][pVersion] is empty then
-      return "Version" && pVersion && "not found for" && pName
+      dispatch tMsg to tCallerTarget with pName, "Version" && pVersion && "not found for" && pName
+      exit hxtpmInstall
    end if
 
    local tType
    put tPackage["type"] into tType
 
    if tType is "lcs" then
-      return _installLCS(pName, pVersion, tPackage["versions"][pVersion], tPackage["source"], tPackage["sourceBase"])
+      _installLCSBegin pName, pVersion, tPackage["versions"][pVersion], tPackage["source"], tPackage["sourceBase"], tCallerTarget, tMsg
    else if tType is "lce" then
-      return _installLCE(pName, pVersion, tPackage["versions"][pVersion], tPackage["source"], tPackage["sourceBase"])
+      _installLCEBegin pName, pVersion, tPackage["versions"][pVersion], tPackage["source"], tPackage["sourceBase"], tCallerTarget, tMsg
    else
-      return "Unknown package type: " & tType
+      dispatch tMsg to tCallerTarget with pName, "Unknown package type: " & tType
    end if
 end hxtpmInstall
 
@@ -358,34 +384,71 @@ pName: The package name to update.
 Description:
 Fetches the latest version from whichever source originally provided the
 package, uninstalls the current version, and installs the latest. If already
-at the latest version, nothing happens and the result is empty. The result
-is empty on success or an error message on failure.
+at the latest version, hxtpmUpdateComplete is dispatched immediately with an
+empty error. The update is asynchronous: hxtpmUpdate returns immediately and
+the caller receives an hxtpmUpdateComplete message when the update finishes.
 
 Example:
+   -- Trigger update
    hxtpmUpdate "com.example.library.myutils"
-   if the result is not empty then answer error the result
+
+   -- Handle the result
+   on hxtpmUpdateComplete pName, pError
+      if pError is not empty then
+         answer error pError
+      else
+         answer "Updated" && pName
+      end if
+   end hxtpmUpdateComplete
 
 */
 command hxtpmUpdate pName
+   local tCallerTarget
+   put the long id of the target into tCallerTarget
+
    if not hxtpmIsInstalled(pName) then
-      return "Package not installed: " & pName
+      dispatch "hxtpmUpdateComplete" to tCallerTarget with pName, "Package not installed: " & pName
+      exit hxtpmUpdate
    end if
 
    local tLatest
    put hxtpmLatestVersion(pName) into tLatest
    if tLatest is empty then
-      return "Could not fetch registry info for: " & pName
+      dispatch "hxtpmUpdateComplete" to tCallerTarget with pName, "Could not fetch registry info for: " & pName
+      exit hxtpmUpdate
    end if
 
    if tLatest is hxtpmInstalledVersion(pName) then
-      return empty -- already at latest, not an error
+      dispatch "hxtpmUpdateComplete" to tCallerTarget with pName, empty -- already at latest
+      exit hxtpmUpdate
    end if
 
    hxtpmUninstall pName
-   if the result is not empty then return the result
+   local tErr
+   put the result into tErr
+   if tErr is not empty then
+      dispatch "hxtpmUpdateComplete" to tCallerTarget with pName, tErr
+      exit hxtpmUpdate
+   end if
 
-   hxtpmInstall pName, tLatest
-   return the result
+   -- The download is async; begin functions will dispatch hxtpmUpdateComplete when done
+   local tPackage
+   put _fetchPackageInfo(pName) into tPackage
+   if tPackage is empty then
+      dispatch "hxtpmUpdateComplete" to tCallerTarget with pName, "Could not fetch registry info after uninstall: " & pName
+      exit hxtpmUpdate
+   end if
+
+   local tType
+   put tPackage["type"] into tType
+
+   if tType is "lcs" then
+      _installLCSBegin pName, tLatest, tPackage["versions"][tLatest], tPackage["source"], tPackage["sourceBase"], tCallerTarget, "hxtpmUpdateComplete"
+   else if tType is "lce" then
+      _installLCEBegin pName, tLatest, tPackage["versions"][tLatest], tPackage["source"], tPackage["sourceBase"], tCallerTarget, "hxtpmUpdateComplete"
+   else
+      dispatch "hxtpmUpdateComplete" to tCallerTarget with pName, "Unknown package type: " & tType
+   end if
 end hxtpmUpdate
 
 -- ---------------------------------------------------------------------------
@@ -701,6 +764,8 @@ private function _fetchPackageInfo pName
       put _sourceBase(tSources[tIdx]) into tBase
       if tBase is empty then next repeat
 
+      -- Unload any cached copy so we always get the current version from the source
+      unload URL (tBase & "/packages/" & pName & "/package.json")
       put URL (tBase & "/packages/" & pName & "/package.json") into tRaw
       if the result is not empty or tRaw is empty then next repeat
 
@@ -743,92 +808,146 @@ private function _resolveFileURL pFileRef, pSourceBase
    end if
 end _resolveFileURL
 
-private function _installLCS pName, pVersion, pVersionData, pSourceName, pSourceBase
-   -- Resolve the download URL (absolute or relative to source base)
+private command _installLCSBegin pName, pVersion, pVersionData, pSourceName, pSourceBase, pCallerTarget, pCompletionMessage
    local tFileURL
    put _resolveFileURL(pVersionData["source"], pSourceBase) into tFileURL
 
-   -- Download to a temp location
+   -- Unique temp filename avoids stale state from previous failed attempts
    local tTempPath
-   put revEnvironmentUserLibraries() & slash & ".hxtpm_download_tmp" into tTempPath
-   put URL tFileURL into URL ("file:" & tTempPath)
-   if the result is not empty then
-      return "Download failed for" && pName & ":" && the result
+   put revEnvironmentUserLibraries() & slash & pName & "-" & pVersion & "-" & the seconds & ".livecodescript" into tTempPath
+
+   -- Record state so the download callback can resume the install
+   put pName              into sPendingInstalls[tFileURL]["name"]
+   put pVersion           into sPendingInstalls[tFileURL]["version"]
+   put pVersionData       into sPendingInstalls[tFileURL]["versionData"]
+   put pSourceName        into sPendingInstalls[tFileURL]["sourceName"]
+   put tTempPath          into sPendingInstalls[tFileURL]["tempPath"]
+   put "lcs"              into sPendingInstalls[tFileURL]["type"]
+   put pCallerTarget      into sPendingInstalls[tFileURL]["callerTarget"]
+   put pCompletionMessage into sPendingInstalls[tFileURL]["completionMessage"]
+
+   libURLDownloadToFile tFileURL, tTempPath, "_hxtpmLCSDownloadComplete"
+end _installLCSBegin
+
+on _hxtpmLCSDownloadComplete pURL, pStatus
+   local tState
+   put sPendingInstalls[pURL] into tState
+   delete variable sPendingInstalls[pURL]
+
+   local tName, tVersion, tVersionData, tSourceName, tTempPath, tCallerTarget, tMsg
+   put tState["name"]              into tName
+   put tState["version"]           into tVersion
+   put tState["versionData"]       into tVersionData
+   put tState["sourceName"]        into tSourceName
+   put tState["tempPath"]          into tTempPath
+   put tState["callerTarget"]      into tCallerTarget
+   put tState["completionMessage"] into tMsg
+
+   if pStatus is not "downloaded" then
+      delete file tTempPath
+      dispatch tMsg to tCallerTarget with tName, "Download failed for" && tName & ":" && pStatus
+      exit _hxtpmLCSDownloadComplete
    end if
 
    -- Verify checksum
    local tErr
-   put _verifyChecksum(tTempPath, pVersionData["checksum"]) into tErr
+   put _verifyChecksum(tTempPath, tVersionData["checksum"]) into tErr
    if tErr is not empty then
       delete file tTempPath
-      return tErr
+      dispatch tMsg to tCallerTarget with tName, tErr
+      exit _hxtpmLCSDownloadComplete
    end if
 
    -- Create the package subfolder
-   local tDestFolder
-   put revEnvironmentUserLibraries() & slash & pName into tDestFolder
+   local tFileURL, tFilename, tDestFolder, tDestPath
+   put tVersionData["source"] into tFileURL
+   put _filenameFromURL(tFileURL) into tFilename
+   put revEnvironmentUserLibraries() & slash & tName into tDestFolder
    create folder tDestFolder
    if the result is not empty then
       delete file tTempPath
-      return "Could not create package folder:" && the result
+      dispatch tMsg to tCallerTarget with tName, "Could not create package folder:" && the result
+      exit _hxtpmLCSDownloadComplete
    end if
 
    -- Move downloaded file into the package folder
-   local tFilename
-   put _filenameFromURL(tFileURL) into tFilename
-   local tDestPath
    put tDestFolder & slash & tFilename into tDestPath
    rename file tTempPath to tDestPath
    if the result is not empty then
       delete file tTempPath
-      return "Could not save package file:" && the result
+      dispatch tMsg to tCallerTarget with tName, "Could not save package file:" && the result
+      exit _hxtpmLCSDownloadComplete
    end if
 
    -- Write hxtpm metadata (includes source so updates hit the right repo)
-   put _writeMeta(tDestFolder, pName, pVersion, "lcs", pSourceName) into tErr
-   if tErr is not empty then return tErr
+   put _writeMeta(tDestFolder, tName, tVersion, "lcs", tSourceName) into tErr
+   if tErr is not empty then
+      dispatch tMsg to tCallerTarget with tName, tErr
+      exit _hxtpmLCSDownloadComplete
+   end if
 
    -- Load the library immediately
    try
       start using stack tDestPath
    catch tError
-      return "Package installed but failed to load:" && tError
+      dispatch tMsg to tCallerTarget with tName, "Package installed but failed to load:" && tError
+      exit _hxtpmLCSDownloadComplete
    end try
 
-   return empty
-end _installLCS
+   dispatch tMsg to tCallerTarget with tName, empty
+end _hxtpmLCSDownloadComplete
 
-private function _installLCE pName, pVersion, pVersionData, pSourceName, pSourceBase
-   -- Resolve the download URL (absolute or relative to source base)
+private command _installLCEBegin pName, pVersion, pVersionData, pSourceName, pSourceBase, pCallerTarget, pCompletionMessage
    local tFileURL
    put _resolveFileURL(pVersionData["source"], pSourceBase) into tFileURL
 
-   -- Download the .lce package to a unique temp file inside the Extensions folder.
-   -- Must be in the Extensions folder (not the system temp dir) because
-   -- extensionValidateLCEPackage uses revZipOpenArchive internally, which cannot
-   -- read from macOS-managed TemporaryItems/ paths due to sandbox restrictions.
-   -- Unique name per install attempt avoids stale entries in the extension manager's
-   -- internal path cache (revIDEExtensionInstall caches by download_package_path, so
-   -- reusing a fixed filename after a failed attempt causes bad state to be reused).
+   -- Temp file must be in the Extensions folder: extensionValidateLCEPackage
+   -- uses revZipOpenArchive internally and cannot read from macOS-managed
+   -- TemporaryItems paths. Unique name avoids stale extension manager cache entries
+   -- (revIDEExtensionInstall caches by download_package_path).
    local tTempPath
    put revEnvironmentUserExtensionsPath() & slash & pName & "-" & pVersion & "-" & the seconds & ".lce" into tTempPath
 
-   -- Use curl rather than LiveCode's put URL, which cannot follow GitHub raw
-   -- redirects (github.com/…/raw/… → raw.githubusercontent.com/…) reliably
-   -- and may corrupt binary data.  curl -L follows redirects; -s suppresses
-   -- the progress meter; --max-time 120 guards against stalls.
-   local tCurlOut
-   put shell("curl -L -s --max-time 120 -o " & quote & tTempPath & quote & " " & quote & tFileURL & quote) into tCurlOut
-   if there is not a file tTempPath then
-      return "Download failed for" && pName & "." && tCurlOut
+   -- Record state so the download callback can resume the install
+   put pName              into sPendingInstalls[tFileURL]["name"]
+   put pVersion           into sPendingInstalls[tFileURL]["version"]
+   put pVersionData       into sPendingInstalls[tFileURL]["versionData"]
+   put pSourceName        into sPendingInstalls[tFileURL]["sourceName"]
+   put tTempPath          into sPendingInstalls[tFileURL]["tempPath"]
+   put "lce"              into sPendingInstalls[tFileURL]["type"]
+   put pCallerTarget      into sPendingInstalls[tFileURL]["callerTarget"]
+   put pCompletionMessage into sPendingInstalls[tFileURL]["completionMessage"]
+
+   libURLDownloadToFile tFileURL, tTempPath, "_hxtpmLCEDownloadComplete"
+end _installLCEBegin
+
+on _hxtpmLCEDownloadComplete pURL, pStatus
+   local tState
+   put sPendingInstalls[pURL] into tState
+   delete variable sPendingInstalls[pURL]
+
+   local tName, tVersion, tVersionData, tSourceName, tTempPath, tCallerTarget, tMsg
+   put tState["name"]              into tName
+   put tState["version"]       into tVersion
+   put tState["versionData"]   into tVersionData
+   put tState["sourceName"]        into tSourceName
+   put tState["tempPath"]          into tTempPath
+   put tState["callerTarget"]      into tCallerTarget
+   put tState["completionMessage"] into tMsg
+
+   if pStatus is not "downloaded" then
+      delete file tTempPath
+      dispatch tMsg to tCallerTarget with tName, "Download failed for" && tName & ":" && pStatus
+      exit _hxtpmLCEDownloadComplete
    end if
 
    -- Verify checksum before handing off to the IDE
    local tErr
-   put _verifyChecksum(tTempPath, pVersionData["checksum"]) into tErr
+   put _verifyChecksum(tTempPath, tVersionData["checksum"]) into tErr
    if tErr is not empty then
       delete file tTempPath
-      return tErr
+      dispatch tMsg to tCallerTarget with tName, tErr
+      exit _hxtpmLCEDownloadComplete
    end if
 
    -- Validate the package structure before handing off to the IDE.
@@ -840,7 +959,8 @@ private function _installLCE pName, pVersion, pVersionData, pSourceName, pSource
       local tValidateErr
       put the result into tValidateErr
       delete file tTempPath
-      return "LCE package validation failed for" && pName & ":" && tValidateErr
+      dispatch tMsg to tCallerTarget with tName, "LCE package validation failed for" && tName & ":" && tValidateErr
+      exit _hxtpmLCEDownloadComplete
    end if
 
    -- Delegate to the IDE extension manager.
@@ -853,18 +973,21 @@ private function _installLCE pName, pVersion, pVersionData, pSourceName, pSource
    -- Confirm success by checking for the versioned extension folder the IDE
    -- creates at <userExtensions>/<name>.<version>/
    local tExtFolder
-   put revEnvironmentUserExtensionsPath() & slash & pName & "." & pVersion into tExtFolder
+   put revEnvironmentUserExtensionsPath() & slash & tName & "." & tVersion into tExtFolder
    if there is not a folder tExtFolder then
-      return "Extension install failed. Check the Extension Manager for details."
+      dispatch tMsg to tCallerTarget with tName, "Extension install failed. Check the Extension Manager for details."
+      exit _hxtpmLCEDownloadComplete
    end if
 
-   -- Write hxtpm metadata into the installed extension folder so we can
-   -- track the source and version for updates and uninstalls.
-   put _writeMeta(tExtFolder, pName, pVersion, "lce", pSourceName) into tErr
-   if tErr is not empty then return tErr
+   -- Write hxtpm metadata into the installed extension folder
+   put _writeMeta(tExtFolder, tName, tVersion, "lce", tSourceName) into tErr
+   if tErr is not empty then
+      dispatch tMsg to tCallerTarget with tName, tErr
+      exit _hxtpmLCEDownloadComplete
+   end if
 
-   return empty
-end _installLCE
+   dispatch tMsg to tCallerTarget with tName, empty
+end _hxtpmLCEDownloadComplete
 
 private function _uninstallLCS pName
    local tFolder
@@ -895,9 +1018,22 @@ end _uninstallLCS
 private function _uninstallLCE pName
    -- Delegate to the IDE extension manager which handles unloading the
    -- compiled module and removing the entire versioned extension folder.
+   -- We do not check the result directly: revIDEExtensionUninstall can
+   -- return non-fatal internal errors (e.g. 2205 from IDE UI cleanup) even
+   -- when the extension was removed successfully. Instead, confirm success
+   -- by checking that the versioned extension folder no longer exists.
+   local tMetaPath, tExtFolder
+   put _findLCEMetaPath(pName) into tMetaPath
+   if tMetaPath is not empty then
+      set the itemdel to slash
+      put the item 1 to -2 of tMetaPath into tExtFolder
+   end if
+
    revIDEExtensionUninstall pName
-   if the result is not empty then
-      return "Extension uninstall failed:" && the result
+
+   -- If we could locate the folder before, confirm it is gone now
+   if tExtFolder is not empty and there is a folder tExtFolder then
+      return "Extension uninstall failed: folder still present after uninstall"
    end if
    return empty
 end _uninstallLCE
