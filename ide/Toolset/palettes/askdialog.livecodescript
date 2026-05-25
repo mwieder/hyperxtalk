@@ -539,6 +539,11 @@ on SystemAppearanceChanged pMode, pWindowColor, pTextColor
    set the foregroundColor of me to pTextColor
 end SystemAppearanceChanged
 
+# TODO: this works but has an unfortunate side effect:
+# normal keystrokes work here but action keys (backspace, return, etc)
+# are not captured by the input field even though it has focus.
+# Not sure why... seems to be an issue with script-only stacks.
+# Seems less confusing not to do this at this time.
 on openCard
    --focus on field "input" of me
    --select the text of field "input" of me #mikey h4x0rz t3h IDE
