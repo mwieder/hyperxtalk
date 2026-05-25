@@ -57,6 +57,7 @@ on preOpenStack
       set the showFocusBorder of it to false
       set the width of it to 47
       set the height of it to 38
+      set the visible of it to FALSE
    end if
    
    if there is not a button "OK" of me then
@@ -371,12 +372,13 @@ on preOpenStack
    end if
    
    set the hiliteColor of me to the hilitecolor
-	set the visible of me to true
+   set the resizable of me to FALSE
+   set the visible of me to true
 end preOpenStack
 
 on openCard
-	select the text of field 1 of me
-    set the clipboarddata["text"] to field 1 of me
+   --	select the text of field 1 of me
+   --    set the clipboarddata["text"] to field 1 of me
 end openCard
 
 on mouseDown
