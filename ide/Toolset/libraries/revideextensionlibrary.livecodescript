@@ -1073,7 +1073,9 @@ end __MapCodeLibraryForIDE
 private command __LoadExtension pCacheIndex, pExtensionType, pSourceType, \
       pSourceFile, pFolder, pStatus, @xError
    revInternal__Log "Message", the params
-   write "DEBUG __LoadExtension: type=" & pExtensionType & " source=" & pSourceType & " folder=" & pFolder & return to stderr
+   -- this debug is not really needed, data is logged to
+   -- ~/Library/Logs/HyperXTalk/HyperXTalkToolsLog.txt
+   --write "DEBUG __LoadExtension: type=" & pExtensionType & " source=" & pSourceType & " folder=" & pFolder & return to stderr
    if xError is empty then
       local tFileToLoad
       if not __extensionNeedsLoad(pExtensionType) then
