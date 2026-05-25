@@ -77,46 +77,18 @@ void SEInstallMonitor(long windowId)
     sDeltaY = 0.0;
     sDeltaX = 0.0;
 
-    // Try to look up the NSWindow via -[NSApplication windowWithWindowNumber:].
-    // This works if LiveCode's `the windowId` happens to equal NSWindow.windowNumber
-    // (the Cocoa window-server ID). If it returns nil (LiveCode windowId is a
-    // Carbon/internal value that doesn't match), fall back to capturing the
-    // frontmost window at the current mouse position — reliable because the
-    // poll only calls SEInstallMonitor while the mouse is over the Script field.
-    NSWindow *targetWin = [NSApp windowWithWindowNumber:(NSInteger)windowId];
-    if (targetWin) {
-        sTargetWinNum = targetWin.windowNumber;
-    } else {
-        NSPoint installMouse = [NSEvent mouseLocation];
-        sTargetWinNum = [NSWindow windowNumberAtPoint:installMouse
-                            belowWindowWithWindowNumber:0];
-    }
+    // Popup/overlay detection is handled entirely in the LiveCode Script layer
+    // (via seHandlerListObject visibility check). No C-level window comparison
+    // is needed or reliable — LiveCode's windowId does not equal NSWindow.windowNumber,
+    // and capturing windowNumberAtPoint at install time races with window compositing.
+    // Always accumulate precise scroll events; LiveCode Script decides whether to apply.
+    sTargetWinNum = 0;
 
     sMonitor = [NSEvent addLocalMonitorForEventsMatchingMask:NSEventMaskScrollWheel
                                                      handler:^NSEvent *(NSEvent *event)
     {
         // Pass physical scroll wheels through unchanged.
         if (!event.hasPreciseScrollingDeltas) return event;
-
-        // If a popup, dropdown, or any other window is covering the script
-        // editor at the current mouse position, consume the event WITHOUT
-        // accumulating the delta. This suppresses scrolling in two ways:
-        //   1. Our LCB poll reads 0 delta → doesn't move vScroll.
-        //   2. LiveCode's engine never sees the event (nil returned) →
-        //      can't apply its own coarse scroll to the field either.
-        //
-        // We intentionally do NOT return `event` here: passing the event
-        // through still lets the engine dispatch it, and LiveCode will scroll
-        // the field because — from its perspective — the Script field rect
-        // still contains the mouse even when a native popup is on top.
-        if (sTargetWinNum != 0) {
-            NSPoint mouse = [NSEvent mouseLocation];
-            NSInteger frontmost = [NSWindow windowNumberAtPoint:mouse
-                                     belowWindowWithWindowNumber:0];
-            if (frontmost != sTargetWinNum) {
-                return nil; // overlay on top — consume but don't accumulate
-            }
-        }
 
         // Accumulate raw pixel deltas.
         // Vertical: Cocoa negative = down; LC vScroll increases downward, so negate.

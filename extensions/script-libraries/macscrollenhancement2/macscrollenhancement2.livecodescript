@@ -59,19 +59,20 @@ Start smooth scrolling. Call from openStack (or equivalent).
 pWindowId is accepted for backward compatibility; no longer used internally.
 Safe to call from multiple windows ‚Äî reference-counted.
 */
-command seScrollEnhancementEnable //pWindowId
+command seScrollEnhancementEnable
    if the platform is not "MacOS" then exit seScrollEnhancementEnable
    add 1 to sRefCount
-   if sRefCount > 1 then exit seScrollEnhancementEnable   -- poll already running
-   macScrollEnhancementRemove                             -- clear any stale C monitor
-   put false into sMonitorInstalled
+   if sRefCount > 1 then exit seScrollEnhancementEnable
+   macScrollEnhancementRemove
+   macScrollEnhancementInstall 0   -- pre-install so monitor is ready before mouseControl updates
+   put true into sMonitorInstalled
    send "seScrollPoll" to me in 16 milliseconds
 end seScrollEnhancementEnable
 
 /**
-  seScrollEnhancementDisable
-  Stop smooth scrolling. Call from closeStack (or equivalent).
-  Reference-counted ‚Äî poll stops only when every caller has disabled.
+seScrollEnhancementDisable
+Stop smooth scrolling. Call from closeStack (or equivalent).
+Reference-counted ‚Äî poll stops only when every caller has disabled.
 */
 command seScrollEnhancementDisable
    if the platform is not "MacOS" then exit seScrollEnhancementDisable
@@ -165,12 +166,31 @@ group named "Gutter" (line-number display in the script editor).
 function seGetScrollTarget
    local tControl
    put the mouseControl into tControl
+   
+   -- Fallback when mouseControl hasn't updated yet (e.g. right after window opens)
+   if tControl is empty and the mouseStack is not empty then
+      local tN, tScript
+      put "put the number of controls of stack " & QUOTE & the mouseStack & QUOTE & " into tN" into tScript
+      do tScript
+      local tMouseLoc
+      put the mouseLoc into tMouseLoc
+      repeat with i = tN down to 1
+         local tCandidate, tRect
+         put "control " & i & " of stack " & QUOTE & the mouseStack & QUOTE into tCandidate
+         put "put the rect of " & tCandidate & " into tRect" into tScript
+         do tScript
+         if tMouseLoc is within tRect then
+            put tCandidate into tControl
+            exit repeat
+         end if
+      end repeat
+   end if
+   
    if tControl is empty then return empty
-
    repeat
       local tKind
       put seObjectKind(tControl, the mouseStack) into tKind
-
+      
       if tKind is "field" then
          -- Skip fields inside the line-number gutter.
          local tParent
@@ -180,26 +200,26 @@ function seGetScrollTarget
          else
             return tControl
          end if
-
+         
       else if tKind is "group" then
          if seObjectProp(tControl, the mouseStack, "vScrollbar") then return tControl
          if seObjectProp(tControl, the mouseStack, "hScrollbar") then return tControl
          -- Not a scrolling group ‚Äî walk up.
          put seObjectOwner(tControl, the mouseStack) into tControl
-
+         
       else
          -- card, stack, or unrecognised ‚Äî stop.
          return empty
       end if
-
+      
       if tControl is empty then return empty
    end repeat
 end seGetScrollTarget
 
 /**
-  seSyncGutter pScrolledControl, pNewV
-  If the scrolled control is the Script field of a script editor, syncs
-  the line-number gutter to the same vertical scroll position.
+seSyncGutter pScrolledControl, pNewV
+If the scrolled control is the Script field of a script editor, syncs
+the line-number gutter to the same vertical scroll position.
 */
 command seSyncGutter pScrolledControl, pNewV
    if seObjectShortName(pScrolledControl, the mouseStack) is not "Script" then exit seSyncGutter
