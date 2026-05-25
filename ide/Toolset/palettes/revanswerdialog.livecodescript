@@ -74,8 +74,8 @@ on preOpenStack
    //  RTL layout, as determined by item 5 of the dialogData
    
    --platform specific font adjustments
-   --set the default of button 3 to false
-   --set the bottomRight of button "icon 2" to -100,-100
+   set the default of button "OK" to false
+   set the bottomRight of button "icon 2" to -100,-100
    
    local tStackLoc
    local tScreenRect
