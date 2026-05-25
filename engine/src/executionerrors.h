@@ -1612,15 +1612,6 @@ enum Exec_errors
 	// {EE-0533} send: no permission to send that
 	EE_SEND_NOPERM,
 
-	// share: error evaluating data expression
-	EE_SHARE_BADDATA,
-
-	// share: error evaluating from rect expression
-	EE_SHARE_BADRECT,
-
-	// share: named image not found
-	EE_SHARE_BADIMAGE,
-
 	// {EE-0534} set: error in source expression
 	EE_SET_BADEXP,
 	
@@ -2814,6 +2805,15 @@ enum Exec_errors
 
     // {EE-0925} deleteCredential: error in account expression
     EE_DELETECREDENTIAL_BADACCOUNT,
+
+	// {EE-0926} share: error evaluating data expression
+	EE_SHARE_BADDATA,
+
+	// {EE-0927} share: error evaluating from rect expression
+	EE_SHARE_BADRECT,
+
+	// {EE-0928} share: named image not found
+	EE_SHARE_BADIMAGE,
 
 };
 
