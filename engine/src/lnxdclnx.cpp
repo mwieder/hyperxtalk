@@ -599,15 +599,19 @@ Boolean MCScreenDC::handle(Boolean dispatch, Boolean anyevent, Boolean& abort, B
                         // Is this a mouse scroll event?
                         if (MCmousestackptr && t_event->type == GDK_SCROLL)
                         {
-                            // GDK direction names reflect the natural-scrolling convention;
-                            // map to signed deltas matching the scrollWheel message contract.
+                            // GDK_SCROLL_UP/DOWN name the physical gesture direction under
+                            // natural scrolling. LiveCode's XK_WheelUp/Down name the content
+                            // movement direction, which is the opposite convention — so
+                            // GDK_SCROLL_UP (finger moves up) scrolls content DOWN (XK_WheelDown).
+                            // The scrollWheel message receives deltas in the same sign convention
+                            // as the XK_Wheel keysyms: positive dy = content moves down.
                             int t_dx = 0, t_dy = 0;
                             switch (t_event->scroll.direction)
                             {
-                                case GDK_SCROLL_UP:    t_dy = -1; break;
-                                case GDK_SCROLL_DOWN:  t_dy =  1; break;
-                                case GDK_SCROLL_LEFT:  t_dx = -1; break;
-                                case GDK_SCROLL_RIGHT: t_dx =  1; break;
+                                case GDK_SCROLL_UP:    t_dy =  1; break;
+                                case GDK_SCROLL_DOWN:  t_dy = -1; break;
+                                case GDK_SCROLL_LEFT:  t_dx =  1; break;
+                                case GDK_SCROLL_RIGHT: t_dx = -1; break;
                                 default: break;
                             }
 
@@ -623,9 +627,9 @@ Boolean MCScreenDC::handle(Boolean dispatch, Boolean anyevent, Boolean& abort, B
                                 if (t_stat == ES_PASS || t_stat == ES_NOT_HANDLED)
                                 {
                                     if (t_dy != 0)
-                                        mfocused->kdown(kMCEmptyString, t_dy < 0 ? XK_WheelUp : XK_WheelDown);
+                                        mfocused->kdown(kMCEmptyString, t_dy > 0 ? XK_WheelDown : XK_WheelUp);
                                     if (t_dx != 0)
-                                        mfocused->kdown(kMCEmptyString, t_dx < 0 ? XK_WheelLeft : XK_WheelRight);
+                                        mfocused->kdown(kMCEmptyString, t_dx > 0 ? XK_WheelRight : XK_WheelLeft);
                                 }
                             }
                         }
