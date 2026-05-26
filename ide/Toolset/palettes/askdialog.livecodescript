@@ -352,6 +352,7 @@ on preOpenStack
    --focus on field "input" of me
    set the dialogData to numToChar(0)
    doresize
+   set the resizable of me to false
    set the visible of me to true
 end preOpenStack
 
