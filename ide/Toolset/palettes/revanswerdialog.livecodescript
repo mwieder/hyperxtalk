@@ -7,6 +7,70 @@ constant kMacIcons="210093 210092 210094 210097"
 constant kWinIcons="210005 210011 210003 210004"
 constant kLinuxIcons="210005 210011 210003 210004"
 
+command dialogInitialize
+   lock messages
+   
+   /* First item created is the main icon that is displayed, with its
+   * corresponding properties */
+   if there is not a button "icon" of me then
+      create button "icon" in this card of me
+      set the style of it to "transparent"
+      set the showName of it to false
+      set the autoHilite of it to false
+      set the sharedHilite of it to false
+      set the traversalOn of it to false
+      set the width of it to 64
+      set the height of it to 64
+   end if
+   
+   /* Creates Icon 2 for the dialog - Secondary icon used in MacOS (currently
+   * broken) */
+   if there is not a button "icon 2" of me then
+      create button "icon 2" in this card of me
+      set the style of it to "transparent"
+      set the showName of it to false
+      set the autoHilite of it to false
+      set the sharedHilite of it to false
+      set the traversalOn of it to false
+      set the showFocusBorder of it to false
+      set the width of it to 47
+      set the height of it to 38
+   end if
+   
+   /* Creates the prompt field if there is not one already created */
+   if there is not a field "prompt" of me then
+      create field "prompt" in this card of me
+      set fixedLineHeight of it to false
+      set sharedText of it to true
+      set dontWrap of it to false
+      set lockText of it to true
+      set opaque of it to false
+      set traversalOn of it to false
+      set showBorder of it to false
+      set vScrollbar of it to true
+      set width of it to 293
+      set height of it to 342
+   end if
+   
+   /* Sets a constant to the number of buttons that are required for the dialog
+   * and uses this to repeat through to create them individually, with the + 2
+   * for both the icon buttons already created. */
+   constant kMaxButtons = 8
+   repeat while the number of buttons of me < (kMaxButtons + 2)
+      create button in this card of me
+      set the loc of it to -100,-100
+   end repeat
+   
+   /* Set the default stack properties - these are identical to those set on the
+   * original binary stackfile versions of the dialogs. */
+   set the resizable of me to false
+   set the foregroundColor of me to "Black"
+   set the bottomColor of me to 128,128,128
+   set the shadowColor of me to "darkgray"
+   
+   unlock messages
+end dialogInitialize
+
 on preOpenStack
    global gAPKLargeFonts, gREVSmallAppIcon, gREVAppIcon
    local tIcons, tMacOSX, tMargin, tNumber, tIconWord, tIconAllowance
@@ -18,63 +82,13 @@ on preOpenStack
    set the backgroundColor of me to (the systemWindowColor)
    set the foregroundColor of me to (the systemTextColor)
    
-   if there is not a button "icon" of me then
-      create button "icon" in this card
-      set the style of it to "transparent"
-      set the showName of it to false
-      set the autoHilite of it to false
-      set the sharedHilite of it to false
-      set the traversalOn of it to false
-      set the width of it to 64
-      set the height of it to 64
-   end if
-   
-   /* Creates the prompt field if there is not one already created */
-   if the number of fields of me is 0 then
-      create field "prompt" in this card
-      set fixedLineHeight of it to false
-      set sharedText of it to true
-      set dontWrap of it to false
-      set lockText of it to true
-      set opaque of it to false
-      set traversalOn of it to false
-      set showBorder of it to false
-      set vScrollbar of it to true
-      set width of it to 293
-      set height of it to 342
-      set the fixedLineHeight of it to false
-   end if
-   
-   /* Creates Icon 2 for the dialog - Secondary icon used in MacOS (currently
-   * broken) */
-   if there is not a button "icon 2" of me then
-      create button "icon 2" in this card
-      set the style of it to "transparent"
-      set the showName of it to false
-      set the autoHilite of it to false
-      set the sharedHilite of it to false
-      set the traversalOn of it to false
-      set the showFocusBorder of it to false
-      set the width of it to 47
-      set the height of it to 38
-   end if
-   
-   if there is not a button "OK" of me then
-      create button "OK" in this card
-      set the style of it to "standard"
-      set the showName of it to true
-      set the autoHilite of it to true
-      set the sharedHilite of it to false
-      set the traversalOn of it to false
-      set the width of it to 64
-      set the height of it to 64
-   end if
-   
+   dialogInitialize
+      
    // AL-2014-05-21: [[ Bug 12074 ]] Tidied up and rearranged to support 
    //  RTL layout, as determined by item 5 of the dialogData
    
    --platform specific font adjustments
-   set the default of button "OK" to false
+   set the default of button 1 to false
    set the bottomRight of button "icon 2" to -100,-100
    
    local tStackLoc
@@ -100,7 +114,7 @@ on preOpenStack
          end repeat
          set the textFont of this stack to "Lucida Grande"
          set the textSize of this stack to 13
-         set the textSize of field 1 of me to 13
+         set the textSize of field "prompt" of me to 13
          put kMacIcons into tIcons
          break
       case "Win32"
@@ -120,7 +134,7 @@ on preOpenStack
          set the textFont of this stack to empty
          set the textSize of this stack to empty
          
-         set the textFont of field 1 of me to empty
+         set the textFont of field "prompt" of me to empty
          put kWinIcons into tIcons
          break
       default
@@ -185,18 +199,8 @@ on preOpenStack
    end if
    
    --title
-   local tText
-   if item 2 of the dialogData is empty then
-      set the title of this stack to space
-   else
-      set the title of this stack to item 2 of the dialogData
-   end if
-   put item 3 of the dialogData into tText
-   if "<p>" is in tText or matchChunk(tText, "<(.+>.+</.+)>") then
-      set the htmlText of field "prompt" of me to tText
-   else
-      set the text of field "prompt" of me to tText
-   end if
+	setTitleTo item 2 of the dialogData
+	setPromptFieldTo item 3 of the dialogData
    
    --buttons
    
@@ -204,7 +208,6 @@ on preOpenStack
    # specified up to tButtonLimit
    local tButtonNamesList, tButtonLimit
    put item 4 of dialogData into tButtonNamesList
-   --put 7 into tButtonLimit
    constant kButtonLimit=7
    repeat with x = 1 to min(kButtonLimit, the number of lines of tButtonNamesList)
       put line x of tButtonNamesList & cr after tButtonNames
@@ -225,8 +228,8 @@ on preOpenStack
    repeat with i = 3 to (tNoOfButtons + 3)
       if there is no button i of me then
          create button i in this card
-         set the name of it to "hello" && i
-         set the style of it to "transparent"
+         --set the name of it to "hello" && i
+         --set the style of it to "transparent"
       end if
       set the name of button i of me to line tNoOfButtons - (i - 3) of tButtonNames
       if the platform is "Win32" and the short name of button i of me is not in "OKCancel" then
@@ -262,7 +265,6 @@ on preOpenStack
       put max(400, max(the formattedWidth of field 1 of me + tIconAllowance + 16, tTotalBtnWidth) + tFieldSubtract) into tWidth
    end if
    
-   --put the width of this stack into oldwidth
    set the width of this stack to tWidth
    
    --set icon position in light of possible new stack width
@@ -374,6 +376,22 @@ on preOpenStack
    set the resizable of me to false
    set the visible of me to true
 end preOpenStack
+
+private command setTitleTo pTitle
+   if pTitle is empty then
+      set the title of this stack to space
+   else
+      set the title of this stack to pTitle
+   end if
+end setTitleTo
+
+private command setPromptFieldTo pText
+   if "<p>" is in pText or matchChunk(tText, "<(.+>.+</.+)>") then
+      set the htmlText of field "prompt" of me to pText
+   else
+      set the text of field "prompt" of me to pText
+   end if
+end setPromptFieldTo
 
 on mouseDown
 end mouseDown
