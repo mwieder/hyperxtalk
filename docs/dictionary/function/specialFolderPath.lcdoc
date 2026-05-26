@@ -11,7 +11,7 @@ Returns the names and locations of system-related <folders>.
 
 Introduced: 1.0.0
 
-OS: mac, windows, linux, html5
+OS: mac, windows, linux
 
 Platforms: desktop, server
 
