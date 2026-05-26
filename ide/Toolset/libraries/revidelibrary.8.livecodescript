@@ -2346,10 +2346,6 @@ end revIDEGetPreferenceOfSet
 command __DevPreference pPreferenceName, @rValue
    if not revEnvironmentIsInstalled() then
       switch pPreferenceName
-         case "cScriptEditor,explicitVariables"
-         case "cScriptEditor,preserveVariables"
-            put true into rValue
-            break
          case "cScriptEditor,editor,commentchar"
             put "--" into rValue
             break
@@ -2357,7 +2353,7 @@ command __DevPreference pPreferenceName, @rValue
             put 3 into rValue
             break
       end switch
-      
+
    end if
 end __DevPreference
 
