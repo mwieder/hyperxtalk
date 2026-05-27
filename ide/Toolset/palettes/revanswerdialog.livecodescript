@@ -108,7 +108,7 @@ on preOpenStack
          put true into tMacOSX
          set the loc of this stack to tStackLoc
          set the top of this stack to item 2 of tScreenRect + round(tScreenHeight/5)
-         repeat with i = 3 to the number of btns
+         repeat with i = 3 to the number of buttons of me
             set the margins of button i of me to 4
             set the height of button i of me to 23
          end repeat
@@ -125,7 +125,7 @@ on preOpenStack
             put 21 into tNumber
             put 5 into tMargin
          end if
-         repeat with i = 3 to the number of btns
+         repeat with i = 3 to the number of buttons of me
             set the bottomMargin of button i of me to tMargin
             set the height of button i of me to tNumber
             set the traversalOn of button i of me to false
@@ -256,13 +256,13 @@ on preOpenStack
       put 0 into tFieldSubtract
    end if
    
-   put max(400, max(the formattedWidth of field 1 of me + tIconAllowance + 16, tTotalBtnWidth) + tFieldSubtract) into tWidth
+   put max(400, max(the formattedWidth of field "prompt" of me + tIconAllowance + 16, tTotalBtnWidth) + tFieldSubtract) into tWidth
    
    if tWidth > 400 then
       -- The nonwrapped text does not fit in a minimal message box, thus allow to wrap, recalculating the width.
-      set the width of field 1 of me to 1
-      set the dontWrap of field 1 of me to false
-      put max(400, max(the formattedWidth of field 1 of me + tIconAllowance + 16, tTotalBtnWidth) + tFieldSubtract) into tWidth
+      set the width of field "prompt" of me to 1
+      set the dontWrap of field "prompt" of me to false
+      put max(400, max(the formattedWidth of field "prompt" of me + tIconAllowance + 16, tTotalBtnWidth) + tFieldSubtract) into tWidth
    end if
    
    set the width of this stack to tWidth
@@ -278,15 +278,15 @@ on preOpenStack
    
    set the itemDel to comma
    if tRTL then      
-      set the topRight of field 1 of me to tWidth - (tIconAllowance + 8), 12
-      get the rect of field 1 of me
+      set the topRight of field "prompt" of me to tWidth - (tIconAllowance + 8), 12
+      get the rect of field "prompt" of me
       put 12 into item 1 of it
    else
-      set the topLeft of field 1 of me to tIconAllowance + 8, 12
-      get the rect of field 1 of me
+      set the topLeft of field "prompt" of me to tIconAllowance + 8, 12
+      get the rect of field "prompt" of me
       put tWidth - 12 into item 3 of it
    end if
-   set the rect of field 1 of me to it
+   set the rect of field "prompt" of me to it
    
    if tMacOSX then
       put 5 into tAddition
@@ -301,22 +301,22 @@ on preOpenStack
    end if
    
    -- [[ Bug 17001]] Ensure the dialog is tall enough for the icon + margin
-   put the formattedHeight of field 1 of me + 58 into tHeight
+   put the formattedHeight of field "prompt" of me + 58 into tHeight
    if tHasIcon then
       put max(tHeight, the bottom of button "icon" + tIconTop) into tHeight
    end if
    
    if tHeight > 400 then
-      set the vScrollbar of field 1 of me to true
+      set the vScrollbar of field "prompt" of me to true
       put 400 into tHeight
    else
-      set the vScrollbar of field 1 of me to false
+      set the vScrollbar of field "prompt" of me to false
    end if
    local tTop
-   put the top of field 1 of me into tTop
+   put the top of field "prompt" of me into tTop
    set the height of this stack to tHeight
-   set the height of field 1 of me to tHeight - 58
-   set the top of field 1 of me to tTop
+   set the height of field "prompt" of me to tHeight - 58
+   set the top of field "prompt" of me to tTop
    
    // AL-2014-05-21: [[ Bug 11493 ]] Linux confirmation button should be on the right
    if the platform is in "MacOSLinux" then
@@ -339,9 +339,9 @@ on preOpenStack
             if i is 5 and tNoOfButtons is 3 and word 1 of the short name of button i of me is "Don't" then
                --move don't save to the side
                if tRTL then
-                  set the right of button i of me to the right of field 1 of me - 5
+                  set the right of button i of me to the right of field "prompt" of me - 5
                else
-                  set the left of button i of me to the left of field 1 of me + 5
+                  set the left of button i of me to the left of field "prompt" of me + 5
                end if
             end if
          end if
@@ -399,7 +399,7 @@ end mouseDown
 on commandKeyDown pKey
    # allow copying the prompt text
    if pKey is "c" then
-      set the clipboarddata["text"] to field 1 of me
+      set the clipboarddata["text"] to field "prompt" of me
    end if
    if pKey is "." then
       if there is a button "Cancel" of me then
@@ -433,7 +433,7 @@ end closeStack
 
 on revCleanUpAnswerDialog
    --show invisibles compatible removal of btns
-   repeat with i = 3 to the number of buttons
+   repeat with i = 3 to the number of buttons of me
       set the cPrevLoc of button i to the loc of button i of me
       set the loc of button i of me to -100,-100
    end repeat
@@ -446,9 +446,9 @@ end revCleanUpAnswerDialog
 
 on mouseUp
   if the name of the target contains "button" then
-    lock messages--prevents user stack getting refocusing messages
+    lock messages --prevents user stack getting refocusing messages
     close this stack
-    revCleanUpAnswerDialog--won't get closeStack
+    revCleanUpAnswerDialog --won't get closeStack
     unlock messages
     set the dialogData to the short name of the target
   end if
