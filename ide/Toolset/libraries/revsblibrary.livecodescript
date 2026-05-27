@@ -922,14 +922,11 @@ on revSBDefaultStandaloneSettings pStack, @xSettingsA
    -- Since the intel choice, set the default here:
    -- MM-2014-03-21: [[ PPC Support Dropped ]] Only create standalone setting for Intel (for OS X) by default.
    -- Prefer arm64 on Apple Silicon; fall back to x86-64 if no Mac arch is selected.
-   -- Only auto-enable a MacOSX target when running on macOS; on Windows/Linux the user must opt in explicitly.
-   if the platform is "MacOS" then
-      if xSettingsA["MacOSX arm64"] is empty and xSettingsA["MacOSX x86-64"] is empty and xSettingsA["MacOSX x86-32"] is empty then
-         if revEngineCheck("MacOSX arm64") then
-            put true into xSettingsA["MacOSX arm64"]
-         else
-            put true into xSettingsA["MacOSX x86-64"]
-         end if
+   if xSettingsA["MacOSX arm64"] is empty and xSettingsA["MacOSX x86-64"] is empty and xSettingsA["MacOSX x86-32"] is empty then
+      if revEngineCheck("MacOSX arm64") then
+         put true into xSettingsA["MacOSX arm64"]
+      else
+         put true into xSettingsA["MacOSX x86-64"]
       end if
    end if
    
@@ -1217,38 +1214,6 @@ function revSBStackNameFromScriptLibraryName pLib
    end switch
 end revSBStackNameFromScriptLibraryName
 
--- Return an array of inclusion entries for hxtpm-installed script libraries.
--- Called fresh each time revSBAvailableInclusions runs so newly-installed
--- packages appear without an IDE restart.
-private function __HxtpmScriptLibraries
-   local tLibsFolder
-   put revEnvironmentUserLibraries() into tLibsFolder
-   if tLibsFolder is empty then return empty
-
-   local tInclusions
-   repeat for each line tPackageFolder in folders(tLibsFolder)
-      if tPackageFolder begins with "." then next repeat
-
-      local tPackagePath
-      put tLibsFolder & slash & tPackageFolder into tPackagePath
-
-      repeat for each line tFile in files(tPackagePath)
-         if tFile ends with ".livecodescript" then
-            local tLibPath, tEntry
-            put tPackagePath & slash & tFile into tLibPath
-            put tPackageFolder into tEntry["title"]
-            put tLibPath into tEntry["id"]
-            put "script library" into tEntry["type"]
-            put revSBAllDesktopPlatforms() into tEntry["platforms"]
-            addToList tEntry, tInclusions
-            exit repeat -- one library per package folder
-         end if
-      end repeat
-   end repeat
-
-   return tInclusions
-end __HxtpmScriptLibraries
-
 constant kScriptLibraries = "Animation,DataGrid,Geometry,Internet,Printing,Table,XMLRPC"
 private function __ScriptLibraries
    -- rev script libraries
@@ -1268,11 +1233,11 @@ private function __ScriptLibraries
    local tFiles
    put revCombineFilePaths(tUserScripts,tEnvironmentScripts) into tFiles
    repeat for each line tLine in tFiles
-      if there is a stack tLine then 
+      if there is a stack tLine then
          put return & the short name of stack tLine after tLibs
       end if
    end repeat
-   
+
    return tLibs
 end __ScriptLibraries
 
@@ -1801,6 +1766,42 @@ private function revSBAvailableExtensions pType
    return tInclusions
 end revSBAvailableExtensions
 
+-- Return an array of inclusion entries for hxtpm-installed script libraries.
+-- Called fresh each time revSBAvailableInclusions runs so newly-installed
+-- packages appear without an IDE restart.
+private function __HxtpmScriptLibraries
+   local tLibsFolder, tInclusions
+   put revEnvironmentUserLibraries() into tLibsFolder
+   if tLibsFolder is empty then return empty
+
+   repeat for each line tPackageFolder in folders(tLibsFolder)
+      if tPackageFolder begins with "." then next repeat
+
+      local tPackagePath
+      put tLibsFolder & slash & tPackageFolder into tPackagePath
+
+      -- Look for the .livecodescript inside the package subfolder
+      repeat for each line tFile in files(tPackagePath)
+         if tFile ends with ".livecodescript" then
+            local tLibPath, tEntry
+            put tPackagePath & slash & tFile into tLibPath
+
+            -- Use the package folder name (reverse-DNS) as both the title
+            -- and a lookup key; store the file path in id for the builder
+            put tPackageFolder into tEntry["title"]
+            put tLibPath into tEntry["id"]
+            put "script library" into tEntry["type"]
+            put revSBAllDesktopPlatforms() into tEntry["platforms"]
+            addToList tEntry, tInclusions
+
+            exit repeat -- one library per package folder
+         end if
+      end repeat
+   end repeat
+
+   return tInclusions
+end __HxtpmScriptLibraries
+
 private command __InitialiseScriptLibraries
    local tLibraries
    put __ScriptLibraries() into tLibraries
@@ -1840,7 +1841,7 @@ private function revSBAvailableResources
    local tInclusions, tResources
    put kResources into tResources
    split tResources by "," and "|"
-
+   
    repeat for each key tTitle in tResources
       local tInclusion
       put tResources[tTitle] into tInclusion["id"]
@@ -1849,16 +1850,6 @@ private function revSBAvailableResources
       put revSBAllDesktopPlatforms() into tInclusion["platforms"]
       addToList tInclusion, tInclusions
    end repeat
-
-   -- VLC Player: special resource — only shown when desktop platforms are targeted.
-   -- The standalone builder copies the VLC runtime when this is enabled.
-   local tVLC
-   put "vlcPlayer" into tVLC["id"]
-   put "VLC Player" into tVLC["title"]
-   put "resource" into tVLC["type"]
-   put revSBAllDesktopPlatforms() into tVLC["platforms"]
-   addToList tVLC, tInclusions
-
    return tInclusions
 end revSBAvailableResources
 
@@ -1941,7 +1932,7 @@ function revSBAvailableInclusions
    repeat for each element tInclusion in __HxtpmScriptLibraries()
       addToList tInclusion, tInclusions
    end repeat
-
+   
    repeat for each element tInclusion in revSBAvailableDatabaseDrivers()
       addToList tInclusion, tInclusions
    end repeat
@@ -2209,15 +2200,13 @@ command revSBResolveCopyFilesList pBaseFolder, pTarget, pSettings, @rFileData
    
    set the itemDelimiter to slash
    repeat for each line tFile in pSettings["files"]
-      if tFile is empty then next repeat
       local tResolvedFile, tHasResources
       __ResolveIncludedExternal pTarget, tFile, tHasResources
-
+      
       -- tFile may now list multiple files if it was an external with a resources directory
       repeat for each line tResolvedFile in tFile
          local tDataA, tFlattenStructure
-         if tResolvedFile is empty then next repeat
-
+         
          if tResolvedFile ends with "/" then
             delete char -1 of tResolvedFile
          end if
@@ -3052,16 +3041,16 @@ private command revSmartChecking pStackFilesList, @xSettings
       put false into tNewSettings["brushes"]   --LG-2007-12-13: Bug 4370
       put false into tNewSettings["Magnify"]  -- PM-2015-06-24: [[ Bug 15535 ]] Make possible to include magnify palette in standalones
       put false into tNewSettings["pdfPrinter"]
-      
+
       # OK-2007-11-13 : Support for LiveCode print dialogs
       put false into tNewSettings["revolutionPrintDialogs"]
-      
+
       put empty into tNewSettings["databaseDrivers"]
       put empty into tNewSettings["externals"]
-      
+
       put revAbsoluteFolderListing(revEnvironmentResourcesPath("Script Libraries")) into tEnvironmentIcons
       put revAbsoluteFolderListing(revEnvironmentUserResourcesPath("Script Libraries")) into tUserIcons
-      
+
    end if
    
    local tExtensionIDs
@@ -3387,7 +3376,7 @@ function revSBGetSettings pStack, pDeploy
          put tLibrary["settings"] into tSettingsA
       end if
    end repeat
-
+   
    return tSettingsA
 end revSBGetSettings
 
@@ -3395,172 +3384,3 @@ command revSBSetSettings pStack, pSettings
    set the customProperties["cRevStandaloneSettings"] of stack \
          (the mainstack of stack pStack) to pSettings
 end revSBSetSettings
-
-/**
-Summary: Returns true if the target stack (or any substack/card) contains a player control.
-
-Parameters:
-pStack: The name of the mainstack to scan.
-
-Returns: true if at least one player control is found, false otherwise.
-
-Description:
-Walks every stack in the stackfile, every card, and every control looking for
-controls whose type is "player". Used by the standalone settings inclusions panel
-to auto-enable the VLC Player resource when the project contains media playback.
-*/
-function revSBProjectHasPlayerControls pStackFileList
-   local tStackFile, tStacksList, tStack, tCardNum, tCard, tControlNum, tControl
-   repeat for each line tStackFile in pStackFileList
-      if tStackFile is empty then next repeat
-      if there is not a file tStackFile then next repeat
-      put the short name of stack tStackFile & return & the substacks of stack tStackFile into tStacksList
-      repeat for each line tStack in tStacksList
-         if tStack is empty then next repeat
-         put the number of cards of stack tStack into tCardNum
-         repeat with tCard = 1 to tCardNum
-            put the number of controls of cd tCard of stack tStack into tControlNum
-            repeat with tControl = 1 to tControlNum
-               if the type of control tControl of cd tCard of stack tStack is "player" then
-                  return true
-               end if
-            end repeat
-         end repeat
-      end repeat
-   end repeat
-   return false
-end revSBProjectHasPlayerControls
-
-/**
-Summary: Copies the VLC runtime into a standalone application folder.
-
-Parameters:
-pPlatform:      The target platform string (e.g. "macos", "windows", "linux").
-pStandaloneDir: The folder that contains the standalone executable.
-pEnginePath:    The full path to the standalone executable (used on macOS for install_name_tool).
-
-Description:
-Bundles the VLC shared libraries and plugin tree into the standalone so the end
-user does not need VLC installed separately.
-
-- macOS: copies libvlc.dylib + libvlccore.dylib into <app>/Contents/MacOS/ and
-  the plugins tree into <app>/Contents/Resources/vlc-plugins/, then rewrites the
-  dylib load paths with install_name_tool.
-- Windows: copies libvlc.dll + libvlccore.dll alongside the exe and the plugins
-  tree into <exe-dir>\vlc-plugins\.
-- Linux: copies libvlc.so + libvlccore.so alongside the exe and the plugins tree
-  into <exe-dir>/vlc-plugins/.
-*/
-command revSBCopyVLCToStandalone pPlatform, pStandaloneDir, pEnginePath, pCopyPlugins
-   local tVLCLib, tAppContents, tMacOS, tResources, tLibvlc, tLibvlccore
-   local tVLCPlugins, tDestLibvlc, tDestLibvlccore, tVLCWin, tDest, tSrc
-   if pPlatform begins with "MacOSX" then
-      put "/Applications/VLC.app/Contents/MacOS/lib" into tVLCLib
-      if there is not a folder tVLCLib then
-         revStandaloneProgress "VLC not found at " & tVLCLib & " - skipping VLC bundle."
-         exit revSBCopyVLCToStandalone
-      end if
-      -- Determine the .app bundle root (go up from Contents/MacOS)
-      set the itemDelimiter to slash
-      put item 1 to -3 of pStandaloneDir & "/Contents" into tAppContents
-      set the itemDelimiter to ","
-      put tAppContents & "/MacOS" into tMacOS
-      put tAppContents & "/Resources/vlc-plugins" into tResources
-      -- Copy dylibs
-      local tMacVLCR
-      put tVLCLib & "/libvlc.dylib" into tLibvlc
-      put tVLCLib & "/libvlccore.dylib" into tLibvlccore
-      put tMacOS & "/libvlc.dylib" into tDest
-      put shell("cp -f " & QUOTE & tLibvlc & QUOTE & " " & QUOTE & tDest & QUOTE) into tMacVLCR
-      put tMacOS & "/libvlccore.dylib" into tDest
-      put shell("cp -f " & QUOTE & tLibvlccore & QUOTE & " " & QUOTE & tDest & QUOTE) into tMacVLCR
-      -- Copy plugins
-      put "/Applications/VLC.app/Contents/MacOS/plugins/" into tVLCPlugins
-      put shell("mkdir -p " & QUOTE & tResources & QUOTE) into tMacVLCR
-      put tResources & "/" into tDest
-      put shell("cp -rn " & QUOTE & tVLCPlugins & QUOTE & " " & QUOTE & tDest & QUOTE) into tMacVLCR
-      -- Rewrite load paths so dylibs resolve relative to the bundle
-      put tMacOS & "/libvlc.dylib" into tDestLibvlc
-      put tMacOS & "/libvlccore.dylib" into tDestLibvlccore
-      put shell("install_name_tool -change " & \
-            "/Applications/VLC.app/Contents/MacOS/lib/libvlccore.dylib " & \
-            "@executable_path/libvlccore.dylib " & \
-            QUOTE & tDestLibvlc & QUOTE) into tMacVLCR
-      put shell("install_name_tool -id @executable_path/libvlc.dylib " & QUOTE & tDestLibvlc & QUOTE) into tMacVLCR
-      put shell("install_name_tool -id @executable_path/libvlccore.dylib " & QUOTE & tDestLibvlccore & QUOTE) into tMacVLCR
-      -- Add @executable_path to the binary's rpath so @rpath/libvlc.dylib resolves
-      put shell("install_name_tool -add_rpath @executable_path " & QUOTE & pEnginePath & QUOTE) into tMacVLCR
-   else if pPlatform begins with "Windows" then
-      -- Determine VLC source location.
-      -- On a real Windows host, look for VLC in Program Files first.
-      -- When cross-building on macOS/Linux, fall back to the pre-staged Runtime tree.
-      local tOnWindows
-      put (the platform begins with "Win") into tOnWindows
-
-      if tOnWindows then
-         put "C:\Program Files\VideoLAN\VLC" into tVLCWin
-         if there is not a folder tVLCWin then
-            revStandaloneProgress "VLC not found at C:\Program Files\VideoLAN\VLC - skipping VLC bundle."
-            exit revSBCopyVLCToStandalone
-         end if
-      else
-         -- macOS / Linux host cross-building for Windows.
-         -- Use the VLC tree pre-staged by build-release-x64.bat into the Runtime folder.
-         put revEnvironmentRuntimePath() & "/Windows/x86-64/vlc" into tVLCWin
-         if there is not a folder tVLCWin then
-            revStandaloneProgress "VLC not found in Runtime - skipping VLC bundle."
-            exit revSBCopyVLCToStandalone
-         end if
-         revStandaloneProgress "Using pre-staged VLC runtime from " & tVLCWin
-      end if
-
-      if tOnWindows then
-         -- ── Windows host: use xcopy with backslash separators ───────────────────
-         local tWinDir, tVLCR
-         put pStandaloneDir into tWinDir
-         replace "/" with "\" in tWinDir
-         create folder tWinDir
-         set the hideConsoleWindows to true
-         put tVLCWin & "\libvlc.dll" into tSrc
-         put tWinDir & "\" into tDest
-         put shell("xcopy /Y /Q " & QUOTE & tSrc & QUOTE & " " & QUOTE & tDest & QUOTE) into tVLCR
-         put tVLCWin & "\libvlccore.dll" into tSrc
-         put shell("xcopy /Y /Q " & QUOTE & tSrc & QUOTE & " " & QUOTE & tDest & QUOTE) into tVLCR
-         -- Copy plugins tree only when the project contains a player control.
-         -- Delete plugins.dat: standalone folder may not be writable by VLC so the
-         -- cache can never update; a stale dat just adds startup delay anyway.
-         if pCopyPlugins then
-            put tVLCWin & "\plugins" into tSrc
-            put tWinDir & "\vlc-plugins\plugins" into tDest
-            put shell("xcopy /E /I /Y /Q " & QUOTE & tSrc & QUOTE & " " & QUOTE & tDest & QUOTE) into tVLCR
-            delete file (tWinDir & "\vlc-plugins\plugins\plugins.dat")
-         end if
-         set the hideConsoleWindows to false
-      else
-         -- ── macOS / Linux host cross-building for Windows: use cp ────────────────
-         -- pStandaloneDir and tVLCWin are already forward-slash macOS/Linux paths.
-         local tMacWinVLCR
-         create folder pStandaloneDir
-         put shell("cp -f " & QUOTE & tVLCWin & "/libvlc.dll" & QUOTE & " " & QUOTE & pStandaloneDir & "/" & QUOTE) into tMacWinVLCR
-         put shell("cp -f " & QUOTE & tVLCWin & "/libvlccore.dll" & QUOTE & " " & QUOTE & pStandaloneDir & "/" & QUOTE) into tMacWinVLCR
-         if pCopyPlugins then
-            create folder (pStandaloneDir & "/vlc-plugins")
-            create folder (pStandaloneDir & "/vlc-plugins/plugins")
-            put shell("cp -rn " & QUOTE & tVLCWin & "/plugins/." & QUOTE & " " & QUOTE & pStandaloneDir & "/vlc-plugins/plugins/" & QUOTE) into tMacWinVLCR
-            delete file (pStandaloneDir & "/vlc-plugins/plugins/plugins.dat")
-         end if
-      end if
-      revStandaloneProgress "VLC runtime bundled."
-   else if pPlatform begins with "Linux" then
-      -- Use 'get shell(...)' so a non-zero exit (e.g. no matching .so) is a warning, not a fatal throw.
-      put pStandaloneDir & "/vlc-plugins/plugins" into tDest
-      create folder tDest
-      put pStandaloneDir & "/" into tDest
-      get shell("cp -f /usr/lib/x86_64-linux-gnu/libvlc.so* " & QUOTE & tDest & QUOTE)
-      get shell("cp -f /usr/lib/x86_64-linux-gnu/libvlccore.so* " & QUOTE & tDest & QUOTE)
-      put pStandaloneDir & "/vlc-plugins/plugins/" into tDest
-      get shell("cp -rn /usr/lib/vlc/plugins/. " & QUOTE & tDest & QUOTE)
-      revStandaloneProgress "VLC runtime bundled."
-   end if
-end revSBCopyVLCToStandalone
- 

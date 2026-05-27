@@ -2157,6 +2157,10 @@ function revEnvironmentUserColorSchemesPath
    return sCustomizationPath & "/Schemes"
 end revEnvironmentUserColorSchemesPath
 
+function revEnvironmentUserLibraries
+   return sCustomizationPath & "/Libraries"
+end revEnvironmentUserLibraries
+
 function revEnvironmentUserExtensionsPath
   return sCustomizationPath & "/Extensions"
 end revEnvironmentUserExtensionsPath
