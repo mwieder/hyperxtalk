@@ -707,7 +707,7 @@ command revInternal__ResetPreferences
    local tPropsArray
    -- default custom property set
    put "true" into tPropsArray["cREVToolsPaintToolsVisible"]
-   put "false" into tPropsArray["cDestroyStack"]
+   put "TRUE" into tPropsArray["cDestroyStack"]
    put "false" into tPropsArray["cRevPopups"]
    put "417,113" into tPropsArray["cREVMsgTabRectGlobalProperties"]
    put "155" into tPropsArray["cREVPlayerWidth"]
@@ -787,7 +787,7 @@ command revInternal__ResetPreferences
    put "1" into tPropsArray["cREVTipNumber"]
    put "417,113" into tPropsArray["cREVMsgTabRectstacksInUse"]
    put format("blue\nbrown\ndarkorange\nred") into tPropsArray["cBuiltInColors"]
-   put "don't remove" into tPropsArray["cASKDestroy"]
+   put "remove" into tPropsArray["cASKDestroy"]
    put "Gray50" into tPropsArray["cSelectionHandle"]
    put "128,103" into tPropsArray["cREVMaximizedScriptEditorTopLeft"]
    put "true" into tPropsArray["suppressIDE"]
@@ -2156,6 +2156,10 @@ end revEnvironmentUserExternalsPath
 function revEnvironmentUserColorSchemesPath
    return sCustomizationPath & "/Schemes"
 end revEnvironmentUserColorSchemesPath
+
+function revEnvironmentUserLibraries
+   return sCustomizationPath & "/Libraries"
+end revEnvironmentUserLibraries
 
 function revEnvironmentUserExtensionsPath
   return sCustomizationPath & "/Extensions"
