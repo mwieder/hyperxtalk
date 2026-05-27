@@ -1,7 +1,6 @@
 ﻿script "Ask Dialog"
 
-// scriptified 2026.05.21 by mark wieder
-mwieder@ahsoftware.net
+// scriptified 2026.05.21 by mark wieder mwieder@ahsoftware.net
 
 private command doresize
    // AL-2014-05-21: [[ Bug 12074 ]] Support RTL layout when resizing ask dialog
@@ -74,14 +73,14 @@ private command doresize
    end if
 end doresize
 
-on star
-   local tstring
-   put empty into tstring
-   repeat with i = 1 to the number of characters in field "passwordtext"
-      put "*" after tstring
-   end repeat
-   put tstring into field "input"
-end star
+--on star
+--   --   local tstring
+--   --   put empty into tstring
+--   --   repeat with i = 1 to the number of characters in field "passwordtext"
+--   --      put "*" after tstring
+--   --   end repeat
+--   --   put tstring into field "input"
+--end star
 
 constant kIconTypes="information error warning question"
 constant kMacIcons="210093 210092 210094 210097"
@@ -294,8 +293,11 @@ on preOpenStack
    
    set the itemDel to numToChar(0)
    if the fieldmode of me is "password" or the fieldmode of me is "clear" then
-      put item 4 of the dialogData into field "passwordtext" of me
-      star
+      set the passwordfield of field "input" of me to TRUE
+      set the passwordToggle of field "input" of me to TRUE
+      put item 4 of the dialogData into field "input" of me
+      --      put item 4 of the dialogData into field "passwordtext" of me
+      --      star
    else
       put item 4 of the dialogData into field "input" of me
    end if
@@ -352,121 +354,123 @@ on preOpenStack
    --focus on field "input" of me
    set the dialogData to numToChar(0)
    doresize
+   set the resizable of me to FALSE
    set the visible of me to true
 end preOpenStack
 
-on keyDown which
-   local tpos
-   if the name of the target contains "field" and word 1 of the fieldmode of me is "password" or the fieldmode of me is "clear" then
-      put the selectedChunk into tpos
-      put which into character (word 2 of tpos) to (word 4 of tpos) of field "passwordtext"
-      star
-      select after character (word 2 of tpos) of field "input"
-   else
-      pass keyDown
-   end if
-end keyDown
+--on keyDown which
+--   --   local tpos
+--   --   if the name of the target contains "field" and word 1 of the fieldmode of me is "password" or the fieldmode of me is "clear" then
+--   --      put the selectedChunk into tpos
+--   --      put which into character (word 2 of tpos) to (word 4 of tpos) of field "passwordtext"
+--   --      star
+--   --      select after character (word 2 of tpos) of field "input"
+--   --   else
+--   pass keyDown
+--   --   end if
+--end keyDown
 
-on deleteKey
-   -- PM-2015-07-24: [[ Bug 3962 ]] Pass deleteKey when 'ask plain/question/information/warning/error ..'
-  if the fieldmode of me is "password" or the fieldmode of me is "clear" then
-      if word 2 of the selectedchunk > word 4 of the selectedchunk then
-         deleteone "forward"
-      else
-         # TH-2008-06-23 :: Bug 6491
-         local tChunk
-         put the selectedChunk into tChunk
-         deleteChunk tChunk
-      end if
-   else 
-      pass deleteKey
-   end if
-end deleteKey
+--on deleteKey
+--   --   -- PM-2015-07-24: [[ Bug 3962 ]] Pass deleteKey when 'ask plain/question/information/warning/error ..'
+--   --   if the fieldmode of me is "password" or the fieldmode of me is "clear" then
+--   --      if word 2 of the selectedchunk > word 4 of the selectedchunk then
+--   --         deleteone "forward"
+--   --      else
+--   --         # TH-2008-06-23 :: Bug 6491
+--   --         local tChunk
+--   --         put the selectedChunk into tChunk
+--   --         deleteChunk tChunk
+--   --      end if
+--   --   else 
+--   pass deleteKey
+--end if
+--end deleteKey
 
 # OK-2007-11-05 : Bug 3956
 on escapeKey
    cancelButton
 end escapeKey
 
-on backspaceKey
-   if the fieldmode of me is "password" or the fieldmode of me is "clear" then
-      if word 2 of the selectedchunk > word 4 of the selectedchunk then
-         deleteone "back"
-      else
-         # TH-2008-06-23 :: Bug 6491
-         local tChunk
-         put the selectedChunk into tChunk
-         deleteChunk tChunk
-      end if
-   else 
-      pass backSpaceKey
-   end if
-end backspaceKey
-  
+--on backspaceKey
+--   --   if the fieldmode of me is "password" or the fieldmode of me is "clear" then
+--   --      if word 2 of the selectedchunk > word 4 of the selectedchunk then
+--   --         deleteone "back"
+--   --      else
+--   --         # TH-2008-06-23 :: Bug 6491
+--   --         local tChunk
+--   --         put the selectedChunk into tChunk
+--   --         deleteChunk tChunk
+--   --      end if
+--   --   else 
+--   pass backSpaceKey
+--   --end if
+--end backspaceKey
+
 # TH-2008-06-23 :: Bug 6491, make the delete and backspace keys delete hilited text
-private command deleteChunk pChunk
-   local tStartChar, tEndChar
-   put word 2 of pChunk into tStartChar
-   put word 4 of pChunk into tEndChar
-   put empty into char tStartChar to tEndChar of field "passwordtext"
-   star
-   select before char tStartChar of field "input"     
-end deleteChunk
-  
-private command deleteone pDirection
-   local tpos
-   put word 2 of the selectedChunk into tpos
-   
-   if pDirection is "back" then    -- backSpace key is pressed
-      put empty into character (tpos - 1) of field "passwordtext" of me
-      star
-      select before character (tpos - 1) of field "input" of me
-   else if pDirection is "forward" then     -- delete key is pressed
-      put empty into character (tpos) of field "passwordtext" of me
-      star
-      select before character (tpos) of field "input" of me
-   end if
-end deleteone
+--private command deleteChunk pChunk
+--   local tStartChar, tEndChar
+--   put word 2 of pChunk into tStartChar
+--   put word 4 of pChunk into tEndChar
+--   put empty into char tStartChar to tEndChar of field "passwordtext"
+--   star
+--   select before char tStartChar of field "input"     
+--end deleteChunk
+
+--private command deleteone pDirection
+--   local tpos
+--   put word 2 of the selectedChunk into tpos
+
+--   if pDirection is "back" then    -- backSpace key is pressed
+--      put empty into character (tpos - 1) of field "passwordtext" of me
+--      star
+--      select before character (tpos - 1) of field "input" of me
+--   else if pDirection is "forward" then     -- delete key is pressed
+--      put empty into character (tpos) of field "passwordtext" of me
+--      star
+--      select before character (tpos) of field "input" of me
+--   end if
+--end deleteone
 
 on commandKeyDown which
    if which is "." then
       #click at the loc of button "Cancel"
       closeReject
-   else
-      if the fieldmode of me is not "plain" then
-         local tpos
-         switch which
-            case "D"
-               put word 2 of the selectedChunk into tpos
-               put empty into character tpos of field "passwordtext"
-               star
-               select before character tpos of field "input"
-               break
-            case "H"
-               deleteone "back"
-               break
-            case "V"
-               if the clipboard is "text" then
-                  local tSelectedChunk
-                  put the selectedChunk into tSelectedChunk
-                  put the clipboardData["text"] \
-                        into character (word 2 of tSelectedChunk) to (word 4 of tSelectedChunk) \
-                        of field 3
-                  star
-                  local tPastedLength
-                  put the number of chars in the clipboardData["text"] into tPastedLength
-                  if word 2 of tSelectedChunk > word 4 of tSelectedChunk then
-                     select after character (word 4 of tSelectedChunk + tPastedLength) \
-                           of field 2
-                  else
-                     select after character (word 2 of tSelectedChunk + tPastedLength - 1) \
-                           of field 2
-                  end if
-               end if
-               break
-            default
-               pass commandKeyDown
-         end switch
+      --   else
+      --      if the fieldmode of me is not "plain" then
+      --         local tpos
+      --         switch which
+      --            case "D"
+      --               put word 2 of the selectedChunk into tpos
+      --               put empty into character tpos of field "passwordtext"
+      --               star
+      --               select before character tpos of field "input"
+      --               break
+      --            case "H"
+      --               deleteone "back"
+      --               break
+      --            case "V"
+   else if (which = "V") then
+      if the clipboard is "text" then
+         local tSelectedChunk
+         put the selectedChunk into tSelectedChunk
+         put the clipboardData["text"] \
+               into character (word 2 of tSelectedChunk) to (word 4 of tSelectedChunk) \
+               of field 2
+         --                  star
+         --                  local tPastedLength
+         --                  put the number of chars in the clipboardData["text"] into tPastedLength
+         --                  if word 2 of tSelectedChunk > word 4 of tSelectedChunk then
+         --                     select after character (word 4 of tSelectedChunk + tPastedLength) \
+         --                           of field 2
+         --                  else
+         --                     select after character (word 2 of tSelectedChunk + tPastedLength - 1) \
+         --                           of field 2
+         --                  end if
+         --               end if
+         --               break
+         --            default
+         --               pass commandKeyDown
+         --         end switch
       else
          pass commandKeyDown
       end if
@@ -519,7 +523,8 @@ command closeAccept
          break
       case "password"
       case "clear"
-         put the text of field "passwordtext" of me into tResult
+         put the text of field "input" of me into tResult
+         --         put the text of field "passwordtext" of me into tResult
          break
    end switch
    
