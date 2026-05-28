@@ -6,17 +6,27 @@ Title: HyperXTalk Package Manager Library
 
 Author: HyperXTalk
 
-Version: 1.1.0
+Version: 1.2.0
 
 Description:
 Script library for installing, updating, and removing HyperXTalk packages
 from the hxtpm registry.
 
-Packages are hosted on GitHub or stored locally. Script libraries (type "lcs")
-are installed to the user libraries folder and become available immediately via
-start using stack. LCE extensions (type "lce") are pre-compiled LiveCode
-extension packages (.lce zip) installed to the user extensions folder via
-the IDE extension manager. They are loaded immediately without an IDE restart.
+Packages are hosted on GitHub or stored locally. Three package types are
+supported:
+
+  lcs â Script libraries. Installed to the user libraries folder as a named
+        subfolder containing the .livecodescript file. Loaded immediately via
+        start using stack. No IDE restart required.
+
+  lce â Pre-compiled LiveCode Extension packages (.lce zip). Installed to the
+        user extensions folder via the IDE extension manager. Loaded immediately
+        via load extension from file. No IDE restart required.
+
+  lcp â LiveCode IDE plugins. The plugin stack file is placed directly in the
+        user plugins folder. The IDE plugin registry is refreshed via
+        revIDEUpdatePlugins immediately after install or uninstall.
+        No IDE restart required.
 
 Multiple package sources are supported. A source can be a remote GitHub-hosted
 registry or a local folder on disk. The official HyperXTalk source is always
@@ -27,8 +37,21 @@ provides a package wins.
 The sources list is stored in a JSON file at:
    <UserLibraries>/.hxtpm/sources.json
 
-All commands return empty on success or an error message on failure via the
-result.
+Package metadata (hxtpm.json) is written alongside each installed package:
+   lcs  â <UserLibraries>/<name>/hxtpm.json
+   lce  â <UserExtensions>/<name>.<version>/hxtpm.json
+   lcp  â <UserPlugins>/.hxtpm/<name>/hxtpm.json
+
+Install and update commands are asynchronous: they return immediately and
+deliver their result via a message dispatched to the calling object.
+Uninstall and source-management commands are synchronous and return empty on
+success or an error message via the result.
+
+Authoring checksums:
+Use hxtpmComputeChecksum to get the correct sha256 value for a package file
+URL before writing it into package.json. This downloads the file through
+LiveCode's own network stack and hashes it identically to how the install
+pipeline verifies it, guaranteeing the values will match.
 
 Usage:
    -- Browse all packages available across all sources
@@ -39,7 +62,10 @@ Usage:
 
    -- Install the latest version of a package (resolved from all sources)
    hxtpmInstall "com.example.library.myutils"
-   if the result is not empty then answer error the result
+
+   on hxtpmInstallComplete pName, pError
+      if pError is not empty then answer error pError
+   end hxtpmInstallComplete
 
    -- Install a specific version
    hxtpmInstall "com.example.library.myutils", "1.2.0"
@@ -58,7 +84,21 @@ Usage:
 
    -- Uninstall / update
    hxtpmUninstall "com.example.library.myutils"
+   if the result is not empty then answer error the result
+
    hxtpmUpdate "com.example.library.myutils"
+
+   on hxtpmUpdateComplete pName, pError
+      if pError is not empty then answer error pError
+   end hxtpmUpdateComplete
+
+   -- Compute the correct checksum for a URL before writing it into package.json
+   hxtpmComputeChecksum "https://raw.githubusercontent.com/example/repo/main/MyLib.lcs"
+
+   on hxtpmChecksumComplete pURL, pChecksum, pError
+      if pError is not empty then answer error pError
+      -- paste pChecksum directly into the "checksum" field of package.json
+   end hxtpmChecksumComplete
 
 Name: hxtpmInstall
 
@@ -76,16 +116,32 @@ pVersion: A specific version string. If omitted, the latest version is installed
 
 Description:
 Searches all configured sources in order and installs the package from the
-first source that provides it. Script libraries (type "lcs") are installed
-to the user libraries folder and loaded immediately. LCE extensions (type
-"lce") are installed via the IDE extension manager and loaded without an IDE
-restart. The result is empty on success or an error message on failure.
+first source that provides it. The install is asynchronous: hxtpmInstall
+returns immediately and the caller receives an hxtpmInstallComplete message
+when the install finishes (whether it succeeded or failed).
+
+The package type determines how it is installed:
+
+  lcs â Placed in the user libraries folder and loaded immediately via
+        start using stack.
+  lce â Installed via the IDE extension manager and loaded immediately.
+  lcp â Stack file placed in the user plugins folder; the IDE plugin registry
+        is refreshed immediately via revIDEUpdatePlugins.
+
+No IDE restart is required for any package type.
 
 Example:
+   -- Trigger install
    hxtpmInstall "com.example.library.myutils"
-   if the result is not empty then answer error the result
 
-   hxtpmInstall "com.example.library.myutils", "1.2.0"
+   -- Handle the result
+   on hxtpmInstallComplete pName, pError
+      if pError is not empty then
+         answer error pError
+      else
+         answer "Installed" && pName
+      end if
+   end hxtpmInstallComplete
 
 
 
@@ -120,24 +176,44 @@ Example:
 
 
 
-Name: hxtpmVersions
+Name: hxtpmComputeChecksum
 
-Type: function
+Type: command
 
-Syntax: hxtpmVersions(<pName>)
+Syntax: hxtpmComputeChecksum <pURL>
 
-Summary: Return the available versions for a package, newest first.
+Summary: Compute the hxtpm-compatible SHA-256 checksum for a package file URL.
 
 Parameters: 
 
-pName: The package name.
+pURL: The direct download URL of the package file.
 
-Returns:
-A line-delimited list of version strings sorted newest-first, or empty if
-the package is not found in any source.
+Description:
+Downloads the file via libURLDownloadToFile and computes its SHA-256 checksum
+using exactly the same method as hxtpm's internal checksum verification â so
+the value produced here is guaranteed to match at install time.
 
-Example:    put hxtpmVersions("com.example.library.myutils") into tVersions
+The result is delivered asynchronously via an hxtpmChecksumComplete message sent
+to the calling object:
 
+   on hxtpmChecksumComplete pURL, pChecksum, pError
+      -- pChecksum is in the form "sha256:<hex>" on success, empty on failure
+      -- pError is empty on success, or an error message on failure
+   end hxtpmChecksumComplete
+
+Use this command when authoring a new package.json to get the correct checksum
+value to put in the "checksum" field for a given version's source URL.
+
+Example:
+   hxtpmComputeChecksum "https://raw.githubusercontent.com/example/repo/main/MyLib.livecodescript"
+
+   on hxtpmChecksumComplete pURL, pChecksum, pError
+      if pError is not empty then
+         answer error pError
+      else
+         answer "Checksum for" && pURL & ":" & return & pChecksum
+      end if
+   end hxtpmChecksumComplete
 
 
 
@@ -161,6 +237,27 @@ Example:
    put hxtpmInfo("com.example.library.myutils") into tInfo
    put tInfo["title"] into field "packageTitle"
    put tInfo["source"] into field "packageSource"
+
+
+
+Name: hxtpmVersions
+
+Type: function
+
+Syntax: hxtpmVersions(<pName>)
+
+Summary: Return the available versions for a package, newest first.
+
+Parameters: 
+
+pName: The package name.
+
+Returns:
+A line-delimited list of version strings sorted newest-first, or empty if
+the package is not found in any source.
+
+Example:    put hxtpmVersions("com.example.library.myutils") into tVersions
+
 
 
 
@@ -282,12 +379,25 @@ pName: The package name to update.
 Description:
 Fetches the latest version from whichever source originally provided the
 package, uninstalls the current version, and installs the latest. If already
-at the latest version, nothing happens and the result is empty. The result
-is empty on success or an error message on failure.
+at the latest version, hxtpmUpdateComplete is dispatched immediately with an
+empty error.
+
+The update is asynchronous: hxtpmUpdate returns immediately and the caller
+receives an hxtpmUpdateComplete message when the update finishes. The message
+signature is identical to hxtpmInstallComplete â pName and pError.
 
 Example:
+   -- Trigger update
    hxtpmUpdate "com.example.library.myutils"
-   if the result is not empty then answer error the result
+
+   -- Handle the result
+   on hxtpmUpdateComplete pName, pError
+      if pError is not empty then
+         answer error pError
+      else
+         answer "Updated" && pName
+      end if
+   end hxtpmUpdateComplete
 
 
 
@@ -304,10 +414,15 @@ Parameters:
 pName: The package name to remove.
 
 Description:
-Stops using the library and removes its files from the user libraries folder
-(for lcs packages) or unloads and removes the extension via the IDE extension
-manager (for lce packages). The result is empty on success or an error message
-on failure.
+Removes the installed package and cleans up its files. Behaviour by type:
+
+  lcs â Stops using the stack and deletes the package subfolder from the user
+        libraries folder.
+  lce â Unloads and removes the extension via the IDE extension manager.
+  lcp â Deletes the plugin stack file from the user plugins folder and refreshes
+        the IDE plugin registry via revIDEUpdatePlugins.
+
+The result is empty on success or an error message on failure.
 
 Example:
    hxtpmUninstall "com.example.library.myutils"

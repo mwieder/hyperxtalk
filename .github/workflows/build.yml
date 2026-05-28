@@ -98,6 +98,8 @@ jobs:
             libxinerama-dev libxrandr-dev libxcb1-dev libxv-dev libdbus-1-dev libcups2-dev \
             libgif-dev libpcre3-dev zlib1g-dev \
             libvlc-dev \
+            flex bison gawk \
+            libmysqlclient-dev libpq-dev \
             default-jdk \
             fuse libfuse2
 
