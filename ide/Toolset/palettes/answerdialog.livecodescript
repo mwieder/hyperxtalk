@@ -82,8 +82,6 @@ on preOpenStack
    set the backgroundColor of me to (the systemWindowColor)
    set the foregroundColor of me to (the systemTextColor)
    
-   dialogInitialize
-      
    // AL-2014-05-21: [[ Bug 12074 ]] Tidied up and rearranged to support 
    //  RTL layout, as determined by item 5 of the dialogData
    
@@ -116,6 +114,7 @@ on preOpenStack
          set the textSize of this stack to 13
          set the textSize of field "prompt" of me to 13
          put kMacIcons into tIcons
+         set the decorations of this stack to empty
          break
       case "Win32"
          if gAPKLargeFonts then
@@ -136,6 +135,7 @@ on preOpenStack
          
          set the textFont of field "prompt" of me to empty
          put kWinIcons into tIcons
+         set the decorations of this stack to default
          break
       default
          repeat with i = 3 to the number of btns
@@ -152,6 +152,7 @@ on preOpenStack
          end if
          set the textFont of field "prompt" of me to empty
          put kLinuxIcons into tIcons
+         set the decorations of this stack to default
          break
    end switch
    
@@ -199,8 +200,8 @@ on preOpenStack
    end if
    
    --title
-	setTitleTo item 2 of the dialogData
-	setPromptFieldTo item 3 of the dialogData
+   setTitleTo item 2 of the dialogData
+   setPromptFieldTo item 3 of the dialogData
    
    --buttons
    
@@ -454,9 +455,9 @@ on mouseUp
   end if
 end mouseUp
 
-on returnKey
-  pass returnKey to top
-end returnKey
+--on returnKey
+--  pass returnKey to top
+--end returnKey
 
 on linkClicked pLink
    if "@" is in pLink then
