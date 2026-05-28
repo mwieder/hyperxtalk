@@ -42,17 +42,13 @@ Name: seScrollEnhancementEnable
 
 Type: command
 
-Syntax: seScrollEnhancementEnable <//pWindowId>
+Syntax: seScrollEnhancementEnable 
 
 Summary:
 seScrollEnhancementEnable pWindowId
 Start smooth scrolling. Call from openStack (or equivalent).
 pWindowId is accepted for backward compatibility; no longer used internally.
 Safe to call from multiple windows ‚Äî reference-counted.
-
-Parameters:
-:
-
 
 
 
@@ -63,9 +59,9 @@ Type: command
 Syntax: seScrollEnhancementDisable 
 
 Summary:
-  seScrollEnhancementDisable
-  Stop smooth scrolling. Call from closeStack (or equivalent).
-  Reference-counted ‚Äî poll stops only when every caller has disabled.
+seScrollEnhancementDisable
+Stop smooth scrolling. Call from closeStack (or equivalent).
+Reference-counted ‚Äî poll stops only when every caller has disabled.
 
 
 
@@ -76,9 +72,9 @@ Type: command
 Syntax: seSyncGutter <pScrolledControl>,<pNewV>
 
 Summary:
-  seSyncGutter pScrolledControl, pNewV
-  If the scrolled control is the Script field of a script editor, syncs
-  the line-number gutter to the same vertical scroll position.
+seSyncGutter pScrolledControl, pNewV
+If the scrolled control is the Script field of a script editor, syncs
+the line-number gutter to the same vertical scroll position.
 
 Parameters:
 :
