@@ -144,14 +144,18 @@ echo.
 echo Building libbrowser (WebView2, Debug) ...
 echo Building libbrowser (WebView2) ... >> "%LOGFILE%"
 
-:: Bootstrap WebView2LoaderStatic.lib into the prebuilt Debug lib dir so the linker finds it.
-:: The engine vcxproj searches prebuilt\unpacked\Thirdparty\x86_64-win32-v142_static_Debug\lib,
-:: not Debug\lib, so the copy must go there.
+:: Bootstrap WebView2LoaderStatic.lib into the prebuilt lib dirs so the linker finds it.
+:: The IDE engine (development.vcxproj) uses v142 toolset → v142_static_Debug\lib.
+:: server-community.exe uses the default toolset (v143 on VS 2022) → v143_static_Debug\lib.
+:: Both are populated here so either toolset path resolves.
 set "WV2_LIB=%~dp0packages\Microsoft.Web.WebView2.1.0.3912.50\build\native\x64\WebView2LoaderStatic.lib"
-set "WV2_DST=%~dp0prebuilt\unpacked\Thirdparty\x86_64-win32-v142_static_Debug\lib"
-if not exist "%WV2_DST%" mkdir "%WV2_DST%"
+set "WV2_DST_V142=%~dp0prebuilt\unpacked\Thirdparty\x86_64-win32-v142_static_Debug\lib"
+set "WV2_DST_V143=%~dp0prebuilt\unpacked\Thirdparty\x86_64-win32-v143_static_Debug\lib"
+if not exist "%WV2_DST_V142%" mkdir "%WV2_DST_V142%"
+if not exist "%WV2_DST_V143%" mkdir "%WV2_DST_V143%"
 if exist "%WV2_LIB%" (
-    copy /Y "%WV2_LIB%" "%WV2_DST%\WebView2LoaderStatic.lib" > nul
+    copy /Y "%WV2_LIB%" "%WV2_DST_V142%\WebView2LoaderStatic.lib" > nul
+    copy /Y "%WV2_LIB%" "%WV2_DST_V143%\WebView2LoaderStatic.lib" > nul
 )
 
 :: Find CL.exe and lib.exe for the revsecurity step below (still needed).
@@ -1091,8 +1095,17 @@ echo.
 :: ----------------------------------------------------------
 echo Building kernel-server ...
 echo Building kernel-server ... >> "%LOGFILE%"
-"%MSBUILD%" %TOOLSET% build-win-x86_64\livecode\engine\kernel-server.vcxproj /t:Rebuild /p:Configuration=Debug /p:Platform=x64 /p:BuildProjectReferences=false "/p:SolutionDir=%~dp0build-win-x86_64\livecode\\" /v:minimal /nologo
-if %ERRORLEVEL% NEQ 0 (
+:: kernel-server intentionally does NOT use %TOOLSET% (v142 override).
+:: The v142 CL.exe PDB finalizer crashes silently on VS 2022 runners for the
+:: specific combination of server-mode source files, producing no error output.
+:: Omitting the override lets MSBuild use the toolset embedded in the GYP-
+:: generated vcxproj (v143 on VS 2022), which handles this file set correctly.
+set "KSRV_LOG=%~dp0build-kernel-server.log"
+"%MSBUILD%" build-win-x86_64\livecode\engine\kernel-server.vcxproj /t:Rebuild /p:Configuration=Debug /p:Platform=x64 /p:BuildProjectReferences=false "/p:SolutionDir=%~dp0build-win-x86_64\livecode\\" /v:minimal /nologo > "%KSRV_LOG%" 2>&1
+set KSRV_ERR=%ERRORLEVEL%
+type "%KSRV_LOG%"
+type "%KSRV_LOG%" >> "%LOGFILE%"
+if %KSRV_ERR% NEQ 0 (
     echo WARNING: kernel-server build failed -- server-community.exe will not be available.
     goto skip_server_build
 )
@@ -1101,8 +1114,14 @@ echo kernel-server OK.
 echo.
 echo Building server-community.exe (Debug) ...
 echo Building server-community.exe ... >> "%LOGFILE%"
-"%MSBUILD%" %TOOLSET% build-win-x86_64\livecode\engine\server.vcxproj /t:Rebuild /p:Configuration=Debug /p:Platform=x64 /p:BuildProjectReferences=false "/p:SolutionDir=%~dp0build-win-x86_64\livecode\\" /v:minimal /nologo
-if %ERRORLEVEL% NEQ 0 (
+:: server.vcxproj also omits %TOOLSET% — it links kernel-server.lib (built above
+:: without toolset override) and must use the same toolset to be ABI-compatible.
+set "SERVER_LOG=%~dp0build-server-community.log"
+"%MSBUILD%" build-win-x86_64\livecode\engine\server.vcxproj /t:Rebuild /p:Configuration=Debug /p:Platform=x64 /p:BuildProjectReferences=false "/p:SolutionDir=%~dp0build-win-x86_64\livecode\\" /v:minimal /nologo > "%SERVER_LOG%" 2>&1
+set SERVER_ERR=%ERRORLEVEL%
+type "%SERVER_LOG%"
+type "%SERVER_LOG%" >> "%LOGFILE%"
+if %SERVER_ERR% NEQ 0 (
     echo WARNING: server-community.exe build failed -- LCB extension build will be skipped.
 ) else (
     echo server-community.exe OK.
