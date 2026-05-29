@@ -229,8 +229,6 @@ on preOpenStack
    repeat with i = 3 to (tNoOfButtons + 3)
       if there is no button i of me then
          create button i in this card
-         --set the name of it to "hello" && i
-         --set the style of it to "transparent"
       end if
       set the name of button i of me to line tNoOfButtons - (i - 3) of tButtonNames
       if the platform is "Win32" and the short name of button i of me is not in "OKCancel" then
@@ -463,7 +461,7 @@ on linkClicked pLink
    if "@" is in pLink then
       revMail pLink
    else
-      revGoURL pLink
+      launch url pLink
    end if
 end linkClicked
 
