@@ -443,7 +443,7 @@ typedef uLong FAR uLongf;
    typedef unsigned long z_crc_t;
 #endif
 
-#if !defined(_WIN32)     /* was set to #if 1 by ./configure; unistd.h is not available on Windows */
+#if 1     /* was set to #if 1 by ./configure */
 #  define Z_HAVE_UNISTD_H
 #endif
 
