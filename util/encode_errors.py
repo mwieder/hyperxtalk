@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Python replacement for encode_errors.pl - generates C string arrays from error enum headers"""
+"""Usage: python encode_errors.py infile outfile"""
 
 import sys
 import os
