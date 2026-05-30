@@ -587,6 +587,7 @@ void MCCreate::exec_ctxt(MCExecContext& ctxt)
             case CT_TOOLBAR:
             {
                 MCObject *parent = nil;
+                MCStack *t_target_stack = nil;
                 if (container != nil)
                 {
                     uint4 parid;
@@ -600,12 +601,14 @@ void MCCreate::exec_ctxt(MCExecContext& ctxt)
                     {
                         // Toolbar is a stack-level object; use the current
                         // card as the owning parent in the object hierarchy.
-                        parent = static_cast<MCStack *>(t_resolved)->getcurcard();
+                        t_target_stack = static_cast<MCStack *>(t_resolved);
+                        parent = t_target_stack->getcurcard();
                     }
                     else if (t_resolved->gettype() == CT_CARD ||
                              t_resolved->gettype() == CT_GROUP)
                     {
                         parent = t_resolved;
+                        t_target_stack = parent->getstack();
                     }
                     else
                     {
@@ -613,6 +616,29 @@ void MCCreate::exec_ctxt(MCExecContext& ctxt)
                         return;
                     }
                 }
+                else
+                {
+                    t_target_stack = MCdefaultstackptr;
+                }
+
+                // If the target stack already has a toolbar, creating another
+                // is a no-op — one toolbar per stack window is the limit.
+                if (t_target_stack != nil)
+                {
+                    MCControl *t_ctrl = t_target_stack->getcontrols();
+                    if (t_ctrl != nil)
+                    {
+                        MCControl *t_cur = t_ctrl;
+                        do
+                        {
+                            if (t_cur->gettype() == CT_TOOLBAR)
+                                return;
+                            t_cur = t_cur->next();
+                        }
+                        while (t_cur != t_ctrl);
+                    }
+                }
+
                 MCInterfaceExecCreateControl(ctxt, *t_new_name, otype, parent, visible == False);
                 break;
             }
