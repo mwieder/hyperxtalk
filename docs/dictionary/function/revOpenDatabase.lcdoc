@@ -1,7 +1,5 @@
 Name: revOpenDatabase
 
-Synonyms: revdb_connect
-
 Type: function
 
 Syntax: revOpenDatabase("mysql", <hostAddress>, <databaseName>, [<userName>],[<passWord>],[<useSSL>], [<socketAddr>], [<rwTimeout>], [<autoReconnect>])

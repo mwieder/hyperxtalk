@@ -90,10 +90,6 @@ returns "error". You can get the error message using the
 > <Standalone Application Settings> window, make sure the "Internet" 
 > script library is selected.
 
-Changes:
-The <URLStatus> <function> became part of the <Internet library> in 
-version 1.1. In previous versions, it was not a library function.
-
 References: post (command), libURLftpUploadFile (command),
 libURLftpUpload (command), libURLDownloadToFile (command), load (command),
 libURLSetStatusCallback (command), function (control structure),
