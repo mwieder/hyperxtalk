@@ -617,6 +617,15 @@ private:
 
         switch (xev->type)
         {
+            case DestroyNotify:
+                // The toolbar child window has been destroyed — either by
+                // our own Destroy() or because the parent window was
+                // destroyed by the engine (which implicitly destroys all
+                // child X windows).  NULL the pointer now so that Destroy()
+                // does not call GDK functions on a freed GdkWindowObject.
+                self->m_window = NULL;
+                return GDK_FILTER_REMOVE;
+
             case Expose:
                 // Redraw only on the last expose in a series (count == 0).
                 if (xev->xexpose.count == 0)
@@ -672,6 +681,18 @@ private:
         MCToolbarLinuxBackend *self =
             static_cast<MCToolbarLinuxBackend *>(p_data);
         x11::XEvent *xev = static_cast<x11::XEvent *>(p_xevent);
+
+        if (xev->type == DestroyNotify)
+        {
+            // The parent (stack) window is being destroyed.  X automatically
+            // destroys all child windows too, so our toolbar GdkWindow is
+            // gone as well.  NULL both pointers so that Destroy() does not
+            // call GDK functions on freed GdkWindowObjects.
+            self->m_parent = NULL;
+            self->m_window = NULL;
+            // Fall through — let the engine's own DestroyNotify handler run.
+            return GDK_FILTER_CONTINUE;
+        }
 
         if (xev->type == ConfigureNotify && self->m_window)
         {
