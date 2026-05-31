@@ -578,7 +578,6 @@ bool MCNameIsEqualTo(MCNameRef self, MCNameRef p_other_name, MCStringOptions p_o
 
 void __MCNameDestroy(__MCName *self)
 {
-	// Compute the index in the table
 	uindex_t t_index;
 	t_index = __MCNameGetHash(self) & (s_name_table_capacity - 1);
 

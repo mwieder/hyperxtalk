@@ -190,6 +190,18 @@ public:
         if (!m_window)
             return;
 
+        // Hold extra GObject references on both windows.  When the engine
+        // calls gdk_window_destroy(parent), GDK internally recurses into all
+        // GDK-registered children and calls g_object_unref on each one.
+        // Without these extra refs that drops the child's GdkWindowObject
+        // refcount to zero, freeing the memory.  Then when MCToolbar::close()
+        // → Destroy() runs (AFTER stack destroywindow()), m_window is a
+        // dangling pointer and any GDK call on it crashes.  By holding an
+        // extra ref here we guarantee the GdkWindowObjects stay allocated
+        // until we explicitly release them at the bottom of Destroy().
+        g_object_ref(m_window);
+        g_object_ref(m_parent);
+
         // Request the events we need for drawing and interaction.
         gdk_window_set_events(m_window,
             GdkEventMask(GDK_EXPOSURE_MASK      |
@@ -222,19 +234,29 @@ public:
     {
 #if GTK_MAJOR_VERSION < 4
         for (int i = 0; i < m_item_count; i++)
-            m_items[i].~LnxItemData();
+            _clearItem(i);
         m_item_count = 0;
         m_hover_idx  = -1;
 
         if (m_window)
         {
             gdk_window_remove_filter(m_window, _filterFunc, this);
+            // gdk_window_destroy is a no-op if GDK has already marked this
+            // window as destroyed (e.g. because the parent was destroyed first
+            // and GDK recursively destroyed all children).
+            // The tail-call g_object_unref inside gdk_window_destroy ALWAYS
+            // runs though: it drops the GDK/engine ref (refcount 2→1).
             gdk_window_destroy(m_window);
+            // Release our extra ref (taken in Create) — refcount 1→0, frees
+            // the GdkWindowObject.  Safe to call because our extra ref kept
+            // the object allocated through gdk_window_destroy above.
+            g_object_unref(m_window);
             m_window = NULL;
         }
         if (m_parent)
         {
             gdk_window_remove_filter(m_parent, _parentResizeFunc, this);
+            g_object_unref(m_parent);
             m_parent = NULL;
         }
 #endif
@@ -250,8 +272,7 @@ public:
 
         int t_idx = m_item_count;
         LnxItemData *it = &m_items[t_idx];
-        new (it) LnxItemData();
-
+        // slot is already default-constructed (part of the member array)
         it->name.Reset(p_item->GetName());
         it->style   = p_item->GetStyle();
         it->enabled = p_item->GetEnabled();
@@ -289,25 +310,20 @@ public:
         if (t_found < 0)
             return;
 
-        m_items[t_found].~LnxItemData();
+        _clearItem(t_found);
 
-        // Shift remaining items down, transferring ownership of icon/label.
+        // Shift remaining items down.
         for (int j = t_found; j < m_item_count - 1; j++)
         {
-            new (&m_items[j]) LnxItemData();
+            // slot j is already clear; transfer slot j+1 into it
             m_items[j].name.Reset(*m_items[j + 1].name);
             m_items[j].style   = m_items[j + 1].style;
             m_items[j].enabled = m_items[j + 1].enabled;
-            // Transfer GdkPixbuf / label ownership without ref-counting.
-            m_items[j].icon  = m_items[j + 1].icon;
-            m_items[j].label = m_items[j + 1].label;
-            m_items[j + 1].icon  = NULL;  // neutralise before destructor
-            m_items[j + 1].label = NULL;
-            m_items[j + 1].~LnxItemData();
+            m_items[j].icon    = m_items[j + 1].icon;    m_items[j + 1].icon  = NULL;
+            m_items[j].label   = m_items[j + 1].label;   m_items[j + 1].label = NULL;
+            _clearItem(j + 1);
         }
 
-        // Re-initialise the now-empty last slot.
-        new (&m_items[m_item_count - 1]) LnxItemData();
         m_item_count--;
 
         if (m_hover_idx >= m_item_count)
@@ -356,7 +372,7 @@ public:
     {
 #if GTK_MAJOR_VERSION < 4
         for (int i = 0; i < m_item_count; i++)
-            m_items[i].~LnxItemData();
+            _clearItem(i);
         m_item_count = 0;
         m_hover_idx  = -1;
         if (m_window)
@@ -402,6 +418,18 @@ private:
     int                  m_parent_width;
     int                  m_hover_idx;    // -1 = none
     LnxItemData          m_items[256];
+
+    // ── helpers ──────────────────────────────────────────────────────────────
+
+    // Release and null all resources owned by slot i without ending the
+    // object's lifetime.  After this call the slot is safe to overwrite or
+    // to have its implicit destructor run (which will then be a no-op).
+    void _clearItem(int i)
+    {
+        m_items[i].name.Reset();  // MCAutoValueRefBase::Reset(nil): releases and zeroes m_value
+        if (m_items[i].icon)  { g_object_unref(m_items[i].icon);  m_items[i].icon  = NULL; }
+        if (m_items[i].label) { free(m_items[i].label);            m_items[i].label = NULL; }
+    }
 
     // ── layout ───────────────────────────────────────────────────────────────
 
