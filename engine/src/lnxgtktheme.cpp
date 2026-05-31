@@ -279,8 +279,18 @@ Boolean MCNativeTheme::load()
 		initialised = True;
 		GtkSettings *settings = gtk_settings_get_default();
 		if (settings)
-			g_signal_connect_data( settings, "notify::gtk-theme-name", G_CALLBACK(reload_theme),
-			                         NULL, NULL, (GConnectFlags)0);
+		{
+			g_signal_connect_data(settings, "notify::gtk-theme-name",
+			                      G_CALLBACK(reload_theme),
+			                      NULL, NULL, (GConnectFlags)0);
+			// Dark mode switches toggle gtk-application-prefer-dark-theme
+			// without changing the theme name (e.g. Adwaita stays Adwaita).
+			// Connect separately so a light→dark or dark→light switch at
+			// runtime triggers the same full theme reload.
+			g_signal_connect_data(settings, "notify::gtk-application-prefer-dark-theme",
+			                      G_CALLBACK(reload_theme),
+			                      NULL, NULL, (GConnectFlags)0);
+		}
 	}
 	gtkpix = NULL;
 	mNeedNewGC = true;
