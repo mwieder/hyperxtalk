@@ -590,10 +590,10 @@ on systemAppearanceChanged pMode, pWindowColor, pTextColor
    -- explicitly, which overrides the stack background if not also updated.
    local tBgColor
    put revIDEColor("palette_background") into tBgColor
-   set the backgroundColor of this stack to tBgColor
-   set the backgroundColor of this card to tBgColor
-   set the foregroundColor of this stack to revIDEColor("text_1")
-
+   set the backgroundColor of this stack to pWindowColor  //tBgColor
+   set the backgroundColor of this card to pWindowColor  //tBgColor
+   set the foregroundColor of this stack to pTextColor  //revIDEColor("text_1")
+   
    -- HXT: LCB widgets (e.g. paletteactions) hold their own explicit
    -- foregroundColor and do not inherit the stack-level foreground.
    -- Walk every control on every card and push the correct icon colour
@@ -617,7 +617,7 @@ on systemAppearanceChanged pMode, pWindowColor, pTextColor
          end if
       end repeat
    end repeat
-
+   
    pass systemAppearanceChanged
 end systemAppearanceChanged
 
