@@ -237,10 +237,16 @@ void MCStack::sethints()
             break;
             
         case WM_POPUP:
-        case WM_POPOVER:
         case WM_OPTION:
         case WM_CASCADE:
             t_type_hint = GDK_WINDOW_TYPE_HINT_POPUP_MENU;
+            break;
+
+        case WM_POPOVER:
+            // A popover is a floating panel, not a transient menu.  Use UTILITY
+            // so that compositors apply a proper drop-shadow and focus handling
+            // is not suppressed the way it is for POPUP_MENU windows.
+            t_type_hint = GDK_WINDOW_TYPE_HINT_UTILITY;
             break;
             
         case WM_COMBO:
@@ -517,14 +523,20 @@ MCRectangle MCStack::view_device_setgeom(const MCRectangle &p_rect,
     
     MCRectangle t_old_rect;
     t_old_rect = MCU_make_rect(t_root_x, t_root_y, t_width, t_height);
-    
-    if (!(flags & F_WM_PLACE) || state & CS_BEEN_MOVED)
+
+    // Override-redirect windows (menus, popups, popovers, tooltips) bypass
+    // the window manager entirely, so the WM will never position them.
+    // We must always apply the computed rect for these modes, regardless of
+    // the F_WM_PLACE flag.
+    bool t_override_redirect = (mode >= WM_PULLDOWN && mode <= WM_LICENSE);
+
+    if (t_override_redirect || !(flags & F_WM_PLACE) || state & CS_BEEN_MOVED)
     {
         GdkGeometry t_geom;
         t_geom.win_gravity = GDK_GRAVITY_STATIC;
-        
+
         gint t_hints = GDK_HINT_MIN_SIZE|GDK_HINT_MAX_SIZE|GDK_HINT_WIN_GRAVITY;
-        
+
         if (flags & F_RESIZABLE)
         {
             t_geom.min_width = p_minwidth;
@@ -537,19 +549,19 @@ MCRectangle MCStack::view_device_setgeom(const MCRectangle &p_rect,
             t_geom.min_width = t_geom.max_width = p_rect.width;
             t_geom.min_height = t_geom.max_height = p_rect.height;
         }
-        
+
         // By setting these "user" flags, we tell the window manager that we
         // know best and it should not attempt to remove or resize the window
         // according to its preferences.
-        if (!(flags & F_WM_PLACE) || (state & CS_BEEN_MOVED))
+        if (t_override_redirect || !(flags & F_WM_PLACE) || (state & CS_BEEN_MOVED))
             t_hints |= GDK_HINT_USER_POS;
         t_hints |= GDK_HINT_USER_SIZE;
-        
+
         gdk_window_set_geometry_hints(window, &t_geom, GdkWindowHints(t_hints));
-        //gdk_window_move_resize(window, p_rect.x, p_rect.y, p_rect.width, p_rect.height);
     }
-    
-    if ((!(flags & F_WM_PLACE) || state & CS_BEEN_MOVED) && (t_root_x != p_rect.x || t_root_y != p_rect.y))
+
+    if ((t_override_redirect || !(flags & F_WM_PLACE) || state & CS_BEEN_MOVED) &&
+        (t_root_x != p_rect.x || t_root_y != p_rect.y))
     {
         if (t_width != p_rect.width || t_height != p_rect.height)
             gdk_window_move_resize(window, p_rect.x, p_rect.y, p_rect.width, p_rect.height);
