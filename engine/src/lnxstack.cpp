@@ -266,8 +266,11 @@ void MCStack::sethints()
     }
     
     gdk_window_set_type_hint(window, t_type_hint);
-    
-    if ((mode >= WM_PULLDOWN && mode <= WM_LICENSE))
+
+    // Popovers must NOT be override-redirect: they need the compositor to
+    // apply drop-shadows and the WM to manage z-order so they don't float
+    // above unrelated applications.
+    if ((mode >= WM_PULLDOWN && mode <= WM_LICENSE) && mode != WM_POPOVER)
     {
         gdk_window_set_override_redirect(window, TRUE);
     }
@@ -275,7 +278,15 @@ void MCStack::sethints()
     {
         gdk_window_set_override_redirect(window, FALSE);
     }
-    
+
+    // For popovers: make the window transient for its anchor stack so the WM
+    // keeps it above the parent application but not above other applications.
+    if (mode == WM_POPOVER && MCpopoverparentstack != nullptr)
+    {
+        gdk_window_set_transient_for(window,
+                                     MCpopoverparentstack->getwindowalways());
+    }
+
     // TODO: initial input focus and initial window state
 	//whints.input = MCpointerfocus;
 	//whints.initial_state = flags & F_START_UP_ICONIC ? IconicState:NormalState;
@@ -428,6 +439,15 @@ void MCStack::sethints()
 		
 	}
     
+    // Popovers are borderless floating panels — the compositor provides the
+    // visual frame (drop-shadow) via the UTILITY type hint.  Suppress all WM
+    // chrome so the stack content fills the window without a title bar.
+    if (mode == WM_POPOVER)
+    {
+        t_decorations = 0;
+        t_functions   = 0;
+    }
+
     // TODO: test if this comment is still true
 	// Gnome gets confused with these set
 	//if (flags & F_DECORATIONS)
@@ -524,13 +544,13 @@ MCRectangle MCStack::view_device_setgeom(const MCRectangle &p_rect,
     MCRectangle t_old_rect;
     t_old_rect = MCU_make_rect(t_root_x, t_root_y, t_width, t_height);
 
-    // Override-redirect windows (menus, popups, popovers, tooltips) bypass
-    // the window manager entirely, so the WM will never position them.
-    // We must always apply the computed rect for these modes, regardless of
-    // the F_WM_PLACE flag.
-    bool t_override_redirect = (mode >= WM_PULLDOWN && mode <= WM_LICENSE);
+    // Menus, popups, popovers, and tooltips are all self-positioned — either
+    // because they're override-redirect (WM never sees them) or because the
+    // engine computes the exact anchor-relative position.  Bypass F_WM_PLACE
+    // for all of these so gdk_window_move() is always called.
+    bool t_self_positioned = (mode >= WM_PULLDOWN && mode <= WM_LICENSE);
 
-    if (t_override_redirect || !(flags & F_WM_PLACE) || state & CS_BEEN_MOVED)
+    if (t_self_positioned || !(flags & F_WM_PLACE) || state & CS_BEEN_MOVED)
     {
         GdkGeometry t_geom;
         t_geom.win_gravity = GDK_GRAVITY_STATIC;
@@ -553,14 +573,14 @@ MCRectangle MCStack::view_device_setgeom(const MCRectangle &p_rect,
         // By setting these "user" flags, we tell the window manager that we
         // know best and it should not attempt to remove or resize the window
         // according to its preferences.
-        if (t_override_redirect || !(flags & F_WM_PLACE) || (state & CS_BEEN_MOVED))
+        if (t_self_positioned || !(flags & F_WM_PLACE) || (state & CS_BEEN_MOVED))
             t_hints |= GDK_HINT_USER_POS;
         t_hints |= GDK_HINT_USER_SIZE;
 
         gdk_window_set_geometry_hints(window, &t_geom, GdkWindowHints(t_hints));
     }
 
-    if ((t_override_redirect || !(flags & F_WM_PLACE) || state & CS_BEEN_MOVED) &&
+    if ((t_self_positioned || !(flags & F_WM_PLACE) || state & CS_BEEN_MOVED) &&
         (t_root_x != p_rect.x || t_root_y != p_rect.y))
     {
         if (t_width != p_rect.width || t_height != p_rect.height)
