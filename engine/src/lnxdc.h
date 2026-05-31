@@ -214,6 +214,7 @@ public:
     virtual void getbeep(uint4 property, int4& r_value);
 	virtual void setbeep(uint4 property, int4 beep);
 	virtual MCNameRef getvendorname(void);
+	virtual void getsystemappearance(MCSystemAppearance &r_appearance);
 	virtual uint2 getpad();
 	virtual Window getroot();
 

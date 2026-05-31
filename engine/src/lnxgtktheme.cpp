@@ -441,6 +441,17 @@ extern "C" void MCplatformGetLabelColor(char *p_buf, size_t p_buflen)
     format_gdk_color(r, g, b, p_buf, p_buflen);
 }
 
+// Implement getsystemappearance() for Linux so that "the systemAppearance"
+// property returns "dark" or "light" correctly.  desktop-dc.cpp is excluded
+// from the Linux build, so without this override the base-class stub in
+// uidc.cpp always returns kMCSystemAppearanceLight.
+#include "lnxdc.h"
+void MCScreenDC::getsystemappearance(MCSystemAppearance &r_appearance)
+{
+    r_appearance = MCplatformIsDarkMode() ? kMCSystemAppearanceDark
+                                          : kMCSystemAppearanceLight;
+}
+
 
 
 
