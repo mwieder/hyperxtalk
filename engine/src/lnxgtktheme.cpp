@@ -214,6 +214,10 @@ static GtkWidgetState getpartandstate(const MCWidgetInfo &winfo, GtkThemeWidgetT
 	return state;
 }
 
+// Declared in linux-theme.cpp — flushes the cached GtkStyle/GtkWidget
+// pointers so MCPlatformGetControlThemePropColor() re-reads fresh styles.
+extern void MCLinuxThemeFlushCache(void);
+
 static gboolean do_reload_theme(gpointer /*user_data*/)
 {
 	if (MCcurtheme && MCcurtheme->getthemeid() == LF_NATIVEGTK)
@@ -222,6 +226,11 @@ static gboolean do_reload_theme(gpointer /*user_data*/)
 		if (MCimagecache != NULL)
 			delete MCimagecache;
 		MCimagecache = new (nothrow) MCXImageCache;
+
+		// Flush the linux-theme.cpp style cache so that
+		// MCPlatformGetControlThemePropColor() re-reads styles from the new
+		// theme rather than returning stale light-mode colours.
+		MCLinuxThemeFlushCache();
 
 		MCcurtheme->unload();
 		// load() refreshes background_pixel, system_fore_pixel, and MChilitecolor

@@ -186,6 +186,27 @@ static GtkWidget* getWidgetForControlType(MCPlatformControlType p_type, MCPlatfo
     return t_the_widget;
 }
 
+// Flushes the cached styles and widgets so they are recreated with the current
+// theme on next access.  Call this whenever the GTK theme changes at runtime.
+void MCLinuxThemeFlushCache(void)
+{
+    // Null all style pointers — GtkStyle lifetimes are managed by GTK itself
+    // (they're owned by the widgets), so we don't unref them here.
+    for (int i = 0; i <= (int)kMCPlatformControlTypeMessageBox; i++)
+        s_styles[i] = NULL;
+
+    // Destroy the top-level window, which cascade-destroys every child widget
+    // (s_widget_container and all widgets inside it).  Set all widget pointers
+    // to NULL before the destroy so no dangling references remain.
+    GtkWidget* t_window = s_widgets[kMCPlatformControlTypeGeneric];
+    for (int i = 0; i <= (int)kMCPlatformControlTypeMessageBox; i++)
+        s_widgets[i] = NULL;
+    s_widget_container = NULL;
+
+    if (t_window != NULL)
+        gtk_widget_destroy(t_window);
+}
+
 // Gets the style for the given control type
 static GtkStyle* getStyleForControlType(MCPlatformControlType p_type, MCPlatformControlPart p_part)
 {
