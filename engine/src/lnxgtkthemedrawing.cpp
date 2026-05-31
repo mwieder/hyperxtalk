@@ -2051,5 +2051,41 @@ moz_gtk_widget_paint(GtkThemeWidgetType widget, GdkDrawable * drawable,
 
 gint moz_gtk_shutdown()
 {
-	return MOZ_GTK_SUCCESS;
+    // Destroy the prototype window. All child widgets that were added to
+    // gProtoLayout via setup_widget_prototype() are destroyed recursively.
+    // We only need to null the pointers here; the actual memory is freed by GTK.
+    if (gProtoWindow != nullptr)
+    {
+        gtk_widget_destroy(gProtoWindow);
+        gProtoWindow    = nullptr;
+        gProtoLayout    = nullptr;
+    }
+    gButtonWidget         = nullptr;
+    gCheckboxWidget       = nullptr;
+    gRadiobuttonWidget    = nullptr;
+    gHorizScrollbarWidget = nullptr;
+    gVertScrollbarWidget  = nullptr;
+    gEntryWidget          = nullptr;
+    gArrowWidget          = nullptr;
+    gDropdownButtonWidget = nullptr;
+    gHandleBoxWidget      = nullptr;
+    gFrameWidget          = nullptr;
+    gProgressWidget       = nullptr;
+    gTabWidget            = nullptr;
+    gLabelWidget          = nullptr;
+    gOptionbuttonWidget   = nullptr;
+    gSpinbuttonWidget     = nullptr;
+    gMenuitemWidget       = nullptr;
+    gHScaleWidget         = nullptr;
+    gVScaleWidget         = nullptr;
+
+    // Tooltip widget is a GtkTooltips object held with an explicit g_object_ref,
+    // not a child of gProtoLayout, so release it separately.
+    if (gTooltipWidget != nullptr)
+    {
+        g_object_unref(gTooltipWidget);
+        gTooltipWidget = nullptr;
+    }
+
+    return MOZ_GTK_SUCCESS;
 }

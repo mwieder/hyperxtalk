@@ -214,15 +214,14 @@ static GtkWidgetState getpartandstate(const MCWidgetInfo &winfo, GtkThemeWidgetT
 	return state;
 }
 
-static gboolean reload_theme(void)
+static gboolean do_reload_theme(gpointer /*user_data*/)
 {
-	Boolean reload = True;
 	if (MCcurtheme && MCcurtheme->getthemeid() == LF_NATIVEGTK)
 	{
-		// We have changed themes, so remove the image cache and replace with new one
-		if ( MCimagecache != NULL)
-			delete MCimagecache ;
-		MCimagecache = new (nothrow) MCXImageCache ;
+		// Remove the image cache and replace with new one
+		if (MCimagecache != NULL)
+			delete MCimagecache;
+		MCimagecache = new (nothrow) MCXImageCache;
 
 		MCcurtheme->unload();
 		MCcurtheme->load();
@@ -230,7 +229,23 @@ static gboolean reload_theme(void)
 		// MW-2011-08-17: [[ Redraw ]] The theme has changed so redraw everything.
 		MCRedrawDirtyScreen();
 	}
-	return (TRUE);
+	return FALSE; // G_SOURCE_REMOVE — run once, do not reschedule
+}
+
+static gboolean reload_theme(void)
+{
+	// Defer the reload to the next GLib main-loop iteration.
+	// GTK queues its CSS/style recomputation asynchronously when a theme
+	// property changes.  If we recreate the prototype widgets synchronously
+	// inside the signal handler (e.g. notify::gtk-application-prefer-dark-theme),
+	// the new widgets are realised before GTK has finished loading the dark
+	// variant, so they inherit the old (light) colours — causing the
+	// light→dark direction to silently fail.
+	// Running via g_idle_add() defers until all pending signal emissions and
+	// CSS invalidations have settled, ensuring the new widgets see the correct
+	// theme.
+	g_idle_add(do_reload_theme, nullptr);
+	return TRUE;
 }
 
 
