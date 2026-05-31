@@ -3343,33 +3343,3 @@ on msgChanged pHandler, pLine
       pass msgChanged
    end if
 end msgChanged
-
--- When the answer dialog is the active modal and passes returnKey / enterKey
--- up to the back script, click whichever button is marked as the default.
--- The .rev stack's own returnKey handler does `pass returnKey to top`, so
--- the message always reaches here when the dialog is open.
-on returnKey
-   if there is a stack "answer dialog" and the mode of stack "answer dialog" is not 0 then
-      repeat with i = 3 to the number of buttons of card 1 of stack "answer dialog"
-         if item 1 of the loc of button i of card 1 of stack "answer dialog" < 1 then
-            next repeat
-         end if
-         if the default of button i of card 1 of stack "answer dialog" then
-            dispatch "mouseUp" to button i of card 1 of stack "answer dialog"
-            exit to top
-         end if
-      end repeat
-      -- Fallback: no button has default set — click button 3 (primary action).
-      if the number of buttons of card 1 of stack "answer dialog" >= 3 then
-         if item 1 of the loc of button 3 of card 1 of stack "answer dialog" >= 1 then
-            dispatch "mouseUp" to button 3 of card 1 of stack "answer dialog"
-            exit to top
-         end if
-      end if
-   end if
-   pass returnKey
-end returnKey
-
-on enterKey
-   dispatch "returnKey" to the target
-end enterKey
