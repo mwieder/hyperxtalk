@@ -418,13 +418,25 @@ extern g_object_getPTR g_object_get_ptr;
 
 extern "C" bool MCplatformIsDarkMode(void)
 {
+    // Fast path: explicit "prefer dark theme" GtkSettings flag.
     GtkSettings *t_settings = gtk_settings_get_default();
-    if (t_settings == nullptr || g_object_get_ptr == nullptr)
-        return false;
-    gboolean t_prefer_dark = FALSE;
-    g_object_get_ptr(t_settings, "gtk-application-prefer-dark-theme",
-                     &t_prefer_dark, (gchar *)nullptr);
-    return t_prefer_dark == TRUE;
+    if (t_settings != nullptr && g_object_get_ptr != nullptr)
+    {
+        gboolean t_prefer_dark = FALSE;
+        g_object_get_ptr(t_settings, "gtk-application-prefer-dark-theme",
+                         &t_prefer_dark, (gchar *)nullptr);
+        if (t_prefer_dark)
+            return true;
+    }
+
+    // Fallback: measure the window background luminance.  Themes like
+    // "Adwaita-dark" or "Yaru-dark" don't set gtk-application-prefer-dark-theme
+    // but render a dark background.  GDK colour components are 0–65535;
+    // weighted luminance below 50 % (ITU-R BT.709) means dark.
+    uint2 r = 0xffff, g = 0xffff, b = 0xffff;
+    moz_gtk_get_widget_color(GTK_STATE_NORMAL, r, g, b);
+    double lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    return lum < (0.5 * 65535.0);
 }
 
 extern "C" void MCplatformGetWindowBackgroundColor(char *p_buf, size_t p_buflen)
