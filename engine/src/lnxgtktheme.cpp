@@ -464,6 +464,20 @@ void MCScreenDC::getsystemappearance(MCSystemAppearance &r_appearance)
                                           : kMCSystemAppearanceLight;
 }
 
+void MCScreenDC::getsystemwindowcolor(MCStringRef &r_color)
+{
+    char t_buf[8] = "#ffffff";
+    MCplatformGetWindowBackgroundColor(t_buf, sizeof(t_buf));
+    /* UNCHECKED */ MCStringCreateWithCString(t_buf, r_color);
+}
+
+void MCScreenDC::getsystemtextcolor(MCStringRef &r_color)
+{
+    char t_buf[8] = "#000000";
+    MCplatformGetLabelColor(t_buf, sizeof(t_buf));
+    /* UNCHECKED */ MCStringCreateWithCString(t_buf, r_color);
+}
+
 
 
 
