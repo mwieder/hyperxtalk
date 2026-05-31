@@ -289,7 +289,24 @@ bool MCPlatformGetControlThemePropColor(MCPlatformControlType p_type, MCPlatform
     {
         case kMCPlatformThemePropertyTextColor:
             t_found = true;
-            t_color = t_style->text[t_gtk_state];
+            // GTK2: style->text is only set by the RC for text-input widgets
+            // (GtkEntry, GtkTextView).  For all other controls (buttons, labels,
+            // menus, checkboxes, …) the meaningful foreground/label colour lives
+            // in style->fg.  Using style->text for those widgets returns the
+            // inherited default (often black) instead of the theme's actual
+            // foreground colour, which breaks dark-mode text on non-text widgets.
+            switch (p_type)
+            {
+                case kMCPlatformControlTypeInputField:
+                case kMCPlatformControlTypeList:
+                    // True text-rendering widgets: use style->text.
+                    t_color = t_style->text[t_gtk_state];
+                    break;
+                default:
+                    // All other controls (buttons, labels, menus, …): use fg.
+                    t_color = t_style->fg[t_gtk_state];
+                    break;
+            }
             break;
             
         case kMCPlatformThemePropertyBackgroundColor:
