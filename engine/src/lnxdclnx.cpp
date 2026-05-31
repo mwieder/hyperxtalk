@@ -347,8 +347,18 @@ Boolean MCScreenDC::handle(Boolean dispatch, Boolean anyevent, Boolean& abort, B
                             hidebackdrop(true);
                             if (MCdefaultstackptr)
                                 MCdefaultstackptr->getcard()->message(MCM_suspend);
-                            
+
                             MCstacks->hidepalettes(true);
+
+                            // Dismiss any open popover — it must not float
+                            // above an unrelated application's window.
+                            if (MCpopoverstack != nullptr)
+                            {
+                                MCStack *t_closing = MCpopoverstack;
+                                MCpopoverstack = nullptr;
+                                MCpopoverparentstack = nullptr;
+                                MCdispatcher->wclose(t_closing->getwindowalways());
+                            }
                         }
                     }
                     
