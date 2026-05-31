@@ -64,10 +64,6 @@ finished with a URL, use the <unload> <command> to remove it from the
 > <Standalone Application Settings> window, make sure the "Internet" 
 > script library is selected.
 
-Changes:
-The <cachedURLs> <function> became part of the <Internet library> in 
-version 1.1. In previous versions, it was not a library function.
-
 References: unload (command), load (command),
 function (control structure), files (function),
 libURLErrorData (function), URLStatus (function), cachedURLs (function),
