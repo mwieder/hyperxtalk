@@ -270,7 +270,9 @@ static gboolean reload_theme(void)
 	// Running via g_idle_add() defers until all pending signal emissions and
 	// CSS invalidations have settled, ensuring the new widgets see the correct
 	// theme.
-	g_idle_add(do_reload_theme, nullptr);
+	// g_idle_add is not in the weak-link stub table; g_timeout_add with a
+	// 0 ms delay is equivalent — it defers to the next main-loop iteration.
+	g_timeout_add(0, do_reload_theme, nullptr);
 	return TRUE;
 }
 
@@ -378,14 +380,19 @@ static void format_gdk_color(uint2 red, uint2 green, uint2 blue,
              (unsigned)(blue  >> 8));
 }
 
+// g_object_get is variadic so the stub table only exposes the raw pointer
+// (g_object_get_ptr).  Use the same casting pattern as lnxcursor.cpp.
+typedef void (*g_object_getPTR)(void *object, const gchar *first_property_name, ...);
+extern g_object_getPTR g_object_get_ptr;
+
 extern "C" bool MCplatformIsDarkMode(void)
 {
     GtkSettings *t_settings = gtk_settings_get_default();
-    if (t_settings == nullptr)
+    if (t_settings == nullptr || g_object_get_ptr == nullptr)
         return false;
     gboolean t_prefer_dark = FALSE;
-    g_object_get(t_settings, "gtk-application-prefer-dark-theme",
-                 &t_prefer_dark, nullptr);
+    g_object_get_ptr(t_settings, "gtk-application-prefer-dark-theme",
+                     &t_prefer_dark, (gchar *)nullptr);
     return t_prefer_dark == TRUE;
 }
 
