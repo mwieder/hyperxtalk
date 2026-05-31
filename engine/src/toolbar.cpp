@@ -251,9 +251,7 @@ bool MCToolbar::visit_self(MCObjectVisitor *p_visitor)
 
 void MCToolbar::open()
 {
-    fprintf(stderr, "[MCToolbar::open] enter\n"); fflush(stderr);
     MCControl::open();
-    fprintf(stderr, "[MCToolbar::open] after MCControl::open\n"); fflush(stderr);
 
     if (m_backend == nil)
         m_backend = _createBackend();
@@ -267,17 +265,12 @@ void MCToolbar::open()
             t_window = t_stack->getwindow();
 
         m_backend->Create(t_window);
-        fprintf(stderr, "[MCToolbar::open] after Create\n"); fflush(stderr);
         m_backend->SetDisplayMode(m_display_mode);
-        fprintf(stderr, "[MCToolbar::open] after SetDisplayMode\n"); fflush(stderr);
         m_backend->SetVisible(m_toolbar_visible);
-        fprintf(stderr, "[MCToolbar::open] after SetVisible\n"); fflush(stderr);
         // Re-resolve stack image data before syncing — m_image_data is not
         // saved to disk, so it must be rebuilt each time the stack is opened.
         _resolveItemImageData();
-        fprintf(stderr, "[MCToolbar::open] calling _syncBackendItems m_item_count=%u\n", (unsigned)m_item_count); fflush(stderr);
         _syncBackendItems();
-        fprintf(stderr, "[MCToolbar::open] after _syncBackendItems\n"); fflush(stderr);
     }
 }
 
