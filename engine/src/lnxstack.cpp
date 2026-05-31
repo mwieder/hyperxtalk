@@ -443,14 +443,16 @@ void MCStack::sethints()
 	// Gnome gets confused with these set
 	//if (flags & F_DECORATIONS)
     //
-    // Do NOT set _MOTIF_WM_HINTS for WM_POPOVER.  Setting decorations=0 via
-    // gdk_window_set_decorations() writes _MOTIF_WM_HINTS.decorations=0, which
-    // many compositors interpret as "no frame and no shadow."  The
-    // _NET_WM_WINDOW_TYPE_UTILITY hint is sufficient on its own: modern WMs
-    // (Mutter, KWin, Openbox) suppress the title bar for UTILITY windows
-    // without needing an explicit Motif hint, and compositors will then apply
-    // their normal drop-shadow treatment.
-    if (mode != WM_POPOVER)
+    // For WM_POPOVER use GDK_DECOR_BORDER (border-only, no title).
+    // _MOTIF_WM_HINTS.decorations=0 tells compositors "no frame, no shadow",
+    // killing the drop shadow.  A non-zero value keeps shadows active.
+    // With _NET_WM_WINDOW_TYPE_UTILITY, modern WMs (Mutter, KWin, Openbox)
+    // render no visible border anyway, so this is effectively borderless.
+    if (mode == WM_POPOVER)
+    {
+        gdk_window_set_decorations(window, GDK_DECOR_BORDER);
+    }
+    else
     {
         gdk_window_set_decorations(window, GdkWMDecoration(t_decorations));
         gdk_window_set_functions(window, GdkWMFunction(t_functions));
