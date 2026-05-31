@@ -218,6 +218,11 @@ static GtkWidgetState getpartandstate(const MCWidgetInfo &winfo, GtkThemeWidgetT
 // pointers so MCPlatformGetControlThemePropColor() re-reads fresh styles.
 extern void MCLinuxThemeFlushCache(void);
 
+// Forward declarations — defined later in this file.
+extern "C" bool MCplatformIsDarkMode(void);
+extern "C" void MCplatformGetWindowBackgroundColor(char *p_buf, size_t p_buflen);
+extern "C" void MCplatformGetLabelColor(char *p_buf, size_t p_buflen);
+
 static gboolean do_reload_theme(gpointer /*user_data*/)
 {
 	if (MCcurtheme && MCcurtheme->getthemeid() == LF_NATIVEGTK)
@@ -237,17 +242,43 @@ static gboolean do_reload_theme(gpointer /*user_data*/)
 		// from the current GTK theme.
 		MCcurtheme->load();
 
-		// Mark every open stack dirty so all controls re-read the updated
-		// system colours (especially system_fore_pixel for text) on the next
-		// paint.  desktop.cpp is excluded from the Linux build so we inline
-		// the stack-walk here rather than calling MCPlatformHandleSystemAppearanceChanged.
+		// desktop.cpp is excluded from the Linux build, so
+		// MCPlatformHandleSystemAppearanceChanged() is never called.
+		// Replicate its essential work here:
+		//   • dirty every open stack so the next repaint uses the new colours
+		//   • dispatch systemAppearanceChanged(pMode, pBackColor, pTextColor)
+		//     to every open stack's current card so scripts can react.
+		//
+		// Gather the three message parameters.
+		bool    t_is_dark = MCplatformIsDarkMode();
+		char    t_bg_buf[8]   = {};
+		char    t_fg_buf[8]   = {};
+		MCplatformGetWindowBackgroundColor(t_bg_buf,   sizeof(t_bg_buf));
+		MCplatformGetLabelColor           (t_fg_buf,   sizeof(t_fg_buf));
+
 		MCStacknode *t_node  = MCstacks->topnode();
 		MCStacknode *t_first = t_node;
 		while (t_node != nullptr)
 		{
 			MCStack *t_stack = t_node->getstack();
-			if (t_stack != nullptr)
+			if (t_stack != nullptr && t_stack->getcurcard() != nullptr)
+			{
 				t_stack->dirtyall();
+
+				// Queue systemAppearanceChanged with the same three parameters
+				// that desktop.cpp passes on macOS/Windows.
+				MCStringRef t_bg_str  = nullptr;
+				MCStringRef t_fg_str  = nullptr;
+				/* UNCHECKED */ MCStringCreateWithCString(t_bg_buf, t_bg_str);
+				/* UNCHECKED */ MCStringCreateWithCString(t_fg_buf, t_fg_str);
+				MCscreen->delaymessage(t_stack->getcurcard(),
+				                       MCM_system_appearance_changed,
+				                       t_is_dark ? MCSTR("dark") : MCSTR("light"),
+				                       t_bg_str,
+				                       t_fg_str);
+				MCValueRelease(t_bg_str);
+				MCValueRelease(t_fg_str);
+			}
 			t_node = t_node->next();
 			if (t_node == t_first)
 				break;
