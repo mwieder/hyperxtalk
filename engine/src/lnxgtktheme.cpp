@@ -224,9 +224,26 @@ static gboolean do_reload_theme(gpointer /*user_data*/)
 		MCimagecache = new (nothrow) MCXImageCache;
 
 		MCcurtheme->unload();
+		// load() refreshes background_pixel, system_fore_pixel, and MChilitecolor
+		// from the current GTK theme.
 		MCcurtheme->load();
 
-		// MW-2011-08-17: [[ Redraw ]] The theme has changed so redraw everything.
+		// Mark every open stack dirty so all controls re-read the updated
+		// system colours (especially system_fore_pixel for text) on the next
+		// paint.  desktop.cpp is excluded from the Linux build so we inline
+		// the stack-walk here rather than calling MCPlatformHandleSystemAppearanceChanged.
+		MCStacknode *t_node  = MCstacks->topnode();
+		MCStacknode *t_first = t_node;
+		while (t_node != nullptr)
+		{
+			MCStack *t_stack = t_node->getstack();
+			if (t_stack != nullptr)
+				t_stack->dirtyall();
+			t_node = t_node->next();
+			if (t_node == t_first)
+				break;
+		}
+
 		MCRedrawDirtyScreen();
 	}
 	return FALSE; // G_SOURCE_REMOVE — run once, do not reschedule
@@ -316,7 +333,15 @@ Boolean MCNativeTheme::load()
 		moz_gtk_get_widget_color(GTK_STATE_NORMAL,
 		                         tbackcolor.red,tbackcolor.green,tbackcolor.blue) ;
 		MCscreen->background_pixel = tbackcolor;//tcolor = zcolor;
-		
+
+		// Foreground (label/text) colour — used by controls that inherit the
+		// system default.  On a dark theme this should be near-white; without
+		// this update controls render dark text on a dark background.
+		MCColor tforecolor;
+		moz_gtk_get_widget_fg_color(GTK_STATE_NORMAL,
+		                            tforecolor.red, tforecolor.green, tforecolor.blue);
+		MCscreen->system_fore_pixel = tforecolor;
+
 		// MW-2012-01-27: [[ Bug 9511 ]] Set the hilite color based on the current GTK theme.
 		MCColor thilitecolor;
 		moz_gtk_get_widget_color(GTK_STATE_SELECTED, thilitecolor.red, thilitecolor.green, thilitecolor.blue);
@@ -324,6 +349,49 @@ Boolean MCNativeTheme::load()
 	}
 
 	return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Linux implementations of the platform appearance query functions.
+// These override the stub definitions in desktop.cpp (which are gated to
+// non-Linux platforms after our desktop.cpp change).
+
+// Format a GDK colour (16-bit components) as an "#rrggbb" hex string.
+static void format_gdk_color(uint2 red, uint2 green, uint2 blue,
+                             char *p_buf, size_t p_buflen)
+{
+    if (p_buflen < 8)
+        return;
+    // GDK components are 0..65535; hex string uses 0..255.
+    snprintf(p_buf, p_buflen, "#%02x%02x%02x",
+             (unsigned)(red   >> 8),
+             (unsigned)(green >> 8),
+             (unsigned)(blue  >> 8));
+}
+
+extern "C" bool MCplatformIsDarkMode(void)
+{
+    GtkSettings *t_settings = gtk_settings_get_default();
+    if (t_settings == nullptr)
+        return false;
+    gboolean t_prefer_dark = FALSE;
+    g_object_get(t_settings, "gtk-application-prefer-dark-theme",
+                 &t_prefer_dark, nullptr);
+    return t_prefer_dark == TRUE;
+}
+
+extern "C" void MCplatformGetWindowBackgroundColor(char *p_buf, size_t p_buflen)
+{
+    uint2 r = 0xffff, g = 0xffff, b = 0xffff;
+    moz_gtk_get_widget_color(GTK_STATE_NORMAL, r, g, b);
+    format_gdk_color(r, g, b, p_buf, p_buflen);
+}
+
+extern "C" void MCplatformGetLabelColor(char *p_buf, size_t p_buflen)
+{
+    uint2 r = 0, g = 0, b = 0;
+    moz_gtk_get_widget_fg_color(GTK_STATE_NORMAL, r, g, b);
+    format_gdk_color(r, g, b, p_buf, p_buflen);
 }
 
 

@@ -1697,6 +1697,17 @@ void moz_gtk_get_widget_color(GtkStateType state,
 	green = c.green;
 }
 
+void moz_gtk_get_widget_fg_color(GtkStateType state,
+                                 uint2 &red, uint2 &green, uint2 &blue)
+{
+	ensure_label_widget();
+	GtkStyle *style = gProtoWindow->style;
+	GdkColor c = style->fg[state];
+	red   = c.red;
+	green = c.green;
+	blue  = c.blue;
+}
+
 static gint
 moz_gtk_tabpanels_paint(GdkDrawable * drawable, GdkRectangle * rect,
                         GdkRectangle * cliprect, int y, int w)
