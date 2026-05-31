@@ -439,20 +439,22 @@ void MCStack::sethints()
 		
 	}
     
-    // Popovers are borderless floating panels — the compositor provides the
-    // visual frame (drop-shadow) via the UTILITY type hint.  Suppress all WM
-    // chrome so the stack content fills the window without a title bar.
-    if (mode == WM_POPOVER)
-    {
-        t_decorations = 0;
-        t_functions   = 0;
-    }
-
     // TODO: test if this comment is still true
 	// Gnome gets confused with these set
 	//if (flags & F_DECORATIONS)
-    gdk_window_set_decorations(window, GdkWMDecoration(t_decorations));
-    gdk_window_set_functions(window, GdkWMFunction(t_functions));
+    //
+    // Do NOT set _MOTIF_WM_HINTS for WM_POPOVER.  Setting decorations=0 via
+    // gdk_window_set_decorations() writes _MOTIF_WM_HINTS.decorations=0, which
+    // many compositors interpret as "no frame and no shadow."  The
+    // _NET_WM_WINDOW_TYPE_UTILITY hint is sufficient on its own: modern WMs
+    // (Mutter, KWin, Openbox) suppress the title bar for UTILITY windows
+    // without needing an explicit Motif hint, and compositors will then apply
+    // their normal drop-shadow treatment.
+    if (mode != WM_POPOVER)
+    {
+        gdk_window_set_decorations(window, GdkWMDecoration(t_decorations));
+        gdk_window_set_functions(window, GdkWMFunction(t_functions));
+    }
 	
 	//TS 2007-11-08 : Adding in additional hint _NET_WM_STATE == _NET_WM_STATE_ABOVE if we have set WD_UTILITY (i.e. systemwindow == true)
 	if (decorations & WD_UTILITY)
