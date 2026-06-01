@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Python replacement for encode_errors.pl - generates C string arrays from error enum headers"""
-"""Usage: python encode_errors.py infile outfile"""
+"""Usage: python encode_errors.py infolder outfile"""
 
 import sys
 import os
@@ -10,7 +10,7 @@ def generate_errors_list(source_file, name):
     with open(source_file, 'r') as f:
         lines = f.readlines()
 
-    array = "const char * %s = \n{\n" % name
+    errorStrings = 'const char * %s = \n\n\"' % name
 
     found = False
     for line in lines:
@@ -27,22 +27,25 @@ def generate_errors_list(source_file, name):
         if '};' in line:
             break
 
+        # only use lines with quoted strings
+        # extract the string, add it to the result
         line_match = re.search('\".*\"', line)
         if line_match:
-           line = line_match.group()
-        array += '%s,\n' % line
+           noquotes = line_match.group().replace('"', '')
+           noslash = noquotes.replace('\\', '\\\\')
+           errorStrings += '%s\\n' % noslash
 
-    array += "};\n"
-    return array
+    errorStrings += '\";\n'
+    return errorStrings
 
 # Need to generate the error lists for both the parse and execution errors
 path = sys.argv[1]
 output_file = sys.argv[2]
 
 output = ""
-output += generate_errors_list(os.path.join(path, "newparseerrors.h"), "MCexecutionerrors")
+output += generate_errors_list(os.path.join(path, "executionerrors.h"), "MCexecutionerrors")
 output += "\n"
-#output += generate_errors_list(os.path.join(path, "parseerrors.h"), "MCparsingerrors")
+output += generate_errors_list(os.path.join(path, "parseerrors.h"), "MCparsingerrors")
 
 # Write out the error lists
 os.makedirs(os.path.dirname(output_file), exist_ok=True)
