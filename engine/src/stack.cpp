@@ -1743,14 +1743,14 @@ void MCStack::loadexternals(void)
 		{
 			MCAutoStringRefAsUTF8String t_utf8;
 			t_utf8.Lock((MCStringRef)t_val);
-			FILE *f = fopen("/tmp/livecode-arm64-startup.log", "a");
+			FILE *f = fopen("/tmp/hyperxtalk-arm64-startup.log", "a");
 			if (f) { fprintf(f, "loadexternals: loading bundle[%u]: %s\n", (unsigned)i, *t_utf8); fclose(f); }
 		}
 #endif
 		m_externals->Load((MCStringRef)t_val);
 #if defined(_MAC_DESKTOP)
 		{
-			FILE *f = fopen("/tmp/livecode-arm64-startup.log", "a");
+			FILE *f = fopen("/tmp/hyperxtalk-arm64-startup.log", "a");
 			if (f) { fprintf(f, "loadexternals: bundle[%u] loaded\n", (unsigned)i); fclose(f); }
 		}
 #endif

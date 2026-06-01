@@ -74,7 +74,7 @@ const char* kErrNoCurrentOperation = "ziperr,no current operation";
  *
  * The old Windows prebuilt path (36-byte struct with offset remapping) has
  * been removed because Windows now also builds libzip from source via
- * build-win-x86_64/livecode/thirdparty/libzip/libzip.vcxproj.  Using the
+ * build-win-x86_64/hyperxtalk/thirdparty/libzip/libzip.vcxproj.  Using the
  * old offset remapping with the new struct caused field reads at completely
  * wrong offsets, leading to SIGSEGV when the corrupted name/size values
  * were dereferenced.

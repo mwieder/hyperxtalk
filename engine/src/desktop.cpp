@@ -113,7 +113,7 @@ void MCPlatformHandleApplicationShutdownRequest(bool& r_terminate)
 {
 #if defined(_MAC_DESKTOP)
     {
-        FILE *f = fopen("/tmp/livecode-arm64-startup.log", "a");
+        FILE *f = fopen("/tmp/hyperxtalk-arm64-startup.log", "a");
         if (f) { fprintf(f, "MCPlatformHandleApplicationShutdownRequest called\n"); fclose(f); }
     }
 #endif

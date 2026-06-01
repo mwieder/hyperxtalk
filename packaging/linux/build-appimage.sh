@@ -3,7 +3,7 @@
 #
 # Usage:  ./packaging/linux/build-appimage.sh [BUILD_DIR] [BUILDTYPE]
 #
-# BUILD_DIR  defaults to build-linux-x86_64/livecode
+# BUILD_DIR  defaults to build-linux-x86_64/hyperxtalk
 # BUILDTYPE  defaults to Debug
 #
 # Requires: appimagetool (downloaded automatically if not on PATH)
@@ -13,7 +13,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
-BUILD_DIR="${1:-$REPO_ROOT/build-linux-x86_64/livecode}"
+BUILD_DIR="${1:-$REPO_ROOT/build-linux-x86_64/hyperxtalk}"
 BUILDTYPE="${2:-Debug}"
 OUT_DIR="$BUILD_DIR/out/$BUILDTYPE"
 

@@ -18,7 +18,7 @@
 
 ; Source tree — relative to this .iss file.
 ; The Release build script places all outputs here.
-#define SourceDir "..\build-win-x86_64\livecode\Release"
+#define SourceDir "..\build-win-x86_64\hyperxtalk\Release"
 
 ; ============================================================
 [Setup]

@@ -802,7 +802,7 @@ void MCEngineExecQuit(MCExecContext& ctxt, integer_t p_retcode)
 
 #if defined(_MAC_DESKTOP)
     {
-        FILE *f = fopen("/tmp/livecode-arm64-startup.log", "a");
+        FILE *f = fopen("/tmp/hyperxtalk-arm64-startup.log", "a");
         if (f) { fprintf(f, "MCEngineExecQuit: MCquit=True set (retcode=%d)\n", (int)p_retcode); fclose(f); }
     }
 #endif

@@ -298,7 +298,7 @@ void MCStack::sethints()
     x11::XClassHint chints;
 
 	// Use the name of the home stack as the application name for standalones
-	// and the LiveCode name and version for the IDE
+	// and the HyperXTalk name and version for the IDE
     MCAutoStringRef t_app_name;
     MCAutoStringRefAsCString t_app_name_cstr;
 	int t_env = MCModeGetEnvironmentType();

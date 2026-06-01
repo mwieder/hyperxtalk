@@ -53,8 +53,8 @@ const char * const MCLinuxRawClipboard::s_formats[kMCRawClipboardKnownTypeLast+1
     NULL,                           // Windows bitmap
     NULL,                           // Windows v5 bitmap
     
-    "application/x-revolution",     // LiveCode serialised objects
-    "text/x-revolution-styled",     // LiveCode styled text
+    "application/x-revolution",     // HyperXTalk serialised objects
+    "text/x-revolution-styled",     // HyperXTalk styled text
     
     NULL,                           // File path
     "text/uri-list",                // File path list
@@ -91,7 +91,7 @@ MCLinuxRawClipboard::MCLinuxRawClipboard(const char* p_selection_atom_name) :
   m_owned(false)
 {
     // If GDK isn't available, don't try to use it. We can use the clipboard
-    // without it but only within this LiveCode instance.
+    // without it but only within this HyperXTalk instance.
     if (HasGDK())
         m_selection = gdk_atom_intern(p_selection_atom_name, FALSE);
 }
@@ -528,7 +528,7 @@ GdkWindow* MCLinuxRawClipboard::GetClipboardWindow() const
     // Attributes for the window
     GdkWindowAttr t_attributes;
     memset(&t_attributes, 0, sizeof(t_attributes));
-    t_attributes.title = "LiveCode Clipboard Helper";
+    t_attributes.title = "HyperXTalk Clipboard Helper";
     t_attributes.event_mask = GDK_ALL_EVENTS_MASK;
     t_attributes.wclass = GDK_INPUT_ONLY;
     t_attributes.window_type = GDK_WINDOW_TOPLEVEL;

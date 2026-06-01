@@ -237,12 +237,12 @@ MCExternal *MCExternal::Load(MCStringRef p_filename)
 	{
 #if defined(_MAC_DESKTOP)
         { MCAutoStringRefAsUTF8String _u; _u.Lock(p_filename);
-          FILE *f=fopen("/tmp/livecode-arm64-startup.log","a");
+          FILE *f=fopen("/tmp/hyperxtalk-arm64-startup.log","a");
           if(f){fprintf(f,"MCExternal::Load dlopen: %s\n",*_u);fclose(f);} }
 #endif
         &t_module = MCU_library_load(p_filename);
 #if defined(_MAC_DESKTOP)
-        { FILE *f=fopen("/tmp/livecode-arm64-startup.log","a");
+        { FILE *f=fopen("/tmp/hyperxtalk-arm64-startup.log","a");
           if(f){fprintf(f,"MCExternal::Load dlopen done, loaded=%d\n",(int)t_module.IsSet());fclose(f);} }
 #endif
         if (!t_module.IsSet())
@@ -259,7 +259,7 @@ MCExternal *MCExternal::Load(MCStringRef p_filename)
             t_success = false;
 	}
 #if defined(_MAC_DESKTOP)
-    { FILE *f=fopen("/tmp/livecode-arm64-startup.log","a");
+    { FILE *f=fopen("/tmp/hyperxtalk-arm64-startup.log","a");
       if(f){fprintf(f,"MCExternal::Load after dlopen: t_success=%d\n",(int)t_success);fclose(f);} }
 #endif
 
@@ -291,12 +291,12 @@ MCExternal *MCExternal::Load(MCStringRef p_filename)
             t_external -> m_module.Give(t_module.Take());
 			t_external -> m_name = nil;
 #if defined(_MAC_DESKTOP)
-            { FILE *f=fopen("/tmp/livecode-arm64-startup.log","a");
+            { FILE *f=fopen("/tmp/hyperxtalk-arm64-startup.log","a");
               if(f){fprintf(f,"MCExternal::Load calling Prepare\n");fclose(f);} }
 #endif
 			t_success = t_external -> Prepare();
 #if defined(_MAC_DESKTOP)
-            { FILE *f=fopen("/tmp/livecode-arm64-startup.log","a");
+            { FILE *f=fopen("/tmp/hyperxtalk-arm64-startup.log","a");
               if(f){fprintf(f,"MCExternal::Load Prepare done: %d\n",(int)t_success);fclose(f);} }
 #endif
 		}
@@ -308,14 +308,14 @@ MCExternal *MCExternal::Load(MCStringRef p_filename)
 	// (i.e. if the reference count > 0).
 #if defined(_MAC_DESKTOP)
     if (t_success) {
-        FILE *f=fopen("/tmp/livecode-arm64-startup.log","a");
+        FILE *f=fopen("/tmp/hyperxtalk-arm64-startup.log","a");
         if(f){fprintf(f,"MCExternal::Load calling Initialize (refs=%d)\n",(int)t_external->m_references);fclose(f);}
     }
 #endif
 	if (t_success && t_external -> m_references == 0)
 		t_success = t_external -> Initialize();
 #if defined(_MAC_DESKTOP)
-    { FILE *f=fopen("/tmp/livecode-arm64-startup.log","a");
+    { FILE *f=fopen("/tmp/hyperxtalk-arm64-startup.log","a");
       if(f){fprintf(f,"MCExternal::Load Initialize done: %d\n",(int)t_success);fclose(f);} }
 #endif
 
