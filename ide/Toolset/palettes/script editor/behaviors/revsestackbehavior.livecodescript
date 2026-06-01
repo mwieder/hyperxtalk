@@ -2675,13 +2675,14 @@ end resumeStack
 #   Sent when the script editor stack is opened. Initialises the stack...
 on preOpenStack pDontCheckTarget
    set the backgroundColor of this stack to (the systemWindowColor)
-   if systemAppearance is "dark" then
-      set the backColor of field "Handlers" of group "Left Handler List" of group "Left Bar" of card "Main" of this stack to "black"
-      set the foreColor of field "Handlers" of group "Left Handler List" of group "Left Bar" of card "Main" of this stack to "white"
-   else
-      set the backColor of field "Handlers" of group "Left Handler List" of group "Left Bar" of card "Main" of this stack to "white"
-      set the foreColor of field "Handlers" of group "Left Handler List" of group "Left Bar" of card "Main" of this stack to "black"
-   end if
+   set the foregroundColor of this stack to (the systemTextColor)
+   --   if systemAppearance is "dark" then
+   --      set the backColor of field "Handlers" of group "Left Handler List" of group "Left Bar" of card "Main" of this stack to "black"
+   --      set the foreColor of field "Handlers" of group "Left Handler List" of group "Left Bar" of card "Main" of this stack to "white"
+   --   else
+   --      set the backColor of field "Handlers" of group "Left Handler List" of group "Left Bar" of card "Main" of this stack to "white"
+   --      set the foreColor of field "Handlers" of group "Left Handler List" of group "Left Bar" of card "Main" of this stack to "black"
+   --   end if
    revSEInitialize pDontCheckTarget
 end preOpenStack
 
@@ -2741,22 +2742,23 @@ command revSEInitialize pDontCheckTarget
    put sePrefGet(tMode & ",lastSelectedPane") into tLastSelectedPane
    call "setCurrentTab tLastSelectedPane" to group "Pane Tabs" of me
    
-   # On OS X, toplevel windows have a white background, which is both inconsistent with the rest of the IDE
-   # and looks bad.
-   if (the platform is "MacOS") then
-      set the backgroundColor of me to (the systemWindowColor)
-   end if
+   --   # On OS X, toplevel windows have a white background, which is both inconsistent with the rest of the IDE
+   --   # and looks bad.
+   --   if (the platform is "MacOS") then
+   --      set the backgroundColor of me to (the systemWindowColor)
+   --   end if
    
    actionResizeStack true
    
    set the showInvisibles of me to false
    
    // HXT dark mode
-   if (the systemAppearance is "dark") then
-      set the backColor of me to "#323232"
-   else
-      set the backColor of me to "#ececec"
-   end if
+   set the backgroundColor of this stack to (the systemWindowColor)
+   --   if (the systemAppearance is "dark") then
+   --      set the backColor of me to "#323232"
+   --   else
+   --      set the backColor of me to "#ececec"
+   --   end if
 end revSEInitialize
 
 on idePreferenceChanged pPreference, pValue
@@ -3239,8 +3241,11 @@ end revSEAddDefaultHandler
 // HXT
 on SystemAppearanceChanged pMode, pWindowColor, pTextColor
    set the backgroundColor of this stack to pWindowColor
-   set the backColor of field "Handlers" of group "Left Handler List" of group "Left Bar" of card "Main" of this stack to pWindowColor
-   set the foreColor of field "Handlers" of group "Left Handler List" of group "Left Bar" of card "Main" of this stack to pTextColor
+   set the foregroundcolor of this stack to pTextColor
+   seUpdateLeftBar
+   seUpdateToolbar
+   --   set the backColor of field "Handlers" of group "Left Handler List" of group "Left Bar" of card "Main" of this stack to pWindowColor
+   --   set the foreColor of field "Handlers" of group "Left Handler List" of group "Left Bar" of card "Main" of this stack to pTextColor
    --   if pMode is "dark" then
    --      set the backColor of field "Handlers" of group "Left Handler List" of group "Left Bar" of card "Main" of this stack to "black"
    --      set the foreColor of field "Handlers" of group "Left Handler List" of group "Left Bar" of card "Main" of this stack to "white"
