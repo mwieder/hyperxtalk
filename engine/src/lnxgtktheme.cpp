@@ -223,6 +223,11 @@ extern "C" bool MCplatformIsDarkMode(void);
 extern "C" void MCplatformGetWindowBackgroundColor(char *p_buf, size_t p_buflen);
 extern "C" void MCplatformGetLabelColor(char *p_buf, size_t p_buflen);
 
+// Declared in toolbar.cpp — notifies all open MCToolbar objects to reload
+// icon image data for the new appearance (dark/light) and repush to their
+// platform backends.
+extern void MCToolbarNotifyThemeChanged(void);
+
 static gboolean do_reload_theme(gpointer /*user_data*/)
 {
 	if (MCcurtheme && MCcurtheme->getthemeid() == LF_NATIVEGTK)
@@ -285,6 +290,10 @@ static gboolean do_reload_theme(gpointer /*user_data*/)
 		}
 
 		MCRedrawDirtyScreen();
+
+		// Notify all open MCToolbar objects so they reload dark/light icon
+		// variants and push updated image data to their platform backends.
+		MCToolbarNotifyThemeChanged();
 	}
 	return FALSE; // G_SOURCE_REMOVE — run once, do not reschedule
 }
@@ -416,27 +425,53 @@ static void format_gdk_color(uint2 red, uint2 green, uint2 blue,
 typedef void (*g_object_getPTR)(void *object, const gchar *first_property_name, ...);
 extern g_object_getPTR g_object_get_ptr;
 
+// Returns true when the current GTK theme is a dark variant.
+//
+// IMPORTANT: this function must NOT call moz_gtk_get_widget_color().  That
+// function accesses gProtoWindow->style, which is NULL in GTK 3 when the
+// prototype widget hasn't been style-initialised yet — a condition that
+// occurs during MCToolbar::open() at startup, before the first
+// reload_theme() cycle has run.  A NULL dereference there crashes open()
+// before _syncBackendItems() runs, leaving the toolbar invisible.
+//
+// Instead we use two safe GtkSettings queries:
+//   1. gtk-application-prefer-dark-theme — set by GNOME Shell / most DEs.
+//   2. gtk-theme-name containing "dark"  — catches Adwaita-dark, Yaru-dark,
+//      Arc-Dark, etc.
 extern "C" bool MCplatformIsDarkMode(void)
 {
-    // Fast path: explicit "prefer dark theme" GtkSettings flag.
     GtkSettings *t_settings = gtk_settings_get_default();
-    if (t_settings != nullptr && g_object_get_ptr != nullptr)
+    if (t_settings == nullptr || g_object_get_ptr == nullptr)
+        return false;
+
+    // Fast path: explicit prefer-dark flag set by the desktop environment.
+    gboolean t_prefer_dark = FALSE;
+    g_object_get_ptr(t_settings, "gtk-application-prefer-dark-theme",
+                     &t_prefer_dark, (gchar *)nullptr);
+    if (t_prefer_dark)
+        return true;
+
+    // Fallback: check whether the theme name contains "dark".
+    // We avoid g_ascii_strdown because it is not in the dlopen stub table;
+    // use a plain ASCII case-insensitive scan instead.
+    gchar *t_name = nullptr;
+    g_object_get_ptr(t_settings, "gtk-theme-name", &t_name, (gchar *)nullptr);
+    if (t_name != nullptr)
     {
-        gboolean t_prefer_dark = FALSE;
-        g_object_get_ptr(t_settings, "gtk-application-prefer-dark-theme",
-                         &t_prefer_dark, (gchar *)nullptr);
-        if (t_prefer_dark)
-            return true;
+        bool t_dark = false;
+        for (const gchar *p = t_name; p[0] && p[1] && p[2] && p[3]; p++)
+        {
+            if ((p[0] == 'd' || p[0] == 'D') &&
+                (p[1] == 'a' || p[1] == 'A') &&
+                (p[2] == 'r' || p[2] == 'R') &&
+                (p[3] == 'k' || p[3] == 'K'))
+            { t_dark = true; break; }
+        }
+        g_free(t_name);
+        return t_dark;
     }
 
-    // Fallback: measure the window background luminance.  Themes like
-    // "Adwaita-dark" or "Yaru-dark" don't set gtk-application-prefer-dark-theme
-    // but render a dark background.  GDK colour components are 0–65535;
-    // weighted luminance below 50 % (ITU-R BT.709) means dark.
-    uint2 r = 0xffff, g = 0xffff, b = 0xffff;
-    moz_gtk_get_widget_color(GTK_STATE_NORMAL, r, g, b);
-    double lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-    return lum < (0.5 * 65535.0);
+    return false;
 }
 
 extern "C" void MCplatformGetWindowBackgroundColor(char *p_buf, size_t p_buflen)
@@ -1865,8 +1900,6 @@ bool MCThemeDraw(MCGContextRef p_context, MCThemeDrawType p_type, MCThemeDrawInf
 	
     if (!t_cached)
         g_object_unref(t_argb_image);
-    
+
 	return true;
 }
-
-////////////////////////////////////////////////////////////////////////////////

@@ -130,6 +130,10 @@ private:
     // Platform backend (null until open())
     MCToolbarBackend    *m_backend;
 
+    // Intrusive linked list of all currently-open MCToolbar objects, used to
+    // notify them of platform theme changes without walking the object tree.
+    MCToolbar           *m_theme_next;
+
     static MCPropertyInfo        kProperties[];
     static MCObjectPropertyTable kPropertyTable;
 
@@ -239,6 +243,13 @@ public:
 
     void itemClicked(MCNameRef p_item_name);
 
+    //--------------------------------------------------------------------------
+    // Theme change notification — called by MCToolbarNotifyThemeChanged()
+
+    void onThemeChanged();
+
+    friend void MCToolbarNotifyThemeChanged();
+
     // Returns the y pixel offset (in client-area coordinates) at which the
     // platform toolbar should appear.  If the stack has an in-window menu bar
     // group this is the group's bottom edge; otherwise it is 0.
@@ -259,5 +270,9 @@ private:
 // lnx-toolbar.cpp
 
 MCToolbarBackend *MCToolbarCreatePlatformBackend(MCToolbar *p_owner);
+
+// Notify all currently-open MCToolbar objects that the platform theme has
+// changed so they can reload dark-/light-mode icon variants.
+void MCToolbarNotifyThemeChanged();
 
 #endif // TOOLBAR_H
