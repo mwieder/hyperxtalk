@@ -2346,10 +2346,6 @@ end revIDEGetPreferenceOfSet
 command __DevPreference pPreferenceName, @rValue
    if not revEnvironmentIsInstalled() then
       switch pPreferenceName
-         case "cScriptEditor,explicitVariables"
-         case "cScriptEditor,preserveVariables"
-            put true into rValue
-            break
          case "cScriptEditor,editor,commentchar"
             put "--" into rValue
             break
@@ -2357,7 +2353,7 @@ command __DevPreference pPreferenceName, @rValue
             put 3 into rValue
             break
       end switch
-      
+
    end if
 end __DevPreference
 
@@ -3581,6 +3577,7 @@ on revIDEUngroup pGroup
    end if
    revIDESelectObjects pGroup
    ungroup
+   revIDEMessageSend "ideControlDeleted", pGroup
 end revIDEUngroup
 
 /*
@@ -4119,6 +4116,11 @@ function revIDESpecialFolderPath pKey, pParam
          break
       case "user extensions"
          put revEnvironmentUserExtensionsPath() into tPath
+         revIDEEnsurePath tPath
+         return tPath
+         break
+      case "user libraries"
+         put revEnvironmentUserLibraries() into tPath
          revIDEEnsurePath tPath
          return tPath
          break
@@ -5170,7 +5172,10 @@ private on __setPropertyOfObject pObject, pProperty, pValue
    if tProperties["properties"][pProperty]["setter"] is not empty then
       dispatch tProperties["properties"][pProperty]["setter"] with pObject, pProperty, pValue
    else
-      set the pProperty of pObject to pValue
+      try
+         set the pProperty of pObject to pValue
+      catch tError
+      end try
    end if
    
 end __setPropertyOfObject
@@ -6524,8 +6529,12 @@ on revIDEStandaloneSettingsSet pStack, pProperty, pValue
    set the cRevStandaloneSettings[pProperty] of pStack to pValue
 end revIDEStandaloneSettingsSet
 
+function revIDEStandaloneSettingsGet pTargetStackLongID, pProperty
+   return the cRevStandaloneSettings[pProperty] of pTargetStackLongID
+end revIDEStandaloneSettingsGet
+   
 function revIDEStandaloneSections
-	// AL-2015-03-03: [[ Bug 14769 ]] Add 'Table' section to the property inspector
+   // AL-2015-03-03: [[ Bug 14769 ]] Add 'Table' section to the property inspector
    return "General,Stacks,Copy Files,Mac,Windows,Linux,iOS,Android,Bug Reports"
 end revIDEStandaloneSections
 
@@ -8217,6 +8226,51 @@ on revIDESaveAsProject pStackID, pFolderPath
    revUpdateRecentFiles the short name of pStackID
 end revIDESaveAsProject
 
+-- ---------------------------------------------------------------------------
+-- .hxtlib compiled library save handlers ("Save as Library...")
+-- ---------------------------------------------------------------------------
+
+on revIDEActionSaveAsLibrary pStackID
+   local tShortName
+   put the short name of pStackID into tShortName
+
+   -- Prompt for save location.
+   ask file revIDELocalise("Save library as:") with tShortName & ".hxtlib"
+   if it is empty then exit revIDEActionSaveAsLibrary
+
+   local tFilePath
+   put it into tFilePath
+   if not (tFilePath ends with ".hxtlib") then
+      put ".hxtlib" after tFilePath
+   end if
+
+   -- Confirm overwrite if file already exists.
+   if there is a file tFilePath then
+      answer revIDELocalise("A library named '%1' already exists. Replace it?", tShortName) \
+            with revIDELocalise("Replace") and revIDELocalise("Cancel")
+      if it is revIDELocalise("Cancel") then exit revIDEActionSaveAsLibrary
+   end if
+
+   set the cursor to watch
+   revIDESaveAsLibrary pStackID, tFilePath
+end revIDEActionSaveAsLibrary
+
+on revIDESaveAsLibrary pStackID, pFilePath
+   -- pFilePath is the full path to the output .hxtlib file.
+   -- The engine command "save stack as library to <path>" handles:
+   --   • serializing the handler list (ASTN section via MCHXTASTWriter)
+   --   • embedding the source script (SRCS section as fallback)
+   --   • writing the binary container with CRC32/SHA-256 integrity checks
+
+   save pStackID as library to pFilePath
+   if the result is not empty then
+      answer error revIDELocalise("Could not save library:") & return & the result
+      exit revIDESaveAsLibrary
+   end if
+
+   answer revIDELocalise("Library saved to:") & return & pFilePath
+end revIDESaveAsLibrary
+
 on revIDEProjectBuildTree pStackID, pMediaFolder, @rTree
    put "hyperxtalk-project" into rTree["format"]
    put 1 into rTree["version"]
@@ -8495,7 +8549,13 @@ on revIDELoadFromProject pFilePath
       set the cRevProjectFilePath of stack tNewStackName to tFolderPath
       revIDEAddRecentStack pFilePath
       unlock screen
+      lock error dialogs
+      send "preOpenStack" to card 1 of stack tNewStackName
+      send "preOpenCard" to card 1 of stack tNewStackName
       go stack tNewStackName
+      send "openStack" to card 1 of stack tNewStackName
+      send "openCard" to card 1 of stack tNewStackName
+      unlock error dialogs
    else
       unlock screen
    end if
@@ -9589,44 +9649,12 @@ on revIDEToggleToolbar pWhich
 end revIDEToggleToolbar
 
 on revIDEToggleShowIDEStacksInLists
-   global gREvShowStacks
-   lock screen
-   set the hilite of button "show revolution stacks" of card "general" of stack "revPreferencesGUI" to not gREVShowStacks
-   
-   local tOpenStacks
-   put the openStacks into tOpenStacks
-   
-   local tFrontStack
-   put empty into tFrontStack
-   repeat for each line tStack in tOpenStacks
-      if tStack is not "revMenubar" and the mode of stack tStack is among the items of "1,2,3" then
-         put tStack into tFrontStack
-         exit repeat
-      end if
-   end repeat
-   if tFrontStack is not empty then
-      set the wholeMatches to true
-      local tBringToFront
-      if lineOffset(tFrontStack, tOpenStacks) < lineOffset("revApplicationOverview", tOpenStacks) then
-         put true into tBringToFront
-      end if
-   end if
-   send "revToggleShowStacks" to button "show revolution stacks" of card "general" of stack "revPreferencesGUI"
-   unlock screen
-   
-   if tBringToFront then
-      lock messages
-      switch the mode of stack tFrontStack
-         case 1
-         case 2
-            toplevel tFrontStack
-            break
-         case 3
-            modeless tFrontStack
-            break
-      end switch
-      unlock messages 
-   end if
+   global gREVShowStacks
+   -- Toggle the global and persist the preference directly, without loading
+   -- revPreferencesGUI. revIDESetPreference fires idePreferenceChanged:cShowRevolutionStacks
+   -- which the Project Browser is already subscribed to, so it rebuilds immediately.
+   put not revIDEGetPreference("cShowRevolutionStacks") into gREVShowStacks
+   revIDESetPreference "cShowRevolutionStacks", gREVShowStacks
 end revIDEToggleShowIDEStacksInLists
 
 on revIDETogglePalette pPaletteName

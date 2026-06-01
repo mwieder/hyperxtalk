@@ -5,7 +5,7 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
-	<title>LiveCode Dictionary</title>
+	<title>Dictionary</title>
 
 	<link href="[[tDocsCSSFolder]]/bootstrap.min.css" rel="stylesheet">
 	<link href="[[tDocsCSSFolder]]/lcdoc.css" rel="stylesheet">
@@ -332,7 +332,8 @@
 	<script src="[[tDocsJSFolder]]/jquery.mousewheel.min.js"></script>	
 
 	<script charset="UTF-8" src="[[tDataPath]]"></script>  
-	<script src="[[tDocsJSFolder]]/dictionary_functions.js"></script>	
+	<script src="[[tDocsJSFolder]]/dictionary_functions.js"></script>
+	<script src="[[tDocsJSFolder]]/deeplink.js"></script>
 	<script>
 		$(document).ready(function(e)
 		{
@@ -341,10 +342,19 @@
 			dataFilter();
 			displayLibraryChooser();
 
-			goEntryName('[[tLibraryName]]', '[[tEntryName]]', '[[tEntryType]]');
+			deeplink_install();
+
+			// Use hash fragment if present (direct browser link),
+			// otherwise fall back to the template-supplied values (IDE launch).
+			var tDeeplink = deeplink_loadArgs();
+			if (tDeeplink)
+				goEntryName(tDeeplink.lib, tDeeplink.name, tDeeplink.type);
+			else
+				goEntryName('[[tLibraryName]]', '[[tEntryName]]', '[[tEntryType]]');
+
 			document.getElementById("ui_filer").focus();
 
-			// Notify LiveCode that the page is ready.
+			// Notify script that the page is ready.
 			// browserNavigateComplete callbacks are unavailable via libffi;
 			// use the JS bridge instead.
 			if (typeof liveCode !== 'undefined') {

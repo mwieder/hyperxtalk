@@ -699,6 +699,19 @@ on mouseDown pButton
             __hiliteRemove
          end if
       end if
+      ## test if another stack at the screenmouseLoc is more relevant e.g. overlapping stacks
+      local tTestID
+      repeat with x = 1 to the number of elements in tValidDropStacks
+         put tValidDropStacks[x]["long id"] into tStackID
+         if tScreenmouseloc is within tValidDropStacks[x]["rect"] then
+            put tStackID into tTestID
+            if tTestID <> tTargetStack then
+               put empty into tTargetStack
+            end if
+            exit repeat
+         end if
+      end repeat
+      ## End test if another stack at the screenmouseLoc is more relevant
    end repeat
    
    # Change the cursor back
@@ -1295,10 +1308,10 @@ end toolIconColor
 on systemAppearanceChanged pMode, pWindowColor, pTextColor
    local tBgColor
    put revIDEColor("palette_background") into tBgColor
-   set the backgroundColor of this stack to tBgColor
-   set the backgroundColor of this card to tBgColor
+   set the backgroundColor of this stack to pWindowColor
+   --   set the backgroundColor of this card to tBgColor
    set the foregroundColor of this stack to pTextColor
-
+   
    -- LCB widgets sit outside the LiveCode Script message hierarchy and cannot
    -- receive SystemAppearanceChanged themselves.  Drive the appearance change
    -- by updating the foregroundColor of every SVG path widget in the palette;

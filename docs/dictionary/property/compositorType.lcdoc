@@ -9,11 +9,11 @@ Specifies which compositor is used when rendering a stack.
 
 Associations: stack
 
-Introduced: 5.0
+Introduced: 1.0.0
 
-OS: mac, windows, linux, ios, android
+OS: mac, windows, linux
 
-Platforms: desktop, mobile
+Platforms: desktop
 
 Example:
 set the compositorType of this stack to "software"
@@ -27,14 +27,13 @@ A <string> containing the type of compositor to use, or <empty>.
 
 -   none: Do not use <acceleratedRendering|accelerated rendering> (the default when empty).
 -   software: Use the built-in rendering engine to composite (all platforms).
--   coregraphics: Use CoreGraphics to composite (Mac / iOS only)
+-   coregraphics: Use CoreGraphics to composite (Mac only)
     (Recommended).
--   opengl: Use OpenGL to composite (iOS and Android only).
 
 
 Description:
 Use the compositorType property to specify which compositor is used when
-rendering your stack. Setting this property puts OpenXTalk into
+rendering your stack. Setting this property puts HyperXTalk into
 <acceleratedRendering|accelerated rendering> mode which offers performance benefits,
 particularly when animating.
 

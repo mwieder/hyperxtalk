@@ -1,19 +1,3 @@
-/* Copyright (C) 2003-2015 LiveCode Ltd.
-
-This file is part of LiveCode.
-
-LiveCode is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License v3 as published by the Free
-Software Foundation.
-
-LiveCode is distributed in the hope that it will be useful, but WITHOUT ANY
-WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-for more details.
-
-You should have received a copy of the GNU General Public License
-along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
-
 #include "prefix.h"
 
 #include "globdefs.h"
@@ -1159,7 +1143,7 @@ bool MCD_convert_to_datetime(MCExecContext &ctxt, MCValueRef p_input, Convert_fo
 					t_datetime . bias = 0;
 				}
 				// seconds = 0 unless explicitly specified
-				else if ((0 == t_valid_dateitems & DATETIME_ITEM_SECOND))
+				else if ((0 == (t_valid_dateitems & DATETIME_ITEM_SECOND)))
 					t_datetime . second = 0;
 				
 				if (!datetime_validate(t_datetime))
@@ -1185,9 +1169,8 @@ bool MCD_convert_to_datetime(MCExecContext &ctxt, MCValueRef p_input, Convert_fo
 			else
 				t_locale = g_basic_locale;
 		    
-			int t_valid_dateitems;
 			t_valid_dateitems = 0;
-		    
+
 			// Order for dates:
 			//   long date
 			//   abbrev date
@@ -1199,10 +1182,9 @@ bool MCD_convert_to_datetime(MCExecContext &ctxt, MCValueRef p_input, Convert_fo
 			//   long time 24
 			//   short time 24
 		    
-			MCAutoStringRef t_string;
 			if (!ctxt.ConvertToString(p_input, &t_string))
 				return false;
-		
+
 			if (datetime_parse(g_basic_locale, ctxt.GetCutOff(), false, MCSTR(s_items_date_format), *t_string, t_offset, t_datetime, t_valid_dateitems) && !MCStringIsEmpty(*t_string))
 			{
 				datetime_normalize(t_datetime);
@@ -1346,17 +1328,26 @@ bool MCD_convert_from_datetime(MCExecContext &ctxt, MCDateTime p_datetime, Conve
 					case CF_SQL:
 						p_primary_to = p_secondary_to;
 						p_secondary_to = CF_UNDEFINED;
+						break;
+					default:
+						break;
 				}
 				break;
 			case CF_SQL_DATE:
 			case CF_SQL:
 				p_secondary_to = CF_UNDEFINED;
+				break;
+			default:
+				break;
 		}
 
 		switch (p_secondary_to)
 		{
 			case CF_DATEITEMS:
 				p_secondary_to = CF_UNDEFINED;
+				break;
+			default:
+				break;
 		}
 
 		t_success = MCS_datetimetolocal(p_datetime);

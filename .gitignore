@@ -24,6 +24,7 @@ util/perfect/perfect.linux-*
 **/extensions/*/*/*.lci
 **/extensions/*/*/*.lcm
 **/extensions/*/*/*.lce
+**/extensions/*/*/api.lcdoc
 */src/.lci/*
 
 # Compiled source and intermediates #
@@ -148,4 +149,3 @@ build/engine/Release/Externals/CEF
 /thirdparty/libjpeg/src/jconfig.h
 /Installer/output
 ide/Documentation/html_viewer/resources/data/api
-
