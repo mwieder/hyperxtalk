@@ -728,14 +728,9 @@ void MCToolbar::_resolveItemImageData()
     // onThemeChanged() so that image data is restored after load and updated
     // when the system switches between dark and light mode.
     //
-    // In dark mode we first try "<iconname>-DM"; if no such image exists we
-    // fall back to the base name.  This follows the same "-DM" naming
-    // convention used by revmenubar for its toolbar button icons.
-    //
     // Uses a default MCExecContext (no associated handler/object) which is
     // sufficient for MCImage::GetText — that method only uses the context for
     // error reporting, not for data retrieval.
-    bool t_dark = MCplatformIsDarkMode();
     MCExecContext t_ctxt;
 
     for (uindex_t i = 0; i < m_item_count; i++)
@@ -745,20 +740,7 @@ void MCToolbar::_resolveItemImageData()
         if (MCStringIsEmpty(t_icon))
             continue;
 
-        MCImage *t_image = nil;
-
-        // In dark mode, first try the "-DM" variant of the icon name.
-        if (t_dark)
-        {
-            MCAutoStringRef t_dm_name;
-            if (MCStringFormat(&t_dm_name, "%@-DM", t_icon))
-                t_image = resolveimagename(*t_dm_name);
-        }
-
-        // Fall back to the base name if no dark-mode variant was found.
-        if (t_image == nil)
-            t_image = resolveimagename(t_icon);
-
+        MCImage *t_image = resolveimagename(t_icon);
         if (t_image == nil)
             continue;
 
