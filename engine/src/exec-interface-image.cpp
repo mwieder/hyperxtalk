@@ -323,6 +323,15 @@ void MCImage::GetText(MCExecContext& ctxt, MCDataRef& r_text)
     
     void *t_data = nil;
 	uindex_t t_size = 0;
+    // recompress() can set m_rep = nil if re-encoding fails in a Release build
+    // (MCAssert is a no-op there).  Guard against that before touching the rep.
+    if (t_image_to_work_on->m_rep == nullptr)
+    {
+        if (t_image_to_work_on != this)
+            delete t_image_to_work_on;
+        r_text = MCValueRetain(kMCEmptyData);
+        return;
+    }
 	if (t_image_to_work_on->m_rep->GetType() == kMCImageRepResident)
 		static_cast<MCResidentImageRep*>(t_image_to_work_on->m_rep)->GetData(t_data, t_size);
 	else if (t_image_to_work_on->m_rep->GetType() == kMCImageRepVector)
