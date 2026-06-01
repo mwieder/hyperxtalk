@@ -339,10 +339,11 @@ private command revInternal__SetupPaths
    set the itemDelimiter to "/"
    switch the platform
       case "Linux"
+         local tOldFolder
+         put the folder into tOldFolder
+         set the folder to "~"
+
          // HTX
-         --         local tOldFolder
-         --         put the folder into tOldFolder
-         --         set the folder to "~"
          --         put the folder & slash & ".hyperxtalk/hyperxtalk/enterprise/preferences" into sOldPreferencesPath
          --         if there is no folder sOldPreferencesPath then
          --            put the folder & slash & ".hyperxtalk/hyperxtalk/studio/preferences" into sOldPreferencesPath
@@ -351,12 +352,10 @@ private command revInternal__SetupPaths
          --            put the folder & slash & ".hyperxtalk/hyperxtalk/media/preferences" into sOldPreferencesPath
          --         end if
          
-         local tOldFolder
-         put the folder into tOldFolder
          put the folder & slash & ".hyperxtalk/preferences" into sPreferencesPath
          put the folder & slash & ".hyperxtalk/cache" into sCachePath
          put the folder & slash & ".hyperxtalk/crashlogs" into sCrashLogPath
-         put the folder & slash & ".hyperxtalk/documentationcache" into sUserDocsPath
+         put the folder & slash & "hyperxtalk_customization/documentationcache" into sUserDocsPath
          set the folder to tOldFolder
          
          -- MW-2013-06-13: Adjust the engine path for Linux
