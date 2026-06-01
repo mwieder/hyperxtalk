@@ -44,6 +44,10 @@
 #include <gtk/gtk.h>        // GTK/GDK/Cairo types and helpers
 #include "toolbar.h"
 
+// Defined in lnxgtktheme.cpp on Linux; weak stub (returns false) in
+// buttondraw.cpp covers all other platforms.
+extern "C" bool MCplatformIsDarkMode(void);
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Tuneable constants
 // ─────────────────────────────────────────────────────────────────────────────
@@ -504,12 +508,21 @@ private:
         if (!cr)
             return;
 
-        // Background gradient
+        // Background gradient — light or dark depending on system appearance
+        bool t_dark = MCplatformIsDarkMode();
         {
             cairo_pattern_t *t_grad =
                 cairo_pattern_create_linear(0, 0, 0, t_h);
-            cairo_pattern_add_color_stop_rgb(t_grad, 0.0, 0.93, 0.93, 0.93);
-            cairo_pattern_add_color_stop_rgb(t_grad, 1.0, 0.80, 0.80, 0.80);
+            if (t_dark)
+            {
+                cairo_pattern_add_color_stop_rgb(t_grad, 0.0, 0.26, 0.26, 0.26);
+                cairo_pattern_add_color_stop_rgb(t_grad, 1.0, 0.20, 0.20, 0.20);
+            }
+            else
+            {
+                cairo_pattern_add_color_stop_rgb(t_grad, 0.0, 0.93, 0.93, 0.93);
+                cairo_pattern_add_color_stop_rgb(t_grad, 1.0, 0.80, 0.80, 0.80);
+            }
             cairo_set_source(cr, t_grad);
             cairo_rectangle(cr, 0, 0, t_w, t_h);
             cairo_fill(cr);
@@ -520,10 +533,13 @@ private:
         bool t_show_label = (m_display_mode != kMCToolbarDisplayModeIconOnly);
 
         for (int i = 0; i < m_item_count; i++)
-            _drawItem(cr, i, (m_hover_idx == i), t_show_icon, t_show_label, t_h);
+            _drawItem(cr, i, (m_hover_idx == i), t_show_icon, t_show_label, t_h, t_dark);
 
         // Bottom border line
-        cairo_set_source_rgb(cr, 0.55, 0.55, 0.55);
+        if (t_dark)
+            cairo_set_source_rgb(cr, 0.15, 0.15, 0.15);
+        else
+            cairo_set_source_rgb(cr, 0.55, 0.55, 0.55);
         cairo_set_line_width(cr, 1.0);
         cairo_move_to(cr, 0,   t_h - 0.5);
         cairo_line_to(cr, t_w, t_h - 0.5);
@@ -533,7 +549,7 @@ private:
     }
 
     void _drawItem(cairo_t *cr, int idx, bool hovered,
-                   bool show_icon, bool show_label, int bar_h)
+                   bool show_icon, bool show_label, int bar_h, bool t_dark)
     {
         LnxItemData *it = &m_items[idx];
         int ix = it->x, iw = it->width;
@@ -541,7 +557,10 @@ private:
         // Separator
         if (it->style == kMCToolbarItemStyleSeparator)
         {
-            cairo_set_source_rgb(cr, 0.55, 0.55, 0.55);
+            if (t_dark)
+                cairo_set_source_rgb(cr, 0.40, 0.40, 0.40);
+            else
+                cairo_set_source_rgb(cr, 0.55, 0.55, 0.55);
             cairo_set_line_width(cr, 1.0);
             double t_cx = ix + iw / 2.0;
             cairo_move_to(cr, t_cx, 6);
@@ -621,10 +640,20 @@ private:
             else
                 t_ly = (bar_h - t_ph) / 2.0;
 
-            if (it->enabled)
-                cairo_set_source_rgb(cr, 0.10, 0.10, 0.10);
+            if (t_dark)
+            {
+                if (it->enabled)
+                    cairo_set_source_rgb(cr, 0.90, 0.90, 0.90);
+                else
+                    cairo_set_source_rgba(cr, 0.90, 0.90, 0.90, t_alpha);
+            }
             else
-                cairo_set_source_rgba(cr, 0.10, 0.10, 0.10, t_alpha);
+            {
+                if (it->enabled)
+                    cairo_set_source_rgb(cr, 0.10, 0.10, 0.10);
+                else
+                    cairo_set_source_rgba(cr, 0.10, 0.10, 0.10, t_alpha);
+            }
 
             cairo_move_to(cr, t_lx, t_ly);
             pango_cairo_show_layout(cr, t_layout);
