@@ -265,20 +265,31 @@ static gboolean do_reload_theme(gpointer /*user_data*/)
 {
 	if (MCcurtheme && MCcurtheme->getthemeid() == LF_NATIVEGTK)
 	{
+		fprintf(stderr, "[RELOAD] stage 1: starting do_reload_theme\n"); fflush(stderr);
+
 		// Remove the image cache and replace with new one
 		if (MCimagecache != NULL)
 			delete MCimagecache;
 		MCimagecache = new (nothrow) MCXImageCache;
+
+		fprintf(stderr, "[RELOAD] stage 2: MCimagecache recreated (%p)\n", (void*)MCimagecache); fflush(stderr);
 
 		// Flush the linux-theme.cpp style cache so that
 		// MCPlatformGetControlThemePropColor() re-reads styles from the new
 		// theme rather than returning stale light-mode colours.
 		MCLinuxThemeFlushCache();
 
+		fprintf(stderr, "[RELOAD] stage 3: MCLinuxThemeFlushCache done\n"); fflush(stderr);
+
 		MCcurtheme->unload();
+
+		fprintf(stderr, "[RELOAD] stage 4: unload done\n"); fflush(stderr);
+
 		// load() refreshes background_pixel, system_fore_pixel, and MChilitecolor
 		// from the current GTK theme.
 		MCcurtheme->load();
+
+		fprintf(stderr, "[RELOAD] stage 5: load done\n"); fflush(stderr);
 
 		// desktop.cpp is excluded from the Linux build, so
 		// MCPlatformHandleSystemAppearanceChanged() is never called.
@@ -294,14 +305,18 @@ static gboolean do_reload_theme(gpointer /*user_data*/)
 		MCplatformGetWindowBackgroundColor(t_bg_buf,   sizeof(t_bg_buf));
 		MCplatformGetLabelColor           (t_fg_buf,   sizeof(t_fg_buf));
 
+		fprintf(stderr, "[RELOAD] stage 6: dark=%d bg=%s fg=%s\n", (int)t_is_dark, t_bg_buf, t_fg_buf); fflush(stderr);
+
 		MCStacknode *t_node  = MCstacks->topnode();
 		MCStacknode *t_first = t_node;
+		int t_stack_count = 0;
 		while (t_node != nullptr)
 		{
 			MCStack *t_stack = t_node->getstack();
 			if (t_stack != nullptr && t_stack->getcurcard() != nullptr)
 			{
 				t_stack->dirtyall();
+				t_stack_count++;
 
 				// Queue systemAppearanceChanged with the same three parameters
 				// that desktop.cpp passes on macOS/Windows.
@@ -322,7 +337,11 @@ static gboolean do_reload_theme(gpointer /*user_data*/)
 				break;
 		}
 
+		fprintf(stderr, "[RELOAD] stage 7: dirtyall+delaymessage sent to %d stacks\n", t_stack_count); fflush(stderr);
+
 		MCRedrawDirtyScreen();
+
+		fprintf(stderr, "[RELOAD] stage 8: MCRedrawDirtyScreen done\n"); fflush(stderr);
 	}
 	return FALSE; // G_SOURCE_REMOVE — run once, do not reschedule
 }
