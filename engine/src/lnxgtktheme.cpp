@@ -268,8 +268,6 @@ static gboolean do_reload_theme(gpointer /*user_data*/)
 		fprintf(stderr, "[RELOAD] stage 1: starting do_reload_theme\n"); fflush(stderr);
 
 		// Remove the image cache and replace with new one.
-		// MCimagecache may also have been already cleared by reload_theme()
-		// synchronously; recreate it here regardless.
 		if (MCimagecache != NULL)
 			delete MCimagecache;
 		MCimagecache = new (nothrow) MCXImageCache;
@@ -279,15 +277,25 @@ static gboolean do_reload_theme(gpointer /*user_data*/)
 		// Flush the linux-theme.cpp style cache so that
 		// MCPlatformGetControlThemePropColor() re-reads styles from the new
 		// theme rather than returning stale light-mode colours.
+		// NOTE: We do NOT call unload()/moz_gtk_shutdown() here.
+		// GTK's notify::gtk-theme-name and notify::gtk-application-prefer-dark-theme
+		// handlers propagate new styles to all realized widgets via the "style-set"
+		// mechanism BEFORE our callback fires.  This means gProtoWindow and its
+		// children already carry the new theme's styles by the time we reach this
+		// point.  Calling gtk_widget_destroy(gProtoWindow) from inside a GtkSettings
+		// notify handler is unsafe: with the prefer-dark signal connected, the
+		// destroy fires while GTK is mid-way through its own style-update pass,
+		// leaving the widget in a transient state that causes a SIGSEGV.
+		// We only need to destroy/recreate the linux-theme.cpp widget container
+		// (done by MCLinuxThemeFlushCache below); the moz-gtk proto-widgets are
+		// updated in place by GTK and reused by load() correctly.
 		MCLinuxThemeFlushCache();
 
 		fprintf(stderr, "[RELOAD] stage 3: MCLinuxThemeFlushCache done\n"); fflush(stderr);
 
 		// load() refreshes background_pixel, system_fore_pixel, and MChilitecolor
-		// from the current GTK theme.  gProtoWindow was already destroyed in
-		// reload_theme() (synchronously), so load() recreates it here after GTK
-		// has finished applying the new theme — ensuring the new widgets pick up
-		// the correct colours.
+		// from the current GTK theme.  The moz-gtk proto-widgets (gProtoWindow etc.)
+		// are still alive and already have the new theme's styles applied by GTK.
 		MCcurtheme->load();
 
 		fprintf(stderr, "[RELOAD] stage 4: load done\n"); fflush(stderr);
@@ -349,27 +357,16 @@ static gboolean do_reload_theme(gpointer /*user_data*/)
 
 static gboolean reload_theme(void)
 {
-	// gtk_widget_destroy(gProtoWindow) MUST happen synchronously here, in the
-	// signal handler, BEFORE returning to GTK.
-	//
-	// Why: if we defer the whole reload via g_timeout_add, GTK processes the
-	// theme change between the signal and the callback.  During that window GTK
-	// queues expose/style-set events for gProtoWindow.  When the deferred
-	// gtk_widget_destroy() runs it tries to drain those pending events for the
-	// widget being destroyed and crashes (SIGSEGV, signal 11).
-	//
-	// The original synchronous reload_theme() never had this problem because
-	// gtk_widget_destroy ran before any events could be queued.
-	//
-	// Solution: call unload() (which destroys gProtoWindow) synchronously now,
-	// then queue do_reload_theme() for the rest.  do_reload_theme() calls
-	// load() which recreates gProtoWindow AFTER GTK has settled, so the new
-	// widgets correctly inherit the new theme colours.
-	if (MCcurtheme && MCcurtheme->getthemeid() == LF_NATIVEGTK)
-	{
-		fprintf(stderr, "[RELOAD] reload_theme sync unload\n"); fflush(stderr);
-		MCcurtheme->unload();
-	}
+	// Defer all work to do_reload_theme() so we return to GTK quickly.
+	// We do NOT call unload()/moz_gtk_shutdown() here (or anywhere in the
+	// reload path).  See the comment in do_reload_theme() for the full
+	// explanation; the short version: calling gtk_widget_destroy(gProtoWindow)
+	// from inside a GtkSettings notify handler is unsafe when the
+	// prefer-dark-theme signal is also connected, because the destroy fires
+	// while GTK's own style-update machinery is still running.
+	// GTK's style-set mechanism keeps gProtoWindow and its children up-to-date
+	// automatically, so we never need to rebuild them on a theme change.
+	fprintf(stderr, "[RELOAD] reload_theme: queueing do_reload_theme\n"); fflush(stderr);
 	g_timeout_add(0, do_reload_theme, nullptr);
 	return TRUE;
 }

@@ -2089,15 +2089,26 @@ moz_gtk_widget_paint(GtkThemeWidgetType widget, GdkDrawable * drawable,
 
 gint moz_gtk_shutdown()
 {
+    fprintf(stderr, "[SHUTDOWN] entered: gProtoWindow=%p gTooltipWidget=%p\n",
+            (void*)gProtoWindow, (void*)gTooltipWidget); fflush(stderr);
+
     // Destroy the prototype window. All child widgets that were added to
     // gProtoLayout via setup_widget_prototype() are destroyed recursively.
     // We only need to null the pointers here; the actual memory is freed by GTK.
     if (gProtoWindow != nullptr)
     {
+        fprintf(stderr, "[SHUTDOWN] calling gtk_widget_destroy(gProtoWindow=%p)\n",
+                (void*)gProtoWindow); fflush(stderr);
         gtk_widget_destroy(gProtoWindow);
+        fprintf(stderr, "[SHUTDOWN] gtk_widget_destroy done\n"); fflush(stderr);
         gProtoWindow    = nullptr;
         gProtoLayout    = nullptr;
     }
+    else
+    {
+        fprintf(stderr, "[SHUTDOWN] gProtoWindow is null, skipping destroy\n"); fflush(stderr);
+    }
+
     gButtonWidget         = nullptr;
     gCheckboxWidget       = nullptr;
     gRadiobuttonWidget    = nullptr;
@@ -2116,14 +2127,19 @@ gint moz_gtk_shutdown()
     gMenuitemWidget       = nullptr;
     gHScaleWidget         = nullptr;
     gVScaleWidget         = nullptr;
+    fprintf(stderr, "[SHUTDOWN] widget ptrs nulled\n"); fflush(stderr);
 
     // Tooltip widget is a GtkTooltips object held with an explicit g_object_ref,
     // not a child of gProtoLayout, so release it separately.
     if (gTooltipWidget != nullptr)
     {
+        fprintf(stderr, "[SHUTDOWN] calling g_object_unref(gTooltipWidget=%p)\n",
+                (void*)gTooltipWidget); fflush(stderr);
         g_object_unref(gTooltipWidget);
+        fprintf(stderr, "[SHUTDOWN] g_object_unref done\n"); fflush(stderr);
         gTooltipWidget = nullptr;
     }
 
+    fprintf(stderr, "[SHUTDOWN] moz_gtk_shutdown complete\n"); fflush(stderr);
     return MOZ_GTK_SUCCESS;
 }
