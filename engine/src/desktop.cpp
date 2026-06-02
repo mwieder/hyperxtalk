@@ -49,8 +49,13 @@ extern "C" __attribute__((weak)) void MCplatformGetLabelColor(char *, size_t) {}
 extern "C" bool MCplatformIsDarkMode(void);
 extern "C" void MCplatformGetWindowBackgroundColor(char *p_buf, size_t p_buflen);
 extern "C" void MCplatformGetLabelColor(char *p_buf, size_t p_buflen);
+#elif defined(TARGET_PLATFORM_LINUX)
+// Real implementations provided by lnxgtktheme.cpp (GTK-based).
+extern "C" bool MCplatformIsDarkMode(void);
+extern "C" void MCplatformGetWindowBackgroundColor(char *p_buf, size_t p_buflen);
+extern "C" void MCplatformGetLabelColor(char *p_buf, size_t p_buflen);
 #else
-// Stub fallbacks for Linux and other non-Mac, non-Windows platforms.
+// Stub fallbacks for all other platforms.
 extern "C" bool MCplatformIsDarkMode(void) { return false; }
 extern "C" void MCplatformGetWindowBackgroundColor(char *, size_t) {}
 extern "C" void MCplatformGetLabelColor(char *, size_t) {}
