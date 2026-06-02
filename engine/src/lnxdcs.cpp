@@ -546,21 +546,21 @@ Boolean MCScreenDC::close(Boolean force)
 	
 	destroybackdrop();
     gdk_window_destroy(NULLWindow);
-    
+
     gdk_display_flush(dpy);
     g_object_unref(gc);
 
 	//XDND
 	MCLinuxDragAndDropFinalize();
-	
+
     gdk_display_close(dpy);
-	
+
 	delete (char *)selectiontext.getstring();
 	opened = False;
-	
+
 	gtk_file_tidy_up () ;
 
-	
+
 	delete MCimagecache ;
 	
 	return True;

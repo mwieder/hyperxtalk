@@ -138,10 +138,11 @@ gint moz_gtk_enable_style_props(style_prop_t styleGetProp)
 
 
 
+
 static gint setup_widget_prototype(GtkWidget * widget)
 {
 	GtkStyle *newstyle ;
-	
+
 	if (!gProtoWindow)
 	{
 		gProtoWindow = gtk_window_new(GTK_WINDOW_POPUP);
@@ -2072,12 +2073,27 @@ moz_gtk_widget_paint(GtkThemeWidgetType widget, GdkDrawable * drawable,
 
 gint moz_gtk_shutdown()
 {
-    // Destroy the prototype window. All child widgets that were added to
-    // gProtoLayout via setup_widget_prototype() are destroyed recursively.
-    // We only need to null the pointers here; the actual memory is freed by GTK.
+    // Do NOT call gtk_widget_destroy(gProtoWindow) here.
+    //
+    // moz_gtk_shutdown() is only called during process exit (from
+    // globals.cpp / MCNativeTheme::unload()).  Immediately after this
+    // function returns, MCScreenDC::close() calls gdk_display_close(),
+    // which sends XCloseDisplay(); the X server then frees every X11
+    // resource (windows, GCs, pixmaps) owned by the client.  The OS
+    // reclaims the heap memory.
+    //
+    // Calling gtk_widget_destroy() at this point is unsafe: if the
+    // engine has previously rendered any GTK widget into a raw GdkWindow
+    // (e.g. via gtk_paint_flat_box with a stack window as the drawable),
+    // GTK's internal style-attachment state can be left pointing at that
+    // now-destroyed window.  gtk_widget_destroy() then crashes inside
+    // gtk_widget_unrealize() while trying to detach/free GdkGC objects
+    // tied to the already-gone X window.
+    //
+    // Simply null the pointers.  The widgets are leaked, but that is
+    // harmless given that the process is about to exit.
     if (gProtoWindow != nullptr)
     {
-        gtk_widget_destroy(gProtoWindow);
         gProtoWindow    = nullptr;
         gProtoLayout    = nullptr;
     }
@@ -2107,6 +2123,5 @@ gint moz_gtk_shutdown()
         g_object_unref(gTooltipWidget);
         gTooltipWidget = nullptr;
     }
-
     return MOZ_GTK_SUCCESS;
 }
