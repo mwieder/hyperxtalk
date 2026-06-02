@@ -681,6 +681,7 @@ gobject libgobject-2.0.so.0
 	g_object_set_data: (pointer, pointer, pointer) -> ()
 	g_object_set_data_full: (pointer, pointer, pointer, pointer) -> ()
 	g_object_get_data: (pointer, pointer) -> (pointer)
+	g_object_class_find_property: (pointer, pointer) -> (pointer)
 
 	g_param_spec_boolean: (pointer, pointer, pointer, integer, integer) -> (pointer)
 

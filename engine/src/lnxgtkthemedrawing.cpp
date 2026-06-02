@@ -1157,6 +1157,12 @@ static gint
 moz_gtk_frame_paint(GdkDrawable * drawable, GdkRectangle * rect,
                     GdkRectangle * cliprect)
 {
+	// ensure_label_widget() also creates gProtoWindow, so call it before
+	// we dereference gProtoWindow->style below.
+	// ensure_label_widget() also creates gProtoWindow when it is null.
+	ensure_label_widget();
+	if (gProtoWindow == nullptr || gProtoWindow->style == nullptr)
+		return MOZ_GTK_UNKNOWN_WIDGET;
 	GtkStyle *style = gProtoWindow->style;
 
 	TSOffsetStyleGCs(style, rect->x, rect->y);
@@ -1690,6 +1696,8 @@ void moz_gtk_get_widget_color(GtkStateType state,
                               uint2 &red,uint2 &green,uint2 &blue)
 {
 	ensure_label_widget();
+	if (gProtoWindow == nullptr || gProtoWindow->style == nullptr)
+		return;
 	GtkStyle *style = gProtoWindow->style;
 	GdkColor c = style->bg[state];
 	red = c.red;
@@ -1701,6 +1709,8 @@ void moz_gtk_get_widget_fg_color(GtkStateType state,
                                  uint2 &red, uint2 &green, uint2 &blue)
 {
 	ensure_label_widget();
+	if (gProtoWindow == nullptr || gProtoWindow->style == nullptr)
+		return;
 	GtkStyle *style = gProtoWindow->style;
 	GdkColor c = style->fg[state];
 	red   = c.red;

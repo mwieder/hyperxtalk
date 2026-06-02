@@ -1,5 +1,7 @@
 #include "prefix.h"
 
+#include <cstdio>
+
 #include "globdefs.h"
 #include "objdefs.h"
 #include "parsedef.h"
@@ -1386,7 +1388,8 @@ void MCRedrawDirtyScreen(void)
 	do
 	{
 		MCStack *sptr = tptr->getstack();
-		sptr -> dirtyall();
+		if (sptr != nil)
+			sptr -> dirtyall();
 		tptr = tptr->prev();
 	}
 	while (tptr != t_stacks -> prev());
