@@ -267,39 +267,30 @@ static gboolean do_reload_theme(gpointer /*user_data*/)
 	{
 		fprintf(stderr, "[RELOAD] stage 1: starting do_reload_theme\n"); fflush(stderr);
 
-		// Remove the image cache and replace with new one
+		// Remove the image cache and replace with new one.
+		// MCimagecache may also have been already cleared by reload_theme()
+		// synchronously; recreate it here regardless.
 		if (MCimagecache != NULL)
 			delete MCimagecache;
 		MCimagecache = new (nothrow) MCXImageCache;
 
 		fprintf(stderr, "[RELOAD] stage 2: MCimagecache recreated (%p)\n", (void*)MCimagecache); fflush(stderr);
 
-		// Destroy and recreate the moz-gtk proto-widget window first.
-		// unload() calls moz_gtk_shutdown() which destroys gProtoWindow; load()
-		// recreates it.  MCLinuxThemeFlushCache() (below) destroys the separate
-		// linux-theme TOPLEVEL window — if we destroy that window BEFORE
-		// moz_gtk_shutdown() destroys gProtoWindow, both destructions share GTK
-		// session state (GDK colormap / screen references) and the second destroy
-		// crashes.  Running unload()/load() first ensures gProtoWindow is already
-		// cleanly recycled before we touch the TOPLEVEL.
-		MCcurtheme->unload();
-
-		fprintf(stderr, "[RELOAD] stage 3: unload done\n"); fflush(stderr);
-
-		// load() refreshes background_pixel, system_fore_pixel, and MChilitecolor
-		// from the current GTK theme.
-		MCcurtheme->load();
-
-		fprintf(stderr, "[RELOAD] stage 4: load done\n"); fflush(stderr);
-
 		// Flush the linux-theme.cpp style cache so that
 		// MCPlatformGetControlThemePropColor() re-reads styles from the new
 		// theme rather than returning stale light-mode colours.
-		// Must come AFTER load() so that the moz-gtk window pair is already
-		// rebuilt; destroying the TOPLEVEL here is then safe.
 		MCLinuxThemeFlushCache();
 
-		fprintf(stderr, "[RELOAD] stage 5: MCLinuxThemeFlushCache done\n"); fflush(stderr);
+		fprintf(stderr, "[RELOAD] stage 3: MCLinuxThemeFlushCache done\n"); fflush(stderr);
+
+		// load() refreshes background_pixel, system_fore_pixel, and MChilitecolor
+		// from the current GTK theme.  gProtoWindow was already destroyed in
+		// reload_theme() (synchronously), so load() recreates it here after GTK
+		// has finished applying the new theme — ensuring the new widgets pick up
+		// the correct colours.
+		MCcurtheme->load();
+
+		fprintf(stderr, "[RELOAD] stage 4: load done\n"); fflush(stderr);
 
 		// desktop.cpp is excluded from the Linux build, so
 		// MCPlatformHandleSystemAppearanceChanged() is never called.
@@ -315,7 +306,7 @@ static gboolean do_reload_theme(gpointer /*user_data*/)
 		MCplatformGetWindowBackgroundColor(t_bg_buf,   sizeof(t_bg_buf));
 		MCplatformGetLabelColor           (t_fg_buf,   sizeof(t_fg_buf));
 
-		fprintf(stderr, "[RELOAD] stage 6: dark=%d bg=%s fg=%s\n", (int)t_is_dark, t_bg_buf, t_fg_buf); fflush(stderr);
+		fprintf(stderr, "[RELOAD] stage 5: dark=%d bg=%s fg=%s\n", (int)t_is_dark, t_bg_buf, t_fg_buf); fflush(stderr);
 
 		MCStacknode *t_node  = MCstacks->topnode();
 		MCStacknode *t_first = t_node;
@@ -347,29 +338,38 @@ static gboolean do_reload_theme(gpointer /*user_data*/)
 				break;
 		}
 
-		fprintf(stderr, "[RELOAD] stage 7: dirtyall+delaymessage sent to %d stacks\n", t_stack_count); fflush(stderr);
+		fprintf(stderr, "[RELOAD] stage 6: dirtyall+delaymessage sent to %d stacks\n", t_stack_count); fflush(stderr);
 
 		MCRedrawDirtyScreen();
 
-		fprintf(stderr, "[RELOAD] stage 8: MCRedrawDirtyScreen done\n"); fflush(stderr);
+		fprintf(stderr, "[RELOAD] stage 7: MCRedrawDirtyScreen done\n"); fflush(stderr);
 	}
 	return FALSE; // G_SOURCE_REMOVE — run once, do not reschedule
 }
 
 static gboolean reload_theme(void)
 {
-	// Defer the reload to the next GLib main-loop iteration.
-	// GTK queues its CSS/style recomputation asynchronously when a theme
-	// property changes.  If we recreate the prototype widgets synchronously
-	// inside the signal handler (e.g. notify::gtk-application-prefer-dark-theme),
-	// the new widgets are realised before GTK has finished loading the dark
-	// variant, so they inherit the old (light) colours — causing the
-	// light→dark direction to silently fail.
-	// Running via g_idle_add() defers until all pending signal emissions and
-	// CSS invalidations have settled, ensuring the new widgets see the correct
-	// theme.
-	// g_idle_add is not in the weak-link stub table; g_timeout_add with a
-	// 0 ms delay is equivalent — it defers to the next main-loop iteration.
+	// gtk_widget_destroy(gProtoWindow) MUST happen synchronously here, in the
+	// signal handler, BEFORE returning to GTK.
+	//
+	// Why: if we defer the whole reload via g_timeout_add, GTK processes the
+	// theme change between the signal and the callback.  During that window GTK
+	// queues expose/style-set events for gProtoWindow.  When the deferred
+	// gtk_widget_destroy() runs it tries to drain those pending events for the
+	// widget being destroyed and crashes (SIGSEGV, signal 11).
+	//
+	// The original synchronous reload_theme() never had this problem because
+	// gtk_widget_destroy ran before any events could be queued.
+	//
+	// Solution: call unload() (which destroys gProtoWindow) synchronously now,
+	// then queue do_reload_theme() for the rest.  do_reload_theme() calls
+	// load() which recreates gProtoWindow AFTER GTK has settled, so the new
+	// widgets correctly inherit the new theme colours.
+	if (MCcurtheme && MCcurtheme->getthemeid() == LF_NATIVEGTK)
+	{
+		fprintf(stderr, "[RELOAD] reload_theme sync unload\n"); fflush(stderr);
+		MCcurtheme->unload();
+	}
 	g_timeout_add(0, do_reload_theme, nullptr);
 	return TRUE;
 }
