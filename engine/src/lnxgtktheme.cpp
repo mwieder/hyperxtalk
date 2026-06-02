@@ -274,22 +274,32 @@ static gboolean do_reload_theme(gpointer /*user_data*/)
 
 		fprintf(stderr, "[RELOAD] stage 2: MCimagecache recreated (%p)\n", (void*)MCimagecache); fflush(stderr);
 
-		// Flush the linux-theme.cpp style cache so that
-		// MCPlatformGetControlThemePropColor() re-reads styles from the new
-		// theme rather than returning stale light-mode colours.
-		MCLinuxThemeFlushCache();
-
-		fprintf(stderr, "[RELOAD] stage 3: MCLinuxThemeFlushCache done\n"); fflush(stderr);
-
+		// Destroy and recreate the moz-gtk proto-widget window first.
+		// unload() calls moz_gtk_shutdown() which destroys gProtoWindow; load()
+		// recreates it.  MCLinuxThemeFlushCache() (below) destroys the separate
+		// linux-theme TOPLEVEL window — if we destroy that window BEFORE
+		// moz_gtk_shutdown() destroys gProtoWindow, both destructions share GTK
+		// session state (GDK colormap / screen references) and the second destroy
+		// crashes.  Running unload()/load() first ensures gProtoWindow is already
+		// cleanly recycled before we touch the TOPLEVEL.
 		MCcurtheme->unload();
 
-		fprintf(stderr, "[RELOAD] stage 4: unload done\n"); fflush(stderr);
+		fprintf(stderr, "[RELOAD] stage 3: unload done\n"); fflush(stderr);
 
 		// load() refreshes background_pixel, system_fore_pixel, and MChilitecolor
 		// from the current GTK theme.
 		MCcurtheme->load();
 
-		fprintf(stderr, "[RELOAD] stage 5: load done\n"); fflush(stderr);
+		fprintf(stderr, "[RELOAD] stage 4: load done\n"); fflush(stderr);
+
+		// Flush the linux-theme.cpp style cache so that
+		// MCPlatformGetControlThemePropColor() re-reads styles from the new
+		// theme rather than returning stale light-mode colours.
+		// Must come AFTER load() so that the moz-gtk window pair is already
+		// rebuilt; destroying the TOPLEVEL here is then safe.
+		MCLinuxThemeFlushCache();
+
+		fprintf(stderr, "[RELOAD] stage 5: MCLinuxThemeFlushCache done\n"); fflush(stderr);
 
 		// desktop.cpp is excluded from the Linux build, so
 		// MCPlatformHandleSystemAppearanceChanged() is never called.
