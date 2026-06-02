@@ -223,6 +223,44 @@ extern "C" bool MCplatformIsDarkMode(void);
 extern "C" void MCplatformGetWindowBackgroundColor(char *p_buf, size_t p_buflen);
 extern "C" void MCplatformGetLabelColor(char *p_buf, size_t p_buflen);
 
+// g_object_get is variadic so the stub table only exposes the raw pointer
+// (g_object_get_ptr).  Use the same casting pattern as lnxcursor.cpp.
+typedef void (*g_object_getPTR)(void *object, const gchar *first_property_name, ...);
+extern g_object_getPTR g_object_get_ptr;
+
+// g_object_class_find_property: check whether a named property exists on a
+// GObject class before trying to get/connect-notify it.  Avoids the GLib
+// warning spam "has no property named '...'" on GTK builds that don't expose
+// gtk-application-prefer-dark-theme.
+// Use the _ptr pattern (matching g_object_get_ptr above): the stubs generator
+// produces a void*(void*,void*) wrapper, whose C++ mangled name differs from
+// a void*(void*,const gchar*) extern declaration, causing a link error.
+typedef void *(*g_object_class_find_propertyPTR)(void *oclass, void *property_name);
+extern g_object_class_find_propertyPTR g_object_class_find_property_ptr;
+
+// Returns true if GtkSettings exposes the "gtk-application-prefer-dark-theme"
+// property on the running GTK version.  Checked once and cached.
+static bool s_prefer_dark_prop_checked = false;
+static bool s_prefer_dark_prop_exists  = false;
+
+static bool prefer_dark_prop_exists(GtkSettings *t_settings)
+{
+    if (!s_prefer_dark_prop_checked)
+    {
+        s_prefer_dark_prop_checked = true;
+        if (g_object_class_find_property_ptr != nullptr)
+        {
+            // G_OBJECT_GET_CLASS: first word of any GObject instance is a pointer
+            // to its GObjectClass — this layout is guaranteed by the GObject ABI.
+            void *cls = *(void **)t_settings;
+            s_prefer_dark_prop_exists =
+                (g_object_class_find_property_ptr(cls,
+                     (void *)"gtk-application-prefer-dark-theme") != nullptr);
+        }
+    }
+    return s_prefer_dark_prop_exists;
+}
+
 static gboolean do_reload_theme(gpointer /*user_data*/)
 {
 	if (MCcurtheme && MCcurtheme->getthemeid() == LF_NATIVEGTK)
@@ -359,11 +397,12 @@ Boolean MCNativeTheme::load()
 			                      NULL, NULL, (GConnectFlags)0);
 			// Dark mode switches toggle gtk-application-prefer-dark-theme
 			// without changing the theme name (e.g. Adwaita stays Adwaita).
-			// Connect separately so a light→dark or dark→light switch at
-			// runtime triggers the same full theme reload.
-			g_signal_connect_data(settings, "notify::gtk-application-prefer-dark-theme",
-			                      G_CALLBACK(reload_theme),
-			                      NULL, NULL, (GConnectFlags)0);
+			// Only connect when the property actually exists on this GTK
+			// build — GLib warns and no-ops the connect otherwise.
+			if (prefer_dark_prop_exists(settings))
+			    g_signal_connect_data(settings, "notify::gtk-application-prefer-dark-theme",
+			                          G_CALLBACK(reload_theme),
+			                          NULL, NULL, (GConnectFlags)0);
 		}
 	}
 	gtkpix = NULL;
@@ -411,16 +450,15 @@ static void format_gdk_color(uint2 red, uint2 green, uint2 blue,
              (unsigned)(blue  >> 8));
 }
 
-// g_object_get is variadic so the stub table only exposes the raw pointer
-// (g_object_get_ptr).  Use the same casting pattern as lnxcursor.cpp.
-typedef void (*g_object_getPTR)(void *object, const gchar *first_property_name, ...);
-extern g_object_getPTR g_object_get_ptr;
-
 extern "C" bool MCplatformIsDarkMode(void)
 {
     // Fast path: explicit "prefer dark theme" GtkSettings flag.
+    // Only attempted when the property actually exists on this GTK build —
+    // g_object_get prints a warning (and returns nothing useful) when the
+    // property name is unknown, so we must guard the call.
     GtkSettings *t_settings = gtk_settings_get_default();
-    if (t_settings != nullptr && g_object_get_ptr != nullptr)
+    if (t_settings != nullptr && g_object_get_ptr != nullptr
+        && prefer_dark_prop_exists(t_settings))
     {
         gboolean t_prefer_dark = FALSE;
         g_object_get_ptr(t_settings, "gtk-application-prefer-dark-theme",
