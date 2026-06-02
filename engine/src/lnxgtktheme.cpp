@@ -265,18 +265,14 @@ static gboolean do_reload_theme(gpointer /*user_data*/)
 {
 	if (MCcurtheme && MCcurtheme->getthemeid() == LF_NATIVEGTK)
 	{
-		fprintf(stderr, "[RELOAD] stage 1: starting do_reload_theme\n"); fflush(stderr);
-
-		// Remove the image cache and replace with new one.
+		// Remove the image cache and replace with a fresh one.
 		if (MCimagecache != NULL)
 			delete MCimagecache;
 		MCimagecache = new (nothrow) MCXImageCache;
 
-		fprintf(stderr, "[RELOAD] stage 2: MCimagecache recreated (%p)\n", (void*)MCimagecache); fflush(stderr);
-
 		// Flush the linux-theme.cpp style cache so that
 		// MCPlatformGetControlThemePropColor() re-reads styles from the new
-		// theme rather than returning stale light-mode colours.
+		// theme rather than returning stale cached colours.
 		// NOTE: We do NOT call unload()/moz_gtk_shutdown() here.
 		// GTK's notify::gtk-theme-name and notify::gtk-application-prefer-dark-theme
 		// handlers propagate new styles to all realized widgets via the "style-set"
@@ -291,14 +287,10 @@ static gboolean do_reload_theme(gpointer /*user_data*/)
 		// updated in place by GTK and reused by load() correctly.
 		MCLinuxThemeFlushCache();
 
-		fprintf(stderr, "[RELOAD] stage 3: MCLinuxThemeFlushCache done\n"); fflush(stderr);
-
 		// load() refreshes background_pixel, system_fore_pixel, and MChilitecolor
 		// from the current GTK theme.  The moz-gtk proto-widgets (gProtoWindow etc.)
 		// are still alive and already have the new theme's styles applied by GTK.
 		MCcurtheme->load();
-
-		fprintf(stderr, "[RELOAD] stage 4: load done\n"); fflush(stderr);
 
 		// desktop.cpp is excluded from the Linux build, so
 		// MCPlatformHandleSystemAppearanceChanged() is never called.
@@ -306,26 +298,20 @@ static gboolean do_reload_theme(gpointer /*user_data*/)
 		//   • dirty every open stack so the next repaint uses the new colours
 		//   • dispatch systemAppearanceChanged(pMode, pBackColor, pTextColor)
 		//     to every open stack's current card so scripts can react.
-		//
-		// Gather the three message parameters.
 		bool    t_is_dark = MCplatformIsDarkMode();
 		char    t_bg_buf[8]   = {};
 		char    t_fg_buf[8]   = {};
 		MCplatformGetWindowBackgroundColor(t_bg_buf,   sizeof(t_bg_buf));
 		MCplatformGetLabelColor           (t_fg_buf,   sizeof(t_fg_buf));
 
-		fprintf(stderr, "[RELOAD] stage 5: dark=%d bg=%s fg=%s\n", (int)t_is_dark, t_bg_buf, t_fg_buf); fflush(stderr);
-
 		MCStacknode *t_node  = MCstacks->topnode();
 		MCStacknode *t_first = t_node;
-		int t_stack_count = 0;
 		while (t_node != nullptr)
 		{
 			MCStack *t_stack = t_node->getstack();
 			if (t_stack != nullptr && t_stack->getcurcard() != nullptr)
 			{
 				t_stack->dirtyall();
-				t_stack_count++;
 
 				// Queue systemAppearanceChanged with the same three parameters
 				// that desktop.cpp passes on macOS/Windows.
@@ -346,11 +332,7 @@ static gboolean do_reload_theme(gpointer /*user_data*/)
 				break;
 		}
 
-		fprintf(stderr, "[RELOAD] stage 6: dirtyall+delaymessage sent to %d stacks\n", t_stack_count); fflush(stderr);
-
 		MCRedrawDirtyScreen();
-
-		fprintf(stderr, "[RELOAD] stage 7: MCRedrawDirtyScreen done\n"); fflush(stderr);
 	}
 	return FALSE; // G_SOURCE_REMOVE — run once, do not reschedule
 }
@@ -366,7 +348,6 @@ static gboolean reload_theme(void)
 	// while GTK's own style-update machinery is still running.
 	// GTK's style-set mechanism keeps gProtoWindow and its children up-to-date
 	// automatically, so we never need to rebuild them on a theme change.
-	fprintf(stderr, "[RELOAD] reload_theme: queueing do_reload_theme\n"); fflush(stderr);
 	g_timeout_add(0, do_reload_theme, nullptr);
 	return TRUE;
 }

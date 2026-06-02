@@ -1388,12 +1388,7 @@ void MCRedrawDirtyScreen(void)
 	do
 	{
 		MCStack *sptr = tptr->getstack();
-		if (sptr == nil)
-		{
-			fprintf(stderr, "[RELOAD] MCRedrawDirtyScreen: null sptr in stack list!\n");
-			fflush(stderr);
-		}
-		else
+		if (sptr != nil)
 			sptr -> dirtyall();
 		tptr = tptr->prev();
 	}
