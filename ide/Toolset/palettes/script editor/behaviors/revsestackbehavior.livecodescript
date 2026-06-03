@@ -306,9 +306,9 @@ command revSEUpdate pPrefsChanged
    send "updateGutterRequest tEmptyString, tEmptyString, tEmptyString, tEmptyString, tFalseString, tFalseString, tTrueString"  to group "Editor" of me
    
    if pPrefsChanged is not "false" then
-      seUpdateLeftBar
       send "reapplyPreferences" to group "Editor" of of me
       send "reapplyPreferences" to group "Variables" of me
+      seUpdateLeftBar
    end if
 end revSEUpdate
 
