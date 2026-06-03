@@ -2675,7 +2675,7 @@ end resumeStack
 #   Sent when the script editor stack is opened. Initialises the stack...
 on preOpenStack pDontCheckTarget
    set the backgroundColor of this stack to (the systemWindowColor)
-   set the foregroundColor of this stack to (the systemTextColor)
+   set the foregroundcolor of this stack to (the systemtextcolor)
    --   if systemAppearance is "dark" then
    --      set the backColor of field "Handlers" of group "Left Handler List" of group "Left Bar" of card "Main" of this stack to "black"
    --      set the foreColor of field "Handlers" of group "Left Handler List" of group "Left Bar" of card "Main" of this stack to "white"
@@ -2752,13 +2752,13 @@ command revSEInitialize pDontCheckTarget
    
    set the showInvisibles of me to false
    
-   // HXT dark mode
+   // HXT dark mode — apply current system appearance to all components on open,
+   // matching what SystemAppearanceChanged does for live appearance switches.
    set the backgroundColor of this stack to (the systemWindowColor)
-   --   if (the systemAppearance is "dark") then
-   --      set the backColor of me to "#323232"
-   --   else
-   --      set the backColor of me to "#ececec"
-   --   end if
+   set the backgroundColor of this card to (the systemWindowColor)
+   set the foregroundColor of this card to (the systemTextColor)
+   seUpdateLeftBar
+   seUpdateToolbar
 end revSEInitialize
 
 on idePreferenceChanged pPreference, pValue
