@@ -333,6 +333,19 @@ static gboolean do_reload_theme(gpointer /*user_data*/)
 		}
 
 		MCRedrawDirtyScreen();
+
+		// Notify all open MCToolbar objects so they reload dark/light icon
+		// variants and push updated image data to their platform backends.
+		//
+		// Defer via g_timeout_add(0) so this runs in the *next* GLib main-loop
+		// iteration, fully outside do_reload_theme().  Calling MCImage::GetText
+		// (which can invoke recompress/finishediting) while nested inside a GLib
+		// timeout callback can hit edge cases in the engine's image rep state
+		// machine that crash when a "-DM" variant image is present.
+		g_timeout_add(0, [](gpointer) -> gboolean {
+			MCToolbarNotifyThemeChanged();
+			return FALSE; // G_SOURCE_REMOVE
+		}, nullptr);
 	}
 	return FALSE; // G_SOURCE_REMOVE — run once, do not reschedule
 }
@@ -1910,8 +1923,6 @@ bool MCThemeDraw(MCGContextRef p_context, MCThemeDrawType p_type, MCThemeDrawInf
 	
     if (!t_cached)
         g_object_unref(t_argb_image);
-    
+
 	return true;
 }
-
-////////////////////////////////////////////////////////////////////////////////
