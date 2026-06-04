@@ -621,7 +621,7 @@ void MCCreate::exec_ctxt(MCExecContext& ctxt)
                     t_target_stack = MCdefaultstackptr;
                 }
 
-                // If the target stack already has a toolbar, creating another
+                // If a toolbar already exists on the target stack, createToolbar
                 // is a no-op — one toolbar per stack window is the limit.
                 if (t_target_stack != nil)
                 {

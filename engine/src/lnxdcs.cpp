@@ -546,21 +546,21 @@ Boolean MCScreenDC::close(Boolean force)
 	
 	destroybackdrop();
     gdk_window_destroy(NULLWindow);
-    
+
     gdk_display_flush(dpy);
     g_object_unref(gc);
 
 	//XDND
 	MCLinuxDragAndDropFinalize();
-	
+
     gdk_display_close(dpy);
-	
+
 	delete (char *)selectiontext.getstring();
 	opened = False;
-	
+
 	gtk_file_tidy_up () ;
 
-	
+
 	delete MCimagecache ;
 	
 	return True;
@@ -683,9 +683,13 @@ void MCScreenDC::openwindow(Window window, Boolean override)
 
 void MCScreenDC::closewindow(Window window)
 {
-    // If a popover is open and some OTHER window is being closed, dismiss the
-    // popover first so it doesn't outlive the stack it was anchored to.
-    if (MCpopoverstack != nullptr && MCpopoverstack->getwindowalways() != window)
+    // If the parent stack for the current popover is being closed, dismiss
+    // the popover first so it doesn't outlive its anchor.
+    // Only check the parent — dismissing on ANY other window close (the old
+    // behaviour) caused the popover to vanish whenever an unrelated window
+    // such as a tooltip or dialog was hidden.
+    if (MCpopoverstack != nullptr && MCpopoverparentstack != nullptr &&
+        MCpopoverparentstack->getwindowalways() == window)
     {
         MCStack *t_popover = MCpopoverstack;
         MCpopoverstack = nullptr;
