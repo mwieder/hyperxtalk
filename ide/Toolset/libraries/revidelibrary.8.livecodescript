@@ -4124,6 +4124,16 @@ function revIDESpecialFolderPath pKey, pParam
          revIDEEnsurePath tPath
          return tPath
          break
+      case "user plugins"
+         put revEnvironmentUserPluginsPath() into tPath
+         revIDEEnsurePath tPath
+         return tPath
+         break
+      case "user schemes"
+         put revEnvironmentUserColorSchemesPath() into tPath
+         revIDEEnsurePath tPath
+         return tPath
+         break
       case "temp extensions"
          put revEnvironmentUserExtensionsPath() & "/temp" into tPath
          revIDEEnsurePath tPath
@@ -4139,10 +4149,10 @@ function revIDESpecialFolderPath pKey, pParam
          revIDEEnsurePath tPath
          return tPath
          break
-       case "documentation"
-          put item 1 to -3 of the filename of stack "home" & "/Documentation" into tPath
-          return tPath
-          break
+      case "documentation"
+         put item 1 to -3 of the filename of stack "home" & "/Documentation" into tPath
+         return tPath
+         break
       case "documentation cache"
          put revEnvironmentUserDocsPath() & slash & "IDE" into tPath
          revIDEEnsurePath tPath
@@ -5453,7 +5463,11 @@ end revIDELastModifiedTimeOfFilesInFolder
 function revIDEExtensionFolders
    local tFoldersA
    put revIDESpecialFolderPath("user extensions") into tFoldersA["user"]
-
+   
+   // HXT
+   get revIDESpecialFolderPath("user plugins")
+   get revIDESpecialFolderPath("user schemes")
+   
    local tCount = 0
    repeat for each line tFolder in revEnvironmentExtensionsPaths()
       -- In an installed build revEnvironmentExtensionsPaths() returns
