@@ -4056,7 +4056,6 @@ local tIDEFolder
 put revIDESpecialFolderPath("IDE") into tIDEFolder
 */
 function revIDESpecialFolderPath pKey, pParam
-   put pKey, pParam & LF after msg  // HXT
    local tPath
    set the itemdel to "/"
    switch pKey
@@ -5466,9 +5465,8 @@ function revIDEExtensionFolders
    put revIDESpecialFolderPath("user extensions") into tFoldersA["user"]
    
    // HXT
-   local tTemp
-   put revIDESpecialFolderPath("user plugins") into tTemp
-   put revIDESpecialFolderPath("user schemes") into tTemp
+   get revIDESpecialFolderPath("user plugins")
+   get revIDESpecialFolderPath("user schemes")
    
    local tCount = 0
    repeat for each line tFolder in revEnvironmentExtensionsPaths()
