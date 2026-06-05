@@ -190,7 +190,13 @@ public:
     using MCMixinObjectHandle<MCField>::GetHandle;
     
 private:
-    
+    // Build a string of U+25CF BLACK CIRCLE characters the same length as
+    // p_para's text.  Used by replacecursor and getcompositionrect to measure
+    // caret/IME positions against the displayed bullet characters rather than
+    // the actual (variably-wide) text.  Returns a retained MCStringRef;
+    // caller must MCValueRelease it.  Never returns nil.
+    MCStringRef _makeBulletString(MCParagraph *p_para) const;
+
 	friend class MCHcfield;
 	MCCdata *fdata;
 	MCCdata *oldfdata;

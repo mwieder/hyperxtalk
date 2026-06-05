@@ -965,6 +965,13 @@ void MCField::SetPasswordField(MCExecContext& ctxt, bool p_setting)
 {
 	m_password_field = p_setting;
 	Redraw();
+    // Reposition the caret immediately so it appears at the correct x offset
+    // relative to the (now-changed) displayed characters.  Without this the
+    // caret stays at its old pixel position until the next keystroke, which
+    // can place it inside or past the bullet dots on Windows (where the
+    // redraw cycle does not implicitly trigger replacecursor as it does on
+    // other platforms).
+    replacecursor(True, False);
 }
 
 void MCField::GetPasswordToggle(MCExecContext& ctxt, bool& r_setting)
