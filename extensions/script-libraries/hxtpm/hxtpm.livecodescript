@@ -72,15 +72,15 @@ from the hxtpm registry.
 Packages are hosted on GitHub or stored locally. Three package types are
 supported:
 
-  lcs — Script libraries. Installed to the user libraries folder as a named
+  lcs - Script libraries. Installed to the user libraries folder as a named
         subfolder containing the .livecodescript file. Loaded immediately via
         start using stack. No IDE restart required.
 
-  lce — Pre-compiled LiveCode Extension packages (.lce zip). Installed to the
+  lce - Pre-compiled LiveCode Extension packages (.lce zip). Installed to the
         user extensions folder via the IDE extension manager. Loaded immediately
         via load extension from file. No IDE restart required.
 
-  lcp — LiveCode IDE plugins. The plugin stack file is placed directly in the
+  lcp - LiveCode IDE plugins. The plugin stack file is placed directly in the
         user plugins folder. The IDE plugin registry is refreshed via
         revIDEUpdatePlugins immediately after install or uninstall.
         No IDE restart required.
@@ -95,9 +95,9 @@ The sources list is stored in a JSON file at:
    <UserLibraries>/.hxtpm/sources.json
 
 Package metadata (hxtpm.json) is written alongside each installed package:
-   lcs  — <UserLibraries>/<name>/hxtpm.json
-   lce  — <UserExtensions>/<name>.<version>/hxtpm.json
-   lcp  — <UserPlugins>/.hxtpm/<name>/hxtpm.json
+   lcs  - <UserLibraries>/<name>/hxtpm.json
+   lce  - <UserExtensions>/<name>.<version>/hxtpm.json
+   lcp  - <UserPlugins>/.hxtpm/<name>/hxtpm.json
 
 Install and update commands are asynchronous: they return immediately and
 deliver their result via a message dispatched to the calling object.
@@ -105,12 +105,14 @@ Uninstall and source-management commands are synchronous and return empty on
 success or an error message via the result.
 
 Authoring checksums:
+
 Use hxtpmComputeChecksum to get the correct sha256 value for a package file
 URL before writing it into package.json. This downloads the file through
 LiveCode's own network stack and hashes it identically to how the install
 pipeline verifies it, guaranteeing the values will match.
 
-Usage:
+Usage example:
+```
    -- Browse all packages available across all sources
    put hxtpmAvailable() into tAll
    repeat for each key tName in tAll
@@ -156,6 +158,7 @@ Usage:
       if pError is not empty then answer error pError
       -- paste pChecksum directly into the "checksum" field of package.json
    end hxtpmChecksumComplete
+```
 
 */
 
