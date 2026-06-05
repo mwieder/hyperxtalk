@@ -1958,16 +1958,31 @@ MCRectangle MCField::firstRectForCharacterRange(int32_t& si, int32_t& ei)
 	si = si + t_si;
 	ei = si + t_ei;
 	
+	// In password mode, measure against the bullet display so the rect returned
+	// to macOS (via firstRectForCharacterRange: / MCPlatformHandleTextInputQueryTextRect)
+	// reflects the displayed dot positions rather than the actual character positions.
+	MCStringRef t_bullet = nil;
+	if (m_password_field)
+		t_bullet = _makeBulletString(sptr);
+	if (t_bullet != nil)
+		sptr->SetPasswordDisplay(t_bullet);
+
 	// Get the x, y of the initial index.
 	coord_t x, y;
 	sptr->indextoloc(t_si, fixedheight, x, y);
-	
+
 	// Get the offset for computing card coords.
 	int4 yoffset = getcontenty() + paragraphtoy(sptr);
-	
+
 	// Get the extent of the range.
 	coord_t minx, maxx;
 	sptr -> getxextents(t_si, t_ei, minx, maxx);
+
+	if (t_bullet != nil)
+	{
+		sptr->ClearPasswordDisplay();
+		MCValueRelease(t_bullet);
+	}
 	
 	MCRectangle t_rect;
 	t_rect . x = minx + getcontentx();
