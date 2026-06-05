@@ -306,9 +306,9 @@ command revSEUpdate pPrefsChanged
    send "updateGutterRequest tEmptyString, tEmptyString, tEmptyString, tEmptyString, tFalseString, tFalseString, tTrueString"  to group "Editor" of me
    
    if pPrefsChanged is not "false" then
-      seUpdateLeftBar
       send "reapplyPreferences" to group "Editor" of of me
       send "reapplyPreferences" to group "Variables" of me
+      seUpdateLeftBar
    end if
 end revSEUpdate
 
@@ -2674,15 +2674,6 @@ end resumeStack
 # Description
 #   Sent when the script editor stack is opened. Initialises the stack...
 on preOpenStack pDontCheckTarget
-   set the backgroundColor of this stack to (the systemWindowColor)
-   set the foregroundColor of this stack to (the systemTextColor)
-   --   if systemAppearance is "dark" then
-   --      set the backColor of field "Handlers" of group "Left Handler List" of group "Left Bar" of card "Main" of this stack to "black"
-   --      set the foreColor of field "Handlers" of group "Left Handler List" of group "Left Bar" of card "Main" of this stack to "white"
-   --   else
-   --      set the backColor of field "Handlers" of group "Left Handler List" of group "Left Bar" of card "Main" of this stack to "white"
-   --      set the foreColor of field "Handlers" of group "Left Handler List" of group "Left Bar" of card "Main" of this stack to "black"
-   --   end if
    revSEInitialize pDontCheckTarget
 end preOpenStack
 
@@ -2752,13 +2743,14 @@ command revSEInitialize pDontCheckTarget
    
    set the showInvisibles of me to false
    
-   // HXT dark mode
-   set the backgroundColor of this stack to (the systemWindowColor)
-   --   if (the systemAppearance is "dark") then
-   --      set the backColor of me to "#323232"
-   --   else
-   --      set the backColor of me to "#ececec"
-   --   end if
+   // HXT dark mode — apply current system appearance to all components on open,
+   // matching what SystemAppearanceChanged does for live appearance switches.
+   --   send "ApplySystemAppearanceChanged the systemAppearance, the systemWindowColor, the systemTextColor" to card "Main" of this stack in 1 millisecond
+   --   set the backgroundColor of this stack to EMPTY
+   --   set the backgroundColor of this card to EMPTY
+   --   set the foregroundColor of this card to EMPTY
+   --   seUpdateLeftBar
+   --   seUpdateToolbar
 end revSEInitialize
 
 on idePreferenceChanged pPreference, pValue
@@ -3236,21 +3228,3 @@ command revSEAddDefaultHandler pHandler
    put tDefaultScript after tNewScript
    revSESetScript(tNewScript)
 end revSEAddDefaultHandler
-
-
-// HXT
-on SystemAppearanceChanged pMode, pWindowColor, pTextColor
-   set the backgroundColor of this stack to pWindowColor
-   set the foregroundcolor of this stack to pTextColor
-   seUpdateLeftBar
-   seUpdateToolbar
-   --   set the backColor of field "Handlers" of group "Left Handler List" of group "Left Bar" of card "Main" of this stack to pWindowColor
-   --   set the foreColor of field "Handlers" of group "Left Handler List" of group "Left Bar" of card "Main" of this stack to pTextColor
-   --   if pMode is "dark" then
-   --      set the backColor of field "Handlers" of group "Left Handler List" of group "Left Bar" of card "Main" of this stack to "black"
-   --      set the foreColor of field "Handlers" of group "Left Handler List" of group "Left Bar" of card "Main" of this stack to "white"
-   --   else
-   --      set the backColor of field "Handlers" of group "Left Handler List" of group "Left Bar" of card "Main" of this stack to "white"
-   --      set the foreColor of field "Handlers" of group "Left Handler List" of group "Left Bar" of card "Main" of this stack to "black"
-   --   end if
-end SystemAppearanceChanged
