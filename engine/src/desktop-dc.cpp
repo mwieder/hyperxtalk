@@ -521,8 +521,8 @@ void MCScreenDC::enactraisewindows(void)
 		MCRectangle t_rect;
 		t_rect = MCRectangleMake(0, 0, 0, 0);
 		MCPlatformSetWindowProperty(backdrop_window, kMCPlatformWindowPropertyFrameRect, kMCPlatformPropertyTypeRectangle, &t_rect);
-		MCPlatformShowWindow(backdrop_window);
         MCPlatformConfigureBackdrop(backdrop_window);
+		MCPlatformShowWindow(backdrop_window);
 	}
 	else
 	{
@@ -541,8 +541,8 @@ void MCScreenDC::enablebackdrop(bool p_hard)
 	MCRectangle t_rect;
 	MCPlatformGetScreenViewport(0, t_rect);
 	MCPlatformSetWindowProperty(backdrop_window, kMCPlatformWindowPropertyContentRect, kMCPlatformPropertyTypeRectangle, &t_rect);
-	MCPlatformShowWindow(backdrop_window);
 	MCPlatformConfigureBackdrop(backdrop_window);
+	MCPlatformShowWindow(backdrop_window);
 }
 
 void MCScreenDC::disablebackdrop(bool p_hard)

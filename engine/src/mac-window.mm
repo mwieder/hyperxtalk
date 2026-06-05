@@ -2402,6 +2402,11 @@ void MCMacPlatformWindow::DoShow(void)
             [m_window_handle orderFront: nil];
         else
             [m_window_handle makeKeyAndOrderFront: nil];
+
+        // Ensure the backdrop (if active) is pushed behind this newly shown
+        // window.  Without this, new windows can appear beneath the backdrop
+        // because SyncBackdrop is otherwise only triggered by user clicks.
+        MCMacPlatformSyncBackdrop();
 	}
 }
 
