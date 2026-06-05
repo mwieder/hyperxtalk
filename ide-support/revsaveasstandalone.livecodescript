@@ -744,6 +744,14 @@ command revSaveAsMacStandalone pStack, pRestoreFileName, pFolder, @xStandalonePa
       -- Ensure standalone settings script local is reset when building for subsequent targets
       put tStandaloneSettingsA into sStandaloneSettingsA
 
+      -- HXT: Always bundle the macOS smooth-scroll extensions. They run transparently
+      -- in the background; user scripts never call their handlers directly, so
+      -- keyword-based auto-detection cannot find them. Must be added here — after the
+      -- settings reset but before revStandalonePreBuild — so that revSBUpdateForDependencies
+      -- (called inside PreBuild) sees them and handles native dylib inclusion correctly.
+      revSBAddInclusion "com.hyperxtalk.library.macscrollenhancement", "extensions", sStandaloneSettingsA
+      revSBAddInclusion "com.hyperxtalk.library.macscrollenhancement2", "extensions", sStandaloneSettingsA
+
       -- Determine the architecture(s) for this target (HyperXTalk: arm64 or x86-64)
       local tArchitectures
       if tTarget is "MacOSX arm64" then
