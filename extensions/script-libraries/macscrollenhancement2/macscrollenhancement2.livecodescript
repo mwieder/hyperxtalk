@@ -118,7 +118,7 @@ function seGetScrollTarget
       local tN
       put the number of controls of the mouseStack into tN
       local tMouseLoc
-      put the mouseLoc into tMouseLoc
+      put _seGetRelativeMouseLoc() into tMouseLoc
       repeat with i = tN down to 1
          local tCandidate, tRect
          put the long id of control i of the mouseStack into tCandidate
@@ -139,13 +139,18 @@ function seGetScrollTarget
          -- Skip fields inside the line-number gutter.
          local tParent
          put the long id of the owner of tControl into tParent
-         if word 1 of tParent is "group" and the short name of tParent is "Gutter" then
+         if the name of tParent is ("group" && quote & "Gutter" & quote) then
             put tParent into tControl   -- continue walking up from the gutter group
          else
             return tControl
          end if
          
-      else if tKind is "group" then
+      else if tKind is "group" or tKind is "widget" then
+         -- Exclude the browser widget since it is a native control handled by the OS
+         if tKind is "widget" and the kind of tControl ends with "browser" then
+            return empty
+         end if
+
          local tHasScrollbar
          try
             put the vScrollbar of tControl into tHasScrollbar
@@ -156,8 +161,13 @@ function seGetScrollTarget
             if tHasScrollbar then return tControl
          end try
          
-         -- Not a scrolling group - walk up.
-         put the long id of the owner of tControl into tControl
+         if tKind is "group" then
+            -- Not a scrolling group - walk up.
+            put the long id of the owner of tControl into tControl
+         else
+            -- Not a scrolling widget - stop.
+            return empty
+         end if
          
       else
          -- card, stack, or unrecognised - stop.
@@ -187,6 +197,18 @@ command seSyncGutter pScrolledControl, pNewV
    set the defaultStack to tOldDefault
 end seSyncGutter
 
+-- Even though the dictionary says the mouseLoc is relative to the topstack,
+-- it is actually returned in global coordinates in this extension.  We 
+-- need it relative to the mouseStack so convert it here.
+private function _seGetRelativeMouseLoc
+   local tMouseLoc, tStackRect
+   put the mouseLoc into tMouseLoc
+   put the rect of the mouseStack into tStackRect
+   subtract item 1 of tStackRect from item 1 of tMouseLoc
+   subtract item 2 of tStackRect from item 2 of tMouseLoc
+   return tMouseLoc
+end _seGetRelativeMouseLoc
+
 -- ---------------------------------------------------------------------------
 -- Internal: momentum poll loop
 -- ---------------------------------------------------------------------------
@@ -204,7 +226,7 @@ on seScrollPoll
    -- HyperXTalk's own coarse line-quantised scroll from reaching the control.
    if tScrollTarget is not empty then
       if not sMonitorInstalled then
-         macScrollEnhancementInstall the windowId of stack (the mouseStack)
+         macScrollEnhancementInstall 0
          put true into sMonitorInstalled
       end if
    else
