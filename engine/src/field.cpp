@@ -1057,6 +1057,11 @@ Boolean MCField::mdown(uint2 which)
                 m_password_field = !m_password_field;
                 message_with_valueref_args(MCM_password_toggle_clicked, m_password_field ? MCSTR("true") : MCSTR("false"));
                 layer_redrawrect(getfrect());
+                // Reposition the caret immediately so it aligns with the new
+                // display (bullets ↔ plain text).  SetPasswordField does the
+                // same via replacecursor, but the toggle icon sets m_password_field
+                // directly, so we must call it here explicitly.
+                replacecursor(True, False);
                 return True;
             }
 
