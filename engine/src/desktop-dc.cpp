@@ -436,6 +436,18 @@ void MCScreenDC::destroywindow(Window &window)
 
 void MCScreenDC::raisewindow(Window window)
 {
+	// For popover stacks, raising the raw platform window would bring up the
+	// blank backing NSPanel (which has had its content view transferred to the
+	// NSPopover).  Re-show via the popover path instead so the NSPopover is
+	// properly repositioned at the current anchor.  MCpopoveranchor and
+	// MCpopoveredge are set by the caller before openrect is invoked, so they
+	// are current here.
+	MCStack *t_stack = MCdispatcher->findstackd(window);
+	if (t_stack != nil && t_stack->getmode() == WM_POPOVER)
+	{
+		MCPlatformShowWindowAsPopover(window, MCpopoveranchor, (MCPlatformWindowEdge)MCpopoveredge);
+		return;
+	}
 	MCPlatformRaiseWindow(window);
 }
 
