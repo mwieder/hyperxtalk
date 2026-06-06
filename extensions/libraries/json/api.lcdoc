@@ -1,4 +1,4 @@
-Library: com.livecode.library.json
+Library: com.hyperxtalk.library.json
 
 Type: library
 
@@ -9,9 +9,9 @@ Object Notation (JSON) data.  See also <http://json.org> and
 
 Tags: JSON, Library
 
-version: 2.0.0
+version: 1.0.0
 
-author: LiveCode
+author: HyperXTalk
 
 
 Name: JsonImport

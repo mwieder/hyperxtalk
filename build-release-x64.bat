@@ -921,6 +921,18 @@ if not exist "%LC_COMPILE%" (
 
 if not exist "%PACKAGED_EXT%" mkdir "%PACKAGED_EXT%"
 
+:: Build yyjson native DLL for Release (required by json.lcb for JSON import on Windows)
+echo Building yyjson native DLL (Release)...
+set "VCXPROJ_YYJSON=%~dp0build-win-x86_64\hyperxtalk\extensions\libraries\json\yyjson\yyjson-build.vcxproj"
+"%MSBUILD%" %TOOLSET% "%VCXPROJ_YYJSON%" "/p:SolutionDir=%~dp0build-win-x86_64\hyperxtalk\\" /p:Configuration=Release /p:Platform=x64 /v:minimal /nologo >> "%LOGFILE%" 2>&1
+if %ERRORLEVEL% NEQ 0 (
+    echo WARNING: yyjson Release build failed -- JSON import extension may not work. See %LOGFILE%
+) else (
+    if not exist "%PACKAGED_EXT%\com.hyperxtalk.library.json\code\x86_64-win32" mkdir "%PACKAGED_EXT%\com.hyperxtalk.library.json\code\x86_64-win32"
+    copy /Y "%OUTDIR%\yyjson.dll" "%PACKAGED_EXT%\com.hyperxtalk.library.json\code\x86_64-win32\yyjson.dll" >> "%LOGFILE%" 2>&1
+    echo yyjson.dll OK.
+)
+
 :: Bootstrap modules/lci from Debug if Release hasn't produced it yet.
 if not exist "%LCI_DIR%" (
     if exist "%DBG_DIR%\modules\lci" (
@@ -1126,14 +1138,4 @@ for %%F in (dbmysql.dll dbodbc.dll dbpostgresql.dll dbsqlite.dll) do (
 :: libmysql.dll and OpenSSL DLLs (MySQL runtime deps)
 for %%F in (libmysql.dll libssl-3-x64.dll libcrypto-3-x64.dll) do (
     if exist "%OUTDIR%\%%F" (
-        copy /Y "%OUTDIR%\%%F" "%~dp0%RT%\Externals\Database Drivers\%%F" > nul
-        echo   %%F staged to %RT%\Externals\Database Drivers\
-    )
-)
-
-echo Runtime staging complete.
-echo Runtime staging complete. >> "%LOGFILE%"
-
-echo.
-echo Build complete.
-echo Build complete. >> "%LOGFILE%"
+        copy /Y "%OUTDIR%\%%F" "%~dp0%RT%\Externals\Database Drivers
