@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Emit the current git HEAD revision hash for use in GYP variable expansion.
 # If HEAD cannot be resolved (unborn branch, corrupted .git/HEAD, detached
 # HEAD with no commits, etc.) emit a placeholder so that configure does not
