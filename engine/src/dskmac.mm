@@ -6,6 +6,7 @@
 #include <CoreServices/CoreServices.h>
 #include <CoreFoundation/CoreFoundation.h>
 #import <AppKit/AppKit.h>    // NSRunningApplication, NSWorkspace, NSAppleScript
+#import <JavaScriptCore/JavaScriptCore.h>  // JSContext for do...as "JavaScript"
 #include <sys/mount.h>
 #include <sys/stat.h>
 
@@ -4070,6 +4071,39 @@ struct MCMacDesktop: public MCSystemInterface, public MCMacSystemService
 			return;
 		}
 
+        // JavaScript via JavaScriptCore (arm64-safe, no Component Manager needed)
+        if (MCStringIsEqualToCString(p_language, "JavaScript", kMCStringOptionCompareCaseless))
+        {
+            MCAutoStringRefAsUTF8String t_script_utf8;
+            if (!t_script_utf8.Lock(p_script))
+            {
+                MCresult->sets("compiler error");
+                return;
+            }
+            NSString *t_ns_script = [NSString stringWithUTF8String: *t_script_utf8];
+            JSContext *t_ctx = [[JSContext alloc] init];
+            JSValue *t_result = [t_ctx evaluateScript: t_ns_script];
+            if (t_ctx.exception != nil)
+            {
+                NSString *t_msg = [t_ctx.exception toString];
+                MCresult->sets(t_msg != nil ? [t_msg UTF8String] : "execution error");
+            }
+            else if (t_result != nil && ![t_result isUndefined] && ![t_result isNull])
+            {
+                NSString *t_str = [t_result toString];
+                if (t_str != nil)
+                    MCresult->sets([t_str UTF8String]);
+                else
+                    MCresult->clear(False);
+            }
+            else
+            {
+                MCresult->clear(False);
+            }
+            [t_ctx release];
+            return;
+        }
+
         getosacomponents();
         OSAcomponent *posacomp = NULL;
         uint2 i;
@@ -4594,15 +4628,18 @@ static OSStatus osaexecute(MCStringRef& r_string, void* /*compinstance*/, OSAID 
 
 static void getosacomponents()
 {
-    // ARM: Component Manager is gone. We register only "applescript"
-    // which is handled natively via NSAppleScript in DoAlternateLanguage.
+    // ARM: Component Manager is gone. We register supported alternate languages
+    // manually. AppleScript is handled via NSAppleScript; JavaScript via JSContext.
     if (osacomponents != NULL)
         return;
-    osacomponents = new (nothrow) OSAcomponent[1];
+    osacomponents = new (nothrow) OSAcomponent[2];
     osacomponents[0].compname = MCSTR("applescript");
     osacomponents[0].compsubtype = 0;
     osacomponents[0].compinstance = NULL;
-    osancomponents = 1;
+    osacomponents[1].compname = MCSTR("javascript");
+    osacomponents[1].compsubtype = 0;
+    osacomponents[1].compinstance = NULL;
+    osancomponents = 2;
 }
 
 struct  LangID2Charset
