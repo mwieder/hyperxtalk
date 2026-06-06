@@ -30,7 +30,7 @@
                         'copies':
                         [
                             {
-                                'destination': '<(PRODUCT_DIR)/packaged_extensions/com.livecode.library.json/code/<(platform_id)/',
+                                'destination': '<(PRODUCT_DIR)/packaged_extensions/com.hyperxtalk.library.json/code/<(platform_id)/',
                                 'files':
                                 [
                                     '<(PRODUCT_DIR)/yyjson<(SHARED_LIB_SUFFIX)',
@@ -128,7 +128,7 @@
                     'outputs':
                     [
                         '<(PRODUCT_DIR)/yyjson.lcext',
-                        '<(PRODUCT_DIR)/packaged_extensions/com.livecode.library.json/code/<(platform_id)/module.lcm',
+                        '<(PRODUCT_DIR)/packaged_extensions/com.hyperxtalk.library.json/code/<(platform_id)/module.lcm',
                     ],
 
                     'message': 'Link lcext',
@@ -138,9 +138,9 @@
                         '../../../../tools/build-module-lcext-ios.sh',
                         '<(SHARED_INTERMEDIATE_DIR)/json.cpp',
                         '../json.ios',
-                        '<(PRODUCT_DIR)/packaged_extensions/com.livecode.library.json/code/<(platform_id)/yyjson.lcext',
-                        '$(not_a_real_variable)com.livecode.library.json',
-                        '<(PRODUCT_DIR)/packaged_extensions/com.livecode.library.json/code/<(platform_id)/module.lcm',
+                        '<(PRODUCT_DIR)/packaged_extensions/com.hyperxtalk.library.json/code/<(platform_id)/yyjson.lcext',
+                        '$(not_a_real_variable)com.hyperxtalk.library.json',
+                        '<(PRODUCT_DIR)/packaged_extensions/com.hyperxtalk.library.json/code/<(platform_id)/module.lcm',
                         '<(PRODUCT_DIR)/yyjson<(STATIC_LIB_SUFFIX)',
                     ],
                 },

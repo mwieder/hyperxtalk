@@ -5,7 +5,7 @@
  *
  * Parses a UTF-8 JSON string with yyjson, then walks the value tree depth-first
  * and fires events into a caller-supplied callback.  The LCB side receives one
- * call per JSON token and builds the LiveCode value structure.
+ * call per JSON token and builds the HyperXTalk value structure.
  *
  * Event codes (pEvent parameter):
  *   JSON_EVENT_NULL         1   pValue is NULL
