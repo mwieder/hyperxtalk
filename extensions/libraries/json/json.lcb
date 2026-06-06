@@ -154,6 +154,14 @@ public handler JsonImport(in pJson as String) returns optional any
   variable tExtraToken as optional String
   variable tTokenValue as optional String
 
+  -- tTokenChars accumulates token characters as a List instead of
+  -- per-char string concatenation.  LCB strings are immutable/copy-on-write,
+  -- so `put tChar after tTokenValue` on an M-char token costs O(M) per
+  -- append → O(M²) overall.  Building a List and combining once at the
+  -- token boundary makes tokenisation O(n).
+  variable tTokenChars as List
+  put [] into tTokenChars
+
   variable tStringUniHex as String
   put "" into tStringUniHex
 
@@ -229,18 +237,19 @@ public handler JsonImport(in pJson as String) returns optional any
       if tChar is in "{}[]:," then
         put tChar into tToken
         put nothing into tTokenValue
+        put [] into tTokenChars
         put kScanEndToken into tScanState
       else if tChar is "\q" then
         put tChar into tToken
-        put "" into tTokenValue
+        put [] into tTokenChars
         put kScanInString into tScanState
       else if tChar is in "tfn" then
         put tChar into tToken
-        put tChar into tTokenValue
+        put [tChar] into tTokenChars
         put kScanInLiteral into tScanState
       else if tChar is "0" then
          put "0" into tToken
-         put tChar into tTokenValue
+         put [tChar] into tTokenChars
          if tCharCount < tJsonLength then
            put kScanInNumberIntEnd into tScanState
          else
@@ -248,11 +257,11 @@ public handler JsonImport(in pJson as String) returns optional any
          end if
       else if tChar is "-" then
          put "0" into tToken
-         put tChar into tTokenValue
+         put [tChar] into tTokenChars
          put kScanInNumberIntStart into tScanState
       else if tChar is in "123456789" then
         put "0" into tToken
-        put tChar into tTokenValue
+        put [tChar] into tTokenChars
         if tCharCount < tJsonLength then
            put kScanInNumberInt into tScanState
         else
@@ -277,29 +286,29 @@ public handler JsonImport(in pJson as String) returns optional any
               "Unescaped control character '" & FormatChar(tChar) & \
               "' in string")
       else
-        put tChar after tTokenValue
+        push tChar onto tTokenChars
       end if
     else if tScanState is kScanInStringEscape then
       if tChar is in "\q\\/" then
-        put tChar after tTokenValue
+        push tChar onto tTokenChars
         put kScanInString into tScanState
       else if tChar is "n" then
-        put "\n" after tTokenValue
+        push "\n" onto tTokenChars
         put kScanInString into tScanState
       else if tChar is "r" then
-        put "\r" after tTokenValue
+        push "\r" onto tTokenChars
         put kScanInString into tScanState
       else if tChar is "t" then
-        put "\t" after tTokenValue
+        push "\t" onto tTokenChars
         put kScanInString into tScanState
       else if tChar is "u" then
         put "" into tStringUniHex
         put kScanInStringUnicode into tScanState
       else if tChar is "b" then
-        put "\u{08}" after tTokenValue
+        push "\u{08}" onto tTokenChars
         put kScanInString into tScanState
       else if tChar is "f" then
-        put "\u{0c}" after tTokenValue
+        push "\u{0c}" onto tTokenChars
         put kScanInString into tScanState
       else
         return JsonSyntaxError(tLine, tColumn, \
@@ -313,25 +322,28 @@ public handler JsonImport(in pJson as String) returns optional any
       end if
       put tChar after tStringUniHex
       if the number of chars in tStringUniHex >= 4 then
-        put the char with code (tStringUniHex converted from base 16) after tTokenValue
+        push (the char with code (tStringUniHex converted from base 16)) onto tTokenChars
         put kScanInString into tScanState
       end if
 
     else if tScanState is kScanInLiteral then
-      put tChar after tTokenValue
-      if tToken is "n" and the number of chars in tTokenValue is 4 then
+      push tChar onto tTokenChars
+      if tToken is "n" and the number of elements in tTokenChars is 4 then
+        combine tTokenChars with "" into tTokenValue
         if tTokenValue is not "null" then
           return JsonSyntaxError(tLine, tColumn, \
                                  "invalid token '" & tTokenValue & "'")
         end if
         put kScanEndToken into tScanState
-      else if tToken is "t" and the number of chars in tTokenValue is 4 then
+      else if tToken is "t" and the number of elements in tTokenChars is 4 then
+        combine tTokenChars with "" into tTokenValue
         if tTokenValue is not "true" then
           return JsonSyntaxError(tLine, tColumn, \
                                  "invalid token '" & tTokenValue & "'")
         end if
         put kScanEndToken into tScanState
-      else if tToken is "f" and the number of chars in tTokenValue is 5 then
+      else if tToken is "f" and the number of elements in tTokenChars is 5 then
+        combine tTokenChars with "" into tTokenValue
         if tTokenValue is not "false" then
           return JsonSyntaxError(tLine, tColumn, \
                                  "invalid token '" & tTokenValue & "'")
@@ -350,7 +362,7 @@ public handler JsonImport(in pJson as String) returns optional any
                 "' at start of number integer part")
        end if
        -- Any valid character may be terminal
-       put tChar after tTokenValue
+       push tChar onto tTokenChars
        if tCharCount >= tJsonLength then
           put kScanEndToken into tScanState
        end if
@@ -361,13 +373,13 @@ public handler JsonImport(in pJson as String) returns optional any
           if tCharCount >= tJsonLength then
              put kScanEndToken into tScanState
           end if
-          put tChar after tTokenValue
+          push tChar onto tTokenChars
        else if tChar is "." then
           put kScanInNumberFracStart into tScanState
-          put tChar after tTokenValue
+          push tChar onto tTokenChars
        else if tChar is in "eE" then
           put kScanInNumberExpSign into tScanState
-          put tChar after tTokenValue
+          push tChar onto tTokenChars
        else
           JsonCheckNumberTerminal(tLine, tColumn, tChar, tExtraToken)
           put kScanEndToken into tScanState
@@ -376,10 +388,10 @@ public handler JsonImport(in pJson as String) returns optional any
     else if tScanState is kScanInNumberIntEnd then
        if tChar is "." then
           put kScanInNumberFracStart into tScanState
-          put tChar after tTokenValue
+          push tChar onto tTokenChars
        else if tChar is in "eE" then
           put kScanInNumberExpSign into tScanState
-          put tChar after tTokenValue
+          push tChar onto tTokenChars
        else
           JsonCheckNumberTerminal(tLine, tColumn, tChar, tExtraToken)
           put kScanEndToken into tScanState
@@ -392,7 +404,7 @@ public handler JsonImport(in pJson as String) returns optional any
           else
              put kScanEndToken into tScanState
           end if
-          put tChar after tTokenValue
+          push tChar onto tTokenChars
        else
           return JsonSyntaxError(tLine, tColumn, \
                 "unexpected '" & FormatChar(tChar) & \
@@ -404,10 +416,10 @@ public handler JsonImport(in pJson as String) returns optional any
           if tCharCount >= tJsonLength then
              put kScanEndToken into tScanState
           end if
-          put tChar after tTokenValue
+          push tChar onto tTokenChars
        else if tChar is in "eE" then
           put kScanInNumberExpSign into tScanState
-          put tChar after tTokenValue
+          push tChar onto tTokenChars
        else
           JsonCheckNumberTerminal(tLine, tColumn, tChar, tExtraToken)
           put kScanEndToken into tScanState
@@ -416,7 +428,7 @@ public handler JsonImport(in pJson as String) returns optional any
     else if tScanState is kScanInNumberExpSign then
        if tChar is in "+-" then
           put kScanInNumberExpStart into tScanState
-          put tChar after tTokenValue
+          push tChar onto tTokenChars
        else if tChar is in "0123456789" then
           -- May be terminal
           if tCharCount < tJsonLength then
@@ -424,7 +436,7 @@ public handler JsonImport(in pJson as String) returns optional any
           else
              put kScanEndToken into tScanState
           end if
-          put tChar after tTokenValue
+          push tChar onto tTokenChars
        else
           return JsonSyntaxError(tLine, tColumn, \
                 "unexpected '" & FormatChar(tChar) & \
@@ -439,7 +451,7 @@ public handler JsonImport(in pJson as String) returns optional any
           else
              put kScanEndToken into tScanState
           end if
-          put tChar after tTokenValue
+          push tChar onto tTokenChars
        else
           return JsonSyntaxError(tLine, tColumn, \
                 "unexpected '" & FormatChar(tChar) & \
@@ -452,7 +464,7 @@ public handler JsonImport(in pJson as String) returns optional any
           if tCharCount >= tJsonLength then
              put kScanEndToken into tScanState
           end if
-          put tChar after tTokenValue
+          push tChar onto tTokenChars
        else
           JsonCheckNumberTerminal(tLine, tColumn, tChar, tExtraToken)
           put kScanEndToken into tScanState
@@ -469,6 +481,13 @@ public handler JsonImport(in pJson as String) returns optional any
       next repeat
     end if
     put kScanStartToken into tScanState
+
+    -- Materialise the accumulated token characters into a string now that
+    -- the token is complete.  Literals already combined in their length
+    -- check above; strings and numbers combine here.
+    if tToken is "\q" or tToken is "0" then
+      combine tTokenChars with "" into tTokenValue
+    end if
 
     -- Allow for an extra parsing pass when the end of a number is found
     variable tNeedPass as Boolean
