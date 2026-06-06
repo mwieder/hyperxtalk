@@ -24,10 +24,10 @@ Object Notation (JSON) data.  See also <http://json.org> and
 Tags: JSON, Library
 */
 
-library com.livecode.library.json
+library com.hyperxtalk.library.json
 
-metadata version is "2.0.0"
-metadata author is "LiveCode"
+metadata version is "1.0.0"
+metadata author is "HyperXTalk"
 metadata title is "JSON Library"
 
 use com.livecode.foreign
