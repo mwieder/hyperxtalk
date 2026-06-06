@@ -232,6 +232,7 @@
 			[
 				'libraries/ini/inih/inih.gyp:inih',
 				'libraries/timezone/tz/tz.gyp:tz',
+				'libraries/json/yyjson/yyjson.gyp:yyjson',
 			],
 		},
 	],
