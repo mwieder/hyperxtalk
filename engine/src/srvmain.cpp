@@ -35,10 +35,10 @@
 #include "srvdebug.h"
 
 #define HOME_ENV_VAR "REV_HOME"
-#define HOME_FOLDER "/opt/livecode/" MC_BUILD_ENGINE_SHORT_VERSION
+#define HOME_FOLDER "/opt/hyperxtalk/" MC_BUILD_ENGINE_SHORT_VERSION
 #else
 #define HOME_ENV_VAR "LIVECODE_SERVER_HOME"
-#define HOME_FOLDER "/opt/livecode/server"
+#define HOME_FOLDER "/opt/hyperxtalk/server"
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////

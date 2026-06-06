@@ -19,7 +19,7 @@ along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
 on TestRegistryKeys
    // set up test keys & values
    if the platform is "Win32" then
-      local tTestKey = "HKEY_CURRENT_USER\Software\LiveCode\tests\ListRegistry\"
+      local tTestKey = "HKEY_CURRENT_USER\Software\HyperXTalk\tests\ListRegistry\"
       repeat for each item tKey in "Key1,Key2,Key1\Key1"
          TestAssert merge("set Registry key [[tTestKey]]"), setRegistry(tTestKey & tKey & "\value", "value of" && tKey)
       end repeat

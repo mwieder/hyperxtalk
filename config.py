@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
 # Copyright (C) 2017 LiveCode Ltd.
+# Copyright (C) 2026 HyperXTalk
 #
-# This file is part of LiveCode.
+# This file is part of HyperXTalk.
 #
-# LiveCode is free software; you can redistribute it and/or modify it under
+# HyperXTalk is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License v3 as published by the Free
 # Software Foundation.
 #
-# LiveCode is distributed in the hope that it will be useful, but WITHOUT ANY
+# HyperXTalk is distributed in the hope that it will be useful, but WITHOUT ANY
 # WARRANTY; without even the implied warranty of MERCHANTABILITY or
 # FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with LiveCode.  If not see <http://www.gnu.org/licenses/>.
+# along with HyperXTalk.  If not see <http://www.gnu.org/licenses/>.
 
 import sys
 import platform
@@ -58,7 +59,7 @@ KNOWN_PLATFORMS = (
 
 def usage(exit_status):
     print(
-"""Use gyp to generate project files when compiling LiveCode.
+"""Use gyp to generate project files when compiling HyperXTalk.
 
 Usage:
   config.py [--platform PLATFORM] [OPTION...] [GYP_OPTION ...]
@@ -100,9 +101,9 @@ gyp options:
                     Version of Android Native Development Kit to use
   -DOS=OS           Target operating system
   -Dtarget_arch=TARGET_ARCH
-                    Target LiveCode to run on ARCH processors
+                    Target HyperXTalk to run on ARCH processors
   -Dtarget_sdk=XCODE_TARGET_SDK
-                    Compile LiveCode using the specified SDK in Xcode
+                    Compile HyperXTalk using the specified SDK in Xcode
   -Dhost_sdk=XCODE_HOST_SDK
                     Compile build tools using the specified SDK in Xcode
 
@@ -355,7 +356,7 @@ def validate_gyp_settings(opts):
         validate_platform(opts)
 
         opts['GENERATOR_OUTPUT'] = \
-            os.path.join('build-' + opts['PLATFORM'], 'livecode')
+            os.path.join('build-' + opts['PLATFORM'], 'hyperxtalk')
 
     if len(opts['FORMATS']) < 1:
         validate_os(opts)
@@ -764,9 +765,6 @@ def core_gyp_args(opts):
     if opts['PERL'] is not None:
         args.append('-Dperl=' + opts['PERL'])
 
-    if opts['BUILD_EDITION'] == 'commercial':
-        args.append(os.path.join('..', 'livecode-commercial.gyp'))
-
     if opts['CROSS'] is not None:
         args.append('-Dcross_compile=1')
 
@@ -891,10 +889,7 @@ def configure(args):
 
 def copy_workspace_settings(opts):
     validate_gyp_settings(opts)
-    if opts['BUILD_EDITION'] == 'commercial':
-        project = os.path.join(opts['GENERATOR_OUTPUT'], '..', 'livecode-commercial.xcodeproj')
-    else:
-        project = os.path.join(opts['GENERATOR_OUTPUT'], 'livecode.xcodeproj')
+    project = os.path.join(opts['GENERATOR_OUTPUT'], 'hyperxtalk.xcodeproj')
 
     xcshareddata = os.path.join(project, 'project.xcworkspace', 'xcshareddata')
 

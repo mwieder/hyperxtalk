@@ -149,8 +149,7 @@ const char * const MClnfmacstring = "Macintosh";
 const char * const MClnfmotifstring = "Motif";
 const char * const MClnfwinstring = "Windows 95";
 const char * const MCuntitledstring = "Untitled";
-// MW-2012-08-29: [[ Bug 10309 ]] Update 'applicationstring' to be 'LiveCode'.
-const char * const MCapplicationstring = "livecode";
+const char * const MCapplicationstring = "hyperxtalk";
 const char * const MCanswernamestring = "Answer Dialog";
 const char * const MCasknamestring = "Ask Dialog";
 const char * const MCfsnamestring = "File Selector";

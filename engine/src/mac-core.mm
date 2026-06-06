@@ -273,7 +273,7 @@ static OSErr preDispatchAppleEvent(const AppleEvent *p_event, AppleEvent *p_repl
     if (aeclass == kCoreEventClass && aeid == kAEQuitApplication)
     {
         {
-            FILE *f = fopen("/tmp/livecode-arm64-startup.log", "a");
+            FILE *f = fopen("/tmp/hyperxtalk-arm64-startup.log", "a");
             if (f) { fprintf(f, "mac-core: kAEQuitApplication Apple Event received -> [NSApp terminate:]\n"); fclose(f); }
         }
         [NSApp terminate: self];

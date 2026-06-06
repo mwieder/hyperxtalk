@@ -113,7 +113,7 @@ static GtkWidget* getWidgetForControlType(MCPlatformControlType p_type, MCPlatfo
             break;
             
         case kMCPlatformControlTypeLabel:
-            t_the_widget = gtk_label_new("LiveCode");
+            t_the_widget = gtk_label_new("HyperXTalk");
             break;
             
         case kMCPlatformControlTypeInputField:
