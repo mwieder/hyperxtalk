@@ -928,8 +928,8 @@ set "VCXPROJ_YYJSON=%~dp0build-win-x86_64\hyperxtalk\extensions\libraries\json\y
 if %ERRORLEVEL% NEQ 0 (
     echo WARNING: yyjson Release build failed -- JSON import extension may not work. See %LOGFILE%
 ) else (
-    if not exist "%PACKAGED_EXT%\com.livecode.library.json\code\x86_64-win32" mkdir "%PACKAGED_EXT%\com.livecode.library.json\code\x86_64-win32"
-    copy /Y "%OUTDIR%\yyjson.dll" "%PACKAGED_EXT%\com.livecode.library.json\code\x86_64-win32\yyjson.dll" >> "%LOGFILE%" 2>&1
+    if not exist "%PACKAGED_EXT%\com.hyperxtalk.library.json\code\x86_64-win32" mkdir "%PACKAGED_EXT%\com.hyperxtalk.library.json\code\x86_64-win32"
+    copy /Y "%OUTDIR%\yyjson.dll" "%PACKAGED_EXT%\com.hyperxtalk.library.json\code\x86_64-win32\yyjson.dll" >> "%LOGFILE%" 2>&1
     echo yyjson.dll OK.
 )
 
