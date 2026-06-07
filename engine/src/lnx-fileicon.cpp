@@ -17,7 +17,7 @@ Software Foundation. */
 //   4. Scale if necessary, then copy the GdkPixbuf pixel data (which is
 //      always non-premultiplied RGBA) into an MCImageBitmap.
 //
-// Compile-time requirements: glib-2.0, gio-2.0, gtk+-3.0 (or gtk4).
+// Compile-time requirements: glib-2.0, gio-2.0, gtk+-2.0 (2.10+).
 // These are already linked for the Linux engine build.
 
 #include "prefix.h"
@@ -25,8 +25,11 @@ Software Foundation. */
 #include "exec-fileicon.h"
 #include "imagebitmap.h"
 
-#include <gio/gio.h>
+// gtk/gtk.h must come before gio/gio.h: bundled GTK 2.10 headers define types
+// (GtkOrientation, GtkWrapMode, etc.) that gio.h's pulled-in glib headers
+// expect to already be declared.
 #include <gtk/gtk.h>
+#include <gio/gio.h>
 #include <string.h>  // strrchr
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -102,6 +105,11 @@ static bool s_pixbuf_to_bitmap(GdkPixbuf   *p_pixbuf,
 
 // Look up an icon by GIcon in the current GtkIconTheme.
 // Returns a new GdkPixbuf reference; caller must g_object_unref().
+//
+// We use gtk_icon_theme_lookup_icon (available since GTK 2.4) rather than
+// gtk_icon_theme_lookup_by_gicon (GTK 2.14+) and GTK_ICON_LOOKUP_GENERIC_FALLBACK
+// (GTK 2.12+), as the bundled headers are GTK 2.10.
+// For GThemedIcon we iterate the names list ourselves for the same effect.
 static GdkPixbuf *s_load_gicon(GIcon *p_gicon, uinteger_t p_size)
 {
     if (p_gicon == NULL)
@@ -111,19 +119,30 @@ static GdkPixbuf *s_load_gicon(GIcon *p_gicon, uinteger_t p_size)
     if (t_theme == NULL)
         return NULL;
 
-    // gtk_icon_theme_lookup_by_gicon returns a GtkIconInfo (Gtk3) or
-    // GtkIconPaintable (Gtk4).  We target Gtk3 since the engine already links
-    // it; Gtk4 provides the same lookup under a different type name.
-    GtkIconInfo *t_info = gtk_icon_theme_lookup_by_gicon(
-        t_theme, p_gicon, (gint)p_size,
-        (GtkIconLookupFlags)(GTK_ICON_LOOKUP_USE_BUILTIN |
-                             GTK_ICON_LOOKUP_GENERIC_FALLBACK));
+    GtkIconInfo *t_info = NULL;
+
+    if (G_IS_THEMED_ICON(p_gicon))
+    {
+        // g_themed_icon_get_names returns names in fallback order; try each
+        // until we find one the theme knows about.
+        const gchar * const *t_names =
+            g_themed_icon_get_names(G_THEMED_ICON(p_gicon));
+        for (const gchar * const *t_name = t_names;
+             *t_name != NULL && t_info == NULL;
+             t_name++)
+        {
+            t_info = gtk_icon_theme_lookup_icon(
+                t_theme, *t_name, (gint)p_size,
+                GTK_ICON_LOOKUP_USE_BUILTIN);
+        }
+    }
+
     if (t_info == NULL)
         return NULL;
 
     GError *t_error = NULL;
     GdkPixbuf *t_pixbuf = gtk_icon_info_load_icon(t_info, &t_error);
-    g_object_unref(t_info);
+    gtk_icon_info_free(t_info);
 
     if (t_error)
     {
