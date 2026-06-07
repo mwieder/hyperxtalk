@@ -229,14 +229,12 @@ bool MCFileIconGetForExtension(MCStringRef p_extension,
     if (t_ext_str[0] == '.')
         t_ext_str++;   // strip leading dot
 
-    gchar *t_fake_name = g_strdup_printf("dummy.%s", t_ext_str);
-    if (t_fake_name == NULL)
-        return false;
+    char t_fake_name[256];
+    snprintf(t_fake_name, sizeof(t_fake_name), "dummy.%s", t_ext_str);
 
     gboolean t_uncertain = FALSE;
     gchar *t_content_type =
         g_content_type_guess(t_fake_name, NULL, 0, &t_uncertain);
-    g_free(t_fake_name);
 
     if (t_content_type == NULL)
         return false;

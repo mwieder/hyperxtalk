@@ -682,7 +682,6 @@ glib libglib-2.0.so.0
 	g_main_context_find_source_by_id: (pointer, integer) -> (pointer)
 	g_source_destroy: (pointer) -> ()
 	g_error_free: (pointer) -> ()
-	@ g_strdup_printf
 
 gio libgio-2.0.so.0
 	g_content_type_guess: (pointer, pointer, integer, pointer) -> (pointer)
