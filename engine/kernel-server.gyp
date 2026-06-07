@@ -131,7 +131,7 @@
 						'dependencies':
 						[
 							'../thirdparty/libcairo/libcairo.gyp:libcairo',
-							'engine.gyp:create_linux_stubs',
+							'kernel-server.gyp:create_linux_stubs',
 						],
 
 						'include_dirs':
@@ -220,5 +220,44 @@
 				],
 			},
 		},
+	],
+
+	'conditions':
+	[
+		[
+			'OS == "linux"',
+			{
+				'targets':
+				[
+					{
+						'target_name': 'create_linux_stubs',
+						'type': 'none',
+
+						'actions':
+						[
+							{
+								'action_name': 'linux_library_stubs',
+								'inputs':
+								[
+									'../util/weak_stub_maker.pl',
+									'src/linux.stubs',
+								],
+								'outputs':
+								[
+									'<(SHARED_INTERMEDIATE_DIR)/src/linux.stubs.cpp',
+								],
+								'action':
+								[
+									'<@(perl)',
+									'../util/weak_stub_maker.pl',
+									'src/linux.stubs',
+									'<@(_outputs)',
+								],
+							},
+						],
+					},
+				],
+			},
+		],
 	],
 }

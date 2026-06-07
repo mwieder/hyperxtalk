@@ -82,7 +82,7 @@
 
 						'dependencies':
 						[
-							'engine.gyp:create_linux_stubs',
+							'kernel.gyp:create_linux_stubs',
 						],
 
 						'sources':
@@ -413,5 +413,44 @@
 				]
 			],
 		},
+	],
+
+	'conditions':
+	[
+		[
+			'OS == "linux"',
+			{
+				'targets':
+				[
+					{
+						'target_name': 'create_linux_stubs',
+						'type': 'none',
+
+						'actions':
+						[
+							{
+								'action_name': 'linux_library_stubs',
+								'inputs':
+								[
+									'../util/weak_stub_maker.pl',
+									'src/linux.stubs',
+								],
+								'outputs':
+								[
+									'<(SHARED_INTERMEDIATE_DIR)/src/linux.stubs.cpp',
+								],
+								'action':
+								[
+									'<@(perl)',
+									'../util/weak_stub_maker.pl',
+									'src/linux.stubs',
+									'<@(_outputs)',
+								],
+							},
+						],
+					},
+				],
+			},
+		],
 	],
 }
