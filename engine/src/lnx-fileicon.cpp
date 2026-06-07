@@ -25,12 +25,38 @@ Software Foundation. */
 #include "exec-fileicon.h"
 #include "imagebitmap.h"
 
-// gtk/gtk.h must come before gio/gio.h: bundled GTK 2.10 headers define types
-// (GtkOrientation, GtkWrapMode, etc.) that gio.h's pulled-in glib headers
-// expect to already be declared.
+// We cannot include any GIO headers: every GIO header transitively includes
+// giotypes.h / gioenums.h which require a modern GLib (goffset, GVariant,
+// GLIB_SYSDEF_AF_UNIX, etc.) that is incompatible with the bundled GTK 2.10 /
+// GLib headers used by the rest of the engine.
+//
+// Instead, forward-declare just the GIO types and functions we need.
+// The bundled glib headers (already included via gtk/gtk.h → glib.h) supply
+// the GType machinery (G_TYPE_CHECK_INSTANCE_TYPE, etc.) that the macros below
+// rely on.
 #include <gtk/gtk.h>
-#include <gio/gio.h>
 #include <string.h>  // strrchr
+
+typedef struct _GIcon       GIcon;
+typedef struct _GThemedIcon GThemedIcon;
+
+extern "C"
+{
+    // g_content_type_*: map a filename / extension to a MIME type and its icon.
+    gchar *g_content_type_guess(const gchar *filename,
+                                const guchar *data, gsize data_size,
+                                gboolean *result_uncertain);
+    GIcon *g_content_type_get_icon(const gchar *type);
+
+    // GThemedIcon: icon identified by a list of theme-name strings.
+    GType                g_themed_icon_get_type(void) G_GNUC_CONST;
+    const gchar * const *g_themed_icon_get_names(GThemedIcon *icon);
+}
+
+#define G_TYPE_THEMED_ICON    (g_themed_icon_get_type())
+#define G_IS_THEMED_ICON(obj) \
+    (G_TYPE_CHECK_INSTANCE_TYPE((obj), G_TYPE_THEMED_ICON))
+#define G_THEMED_ICON(obj)    ((GThemedIcon *)(obj))
 
 ////////////////////////////////////////////////////////////////////////////////
 
