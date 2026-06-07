@@ -178,7 +178,7 @@
 						{
 							'dependencies':
 							[
-								#'engine.gyp:create_linux_stubs',
+								'engine.gyp:create_linux_stubs',
 							],
 							
 							'sources':
