@@ -349,6 +349,7 @@ gdk_pixbuf libgdk_pixbuf-2.0.so.0
 	gdk_pixbuf_loader_write: (pointer, pointer, integer, pointer) -> (integer)
 	gdk_pixbuf_loader_close: (pointer, pointer) -> (integer)
 	gdk_pixbuf_loader_get_pixbuf: (pointer) -> (pointer)
+	gdk_pixbuf_scale_simple: (pointer, integer, integer, integer) -> (pointer)
 
 cairo libcairo.so.2
 	cairo_set_operator: (pointer, integer) -> ()
@@ -558,6 +559,11 @@ gtk libgtk-x11-2.0.so.0
 	@ gtk_message_dialog_new
 	@ gtk_message_dialog_format_secondary_text
 
+	gtk_icon_theme_get_default: () -> (pointer)
+	gtk_icon_theme_lookup_icon: (pointer, pointer, integer, integer) -> (pointer)
+	gtk_icon_info_load_icon: (pointer, pointer) -> (pointer)
+	gtk_icon_info_free: (pointer) -> ()
+
 gtk_print_dialog libgtk-x11-2.0.so.0
 	gtk_print_unix_dialog_new: (pointer, pointer) -> (pointer)
 	gtk_print_unix_dialog_get_selected_printer: (pointer) -> (pointer)
@@ -676,6 +682,13 @@ glib libglib-2.0.so.0
 	g_main_context_find_source_by_id: (pointer, integer) -> (pointer)
 	g_source_destroy: (pointer) -> ()
 	g_error_free: (pointer) -> ()
+	@ g_strdup_printf
+
+gio libgio-2.0.so.0
+	g_content_type_guess: (pointer, pointer, integer, pointer) -> (pointer)
+	g_content_type_get_icon: (pointer) -> (pointer)
+	g_themed_icon_get_type: () -> (integer)
+	g_themed_icon_get_names: (pointer) -> (pointer)
 
 esd libesd.so.0
 	esd_close: (integer) -> (integer)
