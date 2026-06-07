@@ -131,7 +131,7 @@
 						'dependencies':
 						[
 							'../thirdparty/libcairo/libcairo.gyp:libcairo',
-							'kernel-server.gyp:create_linux_stubs',
+							'kernel-server.gyp:kernel_server_create_linux_stubs',
 						],
 
 						'include_dirs':
@@ -230,8 +230,9 @@
 				'targets':
 				[
 					{
-						'target_name': 'create_linux_stubs',
+						'target_name': 'kernel_server_create_linux_stubs',
 						'type': 'none',
+						'toolsets': ['host', 'target'],
 
 						'actions':
 						[

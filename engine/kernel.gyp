@@ -82,7 +82,7 @@
 
 						'dependencies':
 						[
-							'kernel.gyp:create_linux_stubs',
+							'kernel.gyp:kernel_create_linux_stubs',
 						],
 
 						'sources':
@@ -423,7 +423,7 @@
 				'targets':
 				[
 					{
-						'target_name': 'create_linux_stubs',
+						'target_name': 'kernel_create_linux_stubs',
 						'type': 'none',
 
 						'actions':
