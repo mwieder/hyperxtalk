@@ -2820,10 +2820,28 @@ enum Exec_errors
     EE_ICONDATAFOREXTENSION_BADEXT,
 
     // {EE-0922} iconDataForExtension: error evaluating size
-    EE_ICONDATAFOREXTENSION_BADSIZE
+    EE_ICONDATAFOREXTENSION_BADSIZE,
 
+    // {EE-0923} deleteCredential: bad service expression
+    EE_DELETECREDENTIAL_BADSERVICE,
+
+    // {EE-0924} deleteCredential: bad account expression
+    EE_DELETECREDENTIAL_BADACCOUNT,
+
+    // {EE-0925} retrieveCredential: bad service expression
+    EE_RETRIEVECREDENTIAL_BADSERVICE,
+
+    // {EE-0926} retrieveCredential: bad account expression
+    EE_RETRIEVECREDENTIAL_BADACCOUNT,
+
+    // {EE-0927} storeCredential: bad service expression
+    EE_STORECREDENTIAL_BADSERVICE,
+
+    // {EE-0928} storeCredential: bad account expression
+    EE_STORECREDENTIAL_BADACCOUNT,
+
+    // {EE-0929} storeCredential: bad secret expression
+    EE_STORECREDENTIAL_BADSECRET,
 };
-
-extern const char *MCexecutionerrors;
 
 #endif

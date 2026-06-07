@@ -1810,10 +1810,10 @@ enum Parse_errors
 	
     // {PE-0582} send: can't send script in time
     PE_SEND_SCRIPTINTIME,
-    
-    // {PE-0583} fontLanguage: bad type expression
+
+    // {PE-0583} fontLanguage: bad type
     PE_FONTLANGUAGE_BADPARAM,
-    
+
     // {PE-0584} out of memory
     PE_OUTOFMEMORY,
 
@@ -1828,9 +1828,15 @@ enum Parse_errors
 
     // {PE-0588} iconDataForExtension: bad parameter
     PE_ICONDATAFOREXTENSION_BADPARAM,
+
+    // {PE-0589} deleteCredential: bad parameter expression
+    PE_DELETECREDENTIAL_BADPARAM,
+
+    // {PE-0590} retrieveCredential: bad parameter expression
+    PE_RETRIEVECREDENTIAL_BADPARAM,
+
+    // {PE-0591} storeCredential: bad parameter expression
+    PE_STORECREDENTIAL_BADPARAM,
 };
 
-extern const char *MCparsingerrors;
-
 #endif
-
