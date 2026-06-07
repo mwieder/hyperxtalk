@@ -125,11 +125,13 @@
 							'src/lnx-core-compat.cpp',
 							# lnx-fileicon.cpp also lives in engine_desktop_source_files.
 							'src/lnx-fileicon.cpp',
+							'<(SHARED_INTERMEDIATE_DIR)/src/linux.stubs.cpp',
 						],
 
 						'dependencies':
 						[
 							'../thirdparty/libcairo/libcairo.gyp:libcairo',
+							'engine.gyp:create_linux_stubs',
 						],
 
 						'include_dirs':
@@ -176,16 +178,6 @@
 					[
 						'OS == "linux"',
 						{
-							'dependencies':
-							[
-								'engine.gyp:create_linux_stubs',
-							],
-							
-							'sources':
-							[
-								'<(SHARED_INTERMEDIATE_DIR)/src/linux.stubs.cpp',
-							],
-							
 							'libraries':
 							[
 								'-ldl',
