@@ -2844,4 +2844,6 @@ enum Exec_errors
     EE_STORECREDENTIAL_BADSECRET,
 };
 
+extern const char *MCexecutionerrors;
+
 #endif

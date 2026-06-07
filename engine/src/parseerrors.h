@@ -1839,4 +1839,6 @@ enum Parse_errors
     PE_STORECREDENTIAL_BADPARAM,
 };
 
+extern const char *MCparsingerrors;
+
 #endif

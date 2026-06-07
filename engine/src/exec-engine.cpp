@@ -1562,10 +1562,6 @@ void MCEngineGetNumberFormat(MCExecContext& ctxt, MCEngineNumberFormat& r_format
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// Defined in encodederrors.cpp (community/dev builds) or as "" in mode_*.cpp
-extern const char *MCexecutionerrors;
-extern const char *MCparsingerrors;
-
 void MCEngineGetScriptExecutionErrors(MCExecContext& ctxt, MCStringRef &r_value)
 {
 	if (MCStringCreateWithCString(MCexecutionerrors, r_value))
