@@ -1,3 +1,19 @@
+/* Copyright (C) 2003-2015 LiveCode Ltd.
+
+This file is part of LiveCode.
+
+LiveCode is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License v3 as published by the Free
+Software Foundation.
+
+LiveCode is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+for more details.
+
+You should have received a copy of the GNU General Public License
+along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
+
 #ifndef __MC_EXECUTION_ERRORS__
 #define __MC_EXECUTION_ERRORS__
 
@@ -1612,6 +1628,15 @@ enum Exec_errors
 	// {EE-0533} send: no permission to send that
 	EE_SEND_NOPERM,
 
+	// share: error evaluating data expression
+	EE_SHARE_BADDATA,
+
+	// share: error evaluating from rect expression
+	EE_SHARE_BADRECT,
+
+	// share: named image not found
+	EE_SHARE_BADIMAGE,
+
 	// {EE-0534} set: error in source expression
 	EE_SET_BADEXP,
 	
@@ -2785,35 +2810,17 @@ enum Exec_errors
     // {EE-0918} iff: error evaluating result expression
     EE_IFF_BADRESULT,
 
-    // {EE-0919} storeCredential: error in service expression
-    EE_STORECREDENTIAL_BADSERVICE,
+    // {EE-0919} iconDataForFile: error evaluating path
+    EE_ICONDATAFORFILE_BADPATH,
 
-    // {EE-0920} storeCredential: error in account expression
-    EE_STORECREDENTIAL_BADACCOUNT,
+    // {EE-0920} iconDataForFile: error evaluating size
+    EE_ICONDATAFORFILE_BADSIZE,
 
-    // {EE-0921} storeCredential: error in secret expression
-    EE_STORECREDENTIAL_BADSECRET,
+    // {EE-0921} iconDataForExtension: error evaluating extension
+    EE_ICONDATAFOREXTENSION_BADEXT,
 
-    // {EE-0922} retrieveCredential: error in service expression
-    EE_RETRIEVECREDENTIAL_BADSERVICE,
-
-    // {EE-0923} retrieveCredential: error in account expression
-    EE_RETRIEVECREDENTIAL_BADACCOUNT,
-
-    // {EE-0924} deleteCredential: error in service expression
-    EE_DELETECREDENTIAL_BADSERVICE,
-
-    // {EE-0925} deleteCredential: error in account expression
-    EE_DELETECREDENTIAL_BADACCOUNT,
-
-	// {EE-0926} share: error evaluating data expression
-	EE_SHARE_BADDATA,
-
-	// {EE-0927} share: error evaluating from rect expression
-	EE_SHARE_BADRECT,
-
-	// {EE-0928} share: named image not found
-	EE_SHARE_BADIMAGE,
+    // {EE-0922} iconDataForExtension: error evaluating size
+    EE_ICONDATAFOREXTENSION_BADSIZE
 
 };
 

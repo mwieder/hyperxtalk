@@ -537,6 +537,10 @@ MCExpression *MCN_new_function(int2 which)
 		t_new_function = new MCHeapSpace; break;
 	case F_HTTP_PROXY_FOR_URL:
 		t_new_function = new MCHTTPProxyForURL; break;
+	case F_ICON_DATA_FOR_EXTENSION:
+		t_new_function = new MCIconDataForExtension; break;
+	case F_ICON_DATA_FOR_FILE:
+		t_new_function = new MCIconDataForFile; break;
 	case F_IFF:
 		t_new_function = new MCIff; break;
 	case F_INTERRUPT:

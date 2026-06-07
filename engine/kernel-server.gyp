@@ -94,6 +94,28 @@
 			'conditions':
 			[
 				[
+					'OS == "mac"',
+					{
+						'sources':
+						[
+							# mac-fileicon.mm lives in engine_desktop_source_files but the
+							# server needs it too so that MCFileIconGetForFile/ForExtension
+							# are defined.  NSWorkspace works fine in a server (CLI) process.
+							'src/mac-fileicon.mm',
+						],
+					},
+				],
+				[
+					'OS == "win"',
+					{
+						'sources':
+						[
+							# w32-fileicon.cpp lives in engine_desktop_source_files.
+							'src/w32-fileicon.cpp',
+						],
+					},
+				],
+				[
 					'OS == "linux"',
 					{
 						'sources':
@@ -102,11 +124,15 @@
 							# These symbols (MCPlatformSetBadge, MCPlatformShareContent, etc.)
 							# are only in engine_desktop_source_files, so we add the file here.
 							'src/lnx-core-compat.cpp',
+							# lnx-fileicon.cpp also lives in engine_desktop_source_files.
+							'src/lnx-fileicon.cpp',
+							'<(SHARED_INTERMEDIATE_DIR)/src/linux.stubs.cpp',
 						],
 
 						'dependencies':
 						[
 							'../thirdparty/libcairo/libcairo.gyp:libcairo',
+							'kernel-server.gyp:kernel_server_create_linux_stubs',
 						],
 
 						'include_dirs':
@@ -153,16 +179,6 @@
 					[
 						'OS == "linux"',
 						{
-							'dependencies':
-							[
-								#'engine.gyp:create_linux_stubs',
-							],
-							
-							'sources':
-							[
-								'<(SHARED_INTERMEDIATE_DIR)/src/linux.stubs.cpp',
-							],
-							
 							'libraries':
 							[
 								'-ldl',
@@ -205,5 +221,45 @@
 				],
 			},
 		},
+	],
+
+	'conditions':
+	[
+		[
+			'OS == "linux"',
+			{
+				'targets':
+				[
+					{
+						'target_name': 'kernel_server_create_linux_stubs',
+						'type': 'none',
+						'toolsets': ['host', 'target'],
+
+						'actions':
+						[
+							{
+								'action_name': 'linux_library_stubs',
+								'inputs':
+								[
+									'../util/weak_stub_maker.pl',
+									'src/linux.stubs',
+								],
+								'outputs':
+								[
+									'<(SHARED_INTERMEDIATE_DIR)/src/linux.stubs.cpp',
+								],
+								'action':
+								[
+									'<@(perl)',
+									'../util/weak_stub_maker.pl',
+									'src/linux.stubs',
+									'<@(_outputs)',
+								],
+							},
+						],
+					},
+				],
+			},
+		],
 	],
 }

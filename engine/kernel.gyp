@@ -70,6 +70,7 @@
 						[
 							'../thirdparty/headers/linux/include/cairo',
 							'<!@(pkg-config --cflags-only-I dbus-1 2>/dev/null | sed "s/-I//g")',
+							'<!@(pkg-config --cflags-only-I gio-2.0 2>/dev/null | sed "s/-I//g")',
 						],
 
 						'defines':
@@ -77,6 +78,16 @@
                             # We use some features that are behind config macros in old versions of Pango
                             'PANGO_ENABLE_BACKEND',
                             'PANGO_ENABLE_ENGINE',
+						],
+
+						'dependencies':
+						[
+							'kernel.gyp:kernel_create_linux_stubs',
+						],
+
+						'sources':
+						[
+							'<(SHARED_INTERMEDIATE_DIR)/src/linux.stubs.cpp',
 						],
 					},
 				],
@@ -308,16 +319,6 @@
 					[
 						'OS == "linux"',
 						{
-							'dependencies':
-							[
-								#'engine.gyp:create_linux_stubs',
-							],
-
-							'sources':
-							[
-								'<(SHARED_INTERMEDIATE_DIR)/src/linux.stubs.cpp',
-							],
-
 							'libraries':
 							[
 								'-ldl',
@@ -412,5 +413,44 @@
 				]
 			],
 		},
+	],
+
+	'conditions':
+	[
+		[
+			'OS == "linux"',
+			{
+				'targets':
+				[
+					{
+						'target_name': 'kernel_create_linux_stubs',
+						'type': 'none',
+
+						'actions':
+						[
+							{
+								'action_name': 'linux_library_stubs',
+								'inputs':
+								[
+									'../util/weak_stub_maker.pl',
+									'src/linux.stubs',
+								],
+								'outputs':
+								[
+									'<(SHARED_INTERMEDIATE_DIR)/src/linux.stubs.cpp',
+								],
+								'action':
+								[
+									'<@(perl)',
+									'../util/weak_stub_maker.pl',
+									'src/linux.stubs',
+									'<@(_outputs)',
+								],
+							},
+						],
+					},
+				],
+			},
+		],
 	],
 }
