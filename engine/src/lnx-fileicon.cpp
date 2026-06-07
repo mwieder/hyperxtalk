@@ -25,6 +25,9 @@ Software Foundation. */
 #include "exec-fileicon.h"
 #include "imagebitmap.h"
 
+extern "C" int initialise_weak_link_gio(void);
+extern "C" int initialise_weak_link_gtk(void);
+
 // We cannot include any GIO headers: every GIO header transitively includes
 // giotypes.h / gioenums.h which require a modern GLib (goffset, GVariant,
 // GLIB_SYSDEF_AF_UNIX, etc.) that is incompatible with the bundled GTK 2.10 /
@@ -185,6 +188,9 @@ bool MCFileIconGetForFile(MCStringRef p_path,
                           uinteger_t p_size,
                           MCImageBitmap *&r_bitmap)
 {
+    if (!initialise_weak_link_gio() || !initialise_weak_link_gtk())
+        return false;
+
     MCAutoStringRefAsCString t_cpath;
     if (!t_cpath.Lock(p_path))
         return false;
@@ -219,6 +225,9 @@ bool MCFileIconGetForExtension(MCStringRef p_extension,
                                uinteger_t p_size,
                                MCImageBitmap *&r_bitmap)
 {
+    if (!initialise_weak_link_gio() || !initialise_weak_link_gtk())
+        return false;
+
     MCAutoStringRefAsCString t_cext;
     if (!t_cext.Lock(p_extension))
         return false;
