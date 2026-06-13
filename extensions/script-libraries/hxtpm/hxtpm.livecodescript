@@ -76,11 +76,11 @@ supported:
         subfolder containing the .livecodescript file. Loaded immediately via
         start using stack. No IDE restart required.
 
-  lce - Pre-compiled LiveCode Extension packages (.lce zip). Installed to the
+  lce - Pre-compiled HyperXTalk Extension packages (.lce zip). Installed to the
         user extensions folder via the IDE extension manager. Loaded immediately
         via load extension from file. No IDE restart required.
 
-  lcp - LiveCode IDE plugins. The plugin stack file is placed directly in the
+  lcp - HyperXTalk IDE plugins. The plugin stack file is placed directly in the
         user plugins folder. The IDE plugin registry is refreshed via
         revIDEUpdatePlugins immediately after install or uninstall.
         No IDE restart required.
@@ -108,7 +108,7 @@ Authoring checksums:
 
 Use hxtpmComputeChecksum to get the correct sha256 value for a package file
 URL before writing it into package.json. This downloads the file through
-LiveCode's own network stack and hashes it identically to how the install
+HyperXTalk's own network stack and hashes it identically to how the install
 pipeline verifies it, guaranteeing the values will match.
 
 Usage example:
@@ -163,7 +163,7 @@ Usage example:
 */
 
 -- ---------------------------------------------------------------------------
--- Public API — source management
+-- Public API - source management
 -- ---------------------------------------------------------------------------
 
 /**
@@ -223,6 +223,7 @@ command hxtpmSourceAdd pName, pURLOrPath
 
    -- Validate: the source must serve a readable index.json
    local tTestRaw
+   unload URL (tBase & "/index.json")
    put URL (tBase & "/index.json") into tTestRaw
    if the result is not empty or tTestRaw is empty then
       return "Could not fetch index.json from source." && \
@@ -310,7 +311,7 @@ function hxtpmSourceList
 end hxtpmSourceList
 
 -- ---------------------------------------------------------------------------
--- Public API — packages (commands)
+-- Public API - packages (commands)
 -- ---------------------------------------------------------------------------
 
 /**
@@ -329,10 +330,10 @@ when the install finishes (whether it succeeded or failed).
 
 The package type determines how it is installed:
 
-  lcs — Placed in the user libraries folder and loaded immediately via
+  lcs - Placed in the user libraries folder and loaded immediately via
         start using stack.
-  lce — Installed via the IDE extension manager and loaded immediately.
-  lcp — Stack file placed in the user plugins folder; the IDE plugin registry
+  lce - Installed via the IDE extension manager and loaded immediately.
+  lcp - Stack file placed in the user plugins folder; the IDE plugin registry
         is refreshed immediately via revIDEUpdatePlugins.
 
 No IDE restart is required for any package type.
@@ -385,6 +386,8 @@ command hxtpmInstall pName, pVersion
       _installLCEBegin pName, pVersion, tPackage["versions"][pVersion], tPackage["source"], tPackage["sourceBase"], tCallerTarget, tMsg
    else if tType is "lcp" then
       _installLCPBegin pName, pVersion, tPackage["versions"][pVersion], tPackage["source"], tPackage["sourceBase"], tCallerTarget, tMsg
+   else if tType is "multi" then
+      _installMultiBegin pName, pVersion, tPackage["versions"][pVersion], tPackage["source"], tPackage["sourceBase"], tCallerTarget, tMsg
    else
       dispatch tMsg to tCallerTarget with pName, "Unknown package type: " & tType
    end if
@@ -400,10 +403,10 @@ pName: The package name to remove.
 Description:
 Removes the installed package and cleans up its files. Behaviour by type:
 
-  lcs — Stops using the stack and deletes the package subfolder from the user
+  lcs - Stops using the stack and deletes the package subfolder from the user
         libraries folder.
-  lce — Unloads and removes the extension via the IDE extension manager.
-  lcp — Deletes the plugin stack file from the user plugins folder and refreshes
+  lce - Unloads and removes the extension via the IDE extension manager.
+  lcp - Deletes the plugin stack file from the user plugins folder and refreshes
         the IDE plugin registry via revIDEUpdatePlugins.
 
 The result is empty on success or an error message on failure.
@@ -427,6 +430,8 @@ command hxtpmUninstall pName
       return _uninstallLCE(pName)
    else if tMeta["type"] is "lcp" then
       return _uninstallLCP(pName)
+   else if tMeta["type"] is "multi" then
+      return _uninstallMulti(pName, tMeta)
    else
       return "Unknown installed package type: " & tMeta["type"]
    end if
@@ -447,7 +452,7 @@ empty error.
 
 The update is asynchronous: hxtpmUpdate returns immediately and the caller
 receives an hxtpmUpdateComplete message when the update finishes. The message
-signature is identical to hxtpmInstallComplete — pName and pError.
+signature is identical to hxtpmInstallComplete - pName and pError.
 
 Example:
    -- Trigger update
@@ -509,6 +514,8 @@ command hxtpmUpdate pName
       _installLCEBegin pName, tLatest, tPackage["versions"][tLatest], tPackage["source"], tPackage["sourceBase"], tCallerTarget, "hxtpmUpdateComplete"
    else if tType is "lcp" then
       _installLCPBegin pName, tLatest, tPackage["versions"][tLatest], tPackage["source"], tPackage["sourceBase"], tCallerTarget, "hxtpmUpdateComplete"
+   else if tType is "multi" then
+      _installMultiBegin pName, tLatest, tPackage["versions"][tLatest], tPackage["source"], tPackage["sourceBase"], tCallerTarget, "hxtpmUpdateComplete"
    else
       dispatch "hxtpmUpdateComplete" to tCallerTarget with pName, "Unknown package type: " & tType
    end if
@@ -523,7 +530,7 @@ pURL: The direct download URL of the package file.
 
 Description:
 Downloads the file via libURLDownloadToFile and computes its SHA-256 checksum
-using exactly the same method as hxtpm's internal checksum verification — so
+using exactly the same method as hxtpm's internal checksum verification - so
 the value produced here is guaranteed to match at install time.
 
 The result is delivered asynchronously via an hxtpmChecksumComplete message sent
@@ -580,9 +587,10 @@ on _hxtpmChecksumDownloadComplete pURL, pStatus
    end if
 
    -- Compute hash the same way _verifyChecksum does so the value is guaranteed
-   -- to match when used in a package.json checksum field
+   -- to match when used in a package.json checksum field.
+   -- Use binfile: (not file:) to avoid line-ending translation on Windows.
    local tData, tDigest, tHex, tByte
-   put URL ("file:" & tTempPath) into tData
+   put URL ("binfile:" & tTempPath) into tData
    delete file tTempPath
    put messageDigest(tData, "SHA-256") into tDigest
 
@@ -597,7 +605,7 @@ on _hxtpmChecksumDownloadComplete pURL, pStatus
 end _hxtpmChecksumDownloadComplete
 
 -- ---------------------------------------------------------------------------
--- Public API — packages (functions)
+-- Public API - packages (functions)
 -- ---------------------------------------------------------------------------
 
 /**
@@ -659,6 +667,7 @@ function hxtpmAvailable pSourceName
       put _sourceBase(tSources[tIdx]) into tBase
       if tBase is empty then next repeat
 
+      unload URL (tBase & "/index.json")
       put URL (tBase & "/index.json") into tRaw
       if the result is not empty or tRaw is empty then next repeat
 
@@ -744,6 +753,7 @@ function hxtpmIsInstalled pName
    if there is a file _metaPath(pName, "lcs") then return true
    if _findLCEMetaPath(pName) is not empty then return true
    if there is a file _metaPath(pName, "lcp") then return true
+   if there is a file _metaPath(pName, "multi") then return true
    return false
 end hxtpmIsInstalled
 
@@ -799,6 +809,15 @@ function hxtpmInstalled
    put revEnvironmentUserPluginsPath() & slash & ".hxtpm" into tPluginMetaFolder
    if there is a folder tPluginMetaFolder then
       _scanInstalledFolder tPluginMetaFolder, tResult
+   end if
+
+   -- Multi-file package metadata lives in <UserLibraries>/.hxtpm/<name>/hxtpm.json.
+   -- _scanInstalledFolder only looks at subfolders, so .hxtpm is never confused
+   -- with a real package (it begins with "." and is skipped by the main scan above).
+   local tMultiMetaFolder
+   put revEnvironmentUserLibraries() & slash & ".hxtpm" into tMultiMetaFolder
+   if there is a folder tMultiMetaFolder then
+      _scanInstalledFolder tMultiMetaFolder, tResult
    end if
 
    return tResult
@@ -962,6 +981,259 @@ private function _resolveFileURL pFileRef, pSourceBase
    end if
 end _resolveFileURL
 
+-- ---------------------------------------------------------------------------
+-- Private: multi-file install
+-- ---------------------------------------------------------------------------
+-- A "multi" package.json version entry looks like:
+--   { "files": [
+--       { "type": "lce", "source": "widget.lce",              "checksum": "sha256:…" },
+--       { "type": "lcs", "source": "widget-engine.livecodescript", "checksum": "sha256:…" }
+--   ] }
+-- Files are downloaded and installed sequentially; if any step fails the
+-- completion message is dispatched immediately and remaining files are skipped.
+-- Installed file paths/filenames are stored in the multi-package metadata so
+-- _uninstallMulti knows exactly what to remove.
+-- ---------------------------------------------------------------------------
+
+private command _installMultiBegin pName, pVersion, pVersionData, pSourceName, pSourceBase, pCallerTarget, pCompletionMessage
+   local tFiles
+   put pVersionData["files"] into tFiles
+   if tFiles is not an array or the number of elements of tFiles is 0 then
+      dispatch pCompletionMessage to pCallerTarget with pName, \
+            "Multi-file package has no files defined: " & pName
+      exit _installMultiBegin
+   end if
+   -- Kick off the first file; the callback chains through the rest.
+   _installMultiNextFile pName, pVersion, tFiles, 1, pSourceName, pSourceBase, \
+         pCallerTarget, pCompletionMessage, empty
+end _installMultiBegin
+
+-- Start the download for file number pIndex in pFiles. pInstalledFiles is the
+-- accumulator of successfully installed files (for uninstall record-keeping).
+private command _installMultiNextFile pName, pVersion, pFiles, pIndex, pSourceName, pSourceBase, pCallerTarget, pCompletionMessage, pInstalledFiles
+   if pIndex > the number of elements of pFiles then
+      -- All files done: write overall package metadata and report success.
+      local tHxtpmBase, tMetaFolder
+      put revEnvironmentUserLibraries() & slash & ".hxtpm" into tHxtpmBase
+      put tHxtpmBase & slash & pName into tMetaFolder
+      if there is not a folder tHxtpmBase then create folder tHxtpmBase
+      if there is not a folder tMetaFolder then create folder tMetaFolder
+      local tExtra, tErr
+      put pInstalledFiles into tExtra["installedFiles"]
+      put _writeMeta(tMetaFolder, pName, pVersion, "multi", pSourceName, tExtra) into tErr
+      dispatch pCompletionMessage to pCallerTarget with pName, tErr
+      exit _installMultiNextFile
+   end if
+
+   local tFileEntry
+   put pFiles[pIndex] into tFileEntry
+   local tFileType, tFileURL, tTempPath
+   put tFileEntry["type"] into tFileType
+   put _resolveFileURL(tFileEntry["source"], pSourceBase) into tFileURL
+
+   -- Temp path location depends on type (matching the single-type installers).
+   if tFileType is "lce" then
+      put revEnvironmentUserExtensionsPath() & slash & \
+            pName & "-" & pVersion & "-" & pIndex & "-" & the seconds & ".lce" into tTempPath
+   else if tFileType is "lcp" then
+      put revEnvironmentUserPluginsPath() & slash & \
+            pName & "-" & pVersion & "-" & pIndex & "-" & the seconds & ".download" into tTempPath
+   else
+      -- lcs (and anything else treated as a plain file)
+      put revEnvironmentUserLibraries() & slash & \
+            pName & "-" & pVersion & "-" & pIndex & "-" & the seconds & ".livecodescript" into tTempPath
+   end if
+
+   put pName              into sPendingInstalls[tFileURL]["name"]
+   put pVersion           into sPendingInstalls[tFileURL]["version"]
+   put tFileEntry         into sPendingInstalls[tFileURL]["fileEntry"]
+   put pFiles             into sPendingInstalls[tFileURL]["allFiles"]
+   put pIndex             into sPendingInstalls[tFileURL]["fileIndex"]
+   put pSourceName        into sPendingInstalls[tFileURL]["sourceName"]
+   put pSourceBase        into sPendingInstalls[tFileURL]["sourceBase"]
+   put tTempPath          into sPendingInstalls[tFileURL]["tempPath"]
+   put "multi"            into sPendingInstalls[tFileURL]["type"]
+   put pInstalledFiles    into sPendingInstalls[tFileURL]["installedFiles"]
+   put pCallerTarget      into sPendingInstalls[tFileURL]["callerTarget"]
+   put pCompletionMessage into sPendingInstalls[tFileURL]["completionMessage"]
+
+   libURLDownloadToFile tFileURL, tTempPath, "_hxtpmMultiDownloadComplete"
+end _installMultiNextFile
+
+on _hxtpmMultiDownloadComplete pURL, pStatus
+   local tState
+   put sPendingInstalls[pURL] into tState
+   delete variable sPendingInstalls[pURL]
+
+   local tName, tVersion, tFileEntry, tAllFiles, tFileIndex
+   local tSourceName, tSourceBase, tTempPath, tInstalledFiles, tCallerTarget, tMsg
+   put tState["name"]              into tName
+   put tState["version"]           into tVersion
+   put tState["fileEntry"]         into tFileEntry
+   put tState["allFiles"]          into tAllFiles
+   put tState["fileIndex"]         into tFileIndex
+   put tState["sourceName"]        into tSourceName
+   put tState["sourceBase"]        into tSourceBase
+   put tState["tempPath"]          into tTempPath
+   put tState["installedFiles"]    into tInstalledFiles
+   put tState["callerTarget"]      into tCallerTarget
+   put tState["completionMessage"] into tMsg
+
+   if pStatus is not "downloaded" then
+      delete file tTempPath
+      dispatch tMsg to tCallerTarget with tName, \
+            "Download failed for file " & tFileIndex && "of" && tName & ":" && pStatus
+      exit _hxtpmMultiDownloadComplete
+   end if
+
+   -- Verify checksum for this individual file.
+   local tErr
+   put _verifyChecksum(tTempPath, tFileEntry["checksum"]) into tErr
+   if tErr is not empty then
+      delete file tTempPath
+      dispatch tMsg to tCallerTarget with tName, tErr
+      exit _hxtpmMultiDownloadComplete
+   end if
+
+   local tFileType
+   put tFileEntry["type"] into tFileType
+
+   local tInstEntry
+   put tFileType into tInstEntry["type"]
+
+   if tFileType is "lcs" then
+      -- Place in <UserLibraries>/<name>/ (same layout as a standalone lcs package).
+      local tFilename, tDestFolder, tDestPath
+      put _filenameFromURL(tFileEntry["source"]) into tFilename
+      put revEnvironmentUserLibraries() & slash & tName into tDestFolder
+      if there is not a folder tDestFolder then create folder tDestFolder
+      put tDestFolder & slash & tFilename into tDestPath
+      rename file tTempPath to tDestPath
+      if the result is not empty then
+         delete file tTempPath
+         dispatch tMsg to tCallerTarget with tName, "Could not save lcs file:" && the result
+         exit _hxtpmMultiDownloadComplete
+      end if
+      try
+         start using stack tDestPath
+      catch tLoadErr
+         -- Not fatal: file is in place even if the IDE couldn't load it yet.
+      end try
+      put tDestPath into tInstEntry["path"]
+
+   else if tFileType is "lce" then
+      -- Validate then hand off to the IDE extension manager.
+      local tManifest
+      extensionValidateLCEPackage tTempPath, tManifest
+      if the result is not empty then
+         local tValErr
+         put the result into tValErr
+         delete file tTempPath
+         dispatch tMsg to tCallerTarget with tName, \
+               "LCE package validation failed for" && tName & ":" && tValErr
+         exit _hxtpmMultiDownloadComplete
+      end if
+      revIDEExtensionInstall tTempPath
+      delete file tTempPath
+      -- Store the widget's internal name (from the manifest) so uninstall can pass
+      -- the correct name to revIDEExtensionUninstall, which may differ from the
+      -- hxtpm package name (e.g. "com.hyperxtalk.sprite" vs "com.hyperxtalk.spriteengine").
+      put tManifest["name"] into tInstEntry["extensionName"]
+      put revEnvironmentUserExtensionsPath() into tInstEntry["path"]
+
+   else if tFileType is "lcp" then
+      -- Rename into the plugins folder.
+      local tLCPFilename, tLCPDest
+      put _filenameFromURL(tFileEntry["source"]) into tLCPFilename
+      put revEnvironmentUserPluginsPath() & slash & tLCPFilename into tLCPDest
+      rename file tTempPath to tLCPDest
+      if the result is not empty then
+         delete file tTempPath
+         dispatch tMsg to tCallerTarget with tName, "Could not save plugin file:" && the result
+         exit _hxtpmMultiDownloadComplete
+      end if
+      put tLCPFilename into tInstEntry["filename"]
+      revIDEUpdatePlugins
+
+   else
+      delete file tTempPath
+      dispatch tMsg to tCallerTarget with tName, \
+            "Unknown file type '" & tFileType & "' in multi-file package: " & tName
+      exit _hxtpmMultiDownloadComplete
+   end if
+
+   put tInstEntry into tInstalledFiles[tFileIndex]
+
+   -- Chain to the next file.
+   _installMultiNextFile tName, tVersion, tAllFiles, tFileIndex + 1, tSourceName, tSourceBase, \
+         tCallerTarget, tMsg, tInstalledFiles
+end _hxtpmMultiDownloadComplete
+
+-- Remove all files belonging to a multi-type package, then delete the metadata folder.
+private function _uninstallMulti pName, pMeta
+   local tFiles
+   put pMeta["installedFiles"] into tFiles
+
+   repeat for each key tIdx in tFiles
+      local tFile, tErr
+      put tFiles[tIdx] into tFile
+
+      if tFile["type"] is "lcs" then
+         try
+            stop using stack tFile["path"]
+         catch tStopErr
+         end try
+         delete file tFile["path"]
+         if the result is not empty then
+            return "Could not remove lcs file:" && the result
+         end if
+         -- Remove the package subfolder. Use _deleteFolder rather than checking
+         -- for emptiness first - macOS may leave a .DS_Store behind which would
+         -- cause an empty-check to fail.
+         local tParent
+         set the itemDelimiter to slash
+         put item 1 to -2 of tFile["path"] into tParent
+         set the itemDelimiter to comma
+         if there is a folder tParent then
+            local tDelErr
+            put _deleteFolder(tParent) into tDelErr
+            if tDelErr is not empty then return tDelErr
+         end if
+
+      else if tFile["type"] is "lce" then
+         -- Use the widget's internal name stored at install time, not the package name.
+         local tExtName
+         if tFile["extensionName"] is not empty then
+            put tFile["extensionName"] into tExtName
+         else
+            put pName into tExtName
+         end if
+         revIDEExtensionUninstall tExtName
+
+      else if tFile["type"] is "lcp" then
+         local tPluginFile
+         put revEnvironmentUserPluginsPath() & slash & tFile["filename"] into tPluginFile
+         if there is a file tPluginFile then
+            delete file tPluginFile
+            if the result is not empty then
+               return "Could not remove plugin file:" && the result
+            end if
+         end if
+         revIDEUpdatePlugins
+      end if
+   end repeat
+
+   -- Delete the multi-package metadata folder.
+   local tMetaFolder
+   put revEnvironmentUserLibraries() & slash & ".hxtpm" & slash & pName into tMetaFolder
+   if there is a folder tMetaFolder then
+      put _deleteFolder(tMetaFolder) into tErr
+      if tErr is not empty then return tErr
+   end if
+
+   return empty
+end _uninstallMulti
+
 private command _installLCSBegin pName, pVersion, pVersionData, pSourceName, pSourceBase, pCallerTarget, pCompletionMessage
    local tFileURL
    put _resolveFileURL(pVersionData["source"], pSourceBase) into tFileURL
@@ -1120,7 +1392,7 @@ on _hxtpmLCEDownloadComplete pURL, pStatus
    -- Delegate to the IDE extension manager.
    -- revIDEExtensionInstall extracts the .lce zip, copies the .lci interface
    -- file to the interfaces folder, then calls 'load extension from file' on
-   -- the compiled module — no IDE restart required.
+   -- the compiled module - no IDE restart required.
    revIDEExtensionInstall tTempPath
    delete file tTempPath
 
@@ -1291,7 +1563,7 @@ private function _uninstallLCS pName
          try
             stop using stack (tFolder & slash & tFile)
          catch tError
-            -- Not fatal — the file will still be removed
+            -- Not fatal - the file will still be removed
          end try
          exit repeat
       end if
@@ -1357,6 +1629,9 @@ private function _metaPath pName, pType
       -- Plugin metadata lives in a hidden .hxtpm subfolder inside the plugins
       -- folder so the IDE plugin scanner (which uses files()) never sees it.
       return revEnvironmentUserPluginsPath() & slash & ".hxtpm" & slash & pName & slash & "hxtpm.json"
+   else if pType is "multi" then
+      -- Multi-file package metadata lives in <UserLibraries>/.hxtpm/<name>/hxtpm.json.
+      return revEnvironmentUserLibraries() & slash & ".hxtpm" & slash & pName & slash & "hxtpm.json"
    end if
    return revEnvironmentUserExtensionsPath() & slash & pName & slash & "hxtpm.json"
 end _metaPath
@@ -1369,6 +1644,9 @@ private function _readInstalledMeta pName
    end if
    if there is not a file tPath then
       put _metaPath(pName, "lcp") into tPath
+   end if
+   if there is not a file tPath then
+      put _metaPath(pName, "multi") into tPath
    end if
    if there is not a file tPath then return empty
    return JsonImport(URL ("file:" & tPath))
@@ -1421,8 +1699,9 @@ private function _verifyChecksum pFilePath, pExpected
       return empty -- no checksum to verify
    end if
 
+   -- Use binfile: (not file:) to avoid line-ending translation on Windows.
    local tData, tDigest, tHex, tByte
-   put URL ("file:" & pFilePath) into tData
+   put URL ("binfile:" & pFilePath) into tData
    put messageDigest(tData, "SHA-256") into tDigest
 
    repeat with i = 1 to the length of tDigest
@@ -1431,7 +1710,7 @@ private function _verifyChecksum pFilePath, pExpected
       put tByte after tHex
    end repeat
 
-   -- Normalise to lowercase for comparison — baseConvert returns uppercase,
+   -- Normalise to lowercase for comparison - baseConvert returns uppercase,
    -- but stored checksums are conventionally lowercase (e.g. from shasum -a 256).
    put toLower(tHex) into tHex
    if ("sha256:" & tHex) is not toLower(pExpected) then
