@@ -338,6 +338,9 @@
 			'src/vclip.cpp',
 			'src/toolbar.cpp',
 			'src/exec-interface-toolbar.cpp',
+				'src/lnx-hotkey.cpp',
+				'src/lnx-hotkey-x11.cpp',
+				'src/lnx-hotkey-portal.cpp',
 			'src/widget.cpp',
 			'src/widget-events.cpp',
             'src/widget-ref.cpp',
@@ -646,6 +649,15 @@
 			'src/lnx-battery.cpp',
 			'src/mac-battery.mm',
 			'src/w32-battery.cpp',
+
+			# Global hotkeys
+			'src/hotkey.h',
+			'src/hotkey.cpp',
+			'src/lnx-hotkey.cpp',
+			'src/lnx-hotkey-x11.cpp',
+			'src/lnx-hotkey-portal.cpp',
+			'src/mac-hotkey.mm',
+			'src/w32-hotkey.cpp',
 
 			# Credential storage
 			'src/exec-credentials.h',
@@ -1048,8 +1060,15 @@
 			'src/stacke.cpp',
 			'src/toolbar.cpp',
 			'src/exec-interface-toolbar.cpp',
+				# Platform hotkey backends require the desktop event loop.
+				# hotkey.cpp (cross-platform registry) stays shared.
+				'src/mac-hotkey.mm',
+				'src/w32-hotkey.cpp',
+				'src/lnx-hotkey.cpp',
+				'src/lnx-hotkey-x11.cpp',
+				'src/lnx-hotkey-portal.cpp',
 		],
-		
+
 		# Sources used to implement LCB modules in the engine
 		'engine_module_source_files':
 		[
