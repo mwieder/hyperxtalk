@@ -14,20 +14,43 @@ version: 1.0.0
 author: HyperXTalk
 
 
+Name: prettyJSON
+
+Type: handler
+
+Syntax: prettyJSON(<pJSON>)
+
+Summary: pretty-prints the input JSON text
+
+pJSON: valid JSON text string for prettyprinting.
+
+Returns: a string containing JSON text prettyprinted.
+
+Description: The input JSON text string is returned pretty-printed.
+
+Tags: JSON
+
+
+Parameters:
+:
+
+
+
+
 Name: JsonImport
 
 Type: handler
 
 Syntax: JsonImport(<pJson>)
 
-Summary: Parse JSON text into a LiveCode value.
+Summary: Parse JSON text into a HyperXTalk value.
 
 pJson: String containing JSON text
 
 Returns: The top level value.  The type depends on the JSON content.
 
 Description:
-<JsonImport> is used to convert data encoded in JSON format into a LiveCode
+<JsonImport> is used to convert data encoded in JSON format into a HyperXTalk
 value.  It parses <pJson> and returns the first top-level value found.  If any
 syntax errors are found in <pJson>, an error is thrown.
 
@@ -54,23 +77,28 @@ Name: JsonExport
 
 Type: handler
 
-Syntax: JsonExport(<pValue>)
+Syntax: JsonExport(<pValue>,<pPretty>)
 
-Summary: Format a LiveCode value as JSON text
+Summary: Format a HyperXTalk value as JSON text
 
-pValue: A LiveCode value (Array, List, String, Number, Boolean, or nothing)
+pValue: A HyperXTalk value (Array, List, String, Number, Boolean, or nothing)
+
+pPretty: Boolean true to prettyprint the JSON
 
 Returns: A string containing JSON-formatted text.
 
 Description:
-<JsonExport> is used to convert a LiveCode value into data encoded in JSON
+<JsonExport> is used to convert a HyperXTalk value into data encoded in JSON
 format.  If <pValue> is of a type that cannot be converted to JSON, an error is
-thrown.
+thrown. Set <pPretty> to true for prettyprinted output, false to leave JSON intact.
 
 Tags: JSON
 
 
 Parameters:
+:
+
+
 :
 
 
