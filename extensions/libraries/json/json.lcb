@@ -231,7 +231,7 @@ private handler JsonExportList(in pValue as List) returns String
 			push "," onto tTokens
 		end if
 
-		push JsonExport(tElement, false) onto tTokens
+		push JsonExport(tElement) onto tTokens
 	end repeat
 
 	push "]" onto tTokens
@@ -258,9 +258,9 @@ private handler JsonExportArray(in pValue as Array) returns String
 			push "," onto tTokens
 		end if
 
-		push JsonExport(tKey, false) onto tTokens
+		push JsonExport(tKey) onto tTokens
 		push ": " onto tTokens
-		push JsonExport(pValue[tKey], false) onto tTokens
+		push JsonExport(pValue[tKey]) onto tTokens
 	end repeat
 
 	push "}" onto tTokens
@@ -274,18 +274,17 @@ end handler
 Summary: Format a HyperXTalk value as JSON text
 
 pValue:  A HyperXTalk value (Array, List, String, Number, Boolean, or nothing)
-pPretty: Boolean true to prettyprint the JSON
 
 Returns: A string containing JSON-formatted text.
 
 Description:
 <JsonExport> is used to convert a HyperXTalk value into data encoded in JSON
 format.  If <pValue> is of a type that cannot be converted to JSON, an error is
-thrown. Set <pPretty> to true for prettyprinted output, false to leave JSON intact.
+thrown.
 
 Tags: JSON
 */
-public handler JsonExport(in pValue as optional any, in pPretty as optional Boolean) returns optional String
+public handler JsonExport(in pValue as optional any) returns optional String
 	variable tJSON as optional String
 	if pValue is a string then
 		put JsonExportString(pValue) into tJSON
@@ -304,6 +303,27 @@ public handler JsonExport(in pValue as optional any, in pPretty as optional Bool
 	else
 		throw "Unsupported value type for JSON"
 	end if
+	return tJSON
+end handler
+
+/**
+Summary: Format a HyperXTalk value as JSON text
+
+pValue:  A HyperXTalk value (Array, List, String, Number, Boolean, or nothing)
+pPretty: Boolean true to prettyprint the JSON
+
+Returns: A string containing JSON-formatted text.
+
+Description:
+<JsonExportPretty> is used to convert a HyperXTalk value into data encoded in JSON
+format.  If <pValue> is of a type that cannot be converted to JSON, an error is
+thrown. Set <pPretty> to true for prettyprinted output, false to leave JSON intact.
+
+Tags: JSON
+*/
+public handler JsonExportPretty(in pValue as optional any, in pPretty as optional Boolean) returns optional String
+	variable tJSON as String
+	put JsonExport(pValue) into tJSON
 	if pPretty then
 		put prettyJSON(tJSON) into tJSON
 	end if
@@ -352,7 +372,7 @@ The input JSON text string is returned pretty-printed.
 
 Tags: JSON
 */
-public handler prettyJSON(in pJSON as String) returns optional String
+private handler prettyJSON(in pJSON as String) returns optional String
 	variable tIndentLevel as Integer
 	variable tInString as Boolean
 	variable tEscape as Boolean

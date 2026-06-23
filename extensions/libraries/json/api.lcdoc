@@ -14,24 +14,32 @@ version: 1.0.0
 author: HyperXTalk
 
 
-Name: prettyJSON
+Name: JsonExportPretty
 
 Type: handler
 
-Syntax: prettyJSON(<pJSON>)
+Syntax: JsonExportPretty(<pValue>,<pPretty>)
 
-Summary: pretty-prints the input JSON text
+Summary: Format a HyperXTalk value as JSON text
 
-pJSON: valid JSON text string for prettyprinting.
+pValue: A HyperXTalk value (Array, List, String, Number, Boolean, or nothing)
 
-Returns: a string containing JSON text prettyprinted.
+pPretty: Boolean true to prettyprint the JSON
 
-Description: The input JSON text string is returned pretty-printed.
+Returns: A string containing JSON-formatted text.
+
+Description:
+<JsonExportPretty> is used to convert a HyperXTalk value into data encoded in JSON
+format.  If <pValue> is of a type that cannot be converted to JSON, an error is
+thrown. Set <pPretty> to true for prettyprinted output, false to leave JSON intact.
 
 Tags: JSON
 
 
 Parameters:
+:
+
+
 :
 
 
@@ -77,28 +85,23 @@ Name: JsonExport
 
 Type: handler
 
-Syntax: JsonExport(<pValue>,<pPretty>)
+Syntax: JsonExport(<pValue>)
 
 Summary: Format a HyperXTalk value as JSON text
 
 pValue: A HyperXTalk value (Array, List, String, Number, Boolean, or nothing)
-
-pPretty: Boolean true to prettyprint the JSON
 
 Returns: A string containing JSON-formatted text.
 
 Description:
 <JsonExport> is used to convert a HyperXTalk value into data encoded in JSON
 format.  If <pValue> is of a type that cannot be converted to JSON, an error is
-thrown. Set <pPretty> to true for prettyprinted output, false to leave JSON intact.
+thrown.
 
 Tags: JSON
 
 
 Parameters:
-:
-
-
 :
 
 
