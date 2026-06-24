@@ -231,7 +231,7 @@ private handler JsonExportList(in pValue as List) returns String
 			push "," onto tTokens
 		end if
 
-		push JsonExport(tElement) onto tTokens
+		push lcb_JsonExport(tElement) onto tTokens
 	end repeat
 
 	push "]" onto tTokens
@@ -258,9 +258,9 @@ private handler JsonExportArray(in pValue as Array) returns String
 			push "," onto tTokens
 		end if
 
-		push JsonExport(tKey) onto tTokens
+		push lcb_JsonExport(tKey) onto tTokens
 		push ": " onto tTokens
-		push JsonExport(pValue[tKey]) onto tTokens
+		push lcb_JsonExport(pValue[tKey]) onto tTokens
 	end repeat
 
 	push "}" onto tTokens
@@ -278,13 +278,13 @@ pValue:  A HyperXTalk value (Array, List, String, Number, Boolean, or nothing)
 Returns: A string containing JSON-formatted text.
 
 Description:
-<JsonExport> is used to convert a HyperXTalk value into data encoded in JSON
+<lcb_JsonExport> is used to convert a HyperXTalk value into data encoded in JSON
 format.  If <pValue> is of a type that cannot be converted to JSON, an error is
 thrown.
 
 Tags: JSON
 */
-public handler JsonExport(in pValue as optional any) returns optional String
+public handler lcb_JsonExport(in pValue as optional any) returns optional String
 	variable tJSON as optional String
 	if pValue is a string then
 		put JsonExportString(pValue) into tJSON
@@ -323,28 +323,16 @@ Tags: JSON
 */
 public handler JsonExportPretty(in pValue as optional any, in pPretty as optional Boolean) returns optional String
 	variable tJSON as String
-	put JsonExport(pValue) into tJSON
+	put lcb_JsonExport(pValue) into tJSON
 	if pPretty then
-		put prettyJSON(tJSON) into tJSON
+		put lcb_prettyJSON(tJSON, 4, true) into tJSON
 	end if
 	return tJSON
 end handler
 
--- modify this if we want to change the number of indent spaces
--- default is four spaces per indentation
-constant kNumberOfSpaces is 4
-public handler indentSpaces() returns Integer
-	return kNumberOfSpaces
-end handler
-
--- modify this to return false we want to use "name{" instead of "name\n{"
-public handler shouldExpandJSON() returns Boolean
-	return true
-end handler
-
-private handler makeIndentString() returns String
+private handler makeIndentString(in pNumSpaces as Integer) returns String
 	variable tSpaces as String
-	repeat indentSpaces() times
+	repeat pNumSpaces times
 		put SPACE after tSpaces
 	end repeat
 	return tSpaces
@@ -372,74 +360,72 @@ The input JSON text string is returned pretty-printed.
 
 Tags: JSON
 */
-private handler prettyJSON(in pJSON as String) returns optional String
+public handler lcb_prettyJSON(in pJSON as String, in pNumSpaces as optional Integer, in pShouldExpandBraces as optional Boolean) returns optional String
 	variable tIndentLevel as Integer
 	variable tInString as Boolean
 	variable tEscape as Boolean
 	variable tOut as String
 	variable tCh as String
 	variable tSpaces as String
-	variable tShouldExpandBraces as Boolean
 
 	put 0 into tIndentLevel
 	put false into tInString
 	put false into tEscape
 	put "" into tOut
    
-	put makeIndentString() into tSpaces
-	put shouldExpandJSON() into tShouldExpandBraces
+	put makeIndentString(pNumSpaces) into tSpaces
 
-   -- iterate characters
-   repeat for each char tCh in pJSON
+	-- iterate characters
+	repeat for each char tCh in pJSON
    
-       if tInString then
-           put tCh after tOut
-           if tEscape then
-               put false into tEscape
-           else if tCh is "\" then
-               put true into tEscape
-           else if tCh is QUOTE then
-               put false into tInString
-           end if
-   
-       else
-           -- ignore whitespace outside strings
-           if tCh is SPACE then
-               next repeat
-           end if
-   
-         if tCh is "{" or tCh is "[" then
-			if tShouldExpandBraces and tIndentLevel > 0 then
-				put repeatString(tSpaces, tIndentLevel) after tOut
+		if tInString then
+			put tCh after tOut
+			if tEscape then
+				put false into tEscape
+			else if tCh is "\" then
+				put true into tEscape
+			else if tCh is QUOTE then
+				put false into tInString
 			end if
-            add 1 to tIndentLevel
-            put tCh after tOut
-            put repeatString(tSpaces, tIndentLevel) after tOut
+	   
+		else
+			-- ignore whitespace outside strings
+			if tCh is SPACE then
+				next repeat
+			end if
+	   
+			if tCh is "{" or tCh is "[" then
+				if pShouldExpandBraces and tIndentLevel > 0 then
+					put repeatString(tSpaces, tIndentLevel) after tOut
+				end if
+		        add 1 to tIndentLevel
+		        put tCh after tOut
+		        put repeatString(tSpaces, tIndentLevel) after tOut
+	   
+			else if tCh is "}" or tCh is "]" then
+		        subtract 1 from tIndentLevel
+		        put repeatString(tSpaces, tIndentLevel) & tCh after tOut
+	   
+			else if tCh is"," then
+				put tCh after tOut
+				put repeatString(tSpaces, tIndentLevel) after tOut
+	   
+			else if tCh is ":" then
+				put tCh after tOut
+				put " " after tOut
+	   
+			else if tCh is QUOTE then
+				put tCh after tOut
+				put true into tInString
+	   
+			else if tCh is CRLF then
+			else
+				put tCh after tOut
+			end if
+		end if -- tInString
+	end repeat -- for each char tCh in pJSON
    
-         else if tCh is "}" or tCh is "]" then
-            subtract 1 from tIndentLevel
-            put repeatString(tSpaces, tIndentLevel) & tCh after tOut
-   
-           else if tCh is"," then
-               put tCh after tOut
-               put repeatString(tSpaces, tIndentLevel) after tOut
-   
-           else if tCh is ":" then
-               put tCh after tOut
-               put " " after tOut
-   
-           else if tCh is QUOTE then
-               put tCh after tOut
-               put true into tInString
-   
-           else if tCh is CRLF then
-           else
-               put tCh after tOut
-           end if
-       end if
-   end repeat
-   
-   return tOut
+	return tOut
 end handler
 
 end library
