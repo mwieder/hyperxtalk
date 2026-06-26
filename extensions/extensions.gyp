@@ -87,6 +87,7 @@
 				'script-libraries/shakecontrol/shakecontrol.livecodescript',
 				'script-libraries/macscrollenhancement2/macscrollenhancement2.livecodescript',
 				'script-libraries/hxtpm/hxtpm.livecodescript',
+				'script-libraries/json/json.livecodescript',
 			],
 			
 			'dependencies':

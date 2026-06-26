@@ -3345,22 +3345,3 @@ on msgChanged pHandler, pLine
    end if
 end msgChanged
 
-function JSONExport pValue, pPretty?, pHowManySpaces, pShouldExpandBraces?
-   local tJSON
-   
-   put lcb_JsonExport(pValue) into tJSON
-   -- let the lcb library do the heavy lifting for speed
-   -- but put the argument flexibility here because lcb can't do that
-   if pPretty? then
-		if pHowManySpaces is empty then
-			put 4 into pHowManySpaces
-		end if
-		if pShouldExpandBraces? is empty then
-			put true into pShouldExpandBraces?
-		end if
-      return lcb_prettyJSON(tJSON, pHowManySpaces, pShouldExpandBraces?)
-   else
-      return tJSON
-   end if
-end JSONExport
-
