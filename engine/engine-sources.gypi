@@ -756,7 +756,7 @@
 			'src/lnx-activate.cpp',
 			'src/lnx-core-compat.cpp',
 			'src/lnx-fileicon.cpp',
-			'src/gtk3_direct_stubs.cpp',
+			'src/lnx-gtk3-direct-stubs.cpp',
 			'src/lnxpsprinter.cpp',
 			'src/lnxspec.cpp',
 			'src/lnxstack.cpp',
