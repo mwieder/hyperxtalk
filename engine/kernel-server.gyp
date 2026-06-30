@@ -134,7 +134,7 @@
 							# sections that are now removed).  linux-theme.cpp and lnx-fileicon.cpp
 							# reference GTK/GDK symbols that the server never calls at runtime
 							# (MCnoui guards), but the linker still needs them resolved.
-							'src/gtk3_direct_stubs.cpp',
+							'src/lnx-gtk3-direct-stubs.cpp',
 						],
 
 						'dependencies':
