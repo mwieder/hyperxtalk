@@ -1,3 +1,19 @@
+/* Copyright (C) 2003-2015 LiveCode Ltd.
+
+This file is part of LiveCode.
+
+LiveCode is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License v3 as published by the Free
+Software Foundation.
+
+LiveCode is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+for more details.
+
+You should have received a copy of the GNU General Public License
+along with LiveCode.  If not see <http://www.gnu.org/licenses/>.  */
+
 //
 // ScreenDC virtual functions
 //
@@ -138,8 +154,9 @@ bool MCX11GetWindowWorkarea(GdkDisplay *p_display, Window p_window, MCRectangle 
 
     x11::Atom XA_CARDINAL = x11::gdk_x11_atom_to_xatom_for_display(p_display, gdk_atom_intern_static_string("CARDINAL"));
     
+    // -- tperry 12-11-2025: GTK3 removed gdk_x11_drawable_get_xid, use gdk_x11_window_get_xid
     t_status = x11::XGetWindowProperty(x11::gdk_x11_display_get_xdisplay(p_display),
-                                       x11::gdk_x11_drawable_get_xid(p_window),
+                                       x11::gdk_x11_window_get_xid(p_window),
                                        x11::gdk_x11_atom_to_xatom_for_display(p_display, MCworkareaatom),
                                        0, 4, False, XA_CARDINAL, &t_ret, &t_format, &t_count, &t_after,
                                        (unsigned char**)&t_workarea);
@@ -191,7 +208,8 @@ bool MCScreenDC::apply_partial_struts(MCDisplay *p_displays, uint32_t p_display_
     x11::Atom XA_CARDINAL = x11::gdk_x11_atom_to_xatom_for_display(dpy, gdk_atom_intern_static_string("CARDINAL"));
     
     t_status = x11::XGetWindowProperty(x11::gdk_x11_display_get_xdisplay(dpy),
-                                       x11::gdk_x11_drawable_get_xid(getroot()),
+                                       // -- tperry 12-11-2025: GTK3 removed gdk_x11_drawable_get_xid
+                                       x11::gdk_x11_window_get_xid(getroot()),
                                        x11::gdk_x11_atom_to_xatom_for_display(dpy, MCclientlistatom),
                                        0, -1, False,XA_WINDOW, &t_ret, &t_format, &t_client_count, &t_after,
                                        (unsigned char **)&t_clients);
@@ -299,26 +317,21 @@ bool MCScreenDC::platform_getdisplays(bool p_effective, MCDisplay *&r_displays, 
 // IM-2014-01-29: [[ HiDPI ]] Refactored to handle display info caching in MCUIDC superclass
 bool MCScreenDC::device_getdisplays(bool p_effective, MCDisplay * &r_displays, uint32_t &r_display_count)
 {
-	// NOTE: this code assumes that there is only one GdkScreen!
-    GdkScreen *t_screen;
-    t_screen = gdk_display_get_default_screen(dpy);
-    
-    // Get the number of monitors attached to this screen
+    // GTK3: enumerate monitors via the display, not via a GdkScreen
     gint t_monitor_count;
-    t_monitor_count = gdk_screen_get_n_monitors(t_screen);
-    
+    t_monitor_count = gdk_display_get_n_monitors(dpy);
+
     // Allocate the list of monitors
     MCDisplay *t_displays;
     if (!MCMemoryNewArray(t_monitor_count, t_displays))
-		{
-			  return false;
-		}
-    
+        return false;
+
     // Get the geometry of each monitor
     for (gint i = 0; i < t_monitor_count; i++)
     {
         GdkRectangle t_rect;
-        gdk_screen_get_monitor_geometry(t_screen, i, &t_rect);
+        GdkMonitor *t_monitor = gdk_display_get_monitor(dpy, i);
+        gdk_monitor_get_geometry(t_monitor, &t_rect);
         
         MCRectangle t_mc_rect;
         t_mc_rect = MCRectangleMake(t_rect.x, t_rect.y, t_rect.width, t_rect.height);
@@ -404,8 +417,11 @@ bool MCScreenDC::platform_get_display_handle(void *&r_display)
 
 void *MCScreenDC::GetNativeWindowHandle(Window p_window)
 {
-	// x11 window handle - dtouint returns the X11 Window id.
-	return (void*)dtouint(p_window);
+	// -- tperry 13-11-2025: GTK3 - Window is now GdkWindow*, get X11 XID directly
+	// x11 window handle - return the X11 Window id
+	if (p_window == NULL)
+		return NULL;
+	return (void*)(uintptr_t)x11::gdk_x11_window_get_xid(p_window);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
