@@ -1266,10 +1266,11 @@
 						'src/platform-recorder.cpp',
 						'src/platform-surface.cpp',
 						'src/platform-window.cpp',
+						'src/gtk3_direct_stubs.cpp',
 					],
 				},
 			],
-			
+
 			[
 				'OS == "mac"',
 				{
@@ -1282,6 +1283,7 @@
 						'src/tilecachegl.cpp',
 						'src/tilecachegl3.x.cpp',
 						'src/glcontext.cpp',
+						'src/gtk3_direct_stubs.cpp',
 					],
 				},
 			],
